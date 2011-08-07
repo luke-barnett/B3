@@ -10,7 +10,7 @@ namespace IndiaTangoTests
     public class TestCases
     {
         [TestMethod]
-        public void Test()
+        public void TestMethod1()
         {
         }
     }
