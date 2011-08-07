@@ -23,6 +23,7 @@
 *.sbr
 *.sdf
 *.opensdf
+*.steven
 ipch/
 obj/
 [Bb]in
