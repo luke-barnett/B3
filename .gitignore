@@ -24,6 +24,7 @@
 *.sdf
 *.opensdf
 *.steven
+*.kerry
 ipch/
 obj/
 [Bb]in
