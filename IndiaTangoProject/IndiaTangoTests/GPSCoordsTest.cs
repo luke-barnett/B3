@@ -35,11 +35,22 @@ namespace IndiaTangoTests
         }
 
         [TestMethod]
-        public void GetGPSCoordinatesDMS()
+        public void GPSCoordinatesDMSToDecimalDegrees()
         {
             GPSCoords dmsTest = new GPSCoords("S37 47 16", "E175 18 37");
 
             Assert.AreEqual(-37.788047d, Convert.ToDouble(dmsTest.DecimalDegreesLatitude), PRECISION);
+
+            Assert.AreEqual(175.310512d, Convert.ToDouble(dmsTest.DecimalDegreesLongitude), PRECISION);
+        }
+
+        [TestMethod]
+        public void GetGPSCoordinatesDMS()
+        {
+            GPSCoords dmsTest = new GPSCoords("S37 47 16", "E175 18 37");
+
+            //Pression difference
+            Assert.AreEqual("S37 47 15", dmsTest.DMSLatitude);
         }
     }
 }

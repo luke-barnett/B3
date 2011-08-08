@@ -36,10 +36,31 @@ namespace IndiaTangoProject.Models
             return coordinate.StartsWith("S") || coordinate.StartsWith("W") ? (degrees + minutes + seconds) * -1 : degrees + minutes + seconds;
         }
 
+        private string ConvertDecimalDegreesToDMS(decimal coordinate, bool latitude)
+        {
+            decimal degrees;
+            decimal minutes;
+            decimal seconds;
+            string direction = "N";
+
+            if (latitude)
+                direction = (coordinate >= 0) ? "N" : "S";
+            else
+                direction = (coordinate >= 0) ? "E" : "W";
+
+            coordinate = Math.Abs(coordinate);
+
+            degrees = Decimal.Truncate(coordinate);
+            minutes = Decimal.Truncate((coordinate - degrees) * 60);
+            seconds = Decimal.Truncate((((coordinate - degrees) * 60) - minutes) * 60);
+            
+            return String.Format("{0}{1} {2} {3}", direction, degrees.ToString(), minutes.ToString(), seconds.ToString());
+        }
+
         public decimal DecimalDegreesLatitude { get { return _latitude; } set { _latitude = value; } }
 
         public decimal DecimalDegreesLongitude { get { return _longitude; } set { _longitude = value; } }
 
-        public string DMSLatitude { get { return "0";  } }
+        public string DMSLatitude { get { return ConvertDecimalDegreesToDMS(_latitude, true); } }
     }
 }
