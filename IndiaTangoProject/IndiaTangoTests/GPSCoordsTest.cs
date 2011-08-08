@@ -49,8 +49,7 @@ namespace IndiaTangoTests
         {
             GPSCoords dmsTest = new GPSCoords("S37 47 16", "E175 18 37");
 
-            //Pression difference
-            Assert.AreEqual("S37 47 15", dmsTest.DMSLatitude);
+            Assert.AreEqual("S37 47 15", dmsTest.DMSLatitude); //Pression difference
 
             Assert.AreEqual("E175 18 37", dmsTest.DMSLongitude);
         }
@@ -66,6 +65,16 @@ namespace IndiaTangoTests
             dmsTest.DMSLongitude = "E175 18 37";
 
             Assert.AreEqual("E175 18 37", dmsTest.DMSLongitude);
+        }
+
+        [TestMethod]
+        public void GPSCoordinatesDecimalDegreesToDMS()
+        {
+            GPSCoords degreeTest = new GPSCoords(-37.788047M, 175.310512M);
+
+            Assert.AreEqual("S37 47 16", degreeTest.DMSLatitude);
+
+            Assert.AreEqual("E175 18 37", degreeTest.DMSLongitude);
         }
     }
 }
