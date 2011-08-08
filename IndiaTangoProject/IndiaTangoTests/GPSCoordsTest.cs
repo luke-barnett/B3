@@ -55,5 +55,17 @@ namespace IndiaTangoTests
             Assert.AreEqual("E175 18 37", dmsTest.DMSLongitude);
         }
 
+        [TestMethod]
+        public void SetGPSCoordinatesDMS()
+        {
+            GPSCoords dmsTest = new GPSCoords("", "");
+            dmsTest.DMSLatitude = "S37 47 16";
+
+            Assert.AreEqual("S37 47 15", dmsTest.DMSLatitude); //Pression difference
+
+            dmsTest.DMSLongitude = "E175 18 37";
+
+            Assert.AreEqual("E175 18 37", dmsTest.DMSLongitude);
+        }
     }
 }

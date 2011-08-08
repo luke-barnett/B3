@@ -27,13 +27,20 @@ namespace IndiaTangoProject.Models
 
             string[] components = coordinate.Split(' ');
 
-            degrees = decimal.Parse(components[0].Substring(1));
+            if (components.Length == 3)
+            {
+                degrees = decimal.Parse(components[0].Substring(1));
 
-            minutes = decimal.Parse(components[1]) / 60;
+                minutes = decimal.Parse(components[1])/60;
 
-            seconds = decimal.Parse(components[2]) / (60 * 60);
+                seconds = decimal.Parse(components[2])/(60*60);
 
-            return coordinate.StartsWith("S") || coordinate.StartsWith("W") ? (degrees + minutes + seconds) * -1 : degrees + minutes + seconds;
+                return coordinate.StartsWith("S") || coordinate.StartsWith("W")
+                           ? (degrees + minutes + seconds)*-1
+                           : degrees + minutes + seconds;
+            }
+            else
+                return 0;
         }
 
         private string ConvertDecimalDegreesToDMS(decimal coordinate, bool latitude)
@@ -61,8 +68,8 @@ namespace IndiaTangoProject.Models
 
         public decimal DecimalDegreesLongitude { get { return _longitude; } set { _longitude = value; } }
 
-        public string DMSLatitude { get { return ConvertDecimalDegreesToDMS(_latitude, true); } }
+        public string DMSLatitude { get { return ConvertDecimalDegreesToDMS(_latitude, true); } set { _latitude = ConvertDMSToDecimalDegrees(value);  } }
 
-        public object DMSLongitude { get { return ConvertDecimalDegreesToDMS(_longitude, false); } }
+        public string DMSLongitude { get { return ConvertDecimalDegreesToDMS(_longitude, false); } set { _longitude = ConvertDMSToDecimalDegrees(value);  } }
     }
 }
