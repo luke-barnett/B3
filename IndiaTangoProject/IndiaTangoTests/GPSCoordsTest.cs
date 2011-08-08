@@ -51,6 +51,9 @@ namespace IndiaTangoTests
 
             //Pression difference
             Assert.AreEqual("S37 47 15", dmsTest.DMSLatitude);
+
+            Assert.AreEqual("E175 18 37", dmsTest.DMSLongitude);
         }
+
     }
 }

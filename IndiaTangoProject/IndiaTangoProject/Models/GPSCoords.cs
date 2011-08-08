@@ -62,5 +62,7 @@ namespace IndiaTangoProject.Models
         public decimal DecimalDegreesLongitude { get { return _longitude; } set { _longitude = value; } }
 
         public string DMSLatitude { get { return ConvertDecimalDegreesToDMS(_latitude, true); } }
+
+        public object DMSLongitude { get { return ConvertDecimalDegreesToDMS(_longitude, false); } }
     }
 }
