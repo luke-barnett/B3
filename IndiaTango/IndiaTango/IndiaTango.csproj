@@ -69,7 +69,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\DataValue.cs" />
     <Compile Include="Models\GPSCoords.cs" />
+    <Compile Include="Models\Sensor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
