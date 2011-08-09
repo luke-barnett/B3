@@ -69,6 +69,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\Contact.cs" />
     <Compile Include="Models\DataValue.cs" />
     <Compile Include="Models\GPSCoords.cs" />
     <Compile Include="Models\Sensor.cs" />
