@@ -25,7 +25,7 @@ namespace IndiaTango.Models
         /// <returns>The boolean result of the test</returns>
         public override bool Equals(object obj)
         {
-            return (obj is DataValue) && (obj as DataValue).Timestamp == Timestamp && (obj as DataValue).Value == Value;
+            return (obj is DataValue) && (obj as DataValue).Timestamp == Timestamp && (obj as DataValue).Value.CompareTo(Value) == 0;
         }
     }
 }

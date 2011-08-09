@@ -44,5 +44,13 @@ namespace IndiaTango.Tests
             _dataTest.Timestamp = new DateTime(1800000);
             Assert.AreEqual(new DateTime(1800000), _dataTest.Timestamp);
         }
+
+        [Test]
+        public void Equality()
+        {
+            Assert.AreEqual(new DataValue(new DateTime(5000000), 30f), new DataValue(new DateTime(5000000), 30f));
+            Assert.AreEqual(new DataValue(new DateTime(500600000), 40f), new DataValue(new DateTime(500600000), 40f));
+            Assert.AreNotEqual(new DataValue(new DateTime(5000000), 30f), new DataValue(new DateTime(500600000), 40f));
+        }
     }
 }
