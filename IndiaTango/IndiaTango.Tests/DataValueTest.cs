@@ -12,14 +12,14 @@ namespace IndiaTango.Tests
         [SetUp]
         public void SetUp()
         {
-            _dataTest = new DataValue(50f, new DateTime(500000));
+            _dataTest = new DataValue(new DateTime(500000), 50f);
         }
 
         [Test]
         public void GetValue()
         {
             Assert.AreEqual(50f, _dataTest.Value);
-            var anotherValue = new DataValue(60f, new DateTime(500000));
+            var anotherValue = new DataValue(new DateTime(500000), 60f);
             Assert.AreEqual(60f, anotherValue.Value);
         }
 
@@ -33,16 +33,16 @@ namespace IndiaTango.Tests
         [Test]
         public void GetTimeStamp()
         {
-            Assert.AreEqual(new DateTime(500000), _dataTest.TimeStamp);
-            var anotherDataValue = new DataValue(40f, new DateTime(1700000));
-            Assert.AreEqual(new DateTime(1700000), anotherDataValue.TimeStamp);
+            Assert.AreEqual(new DateTime(500000), _dataTest.Timestamp);
+            var anotherDataValue = new DataValue(new DateTime(1700000), 40f);
+            Assert.AreEqual(new DateTime(1700000), anotherDataValue.Timestamp);
         }
 
         [Test]
         public void SetTimeStamp()
         {
-            _dataTest.TimeStamp = new DateTime(1800000);
-            Assert.AreEqual(new DateTime(1800000), _dataTest.TimeStamp);
+            _dataTest.Timestamp = new DateTime(1800000);
+            Assert.AreEqual(new DateTime(1800000), _dataTest.Timestamp);
         }
     }
 }
