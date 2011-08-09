@@ -42,6 +42,7 @@
     <Compile Include="DataValueTest.cs" />
     <Compile Include="GPSCoordsTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SensorStateTest.cs" />
     <Compile Include="SensorTest.cs" />
   </ItemGroup>
   <ItemGroup>
