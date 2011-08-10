@@ -70,8 +70,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\Contact.cs" />
+    <Compile Include="Models\DataStringReader.cs" />
     <Compile Include="Models\DataValue.cs" />
     <Compile Include="Models\GPSCoords.cs" />
+    <Compile Include="Models\IDataReader.cs" />
     <Compile Include="Models\Sensor.cs" />
     <Compile Include="Models\SensorState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
