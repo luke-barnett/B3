@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="BuoyTest.cs" />
     <Compile Include="ContactTest.cs" />
+    <Compile Include="DataStringReaderTest.cs" />
     <Compile Include="DataValueTest.cs" />
     <Compile Include="EventTest.cs" />
     <Compile Include="GPSCoordsTest.cs" />
