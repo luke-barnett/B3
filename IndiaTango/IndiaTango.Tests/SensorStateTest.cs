@@ -20,10 +20,12 @@ namespace IndiaTango.Tests
         public void Setup()
         {
             testSensorState = new SensorState(testDate);
+
             valueList.AddRange(new DataValue[] { new DataValue(testDate, 55.2f), new DataValue(modifiedDate, 63.77f) });
             secondValueList.AddRange(new DataValue[] { new DataValue(new DateTime(2005, 11, 3, 14, 27, 12), 22.7f), new DataValue(new DateTime(2005, 11, 4, 14, 27, 28), 22.3f) });
         }
 
+        #region Timestamp Tests
         [Test]
         public void GetEditTimestamp()
         {
@@ -45,7 +47,9 @@ namespace IndiaTango.Tests
             augustSensorState.EditTimestamp = testDate;
             Assert.IsTrue(DateTime.Compare(testDate, augustSensorState.EditTimestamp) == 0);
         }
+        #endregion
 
+        #region Value Tests
         [Test]
         public void GetValues()
         {
@@ -71,17 +75,45 @@ namespace IndiaTango.Tests
             secondValueSensorState.Values = secondValueList;
             Assert.IsTrue(AllDataValuesCorrect(secondValueSensorState, secondValueList));
         }
+        #endregion
 
-        private bool AllDataValuesCorrect(SensorState testSensorState, List<DataValue> listOfValues)
+        #region Constructor Argument Tests
+        [Test]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void NullValueList()
         {
-            if (testSensorState.Values.Count != listOfValues.Count)
+            SensorState testState = new SensorState(DateTime.Now, null);
+        }
+
+        [Test]
+        public void AllowConstructionWithOnlyEditTimestamp()
+        {
+            SensorState testState = new SensorState(DateTime.Now);
+            Assert.Pass();
+        }
+
+        [Test]
+        public void ConstructionWithOnlyEditTimestampCreatesNewList()
+        {
+            SensorState testState = new SensorState(DateTime.Now);
+
+            Assert.NotNull(testState.Values);
+            Assert.IsTrue(testState.Values.Count == 0);
+        }
+        #endregion
+
+        #region Test Convenience Methods
+        private bool AllDataValuesCorrect(SensorState sensorState, List<DataValue> listOfValues)
+        {
+            if (sensorState.Values.Count != listOfValues.Count)
                 return false;
 
             for (int i = 0; i < listOfValues.Count; i++)
-                if (!testSensorState.Values[i].Equals(listOfValues[i]))
+                if (!sensorState.Values[i].Equals(listOfValues[i]))
                     return false;
 
             return true;
         }
+        #endregion
     }
 }
