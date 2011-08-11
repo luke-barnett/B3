@@ -69,7 +69,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\Buoy.cs" />
     <Compile Include="Models\Contact.cs" />
+    <Compile Include="Models\Dataset.cs" />
     <Compile Include="Models\DataStringReader.cs" />
     <Compile Include="Models\DataValue.cs" />
     <Compile Include="Models\Event.cs" />
