@@ -53,6 +53,15 @@ namespace IndiaTango.Models
         {
             var stringSensors = sensorInformation.Split('&');
 
+            foreach (string sensor in stringSensors)
+            {
+                if (!sensor.EndsWith("]"))
+                    throw new FormatException(
+                        "Sensor readings are malformed; list must start with '[' and end with ']'.");
+
+                var sensorValues = sensor.Split('[');
+            }
+
             return stringSensors.Select(stringSensor => new Sensor()).ToList();
         }
 
