@@ -42,5 +42,28 @@ namespace IndiaTango.Models
         /// Gets or sets the list of values this sensor state holds.
         /// </summary>
         public List<DataValue> Values { get { return _valueList; } set { _valueList = value; } }
+
+        public override bool Equals(object obj) // TODO: test this
+        {
+            SensorState s = null;
+
+            if(!(obj is SensorState))
+                return false;
+
+            s = obj as SensorState;
+
+            if(!(s.EditTimestamp == EditTimestamp))
+                return false;
+
+            if(s.Values.Count != Values.Count)
+                return false;
+
+            for (int i = 0; i < Values.Count; i++)
+                if (!s.Values[i].Equals(Values[i]))
+                    return false;
+
+            return true;
+        }
+
     }
 }

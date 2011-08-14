@@ -178,5 +178,12 @@ namespace IndiaTango.Models
         /// </summary>
         public string Manufacturer { get; set; }
         #endregion
+
+        #region Public Methods
+        public void Undo()
+        {
+            RedoStack.Push(UndoStack.Pop());
+        }
+        #endregion
     }
 }

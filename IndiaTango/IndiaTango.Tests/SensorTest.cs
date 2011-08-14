@@ -329,5 +329,142 @@ namespace IndiaTango.Tests
             _sensor1.Unit = "";
         }
         #endregion
+
+        #region Undo Method Tests
+        [Test]
+        public void ValidUndoStackAfterUndo()
+        {
+            var sensor = new Sensor("Temperature", "C");
+            sensor.UndoStack = new Stack<SensorState>();
+            sensor.UndoStack.Push(new SensorState(new DateTime(2011, 8, 11),
+                                                       new List<DataValue>(new DataValue[]
+																	   {
+																		   new DataValue(
+																			   new DateTime(2011, 8, 12), 66.77f)
+																	   })));
+            sensor.UndoStack.Push(new SensorState(new DateTime(2011, 8, 12),
+                                            new List<DataValue>(new DataValue[]
+															{
+																new DataValue(
+																	new DateTime(2011, 8, 12), 66.77f)
+															})));
+
+            var correctStack = new Stack<SensorState>();
+            correctStack.Push(new SensorState(new DateTime(2011, 8, 11),
+                                           new List<DataValue>(new DataValue[]
+																	   {
+																		   new DataValue(
+																			   new DateTime(2011, 8, 12), 66.77f)
+																	   })));
+
+            sensor.Undo();
+
+            Assert.AreEqual(correctStack, sensor.UndoStack);
+
+            var sensorTwo = new Sensor("Temperature", "C");
+            sensorTwo.UndoStack = new Stack<SensorState>();
+            sensorTwo.UndoStack.Push(new SensorState(new DateTime(2011, 3, 11),
+                                                       new List<DataValue>(new DataValue[]
+																   {
+																	   new DataValue(
+																		   new DateTime(2011, 8, 12), 66.77f)
+																   })));
+            sensorTwo.UndoStack.Push(new SensorState(new DateTime(2011, 3, 12),
+                                            new List<DataValue>(new DataValue[]
+														{
+															new DataValue(
+																new DateTime(2011, 8, 12), 66.77f)
+														})));
+
+            var correctStackTwo = new Stack<SensorState>();
+            correctStackTwo.Push(new SensorState(new DateTime(2011, 3, 11),
+                                           new List<DataValue>(new DataValue[]
+																   {
+																	   new DataValue(
+																		   new DateTime(2011, 8, 12), 66.77f)
+																   })));
+
+            sensorTwo.Undo();
+
+            Assert.AreEqual(correctStackTwo, sensorTwo.UndoStack);
+
+            var sensorEmpty = new Sensor("Temperature", "C");
+            sensorEmpty.UndoStack = new Stack<SensorState>();
+
+            var emptyStack = new Stack<SensorState>();
+
+            sensorTwo.Undo();
+
+            Assert.AreEqual(emptyStack, sensorEmpty.UndoStack);
+        }
+
+        [Test]
+        public void ValidRedoStackAfterUndo()
+        {
+            var sensor = new Sensor("Temperature", "C");
+            sensor.UndoStack = new Stack<SensorState>();
+            sensor.UndoStack.Push(new SensorState(new DateTime(2011, 8, 11),
+                                                       new List<DataValue>(new DataValue[]
+																	   {
+																		   new DataValue(
+																			   new DateTime(2011, 8, 12), 66.77f)
+																	   })));
+            sensor.UndoStack.Push(new SensorState(new DateTime(2011, 8, 12),
+                                            new List<DataValue>(new DataValue[]
+															{
+																new DataValue(
+																	new DateTime(2011, 8, 12), 66.77f)
+															})));
+
+            var correctStack = new Stack<SensorState>();
+            correctStack.Push(new SensorState(new DateTime(2011, 8, 12),
+                                           new List<DataValue>(new DataValue[]
+																	   {
+																		   new DataValue(
+																			   new DateTime(2011, 8, 12), 66.77f)
+																	   })));
+
+            sensor.Undo();
+
+            Assert.AreEqual(correctStack, sensor.RedoStack);
+
+            var sensorTwo = new Sensor("Temperature", "C");
+            sensorTwo.UndoStack = new Stack<SensorState>();
+            sensorTwo.UndoStack.Push(new SensorState(new DateTime(2011, 3, 11),
+                                                       new List<DataValue>(new DataValue[]
+																   {
+																	   new DataValue(
+																		   new DateTime(2011, 8, 12), 66.77f)
+																   })));
+            sensorTwo.UndoStack.Push(new SensorState(new DateTime(2011, 3, 12),
+                                            new List<DataValue>(new DataValue[]
+														{
+															new DataValue(
+																new DateTime(2011, 8, 12), 66.77f)
+														})));
+
+            var correctStackTwo = new Stack<SensorState>();
+            correctStackTwo.Push(new SensorState(new DateTime(2011, 3, 12),
+                                           new List<DataValue>(new DataValue[]
+																   {
+																	   new DataValue(
+																		   new DateTime(2011, 8, 12), 66.77f)
+																   })));
+
+            sensorTwo.Undo();
+
+            Assert.AreEqual(correctStackTwo, sensorTwo.RedoStack);
+
+            var sensorEmpty = new Sensor("Temperature", "C");
+            sensorEmpty.UndoStack = new Stack<SensorState>();
+
+            var emptyStack = new Stack<SensorState>();
+
+            sensorTwo.Undo();
+
+            Assert.AreEqual(emptyStack, sensorEmpty.RedoStack);
+        }
+        #endregion
+
     }
 }
