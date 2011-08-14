@@ -521,5 +521,67 @@ namespace IndiaTango.Tests
             Assert.AreEqual(correctRedoStack, _undoSensor.RedoStack);
         }
         #endregion
+
+        #region Multi Level Redo Tests
+        [Test]
+        public void ValidUndoStackAfterMultilevelRedo()
+        {
+            var correctStack = new Stack<SensorState>();
+            correctStack.Push(new SensorState(new DateTime(2011, 8, 12),
+                                                       new List<DataValue>(new DataValue[]
+																	   {
+																		   new DataValue(
+																			   new DateTime(2011, 8, 12), 66.77f)
+																	   })));
+            correctStack.Push(new SensorState(new DateTime(2011, 8, 11),
+                                            new List<DataValue>(new DataValue[]
+															{
+																new DataValue(
+																	new DateTime(2011, 8, 12), 66.77f)
+															})));
+
+            _undoSensor.UndoStack = new Stack<SensorState>();
+            _undoSensor.RedoStack.Push(new SensorState(new DateTime(2011, 8, 11),
+                                                       new List<DataValue>(new DataValue[]
+																	   {
+																		   new DataValue(
+																			   new DateTime(2011, 8, 12), 66.77f)
+																	   })));
+            _undoSensor.RedoStack.Push(new SensorState(new DateTime(2011, 8, 12),
+                                            new List<DataValue>(new DataValue[]
+															{
+																new DataValue(
+																	new DateTime(2011, 8, 12), 66.77f)
+															})));
+
+            _undoSensor.Redo();
+            _undoSensor.Redo();
+
+            Assert.AreEqual(correctStack, _undoSensor.UndoStack);
+        }
+
+        [Test]
+        public void ValidRedoStackAfterMultilevelRedo()
+        {
+            _undoSensor.UndoStack = new Stack<SensorState>();
+            _undoSensor.RedoStack.Push(new SensorState(new DateTime(2011, 8, 11),
+                                                       new List<DataValue>(new DataValue[]
+																	   {
+																		   new DataValue(
+																			   new DateTime(2011, 8, 12), 66.77f)
+																	   })));
+            _undoSensor.RedoStack.Push(new SensorState(new DateTime(2011, 8, 12),
+                                            new List<DataValue>(new DataValue[]
+															{
+																new DataValue(
+																	new DateTime(2011, 8, 12), 66.77f)
+															})));
+
+            _undoSensor.Redo();
+            _undoSensor.Redo();
+
+            Assert.AreEqual(new Stack<SensorState>(), _undoSensor.RedoStack);
+        }
+        #endregion
     }
 }
