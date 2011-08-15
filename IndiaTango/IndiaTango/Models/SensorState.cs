@@ -43,6 +43,11 @@ namespace IndiaTango.Models
         /// </summary>
         public List<DataValue> Values { get { return _valueList; } set { _valueList = value; } }
 
+        /// <summary>
+        /// Determines whether a given object is equal to this SensorState object.
+        /// </summary>
+        /// <param name="obj">The object to compare to.</param>
+        /// <returns>Whether or not the given object, and this SensorState, are equal.</returns>
         public override bool Equals(object obj) // TODO: test this
         {
             SensorState s = null;

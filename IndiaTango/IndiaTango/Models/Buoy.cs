@@ -13,7 +13,7 @@ namespace IndiaTango.Models
         private GPSCoords _gpsLocation;
 
         /// <summary>
-        /// Creates a new buoy
+        /// Creates a new buoy.
         /// </summary>
         /// <param name="iD">The unique ID field of the buoy</param>
         /// <param name="site">The name of the site of the buoy</param>

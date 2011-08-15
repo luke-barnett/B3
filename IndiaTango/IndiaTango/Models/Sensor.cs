@@ -6,6 +6,9 @@ using System.Threading;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Represents a Sensor, which resembles a sensor attached to a buoy, measuring a given water quality parameter.
+    /// </summary>
     public class Sensor
     {
         #region Private Members

@@ -2,16 +2,19 @@
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Represents a pair of GPS co-ordinates, optionally constructed using DMS (Degrees Minutes Seconds) or Decimal Degrees notation.
+    /// </summary>
     public class GPSCoords
     {
         private decimal _latitude;
         private decimal _longitude;
 
         /// <summary>
-        /// Creates a GPSCoords object using Decimal Degrees values
+        /// Creates a GPSCoords object using Decimal Degrees values.
         /// </summary>
-        /// <param name="latitude">latitude in decimal degrees</param>
-        /// <param name="longitude">longitude in decimal degrees</param>
+        /// <param name="latitude">Latitude in Decimal Degrees.</param>
+        /// <param name="longitude">Longitude in Decimal Degrees.</param>
         public GPSCoords(decimal latitude, decimal longitude)
         {
             _latitude = latitude;
@@ -19,22 +22,22 @@ namespace IndiaTango.Models
         }
 
         /// <summary>
-        /// Creates a GPSCoords object using DMS values
+        /// Creates a GPSCoords object using Degrees Minutes Seconds (DMS) values.
         /// </summary>
-        /// <param name="latitude">latitude in DMS</param>
-        /// <param name="longitude">longitude in DMS</param>
+        /// <param name="latitude">Latitude in DMS notation.</param>
+        /// <param name="longitude">Longitude in DMS notation.</param>
         public GPSCoords(string latitude, string longitude)
         {
             _latitude = ConvertDMSToDecimalDegrees(latitude);
             _longitude = ConvertDMSToDecimalDegrees(longitude);
         }
 
-        #region private methods
+        #region Private Methods
         /// <summary>
-        /// Converts DMS values to decimal degrees
+        /// Converts Degrees Minutes Seconds (DMS) values to Decimal Degrees notation.
         /// </summary>
-        /// <param name="coordinate">The DMS value to convert</param>
-        /// <returns>The resulting decimal degrees value</returns>
+        /// <param name="coordinate">The DMS value to convert.</param>
+        /// <returns>The resulting decimal degrees value.</returns>
         private decimal ConvertDMSToDecimalDegrees(string coordinate)
         {
             decimal degrees;
@@ -60,11 +63,11 @@ namespace IndiaTango.Models
         }
 
         /// <summary>
-        /// Converts decimal degree vales to DMS
+        /// Converts Decimal Degrees values to DMS (Degrees Minutes Seconds) notation.
         /// </summary>
-        /// <param name="coordinate">The decimal degree to convert</param>
-        /// <param name="latitude">If the value is latitude or not</param>
-        /// <returns>The resulting DMS value</returns>
+        /// <param name="coordinate">The decimal degrees values to convert.</param>
+        /// <param name="latitude">Whether or not the given value is latitude.</param>
+        /// <returns>The resulting Degrees Minutes Seconds (DMS) value.</returns>
         private string ConvertDecimalDegreesToDMS(decimal coordinate, bool latitude)
         {
             decimal degrees;
@@ -87,24 +90,24 @@ namespace IndiaTango.Models
         }
         #endregion
 
-        #region public properties
+        #region Public Properties
         /// <summary>
-        /// Gets or sets the latitude value, using decimal degrees
+        /// Gets or sets the latitude value, using decimal degrees.
         /// </summary>
         public decimal DecimalDegreesLatitude { get { return _latitude; } set { _latitude = value; } }
 
         /// <summary>
-        /// Gets or sets the longitude value, using decimal degrees
+        /// Gets or sets the longitude value, using decimal degrees.
         /// </summary>
         public decimal DecimalDegreesLongitude { get { return _longitude; } set { _longitude = value; } }
 
         /// <summary>
-        /// Gets or sets the latitude value, using DMS
+        /// Gets or sets the latitude value, using Degrees Minutes Seconds (DMS).
         /// </summary>
         public string DMSLatitude { get { return ConvertDecimalDegreesToDMS(_latitude, true); } set { _latitude = ConvertDMSToDecimalDegrees(value); } }
 
         /// <summary>
-        /// Gets or sets the longitude value, using DMS
+        /// Gets or sets the longitude value, using Degrees Minutes Seconds (DMS).
         /// </summary>
         public string DMSLongitude { get { return ConvertDecimalDegreesToDMS(_longitude, false); } set { _longitude = ConvertDMSToDecimalDegrees(value); } }
         #endregion
