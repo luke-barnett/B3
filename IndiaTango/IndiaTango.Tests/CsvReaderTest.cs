@@ -10,16 +10,17 @@ namespace IndiaTango.Tests
     class CsvReaderTest
     {
         private CsvReader _reader;
+
         [SetUp]
         public void Setup()
         {
-            _reader = new CsvReader("lakeTutira120120110648.csv");
+            _reader = new CsvReader("../../../../../lakeTutira120120110648.csv");
         }
 
         [Test]
         public void ConstructorTest()
         {
-            var reader = new CsvReader("lakeTutira120120110648.csv");
+            var reader = new CsvReader("../../../../../lakeTutira120120110648.csv");
         }
 
         [Test]
