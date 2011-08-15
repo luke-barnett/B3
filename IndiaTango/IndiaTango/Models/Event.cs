@@ -2,32 +2,34 @@
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Represents a pertinent event that can be recorded.
+    /// </summary>
     public class Event
     {
-        //The time that an event occured
-        //The action that was performed
         private string _action;
 
         /// <summary>
-        /// Constructor that initialises the timeStamp and Action of the event
+        /// Creates a new Event, specifying the date and time of the event, along with a string that identifies the action that occurred.
         /// </summary>
-        /// <param name="timeStamp">The non-null time that the event occured</param>
-        /// <param name="action">The non-null action that was performed at this event</param>
+        /// <param name="timeStamp">The date and time this event occured. Cannot be null.</param>
+        /// <param name="action">A string describing the action that occurred. Must not be empty.</param>
         public Event(DateTime timeStamp, string action)
         {
             if (string.IsNullOrEmpty(action))
                 throw new ArgumentException("The action must not be empty");
+
             TimeStamp = timeStamp;
             _action = action;
         }
 
         /// <summary>
-        /// Read-Write non-null property for the time the event occured
+        /// Gets or sets the date and time this event occurred.
         /// </summary>
         public DateTime TimeStamp { get; set; }
 
         /// <summary>
-        /// Read-Write non-null property for the action that was performed at this event
+        /// Gets or sets a string describing the action that occurred. 
         /// </summary>
         public string Action
         {

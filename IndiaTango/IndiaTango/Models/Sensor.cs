@@ -6,6 +6,9 @@ using System.Threading;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Represents a Sensor, which resembles a sensor attached to a buoy, measuring a given water quality parameter.
+    /// </summary>
     public class Sensor
     {
         #region Private Members
@@ -135,7 +138,9 @@ namespace IndiaTango.Models
             get { return _name; }
             set 
             {
-                if (value == "") throw new FormatException("Sensor name cannot be empty.");
+                if (value == "")
+                    throw new FormatException("Sensor name cannot be empty.");
+
                 _name = value; 
             }
         }
@@ -180,9 +185,26 @@ namespace IndiaTango.Models
         #endregion
 
         #region Public Methods
+        /// <summary>
+        /// Revert data values for this sensor to the previous state held.
+        /// </summary>
         public void Undo()
         {
+            if(UndoStack.Count == 0)
+                throw new InvalidOperationException("Undo is not possible at this stage. There are no more possible states to undo to.");
+
             RedoStack.Push(UndoStack.Pop());
+        }
+
+        /// <summary>
+        /// Advance data values for this sensor to the next state stored.
+        /// </summary>
+        public void Redo()
+        {
+            if(RedoStack.Count == 0)
+                throw new InvalidOperationException("Redo is not possible at this stage. There are no more possible states to redo to.");
+
+            UndoStack.Push(RedoStack.Pop());
         }
         #endregion
     }
