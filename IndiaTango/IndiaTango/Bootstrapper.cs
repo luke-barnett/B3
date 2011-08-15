@@ -13,9 +13,10 @@ namespace IndiaTango
         {
             _container = new SimpleContainer();
 
-            _container.RegisterSingleton(typeof(WindowManager), "WindowManager", typeof(WindowManager));
             _container.RegisterSingleton(typeof(MainViewModel), "MainViewModel", typeof(MainViewModel));
 
+            _container.RegisterInstance(typeof(IWindowManager), null, new WindowManager());
+            _container.RegisterInstance(typeof(SimpleContainer), null, _container);
         }
 
         protected override object GetInstance(Type service, string key)
@@ -35,7 +36,7 @@ namespace IndiaTango
 
         protected override void OnStartup(object sender, System.Windows.StartupEventArgs e)
         {
-            (_container.GetInstance(typeof(WindowManager), "WindowManager") as WindowManager).ShowWindow(_container.GetInstance(typeof(MainViewModel), "MainViewModel"));
+            (_container.GetInstance(typeof(IWindowManager), null) as IWindowManager).ShowWindow(_container.GetInstance(typeof(MainViewModel), "MainViewModel"));
         }
     }
 }

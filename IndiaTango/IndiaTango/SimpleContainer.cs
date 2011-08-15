@@ -7,7 +7,7 @@ using Caliburn.Micro;
 
 namespace IndiaTango
 {
-    class SimpleContainer
+    public class SimpleContainer
     {
         readonly List<ContainerEntry> entries = new List<ContainerEntry>();
 
