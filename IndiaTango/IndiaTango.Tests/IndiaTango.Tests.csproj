@@ -42,7 +42,7 @@
   <ItemGroup>
     <Compile Include="BuoyTest.cs" />
     <Compile Include="ContactTest.cs" />
-    <Compile Include="CsvReaderTest.cs" />
+    <Compile Include="CSVReaderTest.cs" />
     <Compile Include="Dataset.cs" />
     <Compile Include="DatasetTest.cs" />
     <Compile Include="DataStringReaderTest.cs" />
