@@ -75,6 +75,7 @@
     <Compile Include="Models\DataStringReader.cs" />
     <Compile Include="Models\DataValue.cs" />
     <Compile Include="Models\Event.cs" />
+    <Compile Include="Models\EventLogger.cs" />
     <Compile Include="Models\GPSCoords.cs" />
     <Compile Include="Models\IDataReader.cs" />
     <Compile Include="Models\Sensor.cs" />
