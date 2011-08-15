@@ -6,7 +6,7 @@ namespace IndiaTango.Models
 {
     public class CsvReader : IDataReader
     {
-        private List<Sensor> _sensors;
+        private List<Sensor> _sensors = new List<Sensor>();
 
         public CsvReader(string fileName)
         {
@@ -19,15 +19,16 @@ namespace IndiaTango.Models
                 //first element is date, second is time
                 for (var i = 2; i < parts.Length; i++)
                 {
-                    _sensors.Add(new Sensor(parts[i], ""));
+                    _sensors.Add(new Sensor(parts[i], "C"));
                 }
+
                 while (reader.Peek() != -1)
                 {
                     line = reader.ReadLine();
                     parts = line.Split(',');
                     var date = parts[0].Split('/');
                     var time = parts[1].Split(':');
-                    var timeStamp = new DateTime(Int32.Parse(date[0]), Int32.Parse(date[1]), Int32.Parse(date[2]),Int32.Parse(time[0]),Int32.Parse(time[1]),0);
+                    var timeStamp = new DateTime(Int32.Parse(date[2]), Int32.Parse(date[1]), Int32.Parse(date[0]),Int32.Parse(time[0]),Int32.Parse(time[1]),0);
                     var sState = new SensorState(timeStamp);
                     //first element is date, second is time
                     for (var i = 2; i < parts.Length; i++)
@@ -38,9 +39,9 @@ namespace IndiaTango.Models
 
 
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw;
+                throw e;
             }
 
         }

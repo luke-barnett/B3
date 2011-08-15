@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace IndiaTango.Models
 {
@@ -28,6 +29,8 @@ namespace IndiaTango.Models
         private static void WriteLogToFile(string log)
         {
             //TODO Check directory exists and create it
+            if(!Directory.Exists(LogFilePath))
+                Directory.CreateDirectory(Path.GetDirectoryName(LogFilePath));
 
             using (StreamWriter writer = File.AppendText(LogFilePath))
             {
@@ -50,21 +53,28 @@ namespace IndiaTango.Models
             return logString;
         }
 
-        
-
-        public static string LogInfo(string thread, string eventDetails)
+        public static string LogInfo(Thread thread, string eventDetails)
         {
-            return LogBase(Info, thread, eventDetails);
+            if(thread == null)
+                throw new ArgumentNullException("Thread cannot be null.");
+
+            return LogBase(Info, thread.Name, eventDetails);
         }
 
-        public static string LogWarning(string thread, string eventDetails)
+        public static string LogWarning(Thread thread, string eventDetails)
         {
-            return LogBase(Warning, thread, eventDetails);
+            if (thread == null)
+                throw new ArgumentNullException("Thread cannot be null.");
+
+            return LogBase(Warning, thread.Name, eventDetails);
         }
 
-        public static string LogError(string thread, string eventDetails)
+        public static string LogError(Thread thread, string eventDetails)
         {
-            return LogBase(Error, thread, eventDetails);
+            if (thread == null)
+                throw new ArgumentNullException("Thread cannot be null.");
+
+            return LogBase(Error, thread.Name, eventDetails);
         }
     }
 }
