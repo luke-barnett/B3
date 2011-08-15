@@ -182,6 +182,11 @@ namespace IndiaTango.Models
         /// Gets or sets the name of the manufacturer of this sensor.
         /// </summary>
         public string Manufacturer { get; set; }
+
+        public SensorState CurrentState
+        {
+            get { return UndoStack.Peek(); }
+        }
         #endregion
 
         #region Public Methods
@@ -205,6 +210,12 @@ namespace IndiaTango.Models
                 throw new InvalidOperationException("Redo is not possible at this stage. There are no more possible states to redo to.");
 
             UndoStack.Push(RedoStack.Pop());
+        }
+
+        public void AddState(SensorState newState)
+        {
+            UndoStack.Push(newState);
+            RedoStack.Clear();
         }
         #endregion
     }

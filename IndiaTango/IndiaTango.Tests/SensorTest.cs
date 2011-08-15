@@ -583,5 +583,25 @@ namespace IndiaTango.Tests
             Assert.AreEqual(new Stack<SensorState>(), _undoSensor.RedoStack);
         }
         #endregion
+
+        [Test]
+        public void GetCurrentStateTest()
+        {
+            _testUndoStack.Push(new SensorState(DateTime.Now));
+            _sensor1.UndoStack = _testUndoStack;
+            Assert.AreEqual(_testUndoStack.Peek(), _sensor1.CurrentState);
+        }
+
+        [Test]
+        public void AddStateTest()
+        {
+            _testUndoStack.Clear();
+            _sensor1.RedoStack.Push(new SensorState(DateTime.Now));
+            _testUndoStack.Push(new SensorState(DateTime.Now));
+            _sensor1.AddState(new SensorState(DateTime.Now));
+            Assert.AreEqual(_testUndoStack.Peek(), _sensor1.CurrentState);
+            Assert.AreEqual(_testUndoStack, _sensor1.UndoStack);
+            Assert.IsEmpty(_sensor1.RedoStack);
+        }
     }
 }
