@@ -48,11 +48,13 @@
     <Compile Include="DataValueTest.cs" />
     <Compile Include="EventLoggerTest.cs" />
     <Compile Include="EventTest.cs" />
+    <Compile Include="DatasetExporterTest.cs" />
     <Compile Include="GPSCoordsTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SensorFailureDetectionTests.cs" />
     <Compile Include="SensorStateTest.cs" />
     <Compile Include="SensorTest.cs" />
+    <Compile Include="ToolsTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\IndiaTango\IndiaTango.csproj">

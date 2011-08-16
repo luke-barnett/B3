@@ -54,6 +54,9 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
+    <Reference Include="Visiblox.Charts">
+      <HintPath>..\..\Externals\Visiblox\Visiblox.Charts.dll</HintPath>
+    </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -67,8 +70,10 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Models\DatasetExporter.cs" />
     <Compile Include="Models\Common.cs" />
     <Compile Include="Models\CSVReader.cs" />
+    <Compile Include="Models\Tools.cs" />
     <Compile Include="SimpleContainer.cs" />
     <Compile Include="ViewModels\BaseViewModel.cs" />
     <Compile Include="ViewModels\GraphViewModel.cs" />
