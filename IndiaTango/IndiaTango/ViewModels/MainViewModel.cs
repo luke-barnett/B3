@@ -37,13 +37,28 @@ namespace IndiaTango.ViewModels
                 if (!((bool) openCsv.ShowDialog())) return;
                 System.Diagnostics.Debug.Print("File loaded: {0}",openCsv.FileName);
                 var reader = new CSVReader(openCsv.FileName);
-                var bw = new BackgroundWorker();
-                bw.DoWork();
+                var bw = new BackgroundWorker()
+                             {
+                                 WorkerReportsProgress = true
+                             };
+                var sensors = new List<Sensor>();
+                bw.DoWork += BwDoWork;
+                bw.RunWorkerAsync(new object[]{reader,sensors});
+
             }
             catch(Exception e)
             {
                 MessageBox.Show(e.Message);
             }
+        }
+
+        static void BwDoWork(object sender,DoWorkEventArgs e)
+        {
+            var args = (object[])e.Argument;
+            var reader = (CSVReader)args[0];
+            var sensors = (List<Sensor>)args[1];
+            sensors = reader.ReadSensors();
+
         }
 
         public void BtnGraphView()

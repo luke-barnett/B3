@@ -11,15 +11,16 @@ namespace IndiaTango.Models
     /// </summary>
     public class Sensor
     {
-        private const float MAX_CONTINUOUS_FAILED_READINGS = 4;
-        private const float FAILED_READING_VALUE = 0;
-
         #region Private Members
         private Stack<SensorState> _undoStack;
         private Stack<SensorState> _redoStack;
         private List<DateTime> _calibrationDates;
         private string _name;
         private string _unit;
+        private int _errorThreshold;
+
+        private const float MAX_CONTINUOUS_FAILED_READINGS = 4;
+        private const float FAILED_READING_VALUE = 0;
         #endregion
 
         #region Constructors
@@ -190,6 +191,18 @@ namespace IndiaTango.Models
         {
             get { return UndoStack.Peek(); }
         }
+
+        public int ErrorThreshold
+        { 
+            get { return _errorThreshold; }
+            set
+            {
+                if (value < 1) 
+                    throw new ArgumentException("Error threshold for any given sensor must be at least 1.");
+
+                _errorThreshold = value;
+            }
+        }
         #endregion
 
         #region Public Methods
@@ -224,16 +237,18 @@ namespace IndiaTango.Models
             UndoStack.Push(newState);
             RedoStack.Clear();
         }
-        #endregion
 
+        /// <summary>
+        /// Gets a value indicating whether or not this sensor shows signs of physical failure.
+        /// </summary>
         public bool IsFailing
-        { 
+        {
             get
             {
                 var incidence = 0;
                 var previousValue = FAILED_READING_VALUE - 1;
 
-                foreach(var dataValue in CurrentState.Values)
+                foreach (var dataValue in CurrentState.Values)
                 {
                     if (dataValue.Value == FAILED_READING_VALUE) // Not within range of any reasonable data value
                         incidence++;
@@ -250,5 +265,6 @@ namespace IndiaTango.Models
                 return false;
             }
         }
+        #endregion
     }
 }
