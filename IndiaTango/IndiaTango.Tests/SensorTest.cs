@@ -31,6 +31,7 @@ namespace IndiaTango.Tests
         private Sensor _undoSensor;
         private Sensor _secondUndoSensor;
         private Sensor _sensorEmpty;
+        private Sensor _tempSensor;
         #endregion
 
         [SetUp]
@@ -50,6 +51,8 @@ namespace IndiaTango.Tests
 
             _sensor1 = new Sensor("Temperature", "Temperature at 10m", 100, 20, "°C", 0.003f, "Awesome Industries");
             _sensor2 = new Sensor("DO", "Dissolved Oxygen in the water", 50, 0, "%", 5.6f, "SensorPlus");
+
+            _tempSensor = new Sensor("Temperature", "C");
 
             // Initialise sensors for undo testing
             _undoSensor = new Sensor("Temperature", "C");
@@ -606,6 +609,96 @@ namespace IndiaTango.Tests
         }
 #endregion
 
-        
+        #region Sensor Error Threshold Tests
+        [Test]
+        public void GetAcceptableSensorThresholds()
+        {
+            var sensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit,
+                                    _testMaxRateOfChange, _testManufacturer, _testUndoStack, _testUndoStack,
+                                    new List<DateTime>(), 4, 0);
+            Assert.AreEqual(4, sensor.ErrorThreshold);
+
+            var sensorTwo = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit,
+                                    _testMaxRateOfChange, _testManufacturer, _testUndoStack, _testUndoStack,
+                                    new List<DateTime>(), 6, 0);
+            Assert.AreEqual(6, sensorTwo.ErrorThreshold);
+        }
+
+        [Test]
+        public void SetAcceptableSensorThresholds()
+        {
+            _tempSensor.ErrorThreshold = 6;
+            Assert.AreEqual(6, _tempSensor.ErrorThreshold);
+
+            _tempSensor.ErrorThreshold = 4;
+            Assert.AreEqual(4, _tempSensor.ErrorThreshold);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentException))]
+        public void ConstructWithZeroErrorThreshold()
+        {
+            var sensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit,
+                                     _testMaxRateOfChange, _testManufacturer, _testUndoStack, _testUndoStack,
+                                     new List<DateTime>(), 0, 0);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentException))]
+        public void ConstructWithNegativeErrorThreshold()
+        {
+             var sensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit,
+                                     _testMaxRateOfChange, _testManufacturer, _testUndoStack, _testUndoStack,
+                                     new List<DateTime>(), -9, 0);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentException))]
+        public void SetNegativeSensorThreshold()
+        {
+            _tempSensor.ErrorThreshold = -8;
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentException))]
+        public void SetZeroSensorThreshold()
+        {
+            _tempSensor.ErrorThreshold = 0;
+        }
+        #endregion
+
+        #region Sensor Failure Value Tests
+        [Test]
+        public void GetSensorFailureValues()
+        {
+            var sensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit,
+                                     _testMaxRateOfChange, _testManufacturer, _testUndoStack, _testUndoStack,
+                                     new List<DateTime>(), 4, 22.5f);
+            Assert.AreEqual(22.5f, sensor.FailureIndicator);
+
+            sensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit,
+                                     _testMaxRateOfChange, _testManufacturer, _testUndoStack, _testUndoStack,
+                                     new List<DateTime>(), 4, -4.5f);
+            Assert.AreEqual(-4.5f, sensor.FailureIndicator);
+
+            sensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit,
+                         _testMaxRateOfChange, _testManufacturer, _testUndoStack, _testUndoStack,
+                         new List<DateTime>(), 4, 0f);
+            Assert.AreEqual(0, sensor.FailureIndicator);
+        }
+
+        [Test]
+        public void SetSensorFailureValues()
+        {
+            _tempSensor.FailureIndicator = 22.5f;
+            Assert.AreEqual(22.5f, _tempSensor.FailureIndicator);
+
+            _tempSensor.FailureIndicator = -4.5f;
+            Assert.AreEqual(-4.5f, _tempSensor.FailureIndicator);
+
+            _tempSensor.FailureIndicator = 0;
+            Assert.AreEqual(0, _tempSensor.FailureIndicator);
+        }
+        #endregion
     }
 }

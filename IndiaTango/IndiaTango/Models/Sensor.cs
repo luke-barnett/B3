@@ -11,15 +11,13 @@ namespace IndiaTango.Models
     /// </summary>
     public class Sensor
     {
-        private const float MAX_CONTINUOUS_FAILED_READINGS = 4;
-        private const float FAILED_READING_VALUE = 0;
-
         #region Private Members
         private Stack<SensorState> _undoStack;
         private Stack<SensorState> _redoStack;
         private List<DateTime> _calibrationDates;
         private string _name;
         private string _unit;
+        private int _errorThreshold;
         #endregion
 
         #region Constructors
@@ -33,7 +31,7 @@ namespace IndiaTango.Models
         public Sensor(string name, string unit) : this(name, "", 0, 0, unit, 0, "") { }
 
         /// <summary>
-        /// Creates a new sensor.
+        /// Creates a new sensor, using default values for Undo/Redo stacks, calibration dates, error threshold and a failure-indicating value.
         /// </summary>
         /// <param name="name">The name of the sensor.</param>
         /// <param name="description">A description of the sensor's function or purpose.</param>
@@ -43,6 +41,21 @@ namespace IndiaTango.Models
         /// <param name="maxRateOfChange">The maximum rate of change allowed by this sensor.</param>
         /// <param name="manufacturer">The manufacturer of this sensor.</param>
         public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, string manufacturer) : this(name, description, upperLimit, lowerLimit, unit, maxRateOfChange, manufacturer, new Stack<SensorState>(), new Stack<SensorState>(), new List<DateTime>()) { }
+
+        /// <summary>
+        /// Creates a new sensor, using default values for error threshold and failure-indicating value. 
+        /// </summary>
+        /// <param name="name">The name of the sensor.</param>
+        /// <param name="description">A description of the sensor's function or purpose.</param>
+        /// <param name="upperLimit">The upper limit for values reported by this sensor.</param>
+        /// <param name="lowerLimit">The lower limit for values reported by this sensor.</param>
+        /// <param name="unit">The unit used to report values given by this sensor.</param>
+        /// <param name="maxRateOfChange">The maximum rate of change allowed by this sensor.</param>
+        /// <param name="manufacturer">The manufacturer of this sensor.</param>
+        /// <param name="undoStack">A stack containing previous sensor states.</param>
+        /// <param name="redoStack">A stack containing sensor states created after the modifications of the current state.</param>
+        /// <param name="calibrationDates">A list of dates, on which calibration was performed.</param>
+        public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, string manufacturer, Stack<SensorState> undoStack, Stack<SensorState> redoStack, List<DateTime> calibrationDates) : this(name, description, upperLimit, lowerLimit, unit, maxRateOfChange, manufacturer, undoStack, redoStack, calibrationDates, 4, 0) { }
 
         /// <summary>
         /// Creates a new sensor.
@@ -57,7 +70,9 @@ namespace IndiaTango.Models
         /// <param name="undoStack">A stack containing previous sensor states.</param>
         /// <param name="redoStack">A stack containing sensor states created after the modifications of the current state.</param>
         /// <param name="calibrationDates">A list of dates, on which calibration was performed.</param>
-        public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, string manufacturer, Stack<SensorState> undoStack, Stack<SensorState> redoStack, List<DateTime> calibrationDates)
+        /// <param name="errorThreshold">The number of times a failure-indicating value can occur before this sensor is flagged as failing.</param>
+        /// <param name="failureIndicator">A value indicating a sensor has, generally, failed.</param>
+        public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, string manufacturer, Stack<SensorState> undoStack, Stack<SensorState> redoStack, List<DateTime> calibrationDates, int errorThreshold, float failureIndicator)
         {
             if (name == "")
                 throw new ArgumentNullException("Sensor name cannot be empty.");
@@ -84,6 +99,9 @@ namespace IndiaTango.Models
             _undoStack = undoStack;
             _redoStack = redoStack;
             _calibrationDates = calibrationDates;
+
+            ErrorThreshold = errorThreshold;
+            FailureIndicator = failureIndicator;
         }
         #endregion
 
@@ -190,6 +208,20 @@ namespace IndiaTango.Models
         {
             get { return UndoStack.Peek(); }
         }
+
+        public int ErrorThreshold
+        { 
+            get { return _errorThreshold; }
+            set
+            {
+                if (value < 1) 
+                    throw new ArgumentException("Error threshold for any given sensor must be at least 1.");
+
+                _errorThreshold = value;
+            }
+        }
+
+        public float FailureIndicator { get; set; }
         #endregion
 
         #region Public Methods
@@ -224,31 +256,34 @@ namespace IndiaTango.Models
             UndoStack.Push(newState);
             RedoStack.Clear();
         }
-        #endregion
 
+        /// <summary>
+        /// Gets a value indicating whether or not this sensor shows signs of physical failure.
+        /// </summary>
         public bool IsFailing
-        { 
+        {
             get
             {
                 var incidence = 0;
-                var previousValue = FAILED_READING_VALUE - 1;
+                var previousValue = FailureIndicator - 1;
 
-                foreach(var dataValue in CurrentState.Values)
+                foreach (var dataValue in CurrentState.Values)
                 {
-                    if (dataValue.Value == FAILED_READING_VALUE) // Not within range of any reasonable data value
+                    if (dataValue.Value == FailureIndicator) // Not within range of any reasonable data value
                         incidence++;
 
-                    if (previousValue == FAILED_READING_VALUE && dataValue.Value != FAILED_READING_VALUE)
+                    if (previousValue == FailureIndicator && dataValue.Value != FailureIndicator)
                         incidence = 0; // If previous value was reported as 0, and this one isn't, we've broken continuous 0's that indicate failure
 
                     previousValue = dataValue.Value;
 
-                    if (incidence == MAX_CONTINUOUS_FAILED_READINGS)
+                    if (incidence == ErrorThreshold)
                         return true;
                 }
 
                 return false;
             }
         }
+        #endregion
     }
 }
