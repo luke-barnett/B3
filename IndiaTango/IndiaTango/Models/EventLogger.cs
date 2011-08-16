@@ -13,14 +13,26 @@ namespace IndiaTango.Models
         private const string Info = "INFO";
         private const string Warning = "WARNING";
         private const string Error = "ERROR";
+        private const string _timeFormatString = "dd/MM/yyyy HH:MM:ss.fff";
         private static StreamWriter _writer;
-        private static readonly object mutex = new object();
+        private readonly static object Mutex = new object();
         #endregion
 
         #region Properties
+        /// <summary>
+        /// Returns the location of the log file on disc
+        /// </summary>
         public static string LogFilePath
         {
             get { return Path.Combine(Common.AppDataPath,"Logs","log.txt") ; }
+        }
+
+        /// <summary>
+        /// Returns the format string used to display the date and time for each logged event
+        /// </summary>
+        public static string TimeFormatString
+        {
+            get { return _timeFormatString; }
         }
         #endregion
 
@@ -30,7 +42,7 @@ namespace IndiaTango.Models
             if(!Directory.Exists(LogFilePath))
                 Directory.CreateDirectory(Path.GetDirectoryName(LogFilePath));
 
-            lock (mutex)
+            lock (Mutex)
             {
                 _writer = File.AppendText(LogFilePath);
                 _writer.WriteLine(log);
@@ -45,8 +57,8 @@ namespace IndiaTango.Models
 
             if (String.IsNullOrWhiteSpace(eventDetails))
                 throw new ArgumentNullException("Parameter 'eventDetails' cannot be null or empty");
-            
-            string logString = DateTime.Now.ToString("dd/MM/yyyy HH:MM:ss") + " " + logType.PadRight(8).Substring(0, 8) + " " + threadName.PadRight(20).Substring(0, 20) + " " + eventDetails;
+
+            string logString = DateTime.Now.ToString(TimeFormatString) + " " + logType.PadRight(8).Substring(0, 8) + " " + threadName.PadRight(20).Substring(0, 20) + " " + eventDetails;
             
             WriteLogToFile(logString);
 

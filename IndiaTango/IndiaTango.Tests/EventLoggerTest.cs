@@ -41,23 +41,23 @@ namespace IndiaTango.Tests
         [Test]
         public void InformationLogTest()
         {
-            Assert.AreEqual(DateTime.Now.ToString("dd/MM/yyyy HH:MM:ss") + " INFO     Thread-1             Application started", EventLogger.LogInfo(_threadOne.Name, "Application started"));
-            Assert.AreEqual(DateTime.Now.ToString("dd/MM/yyyy HH:MM:ss") + " INFO     Thread-1             Loaded CSV File", EventLogger.LogInfo(_threadOne.Name, "Loaded CSV File"));
-            Assert.AreEqual(DateTime.Now.ToString("dd/MM/yyyy HH:MM:ss") + " INFO     A_LONG_THREAD_NAME_I Loaded CSV File", EventLogger.LogInfo(_longThreadName.Name, "Loaded CSV File"));
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + " INFO     Thread-1             Application started", EventLogger.LogInfo(_threadOne.Name, "Application started"));
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + " INFO     Thread-1             Loaded CSV File", EventLogger.LogInfo(_threadOne.Name, "Loaded CSV File"));
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + " INFO     A_LONG_THREAD_NAME_I Loaded CSV File", EventLogger.LogInfo(_longThreadName.Name, "Loaded CSV File"));
         }
 
         [Test]
         public void WarningLogTest()
         {
-            Assert.AreEqual(DateTime.Now.ToString("dd/MM/yyyy HH:MM:ss") + " WARNING  GUI Thread           Levels of Low IQ detected", EventLogger.LogWarning(_guiThread.Name, "Levels of Low IQ detected"));
-            Assert.AreEqual(DateTime.Now.ToString("dd/MM/yyyy HH:MM:ss") + " WARNING  GUI Thread           Just another silly test", EventLogger.LogWarning(_guiThread.Name, "Just another silly test"));
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + " WARNING  GUI Thread           Levels of Low IQ detected", EventLogger.LogWarning(_guiThread.Name, "Levels of Low IQ detected"));
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + " WARNING  GUI Thread           Just another silly test", EventLogger.LogWarning(_guiThread.Name, "Just another silly test"));
         }
 
         [Test]
         public void ErrorLogTest()
         {
-            Assert.AreEqual(DateTime.Now.ToString("dd/MM/yyyy HH:MM:ss") + " ERROR    Thread-0             Application fatal error or something", EventLogger.LogError(_threadZero.Name, "Application fatal error or something"));
-            Assert.AreEqual(DateTime.Now.ToString("dd/MM/yyyy HH:MM:ss") + " ERROR    Thread-0             User has uploaded a picture of a cat, not a .csv file", EventLogger.LogError(_threadZero.Name, "User has uploaded a picture of a cat, not a .csv file"));
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + " ERROR    Thread-0             Application fatal error or something", EventLogger.LogError(_threadZero.Name, "Application fatal error or something"));
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + " ERROR    Thread-0             User has uploaded a picture of a cat, not a .csv file", EventLogger.LogError(_threadZero.Name, "User has uploaded a picture of a cat, not a .csv file"));
         }
         #endregion
 
@@ -66,42 +66,42 @@ namespace IndiaTango.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void InformationLogNullThreadTest()
         {
-            Assert.AreEqual(DateTime.Now.ToString("dd/MM/yyyy HH:MM:ss") + " INFO                         Levels of Low IQ detected", EventLogger.LogInfo(null, "Levels of Low IQ detected"));
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + " INFO                         Levels of Low IQ detected", EventLogger.LogInfo(null, "Levels of Low IQ detected"));
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void InformationLogNullDetailsTest()
         {
-            Assert.AreEqual(DateTime.Now.ToString("dd/MM/yyyy HH:MM:ss") + " INFO     GUI Thread           ", EventLogger.LogInfo(_guiThread.Name, ""));
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + " INFO     GUI Thread           ", EventLogger.LogInfo(_guiThread.Name, ""));
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void WarningLogNullThreadTest()
         {
-            Assert.AreEqual(DateTime.Now.ToString("dd/MM/yyyy HH:MM:ss") + " WARNING                      Levels of Low IQ detected", EventLogger.LogWarning(null, "Levels of Low IQ detected"));
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + " WARNING                      Levels of Low IQ detected", EventLogger.LogWarning(null, "Levels of Low IQ detected"));
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void WarningLogNullDetailsTest()
         {
-            Assert.AreEqual(DateTime.Now.ToString("dd/MM/yyyy HH:MM:ss") + " WARNING  GUI Thread           ", EventLogger.LogWarning(_guiThread.Name, ""));
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + " WARNING  GUI Thread           ", EventLogger.LogWarning(_guiThread.Name, ""));
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void ErrorLogNullThreadTest()
         {
-            Assert.AreEqual(DateTime.Now.ToString("dd/MM/yyyy HH:MM:ss") + " ERROR                        Levels of Low IQ detected", EventLogger.LogError(null, "Levels of Low IQ detected"));
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + " ERROR                        Levels of Low IQ detected", EventLogger.LogError(null, "Levels of Low IQ detected"));
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void ErrorLogNullDetailsTest()
         {
-            Assert.AreEqual(DateTime.Now.ToString("dd/MM/yyyy HH:MM:ss") + " ERROR    GUI Thread           ", EventLogger.LogError(_guiThread.Name, ""));
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + " ERROR    GUI Thread           ", EventLogger.LogError(_guiThread.Name, ""));
         }
         #endregion
 
@@ -135,7 +135,7 @@ namespace IndiaTango.Tests
 
         public static void WriteError()
         {
-            Assert.AreEqual(DateTime.Now.ToString("dd/MM/yyyy HH:MM:ss") + " ERROR    " + Thread.CurrentThread.Name + "                   ", EventLogger.LogError(Thread.CurrentThread.Name, "Weow weow weow"));
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + " ERROR    " + Thread.CurrentThread.Name + "                   ", EventLogger.LogError(Thread.CurrentThread.Name, "Weow weow weow"));
         }
         #endregion
     }
