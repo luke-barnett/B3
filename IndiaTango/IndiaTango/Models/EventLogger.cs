@@ -12,7 +12,8 @@ namespace IndiaTango.Models
         private const string Info = "INFO";
         private const string Warning = "WARNING";
         private const string Error = "ERROR";
-        private static StreamWriter writer = null;
+        private static StreamWriter _writer;
+        private static readonly object mutex = new object();
 
         public static string LogFilePath
         {
@@ -24,43 +25,42 @@ namespace IndiaTango.Models
             if(!Directory.Exists(LogFilePath))
                 Directory.CreateDirectory(Path.GetDirectoryName(LogFilePath));
 
-            if (writer == null)
-                writer = File.AppendText(LogFilePath);
-            
-            writer.WriteLine(log);
+            lock (mutex)
+            {
+                _writer = File.AppendText(LogFilePath);
+                _writer.WriteLine(log);
+                _writer.Close();
+            }
         }
 
-        private static string LogBase(string logType, Thread thread, string eventDetails)
+        private static string LogBase(string logType, string threadName, string eventDetails)
         {
-            if (thread == null)
-                throw new ArgumentNullException("Parameter 'thread' cannot be null or empty");
-
-            if (String.IsNullOrWhiteSpace(thread.Name))
+            if (String.IsNullOrWhiteSpace(threadName))
                 throw new ArgumentNullException("Thread name cannot be null or empty");
 
             if (String.IsNullOrWhiteSpace(eventDetails))
                 throw new ArgumentNullException("Parameter 'eventDetails' cannot be null or empty");
             
-            string logString = DateTime.Now.ToString("dd/MM/yyyy HH:MM:ss") + " " + logType.PadRight(8).Substring(0, 8) + " " + thread.Name.PadRight(20).Substring(0, 20) + " " + eventDetails;
+            string logString = DateTime.Now.ToString("dd/MM/yyyy HH:MM:ss") + " " + logType.PadRight(8).Substring(0, 8) + " " + threadName.PadRight(20).Substring(0, 20) + " " + eventDetails;
             
             WriteLogToFile(logString);
 
             return logString;
         }
 
-        public static string LogInfo(Thread thread, string eventDetails)
+        public static string LogInfo(string threadName, string eventDetails)
         {
-            return LogBase(Info, thread, eventDetails);
+            return LogBase(Info, threadName, eventDetails);
         }
 
-        public static string LogWarning(Thread thread, string eventDetails)
+        public static string LogWarning(string threadName, string eventDetails)
         {
-            return LogBase(Warning, thread, eventDetails);
+            return LogBase(Warning, threadName, eventDetails);
         }
 
-        public static string LogError(Thread thread, string eventDetails)
+        public static string LogError(string threadName, string eventDetails)
         {
-            return LogBase(Error, thread, eventDetails);
+            return LogBase(Error, threadName, eventDetails);
         }
     }
 }
