@@ -11,6 +11,9 @@ namespace IndiaTango.Models
     /// </summary>
     public class Sensor
     {
+        private const float MAX_CONTINUOUS_FAILED_READINGS = 4;
+        private const float FAILED_READING_VALUE = 0;
+
         #region Private Members
         private Stack<SensorState> _undoStack;
         private Stack<SensorState> _redoStack;
@@ -212,11 +215,40 @@ namespace IndiaTango.Models
             UndoStack.Push(RedoStack.Pop());
         }
 
+        /// <summary>
+        /// Update the active state for data values, clearing the redo stack in the process.
+        /// </summary>
+        /// <param name="newState"></param>
         public void AddState(SensorState newState)
         {
             UndoStack.Push(newState);
             RedoStack.Clear();
         }
         #endregion
+
+        public bool IsFailing
+        { 
+            get
+            {
+                var incidence = 0;
+                var previousValue = FAILED_READING_VALUE - 1;
+
+                foreach(var dataValue in CurrentState.Values)
+                {
+                    if (dataValue.Value == FAILED_READING_VALUE) // Not within range of any reasonable data value
+                        incidence++;
+
+                    if (previousValue == FAILED_READING_VALUE && dataValue.Value != FAILED_READING_VALUE)
+                        incidence = 0; // If previous value was reported as 0, and this one isn't, we've broken continuous 0's that indicate failure
+
+                    previousValue = dataValue.Value;
+
+                    if (incidence == MAX_CONTINUOUS_FAILED_READINGS)
+                        return true;
+                }
+
+                return false;
+            }
+        }
     }
 }
