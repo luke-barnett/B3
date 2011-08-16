@@ -5,10 +5,14 @@ namespace IndiaTango.Models
 {
 	public class DatasetExporter
 	{
+		public readonly Dataset Data;
+
 		public DatasetExporter(Dataset data)
 		{
 			if(data == null)
 				throw new ArgumentNullException("Dataset cannot be null");
+
+			Data = data;
 		}
 
 		public void Export(string filePath, ExportFormat format)
@@ -21,60 +25,73 @@ namespace IndiaTango.Models
 
 			if (format == ExportFormat.CSV)
 			{
+				using(StreamWriter writer = File.CreateText(filePath))
+				{
+					const char del = ',';
+					string columnHeadings = "dd/mm/yy" + del + "hh:mm" + del;
 
+					//Construct the column headings (Sensor names)
+					foreach(Sensor sensor in Data.Sensors)
+						columnHeadings += sensor.Name + del;
+
+					//Strip the last delimiter
+					columnHeadings = columnHeadings.Substring(0, columnHeadings.Length - 1);
+					writer.WriteLine(columnHeadings);
+					writer.Flush();
+					Console.WriteLine(filePath);
+
+					//TODO: not writing file.
+				}
 			}
-			else if (format == ExportFormat.CSV)
+			else if (format == ExportFormat.TXT)
 			{
-
+				//Do stuff
 			}
-			else if (format == ExportFormat.CSV)
+			else if (format == ExportFormat.XLSX)
 			{
-
+				//Do stuff
 			}
+
+			//No more stuff!
 		}
 	}
 
-	public abstract class ExportFormat
+	public class ExportFormat
 	{
-		public abstract string Extension { get; }
-		public abstract string Name { get; }
+		readonly string _extension;
+		readonly string _name;
 
-		#region PrivateClasses
-		private class CSVFormat : ExportFormat
+		#region PrivateConstructor
+
+		private ExportFormat(string extension, string name)
 		{
-			public override string Extension { get { return ".csv"; } }
-
-			public override string Name { get { return "Comma Seperated Value File"; } }
+			_extension = extension;
+			_name = name;
 		}
 
-		private class TXTFormat : ExportFormat
-		{
-			public override string Extension { get { return ".txt"; } }
-
-			public override string Name { get { return "Tab Deliminated Text File"; } }
-		}
-
-		private class XLSXFormat : ExportFormat
-		{
-			public override string Extension { get { return ".xlsx"; } }
-
-			public override string Name { get { return "Excel Workbook"; } }
-		}
 		#endregion
 
 		#region PublicProperties
-		public static ExportFormat CSV { get { return new CSVFormat(); } }
 
-		public static ExportFormat TXT { get { return new TXTFormat(); } }
+		public string Extension { get { return _extension; } }
 
-		public static ExportFormat XLSX { get { return new XLSXFormat(); } }
+		public string Name { get { return _name; } }
+
+		public static ExportFormat CSV { get { return new ExportFormat(".csv", "Comma Seperated Value File"); } }
+
+		public static ExportFormat TXT { get { return new ExportFormat(".txt", "Tab Deliminated Text File"); } }
+
+		public static ExportFormat XLSX { get { return new ExportFormat(".xlsx", "Excel Workbook"); } }
+		
 		#endregion
 
 		#region PublicMethods
+
 		public new string ToString()
 		{
 			return Name + "(*" + Extension + ")";
 		}
+		
 		#endregion
 
 	}

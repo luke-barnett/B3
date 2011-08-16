@@ -11,6 +11,7 @@ namespace IndiaTango.Models
         public static string Creators { get { return "Developed by:\r\nSteven McTainsh\r\nLuke Barnett\r\nMichael Baumberger\r\nKerry Arts"; } }
         
         public static string Icon { get { return "/IndiaTango;component/Images/icon.ico"; } }
+		public static string TestDataPath { get { return "../../Test Data/"; } }
         public static string AppDataPath
         {
             get

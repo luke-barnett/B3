@@ -8,7 +8,7 @@ namespace IndiaTango.Models
         private Buoy _buoy;
         private readonly DateTime _startTimeStamp;
         private readonly DateTime _endTimeStamp;
-        private readonly List<Sensor> _sensors;
+        private List<Sensor> _sensors;
 
         /// <summary>
         /// Creates a new dataset
@@ -63,10 +63,11 @@ namespace IndiaTango.Models
         /// </summary>
         public List<Sensor> Sensors
         {
-            get { return _sensors; }
+        	get { return _sensors; }
+        	set { _sensors = value; }
         }
 
-        /// <summary>
+    	/// <summary>
         /// Adds a sensor to the list of sensors
         /// </summary>
         /// <param name="sensor">The sensor to be added to the list of sensors</param>
