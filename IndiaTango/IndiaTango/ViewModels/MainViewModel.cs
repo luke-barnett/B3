@@ -1,5 +1,8 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows.Forms;
 using Caliburn.Micro;
+using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
+using IndiaTango.Models;
 
 namespace IndiaTango.ViewModels
 {
@@ -25,7 +28,19 @@ namespace IndiaTango.ViewModels
         
         public void BtnLoad()
         {
-            MessageBox.Show("Sorry, not yet implemented");
+            try
+            {
+                var openCsv = new OpenFileDialog();
+                openCsv.Filter = "CSV Files|*.csv|All Files|*.*";
+                if (!((bool) openCsv.ShowDialog())) return;
+                System.Diagnostics.Debug.Print("File loaded: {0}",openCsv.FileName);
+                var reader = new CSVReader(openCsv.FileName);
+                var sensors = reader.ReadSensors();
+            }
+            catch(Exception e)
+            {
+                MessageBox.Show(e.StackTrace);
+            }
         }
     }
 }
