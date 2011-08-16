@@ -27,5 +27,10 @@ namespace IndiaTango.ViewModels
         {
             MessageBox.Show("Sorry, not yet implemented");
         }
+
+        public void BtnGraphView()
+        {
+            _windowManager.ShowDialog(_container.GetInstance(typeof(GraphViewModel), "GraphViewModel"));
+        }
     }
 }
