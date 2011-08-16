@@ -38,7 +38,7 @@ namespace IndiaTango.ViewModels
                 System.Diagnostics.Debug.Print("File loaded: {0}",openCsv.FileName);
                 var reader = new CSVReader(openCsv.FileName);
                 var bw = new BackgroundWorker();
-                bw.DoWork();
+                bw.RunWorkerAsync();
             }
             catch(Exception e)
             {
