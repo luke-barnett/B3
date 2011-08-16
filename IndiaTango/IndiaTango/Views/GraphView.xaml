@@ -4,16 +4,19 @@
         xmlns:charts="clr-namespace:Visiblox.Charts;assembly=Visiblox.Charts"
         Title="GraphView" Height="399" Width="538">
     <Grid>
-        <charts:Chart Name="chart">
+        <charts:Chart Title="{Binding ChartTitle}">
             <charts:Chart.YAxis>
-                <charts:LinearAxis />
+                <charts:LinearAxis Title="{Binding YAxisTitle}" />
             </charts:Chart.YAxis>
             <charts:Chart.XAxis>
                 <charts:DateTimeAxis Title="Date" />
             </charts:Chart.XAxis>
             <charts:Chart.Series>
-                <charts:LineSeries DataSeries="{Binding ChartSeries}" />
+                <charts:LineSeries DataSeries="{Binding ChartSeries}" ShowPoints="True" SelectionMode="MultiplePoints" SelectedItems="{Binding SelectedPoints}" />
             </charts:Chart.Series>
+            <charts:Chart.Behaviour>
+                <charts:ZoomBehaviour />
+            </charts:Chart.Behaviour>
         </charts:Chart>
     </Grid>
 </Window>
