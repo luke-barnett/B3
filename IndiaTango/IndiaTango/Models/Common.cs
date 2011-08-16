@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System;
+using System.IO;
+using System.Reflection;
 
 namespace IndiaTango.Models
 {
@@ -9,5 +11,15 @@ namespace IndiaTango.Models
         public static string Creators { get { return "Developed by:\r\nSteven McTainsh\r\nLuke Barnett\r\nMichael Baumberger\r\nKerry Arts"; } }
         
         public static string Icon { get { return "/IndiaTango;component/Images/icon.ico"; } }
+        public static string AppDataPath
+        {
+            get
+            {
+                return Path.Combine(new string[]{
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    "IndiaTango",
+                });
+            }
+        }
     }
 }
