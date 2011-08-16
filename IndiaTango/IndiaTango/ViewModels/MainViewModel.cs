@@ -42,5 +42,10 @@ namespace IndiaTango.ViewModels
                 MessageBox.Show(e.StackTrace);
             }
         }
+
+        public void BtnGraphView()
+        {
+            _windowManager.ShowDialog(_container.GetInstance(typeof(GraphViewModel), "GraphViewModel"));
+        }
     }
 }

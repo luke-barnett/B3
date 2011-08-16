@@ -584,6 +584,7 @@ namespace IndiaTango.Tests
         }
         #endregion
 
+        #region Current State Tests
         [Test]
         public void GetCurrentStateTest()
         {
@@ -603,5 +604,8 @@ namespace IndiaTango.Tests
             Assert.AreEqual(_testUndoStack, _sensor1.UndoStack);
             Assert.IsEmpty(_sensor1.RedoStack);
         }
+#endregion
+
+        
     }
 }
