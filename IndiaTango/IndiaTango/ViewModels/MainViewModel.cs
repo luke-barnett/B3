@@ -43,7 +43,10 @@ namespace IndiaTango.ViewModels
                              };
                 var sensors = new List<Sensor>();
                 bw.DoWork += BwDoWork;
+                bw.ProgressChanged += BwProgressChanged;
                 bw.RunWorkerAsync(new object[]{reader,sensors});
+            
+                _windowManager.ShowDialog(_container.GetInstance(typeof(LoadViewModel), "LoadViewModel"));
 
             }
             catch(Exception e)
@@ -58,7 +61,10 @@ namespace IndiaTango.ViewModels
             var reader = (CSVReader)args[0];
             var sensors = (List<Sensor>)args[1];
             sensors = reader.ReadSensors();
-
+        }
+        static void BwProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            
         }
 
         public void BtnGraphView()
