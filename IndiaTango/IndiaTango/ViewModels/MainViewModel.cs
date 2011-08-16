@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Windows.Forms;
 using Caliburn.Micro;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
@@ -35,11 +37,12 @@ namespace IndiaTango.ViewModels
                 if (!((bool) openCsv.ShowDialog())) return;
                 System.Diagnostics.Debug.Print("File loaded: {0}",openCsv.FileName);
                 var reader = new CSVReader(openCsv.FileName);
-                var sensors = reader.ReadSensors();
+                var bw = new BackgroundWorker();
+                bw.DoWork();
             }
             catch(Exception e)
             {
-                MessageBox.Show(e.StackTrace);
+                MessageBox.Show(e.Message);
             }
         }
 
