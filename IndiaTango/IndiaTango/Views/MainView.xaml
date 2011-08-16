@@ -1,11 +1,11 @@
 ﻿<Window x:Class="IndiaTango.Views.MainView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="{Binding Title}" Height="380" Width="500" Icon="{Binding Icon}" WindowStartupLocation="CenterScreen" WindowStyle="SingleBorderWindow" ResizeMode="NoResize">
+        Title="{Binding Title}" Height="450" Width="500" Icon="{Binding Icon}" WindowStartupLocation="CenterScreen" WindowStyle="SingleBorderWindow" ResizeMode="NoResize">
     <Grid Margin="5">
         <Grid.RowDefinitions>
             <RowDefinition Height="200" />
-            <RowDefinition Height="140" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         
         <Grid Grid.Row="0">
@@ -35,9 +35,12 @@
                 <RowDefinition Height="40"/>
                 <RowDefinition Height="10"/>
                 <RowDefinition Height="40"/>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="40"/>
             </Grid.RowDefinitions>
             <Button Grid.Row="0" Name="BtnNew" Content="New" FontSize="20" VerticalContentAlignment="Center" />
             <Button Grid.Row="2" Name="BtnLoad" Content="Load" FontSize="20" VerticalContentAlignment="Center" />
+            <Button Grid.Row="4" Name="BtnGraphView" Content="GraphView" FontSize="20" VerticalContentAlignment="Center" />
         </Grid>
     </Grid>
 </Window>
