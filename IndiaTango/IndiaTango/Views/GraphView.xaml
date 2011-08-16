@@ -9,8 +9,11 @@
                 <charts:LinearAxis />
             </charts:Chart.YAxis>
             <charts:Chart.XAxis>
-                <charts:DateTimeAxis />
+                <charts:DateTimeAxis Title="Date" />
             </charts:Chart.XAxis>
+            <charts:Chart.Series>
+                <charts:LineSeries DataSeries="{Binding ChartSeries}" />
+            </charts:Chart.Series>
         </charts:Chart>
     </Grid>
 </Window>

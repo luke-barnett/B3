@@ -13,6 +13,7 @@ namespace IndiaTango.ViewModels
         {
             _windowManager = windowManager;
             _container = container;
+            InitialiseGraph();
         }
 
         public void InitialiseGraph()
@@ -21,21 +22,16 @@ namespace IndiaTango.ViewModels
             DataSeries<DateTime, float> data = new DataSeries<DateTime, float>();
             Random generator = new Random();
 
-            for (int i = 0; i < 50; i++)
+            for (int i = 0; i < 5000; i++)
             {
-                data.Add(DateTime.Now, (float)generator.NextDouble());
+                data.Add((DateTime.Now).AddDays(i), (float)generator.NextDouble());
             }
             l.DataSeries = data;
-            _chartSeries.Add(l);
-            NotifyOfPropertyChange("ChartSeries");
+
+            ChartSeries = data;
         }
 
-        private SeriesCollection<IChartSeries> _chartSeries;
-        public SeriesCollection<IChartSeries> ChartSeries { get
-        {
-         if(_chartSeries == null)
-             _chartSeries = new SeriesCollection<IChartSeries>();
-            return _chartSeries;
-        } set { _chartSeries = value; } }
+        private DataSeries<DateTime, float> _chartSeries = new DataSeries<DateTime, float>();
+        public DataSeries<DateTime, float> ChartSeries { get { return _chartSeries; } set { _chartSeries = value; NotifyOfPropertyChange("ChartSeries"); } }
     }
 }

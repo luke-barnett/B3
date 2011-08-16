@@ -6,7 +6,7 @@ using Caliburn.Micro;
 
 namespace IndiaTango.ViewModels
 {
-    class LoadViewModel
+    class LoadViewModel : BaseViewModel
     {
         private readonly SimpleContainer _container;
         private readonly IWindowManager _windowManager;
@@ -29,6 +29,6 @@ namespace IndiaTango.ViewModels
             ProgressBarValue = value;
         }
 
-        public int ProgressBarValue { get { return _progressvalue; } set { _progressvalue = value; } }
+        public int ProgressBarValue { get { return _progressvalue; } set { _progressvalue = value; NotifyOfPropertyChange("ProgressBarValue"); } }
     }
 }
