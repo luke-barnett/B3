@@ -62,6 +62,7 @@ namespace IndiaTango.ViewModels
             var sensors = (List<Sensor>)args[1];
             sensors = reader.ReadSensors();
         }
+
         static void BwProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             
