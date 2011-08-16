@@ -1,8 +1,9 @@
-﻿using IndiaTango.Models;
+﻿using Caliburn.Micro;
+using IndiaTango.Models;
 
 namespace IndiaTango.ViewModels
 {
-    public class BaseViewModel
+    public class BaseViewModel : PropertyChangedBase
     {
         public string Version { get { return Common.Version; } }
         public string Creators { get { return Common.Creators; } }
