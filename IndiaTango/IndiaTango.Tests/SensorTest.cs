@@ -31,6 +31,7 @@ namespace IndiaTango.Tests
         private Sensor _undoSensor;
         private Sensor _secondUndoSensor;
         private Sensor _sensorEmpty;
+        private Sensor _tempSensor;
         #endregion
 
         [SetUp]
@@ -50,6 +51,8 @@ namespace IndiaTango.Tests
 
             _sensor1 = new Sensor("Temperature", "Temperature at 10m", 100, 20, "°C", 0.003f, "Awesome Industries");
             _sensor2 = new Sensor("DO", "Dissolved Oxygen in the water", 50, 0, "%", 5.6f, "SensorPlus");
+
+            _tempSensor = new Sensor("Temperature", "C");
 
             // Initialise sensors for undo testing
             _undoSensor = new Sensor("Temperature", "C");
@@ -606,6 +609,30 @@ namespace IndiaTango.Tests
         }
 #endregion
 
-        
+        #region Sensor Error Threshold Tests
+        [Test]
+        public void GetSetAcceptableSensorThresholds()
+        {
+            _tempSensor.ErrorThreshold = 6;
+            Assert.AreEqual(6, _tempSensor.ErrorThreshold);
+
+            _tempSensor.ErrorThreshold = 4;
+            Assert.AreEqual(4, _tempSensor.ErrorThreshold);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentException))]
+        public void SetNegativeSensorThreshold()
+        {
+            _tempSensor.ErrorThreshold = -8;
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentException))]
+        public void SetZeroSensorThreshold()
+        {
+            _tempSensor.ErrorThreshold = 0;
+        }
+        #endregion
     }
 }
