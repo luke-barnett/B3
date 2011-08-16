@@ -9,17 +9,22 @@ namespace IndiaTango.Models
 {
     public static class EventLogger
     {
+        #region PrivateMembers
         private const string Info = "INFO";
         private const string Warning = "WARNING";
         private const string Error = "ERROR";
         private static StreamWriter _writer;
         private static readonly object mutex = new object();
+        #endregion
 
+        #region Properties
         public static string LogFilePath
         {
             get { return Path.Combine(Common.AppDataPath,"Logs","log.txt") ; }
         }
+        #endregion
 
+        #region PrivateMethods
         private static void WriteLogToFile(string log)
         {
             if(!Directory.Exists(LogFilePath))
@@ -47,20 +52,41 @@ namespace IndiaTango.Models
 
             return logString;
         }
+        #endregion
 
+        #region PublicMethods
+        /// <summary>
+        /// Logs an informative event to the log file, containing the current time, thread name and details of the event
+        /// </summary>
+        /// <param name="threadName">The name of the thread calling this Method. For Background workers, supply a brief description of the threads purpose</param>
+        /// <param name="eventDetails">The specific details of the event that are to be written to file</param>
+        /// <returns></returns>
         public static string LogInfo(string threadName, string eventDetails)
         {
             return LogBase(Info, threadName, eventDetails);
         }
 
+        /// <summary>
+        /// Logs a warning event to the log file, containing the current time, thread name and details of the event
+        /// </summary>
+        /// <param name="threadName">The name of the thread calling this Method. For Background workers, supply a brief description of the threads purpose</param>
+        /// <param name="eventDetails">The specific details of the event that are to be written to file</param>
+        /// <returns></returns>
         public static string LogWarning(string threadName, string eventDetails)
         {
             return LogBase(Warning, threadName, eventDetails);
         }
 
+        /// <summary>
+        /// Logs an error event to the log file, containing the current time, thread name and details of the event
+        /// </summary>
+        /// <param name="threadName">The name of the thread calling this Method. For Background workers, supply a brief description of the threads purpose</param>
+        /// <param name="eventDetails">The specific details of the event that are to be written to file</param>
+        /// <returns></returns>
         public static string LogError(string threadName, string eventDetails)
         {
             return LogBase(Error, threadName, eventDetails);
         }
+        #endregion
     }
 }

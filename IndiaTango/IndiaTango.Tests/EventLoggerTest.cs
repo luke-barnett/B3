@@ -11,12 +11,15 @@ namespace IndiaTango.Tests
     [TestFixture]
     public class EventLoggerTest
     {
+        #region PrivateMembers
         private Thread _threadOne;
         private Thread _longThreadName;
         private Thread _guiThread;
         private Thread _threadZero;
         private Thread[] _threadArray = new Thread[4];
+        #endregion
 
+        #region TestSetup
         [SetUp]
         public void SetUp()
         {
@@ -32,7 +35,9 @@ namespace IndiaTango.Tests
             _threadZero = new Thread(EventLoggerTest.DummyDoWork);
             _threadZero.Name = "Thread-0";
         }
+        #endregion
 
+        #region LogTestsOfEachType
         [Test]
         public void InformationLogTest()
         {
@@ -54,7 +59,9 @@ namespace IndiaTango.Tests
             Assert.AreEqual(DateTime.Now.ToString("dd/MM/yyyy HH:MM:ss") + " ERROR    Thread-0             Application fatal error or something", EventLogger.LogError(_threadZero.Name, "Application fatal error or something"));
             Assert.AreEqual(DateTime.Now.ToString("dd/MM/yyyy HH:MM:ss") + " ERROR    Thread-0             User has uploaded a picture of a cat, not a .csv file", EventLogger.LogError(_threadZero.Name, "User has uploaded a picture of a cat, not a .csv file"));
         }
+        #endregion
 
+        #region NullArguemntTests
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void InformationLogNullThreadTest()
@@ -96,7 +103,9 @@ namespace IndiaTango.Tests
         {
             Assert.AreEqual(DateTime.Now.ToString("dd/MM/yyyy HH:MM:ss") + " ERROR    GUI Thread           ", EventLogger.LogError(_guiThread.Name, ""));
         }
+        #endregion
 
+        #region ThreadTestsAndMethods
         [Test]
         public void MultiThreadTest()
         {
@@ -114,16 +123,20 @@ namespace IndiaTango.Tests
 
             for (int i = 0; i < 4; i++)
                 _threadArray[i].Start();
-    }
+        }
 
         public static void DummyDoWork(object data)
         {
             // Do nothing
+            int i = 9;
+            i -= 9;
+            //i /= 0;
         }
 
         public static void WriteError()
         {
             Assert.AreEqual(DateTime.Now.ToString("dd/MM/yyyy HH:MM:ss") + " ERROR    " + Thread.CurrentThread.Name + "                   ", EventLogger.LogError(Thread.CurrentThread.Name, "Weow weow weow"));
         }
+        #endregion
     }
 }
