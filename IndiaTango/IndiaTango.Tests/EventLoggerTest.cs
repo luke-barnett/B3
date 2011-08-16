@@ -61,7 +61,7 @@ namespace IndiaTango.Tests
         }
         #endregion
 
-        #region NullArguemntTests
+        #region NullArguementTests
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void InformationLogNullThreadTest()
