@@ -77,16 +77,16 @@
     <Compile Include="SimpleContainer.cs" />
     <Compile Include="ViewModels\BaseViewModel.cs" />
     <Compile Include="ViewModels\GraphViewModel.cs" />
-    <Compile Include="ViewModels\LoadViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\SessionViewModel.cs" />
     <Compile Include="Views\GraphView.xaml.cs">
       <DependentUpon>GraphView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\LoadView.xaml.cs">
-      <DependentUpon>LoadView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\MainView.xaml.cs">
       <DependentUpon>MainView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SessionView.xaml.cs">
+      <DependentUpon>SessionView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -135,11 +135,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\LoadView.xaml">
+    <Page Include="Views\MainView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\MainView.xaml">
+    <Page Include="Views\SessionView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

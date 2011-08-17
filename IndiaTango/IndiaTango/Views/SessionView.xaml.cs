@@ -14,11 +14,11 @@ using System.Windows.Shapes;
 namespace IndiaTango.Views
 {
     /// <summary>
-    /// Interaction logic for LoadView.xaml
+    /// Interaction logic for SessionView.xaml
     /// </summary>
-    public partial class LoadView : Window
+    public partial class SessionView : Window
     {
-        public LoadView()
+        public SessionView()
         {
             InitializeComponent();
         }

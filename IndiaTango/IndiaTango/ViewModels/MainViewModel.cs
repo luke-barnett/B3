@@ -13,7 +13,7 @@ namespace IndiaTango.ViewModels
     {
         private readonly IWindowManager _windowManager;
         private readonly SimpleContainer _container;
-
+        private static LoadViewModel _lvm;
         public MainViewModel(IWindowManager windowManager, SimpleContainer container)
         {
             _windowManager = windowManager;
@@ -38,16 +38,25 @@ namespace IndiaTango.ViewModels
                 if (!((bool) openCsv.ShowDialog())) return;
                 System.Diagnostics.Debug.Print("File loaded: {0}",openCsv.FileName);
                 var reader = new CSVReader(openCsv.FileName);
-                var bw = new BackgroundWorker()
-                             {
-                                 WorkerReportsProgress = true
-                             };
-                var sensors = new List<Sensor>();
-                bw.DoWork += BwDoWork;
-                bw.ProgressChanged += BwProgressChanged;
-                bw.RunWorkerAsync(new object[]{reader,sensors});
-            
-                _windowManager.ShowDialog(_container.GetInstance(typeof(LoadViewModel), "LoadViewModel"));
+                var bw = new BackgroundWorker();
+                bw.WorkerReportsProgress = true;
+                bw.DoWork += delegate(object sender, DoWorkEventArgs e)
+                                 {
+                                     var sensors = new List<Sensor>();
+                                     bw.ReportProgress(50);
+                                     sensors = reader.ReadSensors();
+                                 };
+                bw.ProgressChanged += delegate(object sender, ProgressChangedEventArgs e)
+                                          {
+                                              _lvm.ProgressValue = e.ProgressPercentage;
+                                          };
+                bw.RunWorkerCompleted += delegate(object sender, RunWorkerCompletedEventArgs e)
+                                             {
+                                                 
+                                             };
+                _lvm = (_container.GetInstance(typeof (LoadViewModel), "LoadViewModel") as LoadViewModel);
+                _windowManager.ShowWindow(_lvm);
+                bw.RunWorkerAsync();
 
             }
             catch(Exception e)
@@ -61,12 +70,13 @@ namespace IndiaTango.ViewModels
             var args = (object[])e.Argument;
             var reader = (CSVReader)args[0];
             var sensors = (List<Sensor>)args[1];
+            (sender as BackgroundWorker).ReportProgress(50);
             sensors = reader.ReadSensors();
         }
 
         static void BwProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            
+            _lvm.ProgressValue = e.ProgressPercentage;
         }
 
         public void BtnGraphView()

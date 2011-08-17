@@ -1,0 +1,9 @@
+﻿<Window x:Class="IndiaTango.Views.SessionView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="SessionView" Height="458" Width="596">
+    <Grid>
+        <ProgressBar Height="15" HorizontalAlignment="Left" Margin="462,392,0,0" Name="progressBar1" VerticalAlignment="Top" Width="100" IsIndeterminate="True" />
+        <Button Content="Import" Height="23" HorizontalAlignment="Left" Margin="12,27,0,0" Name="btnImport" VerticalAlignment="Top" Width="75" />
+    </Grid>
+</Window>
