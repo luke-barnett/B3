@@ -26,19 +26,23 @@ namespace IndiaTango.ViewModels
             var bw = new BackgroundWorker();
             bw.WorkerReportsProgress = true;
             var fileDialog = new OpenFileDialog();
-            fileDialog.ShowDialog();
-            bw.DoWork += delegate(object sender, DoWorkEventArgs eventArgs)
+            fileDialog.Filter = "CSV Files|*.csv";
+            var result = fileDialog.ShowDialog();
+            if (result == DialogResult.OK)
             {
-                ButtonsEnabled = false;
-                var reader = new CSVReader(fileDialog.FileName);
-                reader.ProgressChanged += delegate(object o, ReaderProgressChangedArgs e)
-                                              {
-                                                  ProgressBarPercent = e.Progress;
-                                              };
-                SensorList = reader.ReadSensors();
-                ButtonsEnabled = true;
-            };
-            bw.RunWorkerAsync();
+                bw.DoWork += delegate(object sender, DoWorkEventArgs eventArgs)
+                                 {
+                                     ButtonsEnabled = false;
+                                     var reader = new CSVReader(fileDialog.FileName);
+                                     reader.ProgressChanged += delegate(object o, ReaderProgressChangedArgs e)
+                                                                   {
+                                                                       ProgressBarPercent = e.Progress;
+                                                                   };
+                                     SensorList = reader.ReadSensors();
+                                     ButtonsEnabled = true;
+                                 };
+                bw.RunWorkerAsync();
+            }
         }
 
         private static double _progressBarPercent = 0;
