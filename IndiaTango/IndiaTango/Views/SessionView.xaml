@@ -19,7 +19,7 @@
             </Grid.RowDefinitions>
             <Button Grid.Row="1" Name="btnImport" IsEnabled="{Binding ButtonsEnabled}" Content="Import" />
             <Button Grid.Row="3" Name="btnGraph" IsEnabled="{Binding ButtonsEnabled}" Content="Graph" />
-            <ProgressBar Grid.Row="5" IsIndeterminate="True" Visibility="{Binding ProgressBarVisible}" />
+            <ProgressBar Grid.Row="5" IsIndeterminate="False" Visibility="{Binding ProgressBarVisible}" Value="{Binding ProgressBarPercent}"/>
         </Grid>
     </Grid>
 </Window>

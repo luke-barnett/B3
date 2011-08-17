@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace IndiaTango.Models
 {
-    public class CSVReader : IDataReader
+    public class CSVReader
     {
         private string _filename;
         private Sensor[] sensors;
@@ -21,14 +21,20 @@ namespace IndiaTango.Models
             _filename = fileName;
         }
 
-        public List<Sensor> ReadSensors()
+        public List<Sensor> ReadSensors(System.Windows.Controls.ProgressBar progressBar = null)
         {
+            var linesRead = 0d;
+            var linesInFile = 0d;
             if (sensors != null)
                 return sensors.ToList();
 
             sensors = new Sensor[0];
             using (var sr = new StreamReader(_filename))
             {
+                if(progressBar!=null)
+                {
+                    linesInFile = File.ReadLines(_filename).Count();
+                }
                 var sensorNamesString = sr.ReadLine();
 
                 String[] sensorNames;
@@ -50,6 +56,11 @@ namespace IndiaTango.Models
                 String readLine = null;
                 while((readLine = sr.ReadLine()) != null)
                 {
+                    if(progressBar!=null)
+                    {
+                        linesRead++;
+                        progressBar.Value = linesRead/linesInFile*100;
+                    }
                     var values = readLine.Split(',');
                     if(values.Length != sensorNames.Length)
                         throw new FormatException("Number of values mismatch from the number of sensors");
