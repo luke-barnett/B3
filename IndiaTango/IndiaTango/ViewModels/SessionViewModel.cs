@@ -27,15 +27,15 @@ namespace IndiaTango.ViewModels
             bw.WorkerReportsProgress = true;
             var fileDialog = new OpenFileDialog();
             fileDialog.ShowDialog();
-            var b = new System.Windows.Controls.ProgressBar {Maximum = 100};
-            b.ValueChanged += delegate(object sender, System.Windows.RoutedPropertyChangedEventArgs<double> e)
-            {
-                ProgressBarPercent = e.NewValue;
-            };
             bw.DoWork += delegate(object sender, DoWorkEventArgs eventArgs)
             {
                 ButtonsEnabled = false;
-                SensorList = new CSVReader(fileDialog.FileName).ReadSensors(b);
+                var reader = new CSVReader(fileDialog.FileName);
+                reader.ProgressChanged += delegate(object o, ReaderProgressChangedArgs e)
+                                              {
+                                                  ProgressBarPercent = e.Progress;
+                                              };
+                SensorList = reader.ReadSensors();
                 ButtonsEnabled = true;
             };
             bw.RunWorkerAsync();

@@ -5,10 +5,11 @@ using System.Linq;
 
 namespace IndiaTango.Models
 {
-    public class CSVReader
+    public class CSVReader : IDataReader
     {
         private string _filename;
         private Sensor[] sensors;
+        public event ReaderProgressChanged ProgressChanged;
 
         public CSVReader(string fileName)
         {
@@ -21,7 +22,7 @@ namespace IndiaTango.Models
             _filename = fileName;
         }
 
-        public List<Sensor> ReadSensors(System.Windows.Controls.ProgressBar progressBar = null)
+        public List<Sensor> ReadSensors()
         {
             var linesRead = 0d;
             var linesInFile = 0d;
@@ -31,10 +32,8 @@ namespace IndiaTango.Models
             sensors = new Sensor[0];
             using (var sr = new StreamReader(_filename))
             {
-                if(progressBar!=null)
-                {
-                    linesInFile = File.ReadLines(_filename).Count();
-                }
+                linesInFile = File.ReadLines(_filename).Count();
+                
                 var sensorNamesString = sr.ReadLine();
 
                 String[] sensorNames;
@@ -56,11 +55,10 @@ namespace IndiaTango.Models
                 String readLine = null;
                 while((readLine = sr.ReadLine()) != null)
                 {
-                    if(progressBar!=null)
-                    {
-                        linesRead++;
-                        progressBar.Value = linesRead/linesInFile*100;
-                    }
+                    linesRead++;
+                    OnProgressChanged((object)this, new ReaderProgressChangedArgs((int)(linesRead / linesInFile * 100)));
+
+
                     var values = readLine.Split(',');
                     if(values.Length != sensorNames.Length)
                         throw new FormatException("Number of values mismatch from the number of sensors");
@@ -87,5 +85,23 @@ namespace IndiaTango.Models
         {
             throw new NotImplementedException();
         }
+
+        void OnProgressChanged(object o, ReaderProgressChangedArgs e)
+        {
+            if (ProgressChanged != null)
+                ProgressChanged(o, e);
+        }
     }
+
+    public class ReaderProgressChangedArgs : EventArgs
+    {
+        public readonly int Progress;
+
+        public ReaderProgressChangedArgs(int progress)
+        {
+            Progress = progress;
+        }
+    }
+
+    public delegate void ReaderProgressChanged(object o, ReaderProgressChangedArgs e);
 }
