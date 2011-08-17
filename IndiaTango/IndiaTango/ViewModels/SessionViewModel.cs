@@ -53,8 +53,9 @@ namespace IndiaTango.ViewModels
         }
 
         private static double _progressBarPercent = 0;
-        public double ProgressBarPercent { get { return _progressBarPercent; } set { _progressBarPercent = value; NotifyOfPropertyChange(() => ProgressBarPercent); } } 
+        public double ProgressBarPercent { get { return _progressBarPercent; } set { _progressBarPercent = value; NotifyOfPropertyChange(() => ProgressBarPercent); NotifyOfPropertyChange(() => LoadingProgress); } }
 
+        public string LoadingProgress { get { return string.Format("{0}%", ProgressBarPercent); } }
 
         private bool _buttonsEnabled = true;
         public bool ButtonsEnabled { get { return _buttonsEnabled; } set { _buttonsEnabled = value; NotifyOfPropertyChange(() => ButtonsEnabled); NotifyOfPropertyChange(() => LoadingComponentsVisible); } }
