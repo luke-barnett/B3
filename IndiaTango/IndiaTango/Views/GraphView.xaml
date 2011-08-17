@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:charts="clr-namespace:Visiblox.Charts;assembly=Visiblox.Charts"
-        Title="GraphView" Height="399" Width="538">
+        Title="{Binding ChartTitle}" Height="399" Width="538" Icon="{Binding Icon}">
     <Grid>
         <charts:Chart Title="{Binding ChartTitle}">
             <charts:Chart.YAxis>

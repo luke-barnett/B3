@@ -19,7 +19,7 @@
             <Grid Grid.Column="1" Margin="10 0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="20" />
-                    <RowDefinition Height="40" />
+                    <RowDefinition Height="60" />
                     <RowDefinition Height="10" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
