@@ -62,10 +62,7 @@ namespace IndiaTango.ViewModels
         public void btnGraph()
         {
             if (ItemList1Selected == null)
-            {
-                MessageBox.Show("YOU FOOL");
                 return;
-            }
             var graphView = (_container.GetInstance(typeof (GraphViewModel), "GraphViewModel") as GraphViewModel);
             graphView.ChartTitle = ItemList1Selected.Name;
 
