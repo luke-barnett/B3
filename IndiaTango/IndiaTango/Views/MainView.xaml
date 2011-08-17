@@ -38,7 +38,7 @@
                 <RowDefinition Height="10"/>
                 <RowDefinition Height="40"/>
             </Grid.RowDefinitions>
-            <Button Grid.Row="0" Name="BtnNew" Content="New" FontSize="20" VerticalContentAlignment="Center" />
+            <Button Grid.Row="0" Name="BtnNew" Content="New Session" FontSize="20" VerticalContentAlignment="Center" />
             <Button Grid.Row="2" Name="BtnLoad" Content="Load" FontSize="20" VerticalContentAlignment="Center" />
             <Button Grid.Row="4" Name="BtnGraphView" Content="GraphView" FontSize="20" VerticalContentAlignment="Center" />
         </Grid>

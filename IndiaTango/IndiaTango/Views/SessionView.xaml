@@ -9,19 +9,26 @@
     </Window.TaskbarItemInfo>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="300" />
             <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="150" />
         </Grid.ColumnDefinitions>
-        <ListBox Grid.Column="0"  ItemsSource="{Binding SensorList}" SelectedItem="{Binding ItemList1Selected, Mode=TwoWay}">
-            <i:Interaction.Triggers>
-                <i:EventTrigger EventName="MouseDoubleClick">
-                    <caliburn:ActionMessage MethodName="btnGraph" />
-                </i:EventTrigger>
-            </i:Interaction.Triggers>
-        </ListBox>
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <TextBlock Text="Available Sensors:" FontWeight="Bold" Margin="12 7" Grid.Row="0" /> 
+            <ListBox Grid.Row="1" ItemsSource="{Binding SensorList}" SelectedItem="{Binding ItemList1Selected, Mode=TwoWay}" Margin="10 0 0 10">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseDoubleClick">
+                        <caliburn:ActionMessage MethodName="btnGraph" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </ListBox>
+        </Grid>
         <Grid Grid.Column="1" Margin="10 0">
             <Grid.RowDefinitions>
-                <RowDefinition Height="260" />
+                <RowDefinition Height="*" />
                 <RowDefinition Height="30" />
                 <RowDefinition Height="10" />
                 <RowDefinition Height="30" />
@@ -29,16 +36,17 @@
                 <RowDefinition Height="15" />
                 <RowDefinition Height="10" />
                 <RowDefinition Height="30" />
+                <RowDefinition Height="10" />
             </Grid.RowDefinitions>
             <Button Grid.Row="1" Name="btnImport" IsEnabled="{Binding ButtonsEnabled}" Content="Import" />
             <Button Grid.Row="3" Name="btnGraph" IsEnabled="{Binding ButtonsEnabled}" Content="Graph" />
             <Grid Grid.Row="5">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="80" />
+                    <ColumnDefinition Width="90" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <ProgressBar Grid.Column="0" IsIndeterminate="False" Visibility="{Binding LoadingComponentsVisible}" Value="{Binding ProgressBarPercent}"/>
-                <TextBlock Grid.Column="1" Margin="5 0 0 0" Text="{Binding LoadingProgress}" Visibility="{Binding LoadingComponentsVisible}" />
+                <TextBlock Grid.Column="1" Margin="5 0 0 0" Text="{Binding LoadingProgress}" Visibility="{Binding LoadingComponentsVisible}" TextAlignment="Right" />
             </Grid>
             <Button Grid.Row="7" Name="btnCancel" Visibility="{Binding LoadingComponentsVisible}" Content="Cancel" />
         </Grid>
