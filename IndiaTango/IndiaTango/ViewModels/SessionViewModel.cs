@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using Caliburn.Micro;
 using IndiaTango.Models;
 using Visiblox.Charts;
+using System.Windows.Shell;
 
 namespace IndiaTango.ViewModels
 {
@@ -44,7 +45,10 @@ namespace IndiaTango.ViewModels
                                      SensorList = reader.ReadSensors(_bw);
 
                                      if (SensorList == null)
+                                     {
                                          eventArgs.Cancel = true;
+                                         ProgressBarPercent = 0;
+                                     }
 
                                      ButtonsEnabled = true;
                                  };
@@ -53,7 +57,23 @@ namespace IndiaTango.ViewModels
         }
 
         private static double _progressBarPercent = 0;
-        public double ProgressBarPercent { get { return _progressBarPercent; } set { _progressBarPercent = value; NotifyOfPropertyChange(() => ProgressBarPercent); NotifyOfPropertyChange(() => LoadingProgress); } }
+        public double ProgressBarPercent
+        { 
+            get { return _progressBarPercent; } 
+            set
+            { 
+                _progressBarPercent = value;
+
+                NotifyOfPropertyChange(() => ProgressBarPercent);
+                NotifyOfPropertyChange(() => LoadingProgress);
+                NotifyOfPropertyChange(() => ProgressBarPercentDouble);
+            }
+        }
+
+        public double ProgressBarPercentDouble
+        {
+            get { return ProgressBarPercent/100; }
+        }
 
         public string LoadingProgress { get { return string.Format("{0}%", ProgressBarPercent); } }
 
