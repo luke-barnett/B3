@@ -20,7 +20,13 @@ namespace IndiaTango.ViewModels
 
         void _selectedPoints_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            MessageBox.Show("Hi");
+            if(e.NewItems.Count < 1)
+                return;
+            foreach(var item in e.NewItems)
+            {
+                var cast = (item as DataPoint<DateTime, float>);
+                MessageBox.Show(string.Format("You selected the value {0} with the timestamp of {1}", cast.Y, cast.X));
+            }
         }
 
         private DataSeries<DateTime, float> _chartSeries = new DataSeries<DateTime, float>();
