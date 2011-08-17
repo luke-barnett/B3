@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace IndiaTango.Models
 {
@@ -18,6 +17,6 @@ namespace IndiaTango.Models
         /// Reads in the Buoy information from a given data source.
         /// </summary>
         /// <returns>The Buoy object created.</returns>
-        Object ReadBuoy();
+        Buoy ReadBuoy();
     }
 }

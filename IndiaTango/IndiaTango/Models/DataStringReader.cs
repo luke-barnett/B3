@@ -65,7 +65,7 @@ namespace IndiaTango.Models
             return stringSensors.Select(stringSensor => new Sensor()).ToList();
         }
 
-        public object ReadBuoy()
+        public Buoy ReadBuoy()
         {
             throw new NotImplementedException();
         }
