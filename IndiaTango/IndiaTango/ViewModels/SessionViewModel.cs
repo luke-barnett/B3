@@ -13,6 +13,7 @@ namespace IndiaTango.ViewModels
         private readonly SimpleContainer _container;
         private readonly IWindowManager _windowManager;
         private List<Sensor> _sensors;
+        private BackgroundWorker _bw;
 
         public SessionViewModel(IWindowManager windowManager, SimpleContainer container)
         {
@@ -23,14 +24,16 @@ namespace IndiaTango.ViewModels
 
         public void btnImport()
         {
-            var bw = new BackgroundWorker();
-            bw.WorkerReportsProgress = true;
+            _bw = new BackgroundWorker();
+            _bw.WorkerReportsProgress = true;
+            _bw.WorkerSupportsCancellation = true;
+
             var fileDialog = new OpenFileDialog();
             fileDialog.Filter = "CSV Files|*.csv";
             var result = fileDialog.ShowDialog();
             if (result == DialogResult.OK)
             {
-                bw.DoWork += delegate(object sender, DoWorkEventArgs eventArgs)
+                _bw.DoWork += delegate(object sender, DoWorkEventArgs eventArgs)
                                  {
                                      ButtonsEnabled = false;
                                      var reader = new CSVReader(fileDialog.FileName);
@@ -38,10 +41,14 @@ namespace IndiaTango.ViewModels
                                                                    {
                                                                        ProgressBarPercent = e.Progress;
                                                                    };
-                                     SensorList = reader.ReadSensors();
+                                     SensorList = reader.ReadSensors(_bw);
+
+                                     if (SensorList == null)
+                                         eventArgs.Cancel = true;
+
                                      ButtonsEnabled = true;
                                  };
-                bw.RunWorkerAsync();
+                _bw.RunWorkerAsync();
             }
         }
 
@@ -50,9 +57,9 @@ namespace IndiaTango.ViewModels
 
 
         private bool _buttonsEnabled = true;
-        public bool ButtonsEnabled { get { return _buttonsEnabled; } set { _buttonsEnabled = value; NotifyOfPropertyChange(() => ButtonsEnabled); NotifyOfPropertyChange(() => ProgressBarVisible); } }
+        public bool ButtonsEnabled { get { return _buttonsEnabled; } set { _buttonsEnabled = value; NotifyOfPropertyChange(() => ButtonsEnabled); NotifyOfPropertyChange(() => LoadingComponentsVisible); } }
 
-        public string ProgressBarVisible { get { return (_buttonsEnabled) ? "Hidden" : "Visible"; } }
+        public string LoadingComponentsVisible { get { return (_buttonsEnabled) ? "Hidden" : "Visible"; } }
 
         public List<Sensor> SensorList { get { return _sensors; } set { _sensors = value; NotifyOfPropertyChange(() => SensorList); } }
 
@@ -75,6 +82,23 @@ namespace IndiaTango.ViewModels
             graphView.YAxisTitle = chartSeries.Title;
             graphView.ChartSeries = chartSeries;
             _windowManager.ShowWindow(graphView);
+        }
+
+        public void btnCancel()
+        {
+            if(_bw != null)
+            {
+                try
+                {
+                    _bw.CancelAsync();
+                    ButtonsEnabled = true;
+                }
+                catch (InvalidOperationException ex)
+                {
+                    // TODO: meaningful error here
+                    System.Diagnostics.Debug.WriteLine("Cannot cancel data loading thread - " + ex);
+                }
+            }
         }
 
     }

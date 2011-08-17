@@ -18,16 +18,19 @@
         </ListBox>
         <Grid Grid.Column="1" Margin="10 0">
             <Grid.RowDefinitions>
-                <RowDefinition Height="300" />
+                <RowDefinition Height="260" />
                 <RowDefinition Height="30" />
                 <RowDefinition Height="10" />
                 <RowDefinition Height="30" />
                 <RowDefinition Height="10" />
                 <RowDefinition Height="15" />
+                <RowDefinition Height="10" />
+                <RowDefinition Height="30" />
             </Grid.RowDefinitions>
             <Button Grid.Row="1" Name="btnImport" IsEnabled="{Binding ButtonsEnabled}" Content="Import" />
             <Button Grid.Row="3" Name="btnGraph" IsEnabled="{Binding ButtonsEnabled}" Content="Graph" />
-            <ProgressBar Grid.Row="5" IsIndeterminate="False" Visibility="{Binding ProgressBarVisible}" Value="{Binding ProgressBarPercent}"/>
+            <ProgressBar Grid.Row="5" IsIndeterminate="False" Visibility="{Binding LoadingComponentsVisible}" Value="{Binding ProgressBarPercent}"/>
+            <Button Grid.Row="7" Name="btnCancel" Visibility="{Binding LoadingComponentsVisible}" Content="Cancel" />
         </Grid>
     </Grid>
 </Window>

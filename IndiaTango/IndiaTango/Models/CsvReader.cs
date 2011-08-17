@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 
@@ -24,8 +25,14 @@ namespace IndiaTango.Models
 
         public List<Sensor> ReadSensors()
         {
+            return ReadSensors(null);
+        }
+
+        public List<Sensor> ReadSensors(BackgroundWorker asyncWorker)
+        {
             var linesRead = 0d;
             var linesInFile = 0d;
+
             if (sensors != null)
                 return sensors.ToList();
 
@@ -47,6 +54,9 @@ namespace IndiaTango.Models
 
                 for (int i = 2; i < sensorNames.Length; i++ )
                 {
+                    if (asyncWorker != null && asyncWorker.CancellationPending)
+                        return null;
+
                     sensors[i - 2] = new Sensor(sensorNames[i], null);
                     sensors[i -2].AddState(new SensorState(DateTime.Now));
                 }
@@ -55,6 +65,9 @@ namespace IndiaTango.Models
                 String readLine = null;
                 while((readLine = sr.ReadLine()) != null)
                 {
+                    if (asyncWorker != null && asyncWorker.CancellationPending)
+                        return null;
+
                     linesRead++;
                     OnProgressChanged((object)this, new ReaderProgressChangedArgs((int)(linesRead / linesInFile * 100)));
 
