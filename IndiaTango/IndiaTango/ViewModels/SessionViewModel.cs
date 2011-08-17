@@ -5,7 +5,6 @@ using System.Windows.Forms;
 using Caliburn.Micro;
 using IndiaTango.Models;
 using Visiblox.Charts;
-using System.Windows.Shell;
 
 namespace IndiaTango.ViewModels
 {

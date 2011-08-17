@@ -2,7 +2,6 @@
 using Caliburn.Micro;
 using Visiblox.Charts;
 using Visiblox.Charts.Primitives;
-using System.Windows;
 
 namespace IndiaTango.ViewModels
 {
@@ -15,10 +14,10 @@ namespace IndiaTango.ViewModels
         {
             _windowManager = windowManager;
             _container = container;
-            _selectedPoints.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(_selectedPoints_CollectionChanged);
+            _selectedPoints.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(SelectedPointsCollectionChanged);
         }
 
-        void _selectedPoints_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        void SelectedPointsCollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             if(e.NewItems == null || e.NewItems.Count < 1)
                 return;
