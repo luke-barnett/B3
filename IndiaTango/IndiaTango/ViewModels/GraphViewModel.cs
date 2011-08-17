@@ -20,12 +20,45 @@ namespace IndiaTango.ViewModels
 
         void _selectedPoints_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            if(e.NewItems.Count < 1)
+            if(e.NewItems == null || e.NewItems.Count < 1)
                 return;
+
             foreach(var item in e.NewItems)
+                SelectedDataPoint = (item as DataPoint<DateTime, float>);
+        }
+
+        private DataPoint<DateTime, float> _selectedPoint = null;
+ 
+        public DataPoint<DateTime, float> SelectedDataPoint
+        {
+            get { return _selectedPoint; }
+            set
             {
-                var cast = (item as DataPoint<DateTime, float>);
-                MessageBox.Show(string.Format("You selected the value {0} with the timestamp of {1}", cast.Y, cast.X));
+                _selectedPoint = value;
+                NotifyOfPropertyChange(() => SelectedDataValue);
+                NotifyOfPropertyChange(() => SelectedTimestamp);
+            }
+        }
+
+        public string SelectedDataValue
+        {
+            get
+            {
+                if (SelectedDataPoint != null)
+                    return SelectedDataPoint.Y.ToString();
+
+                return "";
+            }
+        }
+
+        public string SelectedTimestamp
+        {
+            get
+            {
+                if (SelectedDataPoint != null)
+                    return SelectedDataPoint.X.ToString();
+
+                return "";
             }
         }
 

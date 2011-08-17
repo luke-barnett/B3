@@ -3,8 +3,19 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:charts="clr-namespace:Visiblox.Charts;assembly=Visiblox.Charts"
         Title="{Binding ChartTitle}" Height="399" Width="538" Icon="{Binding Icon}">
-    <Grid>
-        <charts:Chart Title="{Binding ChartTitle}">
+    <Grid Grid.Column="1">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="386*" />
+            <ColumnDefinition Width="160" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="60" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <charts:Chart Title="{Binding ChartTitle}" Grid.Column="0" Grid.RowSpan="6">
             <charts:Chart.YAxis>
                 <charts:LinearAxis Title="{Binding YAxisTitle}" />
             </charts:Chart.YAxis>
@@ -18,5 +29,9 @@
                 <charts:ZoomBehaviour />
             </charts:Chart.Behaviour>
         </charts:Chart>
+        <TextBlock Margin="5" Grid.Column="1" Grid.Row="0" Text="Value:" FontWeight="Bold" />
+        <TextBlock Margin="5" Grid.Column="1" Grid.Row="1" Text="{Binding SelectedDataValue}" />
+        <TextBlock Margin="5" Grid.Column="1" Grid.Row="2" Text="Timestamp:" FontWeight="Bold" />
+        <TextBlock Margin="5" Grid.Column="1" Grid.Row="3" Text="{Binding SelectedTimestamp}" />
     </Grid>
 </Window>
