@@ -5,7 +5,7 @@
         xmlns:caliburn="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro"
         Title="{Binding ApplicationTitle}" Icon="{Binding Icon}" Height="450" Width="450">
     <Window.TaskbarItemInfo>
-        <TaskbarItemInfo Description="Progress of data loading operation" ProgressState="Normal" ProgressValue="{Binding ProgressBarPercentDouble}" />
+        <TaskbarItemInfo Description="Progress of data loading operation" ProgressState="{Binding ProgressState}" ProgressValue="{Binding ProgressBarPercentDouble}" />
     </Window.TaskbarItemInfo>
     <Grid>
         <Grid.ColumnDefinitions>

@@ -77,9 +77,10 @@ namespace IndiaTango.ViewModels
         public string LoadingProgress { get { return string.Format("{0}%", ProgressBarPercent); } }
 
         private bool _buttonsEnabled = true;
-        public bool ButtonsEnabled { get { return _buttonsEnabled; } set { _buttonsEnabled = value; NotifyOfPropertyChange(() => ButtonsEnabled); NotifyOfPropertyChange(() => LoadingComponentsVisible); } }
+        public bool ButtonsEnabled { get { return _buttonsEnabled; } set { _buttonsEnabled = value; NotifyOfPropertyChange(() => ButtonsEnabled); NotifyOfPropertyChange(() => LoadingComponentsVisible); NotifyOfPropertyChange(()=>ProgressState);} }
 
         public string LoadingComponentsVisible { get { return (_buttonsEnabled) ? "Hidden" : "Visible"; } }
+        public string ProgressState { get { return _buttonsEnabled ? "None" : "Normal"; } }
 
         public List<Sensor> SensorList { get { return _sensors; } set { _sensors = value; NotifyOfPropertyChange(() => SensorList); } }
 
