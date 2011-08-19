@@ -10,7 +10,7 @@
         </Grid.ColumnDefinitions>
         <charts:Chart Title="{Binding ChartTitle}" Grid.Column="0" Grid.RowSpan="6">
             <charts:Chart.YAxis>
-                <charts:LinearAxis Title="{Binding YAxisTitle}" MajorTickInterval="{Binding MajorTickInterval}" />
+                <charts:LinearAxis Title="{Binding YAxisTitle}" Range="{Binding Range}" />
             </charts:Chart.YAxis>
             <charts:Chart.XAxis>
                 <charts:DateTimeAxis Title="Date" />
@@ -30,8 +30,6 @@
                 <RowDefinition Height="60" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <TextBox Grid.Row="1" Text="{Binding MajorTickIntervalString, Mode=TwoWay}" />
-            <TextBlock Grid.Row="2" Text="{Binding MajorTickIntervalString}" />
         </Grid>
     </Grid>
 </Window>

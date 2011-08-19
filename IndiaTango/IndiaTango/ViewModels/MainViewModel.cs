@@ -41,7 +41,7 @@ namespace IndiaTango.ViewModels
                 graphViewModel.ChartTitle = "New Graph";
                 var chartSeries = new DataSeries<DateTime, float>();
                 var generator = new Random();
-                for (int i = 0; i < 50000; i++ )
+                for (int i = 0; i < 50; i++ )
                 {
                     chartSeries.Add((DateTime.Now).AddHours(i), (float)generator.NextDouble()*i);
                 }

@@ -24,8 +24,7 @@ namespace IndiaTango.ViewModels
         public string ChartTitle { get; set; }
         public string YAxisTitle { get; set; }
 
-        //TODO BE ABLE TO CHANGE THE MAJOR TICK INTERVAL
-        private int _majorTickInterval = 50;
-        public int MajorTickInterval { get { return _majorTickInterval; } set { _majorTickInterval = value; NotifyOfPropertyChange(() => MajorTickInterval);} }
+        private DoubleRange _range = new DoubleRange(0,40);
+        public DoubleRange Range { get { return _range; } set { _range = value; NotifyOfPropertyChange(() => Range); } }
     }
 }
