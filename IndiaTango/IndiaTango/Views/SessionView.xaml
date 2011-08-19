@@ -17,8 +17,8 @@
                 <RowDefinition Height="30" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <TextBlock Text="Available Sensors:" FontWeight="Bold" Margin="12 7" Grid.Row="0" /> 
-            <ListBox Grid.Row="1" ItemsSource="{Binding SensorList}" SelectedItem="{Binding ItemList1Selected, Mode=TwoWay}" Margin="10 0 0 10">
+            <TextBlock Text="Available Sensors:" FontWeight="Bold" Margin="12 7" Grid.Row="0" />
+            <ListBox Grid.Row="1" ItemsSource="{Binding SensorList}" SelectedItem="{Binding SelectedSensor, Mode=TwoWay}" Margin="10 0 0 10">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="MouseDoubleClick">
                         <caliburn:ActionMessage MethodName="btnGraph" />

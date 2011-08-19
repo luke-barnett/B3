@@ -38,16 +38,14 @@ namespace IndiaTango.ViewModels
             var graphViewModel = _container.GetInstance(typeof (GraphViewModel), "GraphViewModel") as GraphViewModel;
             if (graphViewModel != null)
             {
-                graphViewModel.ChartTitle = "New Graph";
-                var chartSeries = new DataSeries<DateTime, float>();
+                var sensor = new Sensor("Dummy State", null);
+                sensor.AddState(new SensorState(DateTime.Now));
                 var generator = new Random();
                 for (int i = 0; i < 50; i++ )
                 {
-                    chartSeries.Add((DateTime.Now).AddHours(i), (float)generator.NextDouble()*i);
+                    sensor.CurrentState.Values.Add(new DataValue(DateTime.Now.AddHours(i),(float)generator.NextDouble()*i));
                 }
-                chartSeries.Title = "Random Data";
-                graphViewModel.ChartSeries = chartSeries;
-                graphViewModel.YAxisTitle = "Points of Awesome";
+                graphViewModel.Sensor = sensor;
                 _windowManager.ShowDialog(graphViewModel);
             }
             else

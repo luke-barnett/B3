@@ -84,24 +84,15 @@ namespace IndiaTango.ViewModels
 
         public List<Sensor> SensorList { get { return _sensors; } set { _sensors = value; NotifyOfPropertyChange(() => SensorList); } }
 
-        private Sensor _itemList1Selected = null;
-        public Sensor ItemList1Selected { get { return _itemList1Selected; } set { _itemList1Selected = value; NotifyOfPropertyChange(() => _itemList1Selected); } }
+        private Sensor _selectedSensor = null;
+        public Sensor SelectedSensor { get { return _selectedSensor; } set { _selectedSensor = value; NotifyOfPropertyChange(() => _selectedSensor); } }
 
         public void btnGraph()
         {
-            if (ItemList1Selected == null)
+            if (SelectedSensor == null)
                 return;
             var graphView = (_container.GetInstance(typeof (GraphViewModel), "GraphViewModel") as GraphViewModel);
-            graphView.ChartTitle = ItemList1Selected.Name;
-
-            var chartSeries = new DataSeries<DateTime, float>();
-            foreach(var dataValue in _itemList1Selected.CurrentState.Values)
-            {
-                chartSeries.Add(dataValue.Timestamp,dataValue.Value);
-            }
-            chartSeries.Title = ItemList1Selected.Name;
-            graphView.YAxisTitle = chartSeries.Title;
-            graphView.ChartSeries = chartSeries;
+            graphView.Sensor = SelectedSensor;
             _windowManager.ShowWindow(graphView);
         }
 
