@@ -79,12 +79,15 @@ namespace IndiaTango.Models
 
                     for (int i = 2; i < values.Length; i++)
                     {
-                        try
+                        if (!String.IsNullOrWhiteSpace(values[i]))
                         {
-                            sensors[i - 2].CurrentState.Values.Add(new DataValue(timeStamp, float.Parse(values[i])));
-                        }
-                        catch(Exception e)
-                        {
+                            try
+                            {
+                                sensors[i - 2].CurrentState.Values.Add(new DataValue(timeStamp, float.Parse(values[i])));
+                            }
+                            catch (Exception e)
+                            {
+                            }
                         }
                     }
                 }
