@@ -102,6 +102,7 @@ namespace IndiaTango.Models
 
             ErrorThreshold = errorThreshold;
             FailureIndicator = failureIndicator;
+
         }
         #endregion
 
@@ -206,7 +207,7 @@ namespace IndiaTango.Models
 
         public SensorState CurrentState
         {
-            get { return UndoStack.Peek(); }
+            get { return (UndoStack.Count != 0) ? UndoStack.Peek() : null; }
         }
 
         public int ErrorThreshold
