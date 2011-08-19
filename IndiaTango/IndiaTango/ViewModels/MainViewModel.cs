@@ -38,7 +38,7 @@ namespace IndiaTango.ViewModels
             var graphViewModel = _container.GetInstance(typeof (GraphViewModel), "GraphViewModel") as GraphViewModel;
             if (graphViewModel != null)
             {
-                var sensor = new Sensor("Dummy State", null);
+                var sensor = new Sensor("Dummy State", "Points of Awesome");
                 sensor.AddState(new SensorState(DateTime.Now));
                 var generator = new Random();
                 for (int i = 0; i < 50; i++ )

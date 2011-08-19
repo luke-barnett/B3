@@ -42,9 +42,9 @@ namespace IndiaTango.ViewModels
 
         public Sensor Sensor { set
         {
-            ChartSeries = new DataSeries<DateTime, float>((from dataValue in value.CurrentState.Values select new DataPoint<DateTime, float>(dataValue.Timestamp, dataValue.Value)));
+            ChartSeries = new DataSeries<DateTime, float>(value.Name, (from dataValue in value.CurrentState.Values select new DataPoint<DateTime, float>(dataValue.Timestamp, dataValue.Value)));
             ChartTitle = value.Name;
-            YAxisTitle = value.Name;
+            YAxisTitle = value.Unit;
         }}
     }
 }
