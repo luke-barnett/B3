@@ -8,7 +8,7 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="160" />
         </Grid.ColumnDefinitions>
-        <charts:Chart Title="{Binding ChartTitle}" Grid.Column="0" Grid.RowSpan="6">
+        <charts:Chart Title="{Binding ChartTitle}" Grid.Column="0" Grid.RowSpan="6" Behaviour="{Binding Behaviour}">
             <charts:Chart.YAxis>
                 <charts:LinearAxis Title="{Binding YAxisTitle}" Range="{Binding Range}" />
             </charts:Chart.YAxis>
@@ -18,9 +18,6 @@
             <charts:Chart.Series>
                 <charts:LineSeries DataSeries="{Binding ChartSeries}" />
             </charts:Chart.Series>
-            <charts:Chart.Behaviour>
-                <charts:ZoomBehaviour />
-            </charts:Chart.Behaviour>
         </charts:Chart>
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>

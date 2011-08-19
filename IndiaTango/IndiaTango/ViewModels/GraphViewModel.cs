@@ -16,6 +16,12 @@ namespace IndiaTango.ViewModels
         {
             _windowManager = windowManager;
             _container = container;
+            var b = new BehaviourManager();
+            b.AllowMultipleEnabled = true;
+            b.Behaviours.Add(new ZoomBehaviour(){ IsEnabled = true});
+            b.Behaviours.Add(new PanBehaviour(){IsEnabled = true});
+            b.Behaviours.Add(new TrackballBehaviour(){IsEnabled = true});
+            Behaviour = b;
         }
         
         private DataSeries<DateTime, float> _chartSeries = new DataSeries<DateTime, float>();
@@ -26,5 +32,8 @@ namespace IndiaTango.ViewModels
 
         private DoubleRange _range = new DoubleRange(0,40);
         public DoubleRange Range { get { return _range; } set { _range = value; NotifyOfPropertyChange(() => Range); } }
+
+        private IBehaviour _behaviour = new BehaviourManager();
+        public IBehaviour Behaviour { get { return _behaviour; } set { _behaviour = value; NotifyOfPropertyChange(() => Behaviour); } }
     }
 }
