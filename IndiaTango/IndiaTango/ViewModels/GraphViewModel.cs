@@ -19,9 +19,8 @@ namespace IndiaTango.ViewModels
             _container = container;
             var b = new BehaviourManager();
             b.AllowMultipleEnabled = true;
-            b.Behaviours.Add(new ZoomBehaviour(){ IsEnabled = true});
-            b.Behaviours.Add(new PanBehaviour(){IsEnabled = true});
-            b.Behaviours.Add(new TrackballBehaviour(){IsEnabled = true});
+            b.Behaviours.Add(new ZoomBehaviour(){IsEnabled = true});
+            b.Behaviours.Add(new GraphBehaviour(){IsEnabled = true});
             Behaviour = b;
         }
         
@@ -34,7 +33,7 @@ namespace IndiaTango.ViewModels
         private string _yAxisTitle = String.Empty;
         public string YAxisTitle { get { return _yAxisTitle; } set { _yAxisTitle = value; NotifyOfPropertyChange(() => YAxisTitle); } }
 
-        private DoubleRange _range = new DoubleRange(0,40);
+        private DoubleRange _range = new DoubleRange(0,0);
         public DoubleRange Range { get { return _range; } set { _range = value; NotifyOfPropertyChange(() => Range); } }
 
         private IBehaviour _behaviour = new BehaviourManager();
@@ -45,6 +44,22 @@ namespace IndiaTango.ViewModels
             ChartSeries = new DataSeries<DateTime, float>(value.Name, (from dataValue in value.CurrentState.Values select new DataPoint<DateTime, float>(dataValue.Timestamp, dataValue.Value)));
             ChartTitle = value.Name;
             YAxisTitle = value.Unit;
+            Range = new DoubleRange(0, maximumY().Y*2);
         }}
+
+        private DataPoint<DateTime, float> maximumY()
+        {
+            DataPoint<DateTime, float> maxY = null;
+
+            foreach (var value in ChartSeries)
+            {
+                if (maxY == null)
+                    maxY = value;
+                else if (value.Y > maxY.Y)
+                    maxY = value;
+            }
+
+            return maxY;
+        }
     }
 }

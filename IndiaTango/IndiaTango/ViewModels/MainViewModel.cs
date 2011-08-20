@@ -41,7 +41,7 @@ namespace IndiaTango.ViewModels
                 var sensor = new Sensor("Dummy State", "Points of Awesome");
                 sensor.AddState(new SensorState(DateTime.Now));
                 var generator = new Random();
-                for (int i = 0; i < 50; i++ )
+                for (int i = 0; i < 5000; i++ )
                 {
                     sensor.CurrentState.Values.Add(new DataValue(DateTime.Now.AddHours(i),(float)generator.NextDouble()*i));
                 }

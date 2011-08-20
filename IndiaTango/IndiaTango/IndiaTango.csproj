@@ -76,6 +76,7 @@
     <Compile Include="Models\DatasetExporter.cs" />
     <Compile Include="Models\Common.cs" />
     <Compile Include="Models\CSVReader.cs" />
+    <Compile Include="Models\GraphBehaviour.cs" />
     <Compile Include="Models\Tools.cs" />
     <Compile Include="SimpleContainer.cs" />
     <Compile Include="ViewModels\BaseViewModel.cs" />
