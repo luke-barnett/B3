@@ -16,6 +16,7 @@ namespace IndiaTango
             _container.RegisterSingleton(typeof(MainViewModel), "MainViewModel", typeof(MainViewModel));
             _container.RegisterPerRequest(typeof(GraphViewModel), "GraphViewModel", typeof(GraphViewModel));
             _container.RegisterPerRequest(typeof(SessionViewModel), "SessionViewModel", typeof(SessionViewModel));
+            _container.RegisterPerRequest(typeof(BuoyDetailsViewModel), "BuoyDetailsViewModel", typeof(BuoyDetailsViewModel));
 
             _container.RegisterInstance(typeof(IWindowManager), null, new WindowManager());
             _container.RegisterInstance(typeof(SimpleContainer), null, _container);
