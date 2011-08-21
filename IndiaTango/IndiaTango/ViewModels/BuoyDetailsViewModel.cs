@@ -57,5 +57,10 @@ namespace IndiaTango.ViewModels
                 CreateNewBuoyIfNeeded(); _buoy.GpsLocation.DecimalDegreesLongitude = Convert.ToDecimal(value);
             }
         }
+
+        public void btnSave()
+        {
+            this.TryClose();
+        }
     }
 }

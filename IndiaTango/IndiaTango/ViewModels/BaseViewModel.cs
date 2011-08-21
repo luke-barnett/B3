@@ -3,7 +3,7 @@ using IndiaTango.Models;
 
 namespace IndiaTango.ViewModels
 {
-    public class BaseViewModel : PropertyChangedBase
+    public class BaseViewModel : Screen
     {
         public string Version { get { return Common.Version; } }
         public string Creators { get { return Common.Creators; } }
