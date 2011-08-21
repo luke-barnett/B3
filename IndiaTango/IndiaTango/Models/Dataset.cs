@@ -77,5 +77,14 @@ namespace IndiaTango.Models
                 throw new ArgumentException("Sensor cannot be null");
             _sensors.Add(sensor);
         }
+
+        public int DataPointCount
+        {
+            get
+            { 
+                var diff = EndTimeStamp.Subtract(StartTimeStamp);
+                return (int)Math.Floor(diff.TotalMinutes/15);
+            }
+        }
     }
 }

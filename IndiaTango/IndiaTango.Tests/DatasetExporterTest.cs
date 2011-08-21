@@ -31,6 +31,22 @@ namespace IndiaTango.Tests
 			//Assert.IsTrue(CompareFiles(_outputFilePath,_inputFilePath));
         }
 
+        [Test]
+        public void ExportAsCSVCorrectValueCount()
+        {
+            var dateTime = new DateTime(2011, 8, 4, 0, 0, 0);
+            var givenDataSet = new Dataset(new Buoy(1, "Steven", "Kerry", Contact, Contact, Contact, new GPSCoords(0, 0)), dateTime, dateTime.AddDays(2));
+
+            // 24 * 4 = # of 15 min slots in a day
+            Assert.AreEqual(givenDataSet.DataPointCount, (24 * 4) * 2);
+
+            dateTime = new DateTime(2011, 8, 4, 0, 0, 0);
+            givenDataSet = new Dataset(new Buoy(1, "Steven", "Kerry", Contact, Contact, Contact, new GPSCoords(0, 0)), dateTime, dateTime.AddDays(1));
+
+            // 24 * 4 = # of 15 min slots in a day
+            Assert.AreEqual(givenDataSet.DataPointCount, (24 * 4));
+        }
+
 		[Test]
 		[ExpectedException(typeof(ArgumentNullException))]
 		public void NullArguementConstructorTest()

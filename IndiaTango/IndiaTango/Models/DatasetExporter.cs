@@ -40,7 +40,8 @@ namespace IndiaTango.Models
 					writer.WriteLine(columnHeadings);
 					writer.Flush();
 
-
+                    // Use a 2D array?
+                    // [sensor, value]
 
 					Debug.WriteLine(filePath);
 
