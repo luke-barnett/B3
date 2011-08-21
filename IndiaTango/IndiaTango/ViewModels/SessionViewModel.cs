@@ -96,6 +96,13 @@ namespace IndiaTango.ViewModels
             _windowManager.ShowWindow(graphView);
         }
 
+        public void btnDetails()
+        {
+            var detailView =
+                (_container.GetInstance(typeof (BuoyDetailsViewModel), "BuoyDetailsViewModel") as BuoyDetailsViewModel);
+            _windowManager.ShowWindow(detailView);
+        }
+
         public void btnCancel()
         {
             if(_bw != null)

@@ -14,11 +14,11 @@ using System.Windows.Shapes;
 namespace IndiaTango.Views
 {
     /// <summary>
-    /// Interaction logic for BuoyDetails.xaml
+    /// Interaction logic for BuoyDetailsView.xaml
     /// </summary>
-    public partial class BuoyDetails : Window
+    public partial class BuoyDetailsView : Window
     {
-        public BuoyDetails()
+        public BuoyDetailsView()
         {
             InitializeComponent();
         }
