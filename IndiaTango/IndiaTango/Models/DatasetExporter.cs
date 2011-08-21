@@ -42,8 +42,9 @@ namespace IndiaTango.Models
 
                     // Use a 2D array?
                     // [sensor, value]
+				    var outputData = new string[Data.Sensors.Count,Data.DataPointCount]; // Possibility?
 
-					Debug.WriteLine(filePath);
+                    Debug.WriteLine(filePath);
 
 				    writer.Close();
 				}
