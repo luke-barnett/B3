@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace IndiaTango.Models
 {
@@ -25,7 +26,7 @@ namespace IndiaTango.Models
         public Buoy(int iD, string site, string owner, Contact primaryContact, Contact secondaryContact, Contact universityContact, GPSCoords gpsLocation)
         {
             if(iD<0)
-                throw new ArgumentException("ID number must be greater than 1");
+                throw new ArgumentException("ID number must a non-negative integer");
             if(String.IsNullOrEmpty(site))
                 throw new ArgumentException("Site must not be empty");
             if(String.IsNullOrEmpty(owner))
@@ -154,5 +155,19 @@ namespace IndiaTango.Models
             Events.Add(@event);
         }
         #endregion
+
+        private static int _nextID = 0;
+
+        public static int NextID
+        {
+            get { return ++_nextID;  }
+            set
+            {
+                if ((value - 1) < -1)
+                    throw new ArgumentException("Next ID value must be greater than or equal to 0.");
+
+                _nextID = value - 1;
+            }
+        }
     }
 }

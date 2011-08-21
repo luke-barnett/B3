@@ -226,5 +226,26 @@ namespace IndiaTango.Tests
         {
             _testBuoy.AddEvent(null);
         }
+
+        [Test]
+        public void AutoIncrementingBuoyIDCorrect()
+        {
+            Assert.AreEqual(1, Buoy.NextID);
+            Assert.AreEqual(2, Buoy.NextID);
+        }
+
+        [Test]
+        public void ResetBuoyIDCorrect()
+        {
+            Buoy.NextID = 1;
+            Assert.AreEqual(1, Buoy.NextID);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentException))]
+        public void ResetBuoyIDInvalid()
+        {
+            Buoy.NextID = -1;
+        }
     }
 }
