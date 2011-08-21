@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 
 namespace IndiaTango.Models
@@ -23,7 +24,7 @@ namespace IndiaTango.Models
 			if (format == null)
 				throw new ArgumentNullException("Export format cannot be null");
 
-			if (format == ExportFormat.CSV)
+			if (format.Equals(ExportFormat.CSV))
 			{
 				using(StreamWriter writer = File.CreateText(filePath))
 				{
@@ -38,16 +39,19 @@ namespace IndiaTango.Models
 					columnHeadings = columnHeadings.Substring(0, columnHeadings.Length - 1);
 					writer.WriteLine(columnHeadings);
 					writer.Flush();
-					Console.WriteLine(filePath);
 
-					//TODO: not writing file.
+
+
+					Debug.WriteLine(filePath);
+
+				    writer.Close();
 				}
 			}
-			else if (format == ExportFormat.TXT)
+			else if (format.Equals(ExportFormat.TXT))
 			{
 				//Do stuff
 			}
-			else if (format == ExportFormat.XLSX)
+			else if (format.Equals(ExportFormat.XLSX))
 			{
 				//Do stuff
 			}
@@ -91,6 +95,12 @@ namespace IndiaTango.Models
 		{
 			return Name + "(*" + Extension + ")";
 		}
+
+        public override bool Equals(object obj)
+        {
+            return (obj is ExportFormat) && (obj as ExportFormat).Extension.CompareTo(Extension) == 0 &&
+                   (obj as ExportFormat).Name.CompareTo(Name) == 0;
+        }
 		
 		#endregion
 
