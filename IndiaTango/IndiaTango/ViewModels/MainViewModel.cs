@@ -30,7 +30,7 @@ namespace IndiaTango.ViewModels
         
         public void BtnLoad()
         {
-            MessageBox.Show("Shame");
+            MessageBox.Show("Sorry");
         }
 
         public void BtnGraphView()

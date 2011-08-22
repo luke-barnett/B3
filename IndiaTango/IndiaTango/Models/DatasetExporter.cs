@@ -30,19 +30,25 @@ namespace IndiaTango.Models
 				{
 					const char del = ',';
 					string columnHeadings = "dd/mm/yy" + del + "hh:mm" + del;
+				    int rowCount = Data.DataPointCount;
+                    var outputData = new string[Data.Sensors.Count, rowCount];
 
 					//Construct the column headings (Sensor names)
-					foreach(Sensor sensor in Data.Sensors)
-						columnHeadings += sensor.Name + del;
+                    foreach (Sensor sensor in Data.Sensors)
+                    {
+                        columnHeadings += sensor.Name + del;
+                      //  foreach ()
+                       // {
+                            
+                       // }
+                    }
 
-					//Strip the last delimiter
+				    //Strip the last delimiter
 					columnHeadings = columnHeadings.Substring(0, columnHeadings.Length - 1);
 					writer.WriteLine(columnHeadings);
 					writer.Flush();
 
-                    // Use a 2D array?
-                    // [sensor, value]
-				    var outputData = new string[Data.Sensors.Count,Data.DataPointCount]; // Possibility?
+                    //write the data here...
 
                     Debug.WriteLine(filePath);
 
@@ -60,6 +66,20 @@ namespace IndiaTango.Models
 
 			//No more stuff!
 		}
+
+        private int GetArrayRowFromTime(DateTime startDate, DateTime currentDate)
+        {
+            if (startDate == null)
+				throw new ArgumentNullException("startDate cannot be null");
+
+            if (currentDate == null)
+				throw new ArgumentNullException("currentDate cannot be null");
+
+            if (currentDate <= startDate)
+                throw new ArgumentException("currentDate must be larger than startDate");
+
+            return (int)Math.Floor(currentDate.Subtract(startDate).TotalMinutes/15);
+        }
 	}
 
 	public class ExportFormat
