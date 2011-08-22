@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace IndiaTango.Models
 {
@@ -85,6 +86,28 @@ namespace IndiaTango.Models
                 var diff = EndTimeStamp.Subtract(StartTimeStamp);
                 return (int)Math.Floor(diff.TotalMinutes/15);
             }
+        }
+
+        public object GetMissingTimes(int timeDiff)
+        {
+            var missing = new List<DataValue>();
+            foreach (var sensor in Sensors)
+            {
+                for (int i = 1;i<sensor.CurrentState.Values.Count;i++)
+                {
+                    if(sensor.CurrentState.Values[i-1].Timestamp.AddMinutes(timeDiff)!=sensor.CurrentState.Values[i].Timestamp)
+                    {
+                        var tmpTime = sensor.CurrentState.Values[i - 1].Timestamp.AddMinutes(timeDiff);
+                        while(tmpTime < sensor.CurrentState.Values[i].Timestamp)
+                        {
+                            missing.Add(new DataValue(tmpTime,0));
+                            tmpTime = tmpTime.AddMinutes(timeDiff);
+                        }
+                    }
+                        
+                }
+            }
+            return missing;
         }
     }
 }
