@@ -89,31 +89,5 @@ namespace IndiaTango.Tests
         {
             _ds.Buoy = null;
         }
-
-        [Test]
-        public void FindMissingValuesTest()
-        {
-            var missingDates = new List<DataValue>
-                                   {
-                                       new DataValue(new DateTime(2011, 8, 20, 0, 15, 0), 0),
-                                       new DataValue(new DateTime(2011, 8, 20, 0, 30, 0), 0),
-                                       new DataValue(new DateTime(2011, 8, 20, 0, 45, 0), 0),
-                                       new DataValue(new DateTime(2011, 8, 20, 1, 0, 0), 0),
-                                       new DataValue(new DateTime(2011, 8, 20, 1, 15, 0), 0),
-                                       new DataValue(new DateTime(2011, 8, 20, 1, 30, 0), 0),
-                                       new DataValue(new DateTime(2011, 8, 20, 1, 45, 0), 0)
-                                   };
-            var ds = new Dataset(_b, new DateTime(2011, 8, 20, 0, 0, 0), new DateTime(2011, 8, 20, 2, 0, 0));
-            var sensor = new Sensor("sensor", "ml");
-            var sensorState = new SensorState(new DateTime(2011, 8, 23, 0, 0, 0));
-            sensorState.Values = new List<DataValue>
-                                     {
-                                         new DataValue(new DateTime(2011, 8, 20, 0, 0, 0), 100),
-                                         new DataValue(new DateTime(2011, 8, 20, 2, 0, 0), 50)
-                                     };
-            sensor.AddState(sensorState);
-            ds.AddSensor(sensor);
-            Assert.AreEqual(missingDates,ds.GetMissingTimes(15));
-        }
     }
 }

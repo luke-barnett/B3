@@ -70,5 +70,26 @@ namespace IndiaTango.Models
             return true;
         }
 
+
+
+        public List<DataValue> GetMissingTimes(int timeDiff)
+        {
+            var missing = new List<DataValue>();
+                for (int i = 1; i < Values.Count; i++)
+                {
+                    if (Values[i - 1].Timestamp.AddMinutes(timeDiff) != Values[i].Timestamp)
+                    {
+                        var tmpTime = Values[i - 1].Timestamp.AddMinutes(timeDiff);
+                        while (tmpTime < Values[i].Timestamp)
+                        {
+                            missing.Add(new DataValue(tmpTime, 0));
+                            tmpTime = tmpTime.AddMinutes(timeDiff);
+                        }
+
+                }
+            }
+            return missing;
+        }
+
     }
 }
