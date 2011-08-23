@@ -74,6 +74,11 @@ namespace IndiaTango.ViewModels
             get { return ProgressBarPercent/100; }
         }
 
+        public string Title
+        {
+            get { return "New Session"; }
+        }
+
         public string LoadingProgress { get { return string.Format("{0}%", ProgressBarPercent); } }
 
         private bool _buttonsEnabled = true;
@@ -90,7 +95,12 @@ namespace IndiaTango.ViewModels
         public void btnGraph()
         {
             if (SelectedSensor == null)
+            {
+                MessageBox.Show("You must first import a data set and select a parameter to be graphed.", "Error",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
+            }
+
             var graphView = (_container.GetInstance(typeof (GraphViewModel), "GraphViewModel") as GraphViewModel);
             graphView.Sensor = SelectedSensor;
             _windowManager.ShowWindow(graphView);

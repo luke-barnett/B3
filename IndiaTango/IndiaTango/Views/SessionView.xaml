@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:caliburn="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro"
-        Title="{Binding ApplicationTitle}" Icon="{Binding Icon}" Height="450" Width="450">
+        Title="{Binding Title}" Icon="{Binding Icon}" Height="450" Width="450">
     <Window.TaskbarItemInfo>
         <TaskbarItemInfo Description="Progress of data loading operation" ProgressState="{Binding ProgressState}" ProgressValue="{Binding ProgressBarPercentDouble}" />
     </Window.TaskbarItemInfo>
