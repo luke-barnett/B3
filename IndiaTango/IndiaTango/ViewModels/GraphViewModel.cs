@@ -49,6 +49,28 @@ namespace IndiaTango.ViewModels
         private IBehaviour _behaviour = new BehaviourManager();
         public IBehaviour Behaviour { get { return _behaviour; } set { _behaviour = value; NotifyOfPropertyChange(() => Behaviour); } }
 
+        private double _minimum = 0;
+        public double Minimum { get { return _minimum; } set { _minimum = value; NotifyOfPropertyChange(() => Minimum); NotifyOfPropertyChange(() => MinimumValue); MinimumMaximum = Minimum; Range = new DoubleRange(Minimum, Maximum); if (Math.Abs(Maximum - Minimum) < 0.001) Minimum -= 1; } }
+
+        public string MinimumValue { get { return string.Format("Minimum Value: {0}", (int)Minimum); } }
+
+        private double _maximumMinimum;
+        public double MaximumMinimum { get { return _maximumMinimum; } set { _maximumMinimum = value; NotifyOfPropertyChange(() => MaximumMinimum); } }
+
+        private double _minimumMinimum;
+        public double MinimumMinimum { get { return _minimumMinimum; } set { _minimumMinimum = value; NotifyOfPropertyChange(() => MinimumMinimum); } }
+
+        private double _maximum = 0;
+        public double Maximum { get { return _maximum; } set { _maximum = value; NotifyOfPropertyChange(() => Maximum); NotifyOfPropertyChange(() => MaximumValue); MaximumMinimum = Maximum; Range = new DoubleRange(Minimum, Maximum); if (Math.Abs(Maximum - Minimum) < 0.001) Maximum += 1; } }
+
+        public string MaximumValue { get { return string.Format("Maximum Value: {0}", (int)Maximum); } }
+
+        private double _maximumMaximum;
+        public double MaximumMaximum { get { return _maximumMaximum; } set { _maximumMaximum = value; NotifyOfPropertyChange(() => MaximumMaximum); } }
+
+        private double _minimumMaximum;
+        public double MinimumMaximum { get { return _minimumMaximum; } set { _minimumMaximum = value; NotifyOfPropertyChange(() => MinimumMaximum); } }
+
         private List<IEnumerable<DataPoint<DateTime, float>>> _dataPoints = new List<IEnumerable<DataPoint<DateTime, float>>>();
         private List<string> _seriesNames = new List<string>();
         public Sensor Sensor { set
@@ -58,7 +80,11 @@ namespace IndiaTango.ViewModels
             ChartTitle = value.Name;
             YAxisTitle = value.Unit;
             SampleValues(MaxPointCount, _dataPoints);
-            Range = new DoubleRange(MinimumY().Y - 10, MaximumY().Y * 2);
+
+            MaximumMaximum = MaximumY().Y + 100;
+            MinimumMinimum = MinimumY().Y - 100;
+
+            Maximum = MaximumMaximum;
         }}
 
         public List<Sensor> Sensors { set
@@ -74,7 +100,12 @@ namespace IndiaTango.ViewModels
             }
             YAxisTitle = (((from dataSeries in value select dataSeries.Unit).Distinct()).Count() == 1) ? value[0].Unit : String.Empty;
             SampleValues(MaxPointCount, _dataPoints);
-            Range = new DoubleRange(MinimumY().Y - 10, MaximumY().Y * 2);
+
+            MaximumMaximum = MaximumY().Y + 100;
+            MinimumMinimum = MinimumY().Y - 100;
+
+            Maximum = MaximumMaximum;
+            Minimum = MinimumMinimum;
         }}
 
         private DataPoint<DateTime, float> MaximumY()

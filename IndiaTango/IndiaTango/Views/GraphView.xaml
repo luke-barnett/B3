@@ -25,9 +25,14 @@
                 <RowDefinition Height="30" />
                 <RowDefinition Height="30" />
                 <RowDefinition Height="30" />
-                <RowDefinition Height="60" />
+                <RowDefinition Height="30" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Text="Y Axis Control" TextAlignment="Center" VerticalAlignment="Bottom" FontWeight="DemiBold" />
+            <Slider Grid.Row="1" Minimum="{Binding MinimumMinimum}" Maximum="{Binding MaximumMinimum}" Value="{Binding Minimum, Mode=TwoWay}" TickFrequency="10" IsSnapToTickEnabled="True" />
+            <TextBlock Grid.Row="2" Text="{Binding MinimumValue}" TextAlignment="Center" VerticalAlignment="Top" />
+            <Slider Grid.Row="3" Minimum="{Binding MinimumMaximum}" Maximum="{Binding MaximumMaximum}" Value="{Binding Maximum, Mode=TwoWay}" TickFrequency="10" IsSnapToTickEnabled="True" />
+            <TextBlock Grid.Row="4" Text="{Binding MaximumValue}" TextAlignment="Center" VerticalAlignment="Top" />
         </Grid>
     </Grid>
 </Window>
