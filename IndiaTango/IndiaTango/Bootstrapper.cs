@@ -17,11 +17,8 @@ namespace IndiaTango
             _container.RegisterPerRequest(typeof(GraphViewModel), "GraphViewModel", typeof(GraphViewModel));
             _container.RegisterPerRequest(typeof(SessionViewModel), "SessionViewModel", typeof(SessionViewModel));
             _container.RegisterPerRequest(typeof(BuoyDetailsViewModel), "BuoyDetailsViewModel", typeof(BuoyDetailsViewModel));
-<<<<<<< HEAD
             _container.RegisterPerRequest(typeof(MissingValuesViewModel),"MissingValuesViewModel",typeof(MissingValuesViewModel));
-=======
             _container.RegisterPerRequest(typeof(ContactEditorViewModel), "ContactEditorViewModel", typeof(ContactEditorViewModel));
->>>>>>> b0383bd23068b6d6882d712147a842a5f050f90a
 
             _container.RegisterInstance(typeof(IWindowManager), null, new WindowManager());
             _container.RegisterInstance(typeof(SimpleContainer), null, _container);

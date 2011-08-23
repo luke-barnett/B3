@@ -56,11 +56,18 @@ namespace IndiaTango.ViewModels
         {
             if(_selectedValue == null)
                 return;
-            var prevValue = _sensor.CurrentState.Values.Find(dv => dv.Timestamp.AddMinutes(15) == _selectedValue.Timestamp);
+            DataValue prevValue = null;
+            var time = 15;
+            while (prevValue == null)
+            {
+                prevValue = _sensor.CurrentState.Values.Find(dv => dv.Timestamp.AddMinutes(time) == _selectedValue.Timestamp);
+                time += 15;
+            }
             var newDV = new DataValue(_selectedValue.Timestamp, 0);
             _sensor.CurrentState.Values.Insert(_sensor.CurrentState.Values.FindIndex(delegate(DataValue dv)
-                                                                                         { return dv == newDV; })+1,newDV);
+                                                                                         { return dv == prevValue; })+1,newDV);
             _missingValues = _sensor.CurrentState.GetMissingTimes(15);
+            NotifyOfPropertyChange(()=>MissingValues);
             NotifyOfPropertyChange(()=>Sensor);
             NotifyOfPropertyChange(()=>MissingCount);
         }
