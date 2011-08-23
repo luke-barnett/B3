@@ -100,12 +100,18 @@ namespace IndiaTango.ViewModels
                                 MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
 			}
-            foreach (var sensor in SelectedSensor)
-            {
+            else if(SelectedSensor.Count == 1)
+			{
                 var graphView = (_container.GetInstance(typeof(GraphViewModel), "GraphViewModel") as GraphViewModel);
-                graphView.Sensor = sensor;
+                graphView.Sensor = SelectedSensor[0];
                 _windowManager.ShowWindow(graphView);
-            }
+			}
+			else
+			{
+                var graphView = (_container.GetInstance(typeof(GraphViewModel), "GraphViewModel") as GraphViewModel);
+			    graphView.Sensors = SelectedSensor;
+                _windowManager.ShowWindow(graphView);
+			}
         }
 
         public void btnDetails()

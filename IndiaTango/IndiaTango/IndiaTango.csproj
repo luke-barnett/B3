@@ -78,6 +78,7 @@
     <Compile Include="Models\CSVReader.cs" />
     <Compile Include="Models\GraphBehaviour.cs" />
     <Compile Include="Models\Tools.cs" />
+    <Compile Include="MultiSeriesBinding\MultiSeries.cs" />
     <Compile Include="SimpleContainer.cs" />
     <Compile Include="ViewModels\BaseViewModel.cs" />
     <Compile Include="ViewModels\BuoyDetailsViewModel.cs" />
