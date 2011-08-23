@@ -3,6 +3,8 @@ using System.Text;
 using IndiaTango.Models;
 using NUnit.Framework;
 using System.IO;
+using System.Linq;
+using System.Collections.Generic;
 using System.Security.Cryptography;
 
 namespace IndiaTango.Tests
@@ -17,18 +19,28 @@ namespace IndiaTango.Tests
 		//Secondary contact cannot be null? Argh...
 		//Also need a setter on the Dataset class for the sensor list
     	private static readonly Contact Contact = new Contact("K", "A", "k@a.com", "", "0");
-		private readonly Dataset _data = new Dataset(new Buoy(1, "Your Mother", "Kerry", Contact, Contact, Contact, new GPSCoords(0,0)), DateTime.Now, DateTime.Now.AddDays(2));
+		private readonly Dataset _data = new Dataset(new Buoy(1, "Your Mother", "Kerry", Contact, Contact, Contact, new GPSCoords(0,0)), new DateTime(2009,1,9,14,45,0), new DateTime(2011,1,12,6,45,0));
 
 		#region Tests
 
     	[Test]
-        public void ExportAsCSVTest()
+        public void ExportAsCSVNoEmptyLines()
     	{
     		CSVReader reader = new CSVReader(Path.Combine(_inputFilePath));
     		_data.Sensors = reader.ReadSensors();
 			_exporter = new DatasetExporter(_data);
-			_exporter.Export(_outputFilePath,ExportFormat.CSV);
-			//Assert.IsTrue(CompareFiles(_outputFilePath,_inputFilePath));
+			_exporter.Export(_outputFilePath,ExportFormat.CSV,false);
+			Assert.AreEqual(Tools.GenerateMD5HashFromFile(_outputFilePath), Tools.GenerateMD5HashFromFile(_inputFilePath));
+        }
+
+        [Test]
+        public void ExportAsCSVEmptyLinesIncluded()
+        {
+            CSVReader reader = new CSVReader(Path.Combine(_inputFilePath));
+            _data.Sensors = reader.ReadSensors();
+            _exporter = new DatasetExporter(_data);
+            _exporter.Export(_outputFilePath, ExportFormat.CSV, true);
+            Assert.AreEqual(File.ReadLines(_outputFilePath).Count(), _data.DataPointCount + 1);
         }
 
         [Test]
@@ -38,13 +50,13 @@ namespace IndiaTango.Tests
             var givenDataSet = new Dataset(new Buoy(1, "Steven", "Kerry", Contact, Contact, Contact, new GPSCoords(0, 0)), dateTime, dateTime.AddDays(2));
 
             // 24 * 4 = # of 15 min slots in a day
-            Assert.AreEqual(givenDataSet.DataPointCount, (24 * 4) * 2);
+            Assert.AreEqual(givenDataSet.DataPointCount, (24 * 4) * 2 + 1);
 
             dateTime = new DateTime(2011, 8, 4, 0, 0, 0);
             givenDataSet = new Dataset(new Buoy(1, "Steven", "Kerry", Contact, Contact, Contact, new GPSCoords(0, 0)), dateTime, dateTime.AddDays(1));
 
             // 24 * 4 = # of 15 min slots in a day
-            Assert.AreEqual(givenDataSet.DataPointCount, (24 * 4));
+            Assert.AreEqual(givenDataSet.DataPointCount, (24 * 4) + 1);
         }
 
 		[Test]
@@ -52,15 +64,6 @@ namespace IndiaTango.Tests
 		public void NullArguementConstructorTest()
 		{
 			_exporter = new DatasetExporter(null);
-		}
-
-		#endregion
-
-		#region CompareFunctions
-
-		public bool CompareFiles(string filePathOne, string filePathTwo)
-		{
-			return Tools.GenerateMD5HashFromFile(filePathOne) == Tools.GenerateMD5HashFromFile(filePathTwo);
 		}
 
 		#endregion

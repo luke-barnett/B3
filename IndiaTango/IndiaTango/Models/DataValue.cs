@@ -36,5 +36,10 @@ namespace IndiaTango.Models
         {
             return (obj is DataValue) && (obj as DataValue).Timestamp == Timestamp && (obj as DataValue).Value.CompareTo(Value) == 0;
         }
+
+        public override string ToString()
+        {
+            return Timestamp.ToShortDateString() + " " + Timestamp.ToShortTimeString() + " " + Value;
+        }
     }
 }

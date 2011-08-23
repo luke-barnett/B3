@@ -75,6 +75,11 @@ namespace IndiaTango.ViewModels
             get { return ProgressBarPercent/100; }
         }
 
+        public string Title
+        {
+            get { return "New Session"; }
+        }
+
         public string LoadingProgress { get { return string.Format("{0}%", ProgressBarPercent); } }
 
         private bool _buttonsEnabled = true;
@@ -90,21 +95,24 @@ namespace IndiaTango.ViewModels
         public void btnGraph()
         {
             if (SelectedSensor.Count == 0)
+            {
+                MessageBox.Show("You must first import a data set and select a parameter to be graphed.", "Error",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
+			}
             foreach (var sensor in SelectedSensor)
             {
                 var graphView = (_container.GetInstance(typeof(GraphViewModel), "GraphViewModel") as GraphViewModel);
                 graphView.Sensor = sensor;
                 _windowManager.ShowWindow(graphView);
             }
-            
         }
 
         public void btnDetails()
         {
             var detailView =
                 (_container.GetInstance(typeof (BuoyDetailsViewModel), "BuoyDetailsViewModel") as BuoyDetailsViewModel);
-            _windowManager.ShowWindow(detailView);
+            _windowManager.ShowDialog(detailView);
         }
 
         public void btnCancel()
@@ -135,6 +143,15 @@ namespace IndiaTango.ViewModels
             {
                 SelectedSensor.Add(item);
             }
+        }
+        public void btnFindMissingValues()
+        {
+            if (SelectedSensor == null)
+                return;
+            var MissingValuesView =
+                (_container.GetInstance(typeof(MissingValuesViewModel), "MissingValuesViewModel") as MissingValuesViewModel);
+            MissingValuesView.Sensor = SelectedSensor[0];
+            _windowManager.ShowDialog(MissingValuesView);
         }
     }
 }
