@@ -29,6 +29,8 @@
         <Grid Grid.Column="1" Margin="10 0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="10"/>
                 <RowDefinition Height="30" />
                 <RowDefinition Height="10" />
                 <RowDefinition Height="30" />
@@ -40,10 +42,11 @@
                 <RowDefinition Height="30" />
                 <RowDefinition Height="10" />
             </Grid.RowDefinitions>
-            <Button Grid.Row="1" Name="btnDetails" IsEnabled="{Binding ButtonsEnabled}" Content="Details" />
-            <Button Grid.Row="3" Name="btnImport" IsEnabled="{Binding ButtonsEnabled}" Content="Import" />
-            <Button Grid.Row="5" Name="btnGraph" IsEnabled="{Binding ButtonsEnabled}" Content="Graph" />
-            <Grid Grid.Row="7">
+            <Button Grid.Row="1" Name="btnFindMissingValues" IsEnabled="{Binding ButtonsEnabled}" Content = "Find missing values"/>
+            <Button Grid.Row="3" Name="btnDetails" IsEnabled="{Binding ButtonsEnabled}" Content="Details" />
+            <Button Grid.Row="5" Name="btnImport" IsEnabled="{Binding ButtonsEnabled}" Content="Import" />
+            <Button Grid.Row="7" Name="btnGraph" IsEnabled="{Binding ButtonsEnabled}" Content="Graph" />
+            <Grid Grid.Row="9">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="90" />
                     <ColumnDefinition Width="*" />
@@ -51,7 +54,7 @@
                 <ProgressBar Grid.Column="0" IsIndeterminate="False" Visibility="{Binding LoadingComponentsVisible}" Value="{Binding ProgressBarPercent}"/>
                 <TextBlock Grid.Column="1" Margin="5 0 0 0" Text="{Binding LoadingProgress}" Visibility="{Binding LoadingComponentsVisible}" TextAlignment="Right" />
             </Grid>
-            <Button Grid.Row="9" Name="btnCancel" Visibility="{Binding LoadingComponentsVisible}" Content="Cancel" />
+            <Button Grid.Row="11" Name="btnCancel" Visibility="{Binding LoadingComponentsVisible}" Content="Cancel" />
         </Grid>
     </Grid>
 </Window>
