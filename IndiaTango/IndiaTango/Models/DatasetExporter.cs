@@ -16,6 +16,13 @@ namespace IndiaTango.Models
 			Data = data;
 		}
 
+        /// <summary>
+        /// Exports a data set to a CSV file.
+        /// The file is saved in the same format as the original CSV files.
+        /// </summary>
+        /// <param name="filePath">The desired path and file name of the file to be saved. No not include an extension.</param>
+        /// <param name="format">The format to save the file in.</param>
+        /// <param name="includeEmptyLines">Wether to export the file with empty lines or not.</param>
 		public void Export(string filePath, ExportFormat format,bool includeEmptyLines)
 		{
 			if (String.IsNullOrWhiteSpace(filePath))
@@ -24,11 +31,14 @@ namespace IndiaTango.Models
 			if (format == null)
 				throw new ArgumentNullException("Export format cannot be null");
 
-			if (format.Equals(ExportFormat.CSV))
+            //Strip the existing extension and add the one specified in the method args
+            filePath = Path.ChangeExtension(filePath,format.Extension);
+
+			if (format.Equals(ExportFormat.CSV) || format.Equals(ExportFormat.TXT))
 			{
 				using(StreamWriter writer = File.CreateText(filePath))
 				{
-					const char del = ',';
+					char del = format.Equals(ExportFormat.CSV) ? ',' : Convert.ToChar(9);   //9 is the decimal ascii value for a tab
 					string columnHeadings = "dd/mm/yyyy" + del + "hhnn";  //Not a typo
 				    int currentSensorIndex = 0;
 				    var outputData = new string[Data.Sensors.Count, Data.DataPointCount];

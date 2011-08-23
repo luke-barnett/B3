@@ -49,7 +49,21 @@ namespace IndiaTango.ViewModels
             set { var i = value; }
         }
 
+        private DataValue _selectedValue = null;
+        public DataValue SelectedValue { get { return _selectedValue; } set { _selectedValue = value;NotifyOfPropertyChange(()=>SelectedValue); } }
 
+        public void btnMakeZero()
+        {
+            if(_selectedValue == null)
+                return;
+            var prevValue = _sensor.CurrentState.Values.Find(dv => dv.Timestamp.AddMinutes(15) == _selectedValue.Timestamp);
+            var newDV = new DataValue(_selectedValue.Timestamp, 0);
+            _sensor.CurrentState.Values.Insert(_sensor.CurrentState.Values.FindIndex(delegate(DataValue dv)
+                                                                                         { return dv == newDV; })+1,newDV);
+            _missingValues = _sensor.CurrentState.GetMissingTimes(15);
+            NotifyOfPropertyChange(()=>Sensor);
+            NotifyOfPropertyChange(()=>MissingCount);
+        }
 
     }
 }
