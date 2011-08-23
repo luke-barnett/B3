@@ -15,9 +15,10 @@ namespace IndiaTango.Models
         private bool _leftMouseDown;
         private Point _leftMouseDownPosition;
 
-        public GraphBehaviour() : base("Custom Graph Behaviour")
-        {
-        }
+        public event ZoomRequested ZoomRequested;
+        public event ZoomResetRequested ZoomResetRequested;
+
+        public GraphBehaviour() : base("Custom Graph Behaviour") {}
 
         protected override void Init()
         {
@@ -35,14 +36,7 @@ namespace IndiaTango.Models
         {
             #region pointFinding
 
-            IDataPoint closestX = null;
-            foreach(IDataPoint point in Chart.Series[0].DataSeries)
-            {
-                if (closestX == null)
-                    closestX = point;
-                else if (Math.Abs(Chart.Series[0].GetPointRenderPosition(point).X - position.X) < Math.Abs(Chart.Series[0].GetPointRenderPosition(closestX).X - position.X))
-                    closestX = point;
-            }
+            var closestX = FindClosestPoint(position);
             if(closestX != null)
                 System.Diagnostics.Debug.Print("X:{0} Y:{1} [{2}]", closestX.X, closestX.Y, position);
 
@@ -101,9 +95,14 @@ namespace IndiaTango.Models
             if (Math.Abs(position.X - _leftMouseDownPosition.X) < 2)
                 return;
 
-            double xPosOne = (position.X);
-            double xPosTwo = (_leftMouseDownPosition.X);
+            var positionOne = FindClosestPoint(_leftMouseDownPosition);
+            var positionTwo = FindClosestPoint(position);
 
+            if (CheckZoomIsPossible(position.X, _leftMouseDownPosition.X) && positionOne != positionTwo)
+            {
+                System.Diagnostics.Debug.Print("{0} {1}", positionOne, positionTwo);
+                RequestZoom(positionOne, positionTwo);
+            }
         }
 
         public override void LostMouseCapture()
@@ -116,9 +115,9 @@ namespace IndiaTango.Models
 
         public override void MouseLeftButtonDoubleClick(Point position)
         {
-            //Fire event to reset zoom
+            if (ZoomResetRequested != null)
+                ZoomResetRequested(this);
         }
-
 
         #region private methods
 
@@ -165,6 +164,46 @@ namespace IndiaTango.Models
             return maximumWidthScale;
         }
 
+        private IDataPoint FindClosestPoint(Point position)
+        {
+            IDataPoint closestX = null;
+            foreach (IDataPoint point in Chart.Series[0].DataSeries)
+            {
+                if (closestX == null)
+                    closestX = point;
+                else if (Math.Abs(Chart.Series[0].GetPointRenderPosition(point).X - position.X) < Math.Abs(Chart.Series[0].GetPointRenderPosition(closestX).X - position.X))
+                    closestX = point;
+            }
+            return closestX;
+        }
+
+        private void RequestZoom(IDataPoint firstPoint, IDataPoint secondPoint)
+        {
+            OnZoomRequested(this, new ZoomRequestedArgs(firstPoint, secondPoint));
+        }
+
+        private void OnZoomRequested(object o, ZoomRequestedArgs e)
+        {
+            if (ZoomRequested != null)
+                ZoomRequested(o, e);
+        }
+
         #endregion
     }
+
+    public class ZoomRequestedArgs : EventArgs
+    {
+        public readonly IDataPoint FirstPoint;
+        public readonly IDataPoint SecondPoint;
+
+        public ZoomRequestedArgs(IDataPoint firstPoint, IDataPoint secondPoint)
+        {
+            FirstPoint = firstPoint;
+            SecondPoint = secondPoint;
+        }
+    }
+
+    public delegate void ZoomRequested(object o, ZoomRequestedArgs e);
+
+    public delegate void ZoomResetRequested(object o);
 }

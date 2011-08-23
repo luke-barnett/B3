@@ -13,14 +13,23 @@ namespace IndiaTango.ViewModels
     {
         private readonly SimpleContainer _container;
         private readonly IWindowManager _windowManager;
+        private const int MaxPointCount = 5000;
 
         public GraphViewModel(IWindowManager windowManager, SimpleContainer container)
         {
             _windowManager = windowManager;
             _container = container;
-            var b = new BehaviourManager();
-            b.AllowMultipleEnabled = true;
-            b.Behaviours.Add(new GraphBehaviour(){IsEnabled = true});
+            var b = new BehaviourManager {AllowMultipleEnabled = true};
+            var g = new GraphBehaviour() {IsEnabled = true};
+            g.ZoomRequested += delegate(object o, ZoomRequestedArgs e)
+                                   {
+                                       SampleValues(MaxPointCount, _dataPoints.Where(x => x.X >= (DateTime)e.FirstPoint.X && x.X >= (DateTime)e.SecondPoint.X));
+                                   };
+            g.ZoomResetRequested += delegate(object o)
+                                        {
+                                            SampleValues(MaxPointCount,_dataPoints);
+                                        };
+            b.Behaviours.Add(g);
             Behaviour = b;
         }
         
@@ -45,8 +54,7 @@ namespace IndiaTango.ViewModels
             _dataPoints = (from dataValue in value.CurrentState.Values select new DataPoint<DateTime, float>(dataValue.Timestamp, dataValue.Value));
             ChartTitle = value.Name;
             YAxisTitle = value.Unit;
-            
-            SampleValues(5000, _dataPoints);
+            SampleValues(MaxPointCount, _dataPoints);
             Range = new DoubleRange(0, maximumY().Y * 2);
         }}
 
@@ -68,12 +76,13 @@ namespace IndiaTango.ViewModels
 
         private void SampleValues(int numberOfPoints, IEnumerable<DataPoint<DateTime, float>> dataSource)
         {
+            if (numberOfPoints < 2)
+                return;
             var sampleRate = _dataPoints.Count() / numberOfPoints;
             System.Diagnostics.Debug.Print("Number of points: {0} Max Number {1} Sampling rate {2}",_dataPoints.Count(),numberOfPoints,sampleRate);
-            if(sampleRate > 0)
-                ChartSeries = new DataSeries<DateTime, float>(ChartTitle, dataSource.Where((x, index) => index % sampleRate == 0));
-            else
-                ChartSeries = new DataSeries<DateTime, float>(ChartTitle, dataSource);
+            var series = (sampleRate > 0) ? new DataSeries<DateTime, float>(ChartTitle, dataSource.Where((x, index) => index % sampleRate == 0)) : ChartSeries = new DataSeries<DateTime, float>(ChartTitle, dataSource);
+            if (series.Count > 1)
+                ChartSeries = series;
         }
 
         private void CountValues()
