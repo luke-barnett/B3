@@ -120,5 +120,14 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        public void btnFindMissingValues()
+        {
+            if (SelectedSensor == null)
+                return;
+            var MissingValuesView =
+                (_container.GetInstance(typeof(MissingValuesViewModel), "MissingValuesViewModel") as MissingValuesViewModel);
+            MissingValuesView.Sensor = SelectedSensor;
+            _windowManager.ShowDialog(MissingValuesView);
+        }
     }
 }
