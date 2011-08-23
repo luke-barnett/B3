@@ -1,7 +1,7 @@
 ﻿<Window x:Class="IndiaTango.Views.BuoyDetailsView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="BuoyDetails" Height="316" Width="482">
+        Title="{Binding Title}" Height="316" Width="482">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />

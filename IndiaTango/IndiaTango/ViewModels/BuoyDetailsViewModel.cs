@@ -16,6 +16,11 @@ namespace IndiaTango.ViewModels
             _container = container;
         }
 
+        public string Title
+        {
+            get { return "Edit Buoy Details"; }
+        }
+
         private void CreateNewBuoyIfNeeded()
         {
             if(_buoy == null) // TODO: make this nicer!
@@ -58,9 +63,22 @@ namespace IndiaTango.ViewModels
             }
         }
 
-        public void btnSave()
+        public void btnCancel()
         {
             this.TryClose();
+        }
+
+        public void btnSave()
+        {
+            // Save state
+        }
+
+        public void btnChoosePrimary()
+        {
+            var editor =
+                _container.GetInstance(typeof (ContactEditorViewModel), "ContactEditorViewModel") as
+                ContactEditorViewModel;
+            _windowManager.ShowDialog(editor);
         }
     }
 }
