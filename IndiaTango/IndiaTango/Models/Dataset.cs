@@ -82,9 +82,9 @@ namespace IndiaTango.Models
         public int DataPointCount
         {
             get
-            { 
-                var diff = EndTimeStamp.Subtract(StartTimeStamp);
-                return (int)Math.Floor(diff.TotalMinutes/15);
+            {
+                //An additional +1 is added to the return value to account for the initial data point
+                return (int)Math.Floor(EndTimeStamp.Subtract(StartTimeStamp).TotalMinutes/15) + 1;
             }
         }
     }

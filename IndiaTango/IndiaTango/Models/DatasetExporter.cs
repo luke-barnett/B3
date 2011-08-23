@@ -16,7 +16,7 @@ namespace IndiaTango.Models
 			Data = data;
 		}
 
-		public void Export(string filePath, ExportFormat format)
+		public void Export(string filePath, ExportFormat format,bool includeEmptyLines)
 		{
 			if (String.IsNullOrWhiteSpace(filePath))
 				throw new ArgumentNullException("filePath cannot be null");
@@ -29,26 +29,42 @@ namespace IndiaTango.Models
 				using(StreamWriter writer = File.CreateText(filePath))
 				{
 					const char del = ',';
-					string columnHeadings = "dd/mm/yy" + del + "hh:mm" + del;
-				    int rowCount = Data.DataPointCount;
-                    var outputData = new string[Data.Sensors.Count, rowCount];
+					string columnHeadings = "dd/mm/yyyy" + del + "hhnn";  //Not a typo
+				    int currentSensorIndex = 0;
+				    var outputData = new string[Data.Sensors.Count, Data.DataPointCount];
+				    DateTime rowDate = Data.StartTimeStamp;
 
-					//Construct the column headings (Sensor names)
                     foreach (Sensor sensor in Data.Sensors)
                     {
-                        columnHeadings += sensor.Name + del;
-                      //  foreach ()
-                       // {
-                            
-                       // }
+                        //Construct the column headings (Sensor names)
+                        columnHeadings += del + sensor.Name;
+                       
+                        //Fill the array with the data
+                        foreach (DataValue value in sensor.CurrentState.Values)
+                            outputData[currentSensorIndex, GetArrayRowFromTime(Data.StartTimeStamp, value.Timestamp)] = value.Value.ToString();
+
+                        currentSensorIndex++;
                     }
 
-				    //Strip the last delimiter
-					columnHeadings = columnHeadings.Substring(0, columnHeadings.Length - 1);
+				    //Strip the last delimiter from the headings and write the line
 					writer.WriteLine(columnHeadings);
-					writer.Flush();
 
                     //write the data here...
+                    for (int row = 0; row < Data.DataPointCount; row++)
+                    {
+                        string line = "";
+
+                        for (int col = 0; col < Data.Sensors.Count; col++)
+                            line += del + outputData[col, row];
+
+                        if(includeEmptyLines || line.Length != Data.Sensors.Count)
+                        {
+                            line = rowDate.ToString("dd/MM/yyyy") + del + rowDate.ToString("HH:mm") + line;
+                            writer.WriteLine(line);
+                        }
+
+                        rowDate = rowDate.AddMinutes(15);
+                    }
 
                     Debug.WriteLine(filePath);
 
@@ -69,14 +85,8 @@ namespace IndiaTango.Models
 
         private int GetArrayRowFromTime(DateTime startDate, DateTime currentDate)
         {
-            if (startDate == null)
-				throw new ArgumentNullException("startDate cannot be null");
-
-            if (currentDate == null)
-				throw new ArgumentNullException("currentDate cannot be null");
-
-            if (currentDate <= startDate)
-                throw new ArgumentException("currentDate must be larger than startDate");
+            if (currentDate < startDate)
+                throw new ArgumentException("currentDate must be larger than or equal to startDate\nYou supplied startDate=" + startDate.ToString() + " currentDate=" + currentDate.ToString());
 
             return (int)Math.Floor(currentDate.Subtract(startDate).TotalMinutes/15);
         }
