@@ -100,7 +100,7 @@ namespace IndiaTango.ViewModels
         {
             var detailView =
                 (_container.GetInstance(typeof (BuoyDetailsViewModel), "BuoyDetailsViewModel") as BuoyDetailsViewModel);
-            _windowManager.ShowWindow(detailView);
+            _windowManager.ShowDialog(detailView);
         }
 
         public void btnCancel()
