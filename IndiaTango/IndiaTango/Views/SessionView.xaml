@@ -18,10 +18,15 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <TextBlock Text="Available Sensors:" FontWeight="Bold" Margin="12 7" Grid.Row="0" />
-            <ListBox Grid.Row="1" ItemsSource="{Binding SensorList}" SelectedItem="{Binding SelectedSensor, Mode=TwoWay}" Margin="10 0 0 10">
+            <ListBox Grid.Row="1" ItemsSource="{Binding SensorList}" Margin="10 0 0 10" SelectionMode="Extended">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="MouseDoubleClick">
                         <caliburn:ActionMessage MethodName="btnGraph" />
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="SelectionChanged">
+                        <caliburn:ActionMessage MethodName="SelectionChanged">
+                            <caliburn:Parameter Value="$eventArgs" />
+                        </caliburn:ActionMessage>
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
             </ListBox>

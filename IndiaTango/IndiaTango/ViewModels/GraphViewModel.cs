@@ -58,7 +58,8 @@ namespace IndiaTango.ViewModels
                 else if (value.Y > maxY.Y)
                     maxY = value;
             }
-
+            if(maxY == null)
+                return new DataPoint<DateTime, float>(DateTime.Now,10);
             return maxY;
         }
     }

@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using Caliburn.Micro;
 using IndiaTango.Models;
 using Visiblox.Charts;
+using System.Windows.Controls;
 
 namespace IndiaTango.ViewModels
 {
@@ -89,21 +90,22 @@ namespace IndiaTango.ViewModels
 
         public List<Sensor> SensorList { get { return _sensors; } set { _sensors = value; NotifyOfPropertyChange(() => SensorList); } }
 
-        private Sensor _selectedSensor = null;
-        public Sensor SelectedSensor { get { return _selectedSensor; } set { _selectedSensor = value; NotifyOfPropertyChange(() => _selectedSensor); } }
+        public List<Sensor> SelectedSensor = new List<Sensor>();
 
         public void btnGraph()
         {
-            if (SelectedSensor == null)
+            if (SelectedSensor.Count == 0)
             {
                 MessageBox.Show("You must first import a data set and select a parameter to be graphed.", "Error",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
+			}
+            foreach (var sensor in SelectedSensor)
+            {
+                var graphView = (_container.GetInstance(typeof(GraphViewModel), "GraphViewModel") as GraphViewModel);
+                graphView.Sensor = sensor;
+                _windowManager.ShowWindow(graphView);
             }
-
-            var graphView = (_container.GetInstance(typeof (GraphViewModel), "GraphViewModel") as GraphViewModel);
-            graphView.Sensor = SelectedSensor;
-            _windowManager.ShowWindow(graphView);
         }
 
         public void btnDetails()
@@ -130,13 +132,25 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        public void SelectionChanged(SelectionChangedEventArgs e)
+        {
+            foreach (Sensor item in e.RemovedItems)
+            {
+                SelectedSensor.Remove(item);
+            }
+
+            foreach (Sensor item in e.AddedItems)
+            {
+                SelectedSensor.Add(item);
+            }
+        }
         public void btnFindMissingValues()
         {
             if (SelectedSensor == null)
                 return;
             var MissingValuesView =
                 (_container.GetInstance(typeof(MissingValuesViewModel), "MissingValuesViewModel") as MissingValuesViewModel);
-            MissingValuesView.Sensor = SelectedSensor;
+            MissingValuesView.Sensor = SelectedSensor[0];
             _windowManager.ShowDialog(MissingValuesView);
         }
     }

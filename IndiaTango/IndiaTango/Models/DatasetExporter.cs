@@ -34,11 +34,11 @@ namespace IndiaTango.Models
             //Strip the existing extension and add the one specified in the method args
             filePath = Path.ChangeExtension(filePath,format.Extension);
 
-			if (format.Equals(ExportFormat.CSV) || format.Equals(ExportFormat.TXT))
+            if (format.Equals(ExportFormat.CSV) || format.Equals(ExportFormat.TXT))
 			{
 				using(StreamWriter writer = File.CreateText(filePath))
 				{
-					char del = format.Equals(ExportFormat.CSV) ? ',' : Convert.ToChar(9);   //9 is the decimal ascii value for a tab
+					char del = ',';
 					string columnHeadings = "dd/mm/yyyy" + del + "hhnn";  //Not a typo
 				    int currentSensorIndex = 0;
 				    var outputData = new string[Data.Sensors.Count, Data.DataPointCount];
@@ -80,10 +80,6 @@ namespace IndiaTango.Models
 
 				    writer.Close();
 				}
-			}
-			else if (format.Equals(ExportFormat.TXT))
-			{
-				//Do stuff
 			}
 			else if (format.Equals(ExportFormat.XLSX))
 			{

@@ -12,8 +12,7 @@ namespace IndiaTango.Tests
     [TestFixture]
     public class DatasetExporterTest
     {
-    	private readonly string _outputFilePath1 = Path.Combine(Common.TestDataPath, "dataSetExporterTest1.csv");
-        private readonly string _outputFilePath2 = Path.Combine(Common.TestDataPath, "dataSetExporterTest2.csv");
+    	private readonly string _outputFilePath = Path.Combine(Common.TestDataPath, "dataSetExporterTest.csv");
 		private readonly string _inputFilePath = Path.Combine(Common.TestDataPath, "lakeTutira120120110648.csv");
     	private DatasetExporter _exporter;
 
@@ -30,8 +29,8 @@ namespace IndiaTango.Tests
     		CSVReader reader = new CSVReader(Path.Combine(_inputFilePath));
     		_data.Sensors = reader.ReadSensors();
 			_exporter = new DatasetExporter(_data);
-			_exporter.Export(_outputFilePath1,ExportFormat.CSV,false);
-			Assert.AreEqual(Tools.GenerateMD5HashFromFile(_outputFilePath1), Tools.GenerateMD5HashFromFile(_inputFilePath));
+			_exporter.Export(_outputFilePath,ExportFormat.CSV,false);
+			Assert.AreEqual(Tools.GenerateMD5HashFromFile(_outputFilePath), Tools.GenerateMD5HashFromFile(_inputFilePath));
         }
 
         [Test]
@@ -40,8 +39,8 @@ namespace IndiaTango.Tests
             CSVReader reader = new CSVReader(Path.Combine(_inputFilePath));
             _data.Sensors = reader.ReadSensors();
             _exporter = new DatasetExporter(_data);
-            _exporter.Export(_outputFilePath2, ExportFormat.CSV, true);
-            Assert.AreEqual(File.ReadLines(_outputFilePath2).Count(), _data.DataPointCount + 1);
+            _exporter.Export(_outputFilePath, ExportFormat.CSV, true);
+            Assert.AreEqual(File.ReadLines(_outputFilePath).Count(), _data.DataPointCount + 1);
         }
 
         [Test]
