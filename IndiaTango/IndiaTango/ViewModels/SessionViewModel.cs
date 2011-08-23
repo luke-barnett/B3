@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using Caliburn.Micro;
 using IndiaTango.Models;
 using Visiblox.Charts;
+using System.Windows.Controls;
 
 namespace IndiaTango.ViewModels
 {
@@ -84,16 +85,19 @@ namespace IndiaTango.ViewModels
 
         public List<Sensor> SensorList { get { return _sensors; } set { _sensors = value; NotifyOfPropertyChange(() => SensorList); } }
 
-        private Sensor _selectedSensor = null;
-        public Sensor SelectedSensor { get { return _selectedSensor; } set { _selectedSensor = value; NotifyOfPropertyChange(() => _selectedSensor); } }
+        public List<Sensor> SelectedSensor = new List<Sensor>();
 
         public void btnGraph()
         {
-            if (SelectedSensor == null)
+            if (SelectedSensor.Count == 0)
                 return;
-            var graphView = (_container.GetInstance(typeof (GraphViewModel), "GraphViewModel") as GraphViewModel);
-            graphView.Sensor = SelectedSensor;
-            _windowManager.ShowWindow(graphView);
+            foreach (var sensor in SelectedSensor)
+            {
+                var graphView = (_container.GetInstance(typeof(GraphViewModel), "GraphViewModel") as GraphViewModel);
+                graphView.Sensor = sensor;
+                _windowManager.ShowWindow(graphView);
+            }
+            
         }
 
         public void btnDetails()
@@ -120,5 +124,17 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        public void SelectionChanged(SelectionChangedEventArgs e)
+        {
+            foreach (Sensor item in e.RemovedItems)
+            {
+                SelectedSensor.Remove(item);
+            }
+
+            foreach (Sensor item in e.AddedItems)
+            {
+                SelectedSensor.Add(item);
+            }
+        }
     }
 }
