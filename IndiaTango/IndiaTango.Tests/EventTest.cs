@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using IndiaTango.Models;
 
@@ -61,6 +62,21 @@ namespace IndiaTango.Tests
         public void ActionEmptyPropertyTest()
         {
             _e.Action = "";
+        }
+
+        [Test]
+        public void EqualityTest()
+        {
+            var A = new Event(new DateTime(2011, 7, 4, 12, 59, 0), "Created a buoy");
+            var B = new Event(new DateTime(2011, 7, 4, 12, 59, 0), "Created a buoy");
+
+            Assert.AreEqual(A, B);
+        }
+
+        [Test]
+        public void ListEmptyEqualityTest()
+        {
+            Assert.AreEqual(new List<Event>(), new List<Event>());
         }
     }
 }

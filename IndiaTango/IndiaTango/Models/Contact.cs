@@ -64,6 +64,17 @@ namespace IndiaTango.Models
         public string Phone { get; set; }
         #endregion
 
+        public override bool Equals(object obj)
+        {
+            if (!(obj is Contact))
+                return false;
+
+            var contact = obj as Contact;
+
+            return contact.Business == Business && contact.Email == Email && contact.FirstName == FirstName &&
+                   contact.LastName == LastName && contact.Phone == Phone;
+        }
+
         #region private methods
         /// <summary>
         /// Checks to see if the given email address is valid

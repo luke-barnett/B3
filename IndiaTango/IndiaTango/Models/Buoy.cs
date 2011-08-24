@@ -16,6 +16,11 @@ namespace IndiaTango.Models
         private Contact _secondaryContact;
         private GPSCoords _gpsLocation;
 
+        public static string ExportPath
+        {
+            get { return Common.AppDataPath + "\\ExportedBuoys.xml"; }
+        }
+
         private Buoy() {} // Necessary for serialisation.
 
         /// <summary>
@@ -183,13 +188,48 @@ namespace IndiaTango.Models
             }
         }
 
-        public string Export()
+        public static void ExportAll(List<Buoy> buoys)
         {
             NetDataContractSerializer dcs = new NetDataContractSerializer();
-            var stream = new FileStream(Common.AppDataPath + "\\BuoyExportTest1.xml", FileMode.Create);
-            dcs.Serialize(stream, this);
-
-            return "";
+            var stream = new FileStream(ExportPath, FileMode.Create);
+            dcs.Serialize(stream, buoys);
+            stream.Close();
         }
+
+        public static List<Buoy> ImportAll()
+        {
+            NetDataContractSerializer dcs = new NetDataContractSerializer();
+            var stream = new FileStream(ExportPath, FileMode.Open);
+            var list = (List<Buoy>)dcs.Deserialize(stream);
+            stream.Close();
+            return list;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is Buoy))
+                return false;
+
+            var buoy = obj as Buoy;
+
+            for (int i = 0; i < buoy.Events.Count; i++)
+                if (!buoy.Events[i].Equals(Events[i]))
+                    return false;
+
+            var gps = buoy.GpsLocation.Equals(GpsLocation);
+            var id = buoy.Id == Id;
+            var owner = buoy.Owner == Owner;
+            var cone = buoy.PrimaryContact.Equals(PrimaryContact);
+            var ctwo = buoy.SecondaryContact.Equals(SecondaryContact);
+            var cthree = buoy.UniversityContact.Equals(UniversityContact);
+            var site = buoy.Site == Site;
+
+            return (buoy.GpsLocation.Equals(GpsLocation) && buoy.Id == Id &&
+                    buoy.Owner == Owner && buoy.PrimaryContact.Equals(PrimaryContact) &&
+                    buoy.SecondaryContact.Equals(SecondaryContact) && buoy.Site == Site &&
+                    buoy.UniversityContact.Equals(UniversityContact));
+        }
+
+        // TODO: test event num mismatch
     }
 }

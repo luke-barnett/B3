@@ -48,5 +48,10 @@ namespace IndiaTango.Models
                 _action = value;
             }
         }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Event && (obj as Event).Action == Action && (obj as Event).TimeStamp == TimeStamp;
+        }
     }
 }

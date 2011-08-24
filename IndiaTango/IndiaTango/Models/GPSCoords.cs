@@ -117,5 +117,11 @@ namespace IndiaTango.Models
         /// </summary>
         public string DMSLongitude { get { return ConvertDecimalDegreesToDMS(_longitude, false); } set { _longitude = ConvertDMSToDecimalDegrees(value); } }
         #endregion
+
+        public override bool Equals(object obj)
+        {
+            return (obj is GPSCoords) && (obj as GPSCoords).DecimalDegreesLatitude == DecimalDegreesLatitude &&
+                   (obj as GPSCoords).DecimalDegreesLongitude == DecimalDegreesLongitude;
+        }
     }
 }

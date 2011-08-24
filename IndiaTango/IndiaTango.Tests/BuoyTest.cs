@@ -13,6 +13,8 @@ namespace IndiaTango.Tests
         private Contact _sc;
         private Contact _uc;
         private GPSCoords _gps;
+        private Buoy A;
+        private Buoy B;
 
         [SetUp]
         public void SetUp()
@@ -22,6 +24,17 @@ namespace IndiaTango.Tests
             _uc = new Contact("Angela","Martin","angela@gmail.com","Waikato Uni","83745");
             _gps = new GPSCoords(37.5135426m,6.21684m);
             _testBuoy = new Buoy(1,"Lake Rotorua","Chris McBride",_pc,_sc,_uc,_gps);
+
+            A = new Buoy(6, "A Site", "David Hamilton",
+                             new Contact("David", "Hamilton", "david@hamilton.com", "UoW", "1234567"),
+                             new Contact("Stan", "Smith", "stan@smith.com", "CIA", "1212127"),
+                             new Contact("Bob", "Bobson", "bob@bobson.com", "Bob's Bakery", "43499894"),
+                             new GPSCoords(49, -2));
+            B = new Buoy(6, "A Site", "David Hamilton",
+                             new Contact("David", "Hamilton", "david@hamilton.com", "UoW", "1234567"),
+                             new Contact("Stan", "Smith", "stan@smith.com", "CIA", "1212127"),
+                             new Contact("Bob", "Bobson", "bob@bobson.com", "Bob's Bakery", "43499894"),
+                             new GPSCoords(49, -2));
         }
 
         [Test]
@@ -248,6 +261,42 @@ namespace IndiaTango.Tests
         public void ResetBuoyIDInvalid()
         {
             Buoy.NextID = -1;
+        }
+
+        [Test]
+        public void EqualityTest()
+        {
+            Assert.AreEqual(A, B);
+        }
+
+        [Test]
+        public void EventListEqualityTest()
+        {
+            Assert.AreEqual(A.Events, B.Events);
+        }
+
+        [Test]
+        public void CoordsEqualityTest()
+        {
+            Assert.AreEqual(A.GpsLocation, B.GpsLocation);
+        }
+
+        [Test]
+        public void PrimaryContactEqualityTest()
+        {
+            Assert.AreEqual(A.PrimaryContact, B.PrimaryContact);
+        }
+
+        [Test]
+        public void SecondaryContactEqualityTest()
+        {
+            Assert.AreEqual(A.SecondaryContact, B.SecondaryContact);
+        }
+
+        [Test]
+        public void UniContactEqualityTest()
+        {
+            Assert.AreEqual(A.UniversityContact, B.UniversityContact);
         }
     }
 }

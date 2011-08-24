@@ -155,5 +155,14 @@ namespace IndiaTango.Tests
         {
             _contact = new Contact("Steve", null, null, null, null);
         }
+
+        [Test]
+        public void EqualityTest()
+        {
+            var A = new Contact("Steve", "Hamilton", "steve@hamilton.co.nz", "Steve Limited", "(07)7533 2343");
+            var B = new Contact("Steve", "Hamilton", "steve@hamilton.co.nz", "Steve Limited", "(07)7533 2343");
+
+            Assert.AreEqual(A, B);
+        }
     }
 }

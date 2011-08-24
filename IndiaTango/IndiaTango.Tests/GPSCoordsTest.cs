@@ -74,5 +74,14 @@ namespace IndiaTango.Tests
 
             Assert.AreEqual("E175 18 37", degreeTest.DMSLongitude);
         }
+
+        [Test]
+        public void EqualityTest()
+        {
+            var A = new GPSCoords(4, 17);
+            var B = new GPSCoords(4, 17);
+
+            Assert.AreEqual(A, B);
+        }
     }
 }
