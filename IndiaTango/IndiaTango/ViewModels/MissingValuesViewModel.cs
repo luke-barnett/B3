@@ -115,5 +115,12 @@ namespace IndiaTango.ViewModels
                             " has been updated to " + value);
         }
 
+        public void btnGraph()
+        {
+            var graphView = (_container.GetInstance(typeof(GraphViewModel), "GraphViewModel") as GraphViewModel);
+            graphView.Sensor = Sensor;
+            _windowManager.ShowWindow(graphView);
+        }
+
     }
 }
