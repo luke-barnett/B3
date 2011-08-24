@@ -152,7 +152,7 @@ namespace IndiaTango.ViewModels
         }
         public void btnFindMissingValues()
         {
-            if (SelectedSensor == null)
+            if (SelectedSensor.Count == 0)
                 return;
             var MissingValuesView =
                 (_container.GetInstance(typeof(MissingValuesViewModel), "MissingValuesViewModel") as MissingValuesViewModel);

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows;
 using Caliburn.Micro;
 using IndiaTango.Models;
 
@@ -70,6 +71,48 @@ namespace IndiaTango.ViewModels
             NotifyOfPropertyChange(()=>MissingValues);
             NotifyOfPropertyChange(()=>Sensor);
             NotifyOfPropertyChange(()=>MissingCount);
+            MessageBox.Show(newDV.Timestamp.ToShortDateString() + " " + newDV.Timestamp.ToShortTimeString() +
+                            " has been updated to 0");
+        }
+
+        public void btnSpecify()
+        {
+            
+            if (_selectedValue == null)
+                return;
+            DataValue prevValue = null;
+            var time = 15;
+            while (prevValue == null)
+            {
+                prevValue = _sensor.CurrentState.Values.Find(dv => dv.Timestamp.AddMinutes(time) == _selectedValue.Timestamp);
+                time += 15;
+            }
+            var value = Int32.MinValue;
+            while (value == Int32.MinValue)
+            {
+                try
+                {
+                    var str = Microsoft.VisualBasic.Interaction.InputBox("Please specify a new value:", "", "Value");
+                    //cancel
+                    if (str == "")
+                        return;
+                    value =
+                        Int32.Parse(str);
+                }
+                catch (FormatException f)
+                {
+                    MessageBox.Show("Please enter only numbers");
+                }
+            }
+            var newDV = new DataValue(_selectedValue.Timestamp, value);
+            _sensor.CurrentState.Values.Insert(_sensor.CurrentState.Values.FindIndex(delegate(DataValue dv)
+            { return dv == prevValue; }) + 1, newDV);
+            _missingValues = _sensor.CurrentState.GetMissingTimes(15);
+            NotifyOfPropertyChange(() => MissingValues);
+            NotifyOfPropertyChange(() => Sensor);
+            NotifyOfPropertyChange(() => MissingCount);
+            MessageBox.Show(newDV.Timestamp.ToShortDateString() + " " + newDV.Timestamp.ToShortTimeString() +
+                            " has been updated to " + value);
         }
 
     }
