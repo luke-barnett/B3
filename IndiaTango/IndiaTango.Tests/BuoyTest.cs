@@ -230,6 +230,8 @@ namespace IndiaTango.Tests
         [Test]
         public void AutoIncrementingBuoyIDCorrect()
         {
+            Buoy.NextID = 1; // Start with a consistent state
+
             Assert.AreEqual(1, Buoy.NextID);
             Assert.AreEqual(2, Buoy.NextID);
         }

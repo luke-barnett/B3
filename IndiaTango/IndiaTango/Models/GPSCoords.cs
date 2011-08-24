@@ -1,14 +1,18 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 namespace IndiaTango.Models
 {
     /// <summary>
     /// Represents a pair of GPS co-ordinates, optionally constructed using DMS (Degrees Minutes Seconds) or Decimal Degrees notation.
     /// </summary>
+    [DataContract]
     public class GPSCoords
     {
         private decimal _latitude;
         private decimal _longitude;
+
+        private GPSCoords() {} // Necessary for serialisation.
 
         /// <summary>
         /// Creates a GPSCoords object using Decimal Degrees values.
@@ -94,11 +98,13 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the latitude value, using decimal degrees.
         /// </summary>
+        [DataMember(Name="Latitude")]
         public decimal DecimalDegreesLatitude { get { return _latitude; } set { _latitude = value; } }
 
         /// <summary>
         /// Gets or sets the longitude value, using decimal degrees.
         /// </summary>
+        [DataMember(Name="Longitude")]
         public decimal DecimalDegreesLongitude { get { return _longitude; } set { _longitude = value; } }
 
         /// <summary>

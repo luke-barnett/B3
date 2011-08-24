@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BuoyExportTest.cs" />
     <Compile Include="BuoyTest.cs" />
     <Compile Include="ContactTest.cs" />
     <Compile Include="CSVReaderTest.cs" />

@@ -16,10 +16,15 @@ namespace IndiaTango.Models
         {
             get
             {
-                return Path.Combine(new string[]{
+                var path = Path.Combine(new string[]{
                     Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                     "IndiaTango",
                 });
+
+                if (!Directory.Exists(path)) // Creates directory if it doesn't exist, no need to create beforehand
+                    Directory.CreateDirectory(path);
+
+                return path;
             }
         }
     }

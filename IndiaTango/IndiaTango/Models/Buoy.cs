@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
+using System.Runtime.Serialization;
 
 namespace IndiaTango.Models
 {
+    [DataContract]
     public class Buoy
     {
         private int _iD;
@@ -12,6 +15,8 @@ namespace IndiaTango.Models
         private Contact _primaryContact;
         private Contact _secondaryContact;
         private GPSCoords _gpsLocation;
+
+        private Buoy() {} // Necessary for serialisation.
 
         /// <summary>
         /// Creates a new buoy.
@@ -51,6 +56,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Sets and gets the ID of the buoy
         /// </summary>
+        [DataMember(Name="ID")]
         public int Id
         {
             get { return _iD; }
@@ -65,6 +71,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Sets and gets the site name of the buoy
         /// </summary>
+        [DataMember(Name="Site")]
         public string Site
         {
             get { return _site; }
@@ -79,6 +86,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Sets and gets the owner of the buoy
         /// </summary>
+        [DataMember(Name="Owner")]
         public string Owner
         {
             get { return _owner; }
@@ -93,6 +101,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Sets and gets the details of the primary contact for this buoy
         /// </summary>
+        [DataMember(Name="PrimaryContact")]
         public Contact PrimaryContact
         {
             get { return _primaryContact; }
@@ -107,6 +116,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Sets and gets the details of the secondary contact for this buoy
         /// </summary>
+        [DataMember(Name="SecondaryContact")]
         public Contact SecondaryContact
         {
             get { return _secondaryContact; }
@@ -121,16 +131,19 @@ namespace IndiaTango.Models
         /// <summary>
         /// Sets and gets the details of the university contact for this buoy
         /// </summary>
+        [DataMember(Name="UniversityContact")]
         public Contact UniversityContact { get; set; }
         
         /// <summary>
         /// Gets the list of events for this buoy
         /// </summary>
+        [DataMember(Name="Events")]
         public List<Event> Events { get; private set; }
 
         /// <summary>
         /// Sets and gets the GPS location of this buoy
         /// </summary>
+        [DataMember(Name="GPSLocation")]
         public GPSCoords GpsLocation
         {
             get { return _gpsLocation; }
@@ -168,6 +181,15 @@ namespace IndiaTango.Models
 
                 _nextID = value - 1;
             }
+        }
+
+        public string Export()
+        {
+            NetDataContractSerializer dcs = new NetDataContractSerializer();
+            var stream = new FileStream(Common.AppDataPath + "\\BuoyExportTest1.xml", FileMode.Create);
+            dcs.Serialize(stream, this);
+
+            return "";
         }
     }
 }

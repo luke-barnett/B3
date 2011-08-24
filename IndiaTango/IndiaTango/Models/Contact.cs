@@ -1,11 +1,16 @@
 ﻿
 using System;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
 
 namespace IndiaTango.Models
 {
+    [DataContract]
     public class Contact
     {
         private string _email;
+
+        private Contact() {} // Necessary for serialisation.
 
         /// <summary>
         /// Creates a new contact
@@ -31,27 +36,32 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets and sets the first name of the contact
         /// </summary>
+        [DataMember(Name="FirstName")]
         public string FirstName { get; set; }
 
         /// <summary>
         /// Gets and sets the second name of the contact
         /// </summary>
+        [DataMember(Name="LastName")]
         public string LastName { get; set; }
 
         /// <summary>
         /// Gets and sets the email address of the contact, also checks the email for validity
         /// </summary>
+        [DataMember(Name="Email")]
         public string Email { get { return _email; } set { if (EmailIsValid(value)) _email = value; else throw new ArgumentException("Invalid Email Address", "Email"); } }
 
         /// <summary>
         /// Gets and sets the business name of the contact
         /// </summary>
+        [DataMember(Name="Business")]
         public string Business { get; set; }
 
         /// <summary>
         /// Gets and sets the phone number of the contact
         /// </summary>
-        public object Phone { get; set; }
+        [DataMember(Name="Phone")]
+        public string Phone { get; set; }
         #endregion
 
         #region private methods
