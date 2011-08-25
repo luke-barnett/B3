@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Windows.Forms;
 using Caliburn.Micro;
 using IndiaTango.Models;
 
@@ -11,12 +12,13 @@ namespace IndiaTango.ViewModels
         private readonly SimpleContainer _container;
         private Buoy _buoy;
         private List<Buoy> _allBuoys = new List<Buoy>();
+        private Buoy _selected = null;
 
         public BuoyDetailsViewModel(IWindowManager windowManager, SimpleContainer container)
         {
             _windowManager = windowManager;
             _container = container;
-            _allBuoys = Buoy.ImportAll();
+            _allBuoys = Buoy.ImportAll(); // TODO: Make this a singleton across whole app?
         }
 
         public string Title
@@ -68,6 +70,21 @@ namespace IndiaTango.ViewModels
             set
             {
                 CreateNewBuoyIfNeeded(); _buoy.GpsLocation.DecimalDegreesLongitude = Convert.ToDecimal(value);
+            }
+        }
+
+        public Buoy SelectedBuoy
+        {
+            get { CreateNewBuoyIfNeeded(); return _buoy; }
+            set
+            {
+                _buoy = value;
+
+                NotifyOfPropertyChange(() => SelectedBuoy);
+                NotifyOfPropertyChange(() => SiteName);
+                NotifyOfPropertyChange(() => Owner);
+                NotifyOfPropertyChange(() => Latitude);
+                NotifyOfPropertyChange(() => Longitude);
             }
         }
 

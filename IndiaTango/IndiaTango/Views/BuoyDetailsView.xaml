@@ -32,7 +32,7 @@
             </Grid.RowDefinitions>
             
             <TextBlock FontWeight="Bold" Grid.Column="0" Grid.Row="0" Text="Select an existing buoy:" TextWrapping="Wrap" Margin="7" TextAlignment="Right" />
-            <ComboBox ItemsSource="{Binding AllBuoys}" Grid.Column="1" Grid.Row="0" Height="25" Margin="7" VerticalAlignment="Top"></ComboBox>
+            <ComboBox ItemsSource="{Binding AllBuoys}" SelectedItem="{Binding SelectedBuoy}" Grid.Column="1" Grid.Row="0" Height="25" Margin="7" VerticalAlignment="Top" Name="comboExistingBuoy"></ComboBox>
             
             <Border BorderThickness="0 5 0 0" BorderBrush="Silver" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2">
                 <TextBlock FontWeight="Bold" Margin="10 3" Text="Or, create a new buoy:" />    
