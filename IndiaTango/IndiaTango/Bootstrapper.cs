@@ -19,6 +19,7 @@ namespace IndiaTango
             _container.RegisterPerRequest(typeof(BuoyDetailsViewModel), "BuoyDetailsViewModel", typeof(BuoyDetailsViewModel));
             _container.RegisterPerRequest(typeof(MissingValuesViewModel),"MissingValuesViewModel",typeof(MissingValuesViewModel));
             _container.RegisterPerRequest(typeof(ContactEditorViewModel), "ContactEditorViewModel", typeof(ContactEditorViewModel));
+            _container.RegisterPerRequest(typeof(EditSensorViewModel), "EditSensorViewModel", typeof(EditSensorViewModel));
 
             _container.RegisterInstance(typeof(IWindowManager), null, new WindowManager());
             _container.RegisterInstance(typeof(SimpleContainer), null, _container);

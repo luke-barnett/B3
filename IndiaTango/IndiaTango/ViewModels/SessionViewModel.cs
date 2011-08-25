@@ -159,5 +159,22 @@ namespace IndiaTango.ViewModels
             MissingValuesView.Sensor = SelectedSensor[0];
             _windowManager.ShowDialog(MissingValuesView);
         }
+
+        public void btnEditSensor()
+        {
+            if (SelectedSensor.Count > 0)
+            {
+                var editSensor =
+                    _container.GetInstance(typeof (EditSensorViewModel), "EditSensorViewModel") as EditSensorViewModel;
+                editSensor.ActiveSensor = SelectedSensor[0];
+
+                _windowManager.ShowWindow(editSensor);
+            }
+            else
+            {
+                MessageBox.Show("You must select a sensor to edit first.", "Error", MessageBoxButtons.OK,
+                                MessageBoxIcon.Error);
+            }
+        }
     }
 }

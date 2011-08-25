@@ -85,6 +85,7 @@
     <Compile Include="ViewModels\BaseViewModel.cs" />
     <Compile Include="ViewModels\BuoyDetailsViewModel.cs" />
     <Compile Include="ViewModels\ContactEditorViewModel.cs" />
+    <Compile Include="ViewModels\EditSensorViewModel.cs" />
     <Compile Include="ViewModels\GraphViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\MissingValuesViewModel.cs" />
@@ -94,6 +95,9 @@
     </Compile>
     <Compile Include="Views\ContactEditorView.xaml.cs">
       <DependentUpon>ContactEditorView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EditSensorView.xaml.cs">
+      <DependentUpon>EditSensorView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\GraphView.xaml.cs">
       <DependentUpon>GraphView.xaml</DependentUpon>
@@ -155,6 +159,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\ContactEditorView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\EditSensorView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
