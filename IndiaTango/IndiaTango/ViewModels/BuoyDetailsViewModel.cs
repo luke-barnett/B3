@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Caliburn.Micro;
 using IndiaTango.Models;
 
@@ -9,16 +10,23 @@ namespace IndiaTango.ViewModels
         private readonly IWindowManager _windowManager;
         private readonly SimpleContainer _container;
         private Buoy _buoy;
+        private List<Buoy> _allBuoys = new List<Buoy>();
 
         public BuoyDetailsViewModel(IWindowManager windowManager, SimpleContainer container)
         {
             _windowManager = windowManager;
             _container = container;
+            _allBuoys = Buoy.ImportAll();
         }
 
         public string Title
         {
             get { return "Edit Buoy Details"; }
+        }
+
+        public List<Buoy> AllBuoys
+        {
+            get { return _allBuoys; }
         }
 
         private void CreateNewBuoyIfNeeded()

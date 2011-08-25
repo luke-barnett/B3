@@ -1,7 +1,7 @@
 ﻿<Window x:Class="IndiaTango.Views.BuoyDetailsView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="{Binding Title}" Height="350" Width="480" WindowStartupLocation="CenterOwner" Icon="{Binding Icon}">
+        Title="{Binding Title}" Height="412" Width="480" WindowStartupLocation="CenterOwner" Icon="{Binding Icon}">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
@@ -20,6 +20,9 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
+                <RowDefinition Height="45" />
+                <RowDefinition Height="30" />
+                <RowDefinition Height="10" />
                 <RowDefinition Height="30" />
                 <RowDefinition Height="30" />
                 <RowDefinition Height="30" />
@@ -27,25 +30,32 @@
                 <RowDefinition Height="30" />
                 <RowDefinition Height="30" />
             </Grid.RowDefinitions>
+            
+            <TextBlock FontWeight="Bold" Grid.Column="0" Grid.Row="0" Text="Select an existing buoy:" TextWrapping="Wrap" Margin="7" TextAlignment="Right" />
+            <ComboBox ItemsSource="{Binding AllBuoys}" Grid.Column="1" Grid.Row="0" Height="25" Margin="7" VerticalAlignment="Top"></ComboBox>
+            
+            <Border BorderThickness="0 5 0 0" BorderBrush="Silver" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2">
+                <TextBlock FontWeight="Bold" Margin="10 3" Text="Or, create a new buoy:" />    
+            </Border>        
+            
+            <TextBlock Text="Site:" TextAlignment="Right" Grid.Column="0" Grid.Row="3" Margin="7"></TextBlock>
+            <TextBox Name="txtSiteName" Margin="3" Grid.Column="1" Grid.Row="3" Text="{Binding SiteName}" />
+
+            <TextBlock Text="Owner:" TextAlignment="Right" Grid.Column="0" Grid.Row="4" Margin="7"></TextBlock>
+            <TextBox Name="txtOwnerName" Margin="3" Grid.Column="1" Grid.Row="4" Text="{Binding Owner}" />
+
+            <TextBlock Text="Primary Contact:" TextAlignment="Right" Grid.Column="0" Grid.Row="5" Margin="7"></TextBlock>
+            <Button Name="btnChoosePrimary" Content="Choose..." Grid.Column="1" Grid.Row="5" Margin="3" />
+
+            <TextBlock Text="Secondary Contact:" TextAlignment="Right" Grid.Column="0" Grid.Row="6" Margin="7"></TextBlock>
+            <Button Name="btnChooseSecondary" Content="Choose..." Grid.Column="1" Grid.Row="6" Margin="3" />
         
-            <TextBlock Text="Site:" TextAlignment="Right" Grid.Column="0" Grid.Row="0" Margin="7"></TextBlock>
-            <TextBox Name="txtSiteName" Margin="3" Grid.Column="1" Grid.Row="0" Text="{Binding SiteName}" />
+            <TextBlock Text="University Contact:" TextAlignment="Right" Grid.Column="0" Grid.Row="7" Margin="7"></TextBlock>
+            <Button Name="btnChooseUni" Content="Choose..." Grid.Column="1" Grid.Row="7" Margin="3" />
 
-            <TextBlock Text="Owner:" TextAlignment="Right" Grid.Column="0" Grid.Row="1" Margin="7"></TextBlock>
-            <TextBox Name="txtOwnerName" Margin="3" Grid.Column="1" Grid.Row="1" Text="{Binding Owner}" />
-
-            <TextBlock Text="Primary Contact:" TextAlignment="Right" Grid.Column="0" Grid.Row="2" Margin="7"></TextBlock>
-            <Button Name="btnChoosePrimary" Content="Choose..." Grid.Column="1" Grid.Row="2" Margin="3" />
-
-            <TextBlock Text="Secondary Contact:" TextAlignment="Right" Grid.Column="0" Grid.Row="3" Margin="7"></TextBlock>
-            <Button Name="btnChooseSecondary" Content="Choose..." Grid.Column="1" Grid.Row="3" Margin="3" />
+            <TextBlock Text="GPS Coordinates:" TextAlignment="Right" Grid.Column="0" Grid.Row="8" Margin="7"></TextBlock>
         
-            <TextBlock Text="University Contact:" TextAlignment="Right" Grid.Column="0" Grid.Row="4" Margin="7"></TextBlock>
-            <Button Name="btnChooseUni" Content="Choose..." Grid.Column="1" Grid.Row="4" Margin="3" />
-
-            <TextBlock Text="GPS Coordinates:" TextAlignment="Right" Grid.Column="0" Grid.Row="5" Margin="7"></TextBlock>
-        
-            <Grid Grid.Column="1" Grid.Row="5" Background="GhostWhite">
+            <Grid Grid.Column="1" Grid.Row="8" Background="GhostWhite">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*" />
                     <ColumnDefinition Width="1*" />

@@ -212,6 +212,9 @@ namespace IndiaTango.Models
 
             var buoy = obj as Buoy;
 
+            if (buoy.Events.Count != Events.Count)
+                return false; // Must have compatible length lists
+
             for (int i = 0; i < buoy.Events.Count; i++)
                 if (!buoy.Events[i].Equals(Events[i]))
                     return false;
@@ -230,6 +233,10 @@ namespace IndiaTango.Models
                     buoy.UniversityContact.Equals(UniversityContact));
         }
 
-        // TODO: test event num mismatch
+        public override string ToString()
+        {
+            return "Owned by " + Owner + ", located at (" + GpsLocation.DecimalDegreesLatitude + ", " +
+                   GpsLocation.DecimalDegreesLongitude + ")";
+        }
     }
 }

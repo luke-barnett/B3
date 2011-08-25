@@ -24,6 +24,8 @@ namespace IndiaTango.Tests
         [SetUp]
         public void Setup()
         {
+            Buoy.NextID = 1;
+
             c = new Contact("Bob", "Smith", "bob@smith.com", "Bob's Bakery", "123456");
             buoy = new Buoy(Buoy.NextID, "Random Site", "An Owner", c, c, c, new GPSCoords(27, -95));
             buoyTwo = new Buoy(Buoy.NextID, "Random Site Two", "An Owner", c, c, c, new GPSCoords(54, -12));
@@ -32,8 +34,6 @@ namespace IndiaTango.Tests
         [Test]
         public void ExportsOneBuoyCorrectly()
         {
-            Buoy.NextID = 1;
-
             var buoys = new List<Buoy>(new Buoy[] {buoy});
 
             Buoy.ExportAll(buoys);
@@ -44,8 +44,6 @@ namespace IndiaTango.Tests
         [Test]
         public void ExportsTwoBuoysCorrectly()
         {
-            Buoy.NextID = 1;
-
             var buoys = new List<Buoy>(new Buoy[] { buoy, buoyTwo });
 
             Buoy.ExportAll(buoys);
@@ -56,8 +54,6 @@ namespace IndiaTango.Tests
         [Test]
         public void ImportsOneBuoyCorrectly()
         {
-            Buoy.NextID = 1;
-
             File.WriteAllText(Buoy.ExportPath, singleBuoyXML);
 
             var buoys = new List<Buoy>(new Buoy[] { buoy });
@@ -68,8 +64,6 @@ namespace IndiaTango.Tests
         [Test]
         public void ImportsTwoBuoysCorrectly()
         {
-            Buoy.NextID = 1;
-
             File.WriteAllText(Buoy.ExportPath, twoBuoyXML);
 
             var buoys = new List<Buoy>(new Buoy[] { buoy, buoyTwo });
@@ -78,6 +72,22 @@ namespace IndiaTango.Tests
 
             Assert.AreEqual(buoys[0], result[0]); // Necessary because of list equality checks
             Assert.AreEqual(buoys[1], result[1]);
+        }
+
+        [Test]
+        public void ImportThenExportThenImportWorksCorrectly()
+        {
+            File.WriteAllText(Buoy.ExportPath, singleBuoyXML);
+            var result = Buoy.ImportAll();
+
+            result.Add(buoyTwo);
+
+            Buoy.ExportAll(result);
+
+            var final = Buoy.ImportAll();
+
+            Assert.AreEqual(final[0], result[0]);
+            Assert.AreEqual(final[1], result[1]);
         }
     }
 }

@@ -298,5 +298,19 @@ namespace IndiaTango.Tests
         {
             Assert.AreEqual(A.UniversityContact, B.UniversityContact);
         }
+
+        [Test]
+        public void EqualityTestEventMismatch()
+        {
+            A.Events.Add(new Event(DateTime.Now, "Created the buoy"));
+            Assert.IsFalse(A.Equals(B));
+        }
+
+        [Test]
+        public void EqualityTestEventMismatchOtherWayAround()
+        {
+            B.Events.Add(new Event(DateTime.Now, "Created the buoy"));
+            Assert.IsFalse(B.Equals(A));
+        }
     }
 }
