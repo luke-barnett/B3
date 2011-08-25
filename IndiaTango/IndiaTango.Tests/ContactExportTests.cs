@@ -62,5 +62,21 @@ namespace IndiaTango.Tests
 			Assert.AreEqual(expected[0], result[0]);
 			Assert.AreEqual(expected[1], result[1]);
 		}
+
+		[Test]
+		public void CombinedImportAndExportTest()
+		{
+			File.WriteAllText(Contact.ExportPath, SingleContactXMLString);
+			var firstImport = Contact.ImportAll();
+
+			firstImport.Add(_contactTwo);
+
+			Contact.ExportAll(firstImport);
+
+			var secondImport = Contact.ImportAll();
+
+			Assert.AreEqual(firstImport[0], secondImport[0]);
+			Assert.AreEqual(firstImport[1], secondImport[1]);
+		}
 	}
 }
