@@ -32,7 +32,16 @@
             </Grid.RowDefinitions>
             
             <TextBlock FontWeight="Bold" Grid.Column="0" Grid.Row="0" Text="Select an existing buoy:" TextWrapping="Wrap" Margin="7" TextAlignment="Right" />
-            <ComboBox ItemsSource="{Binding AllBuoys}" SelectedItem="{Binding SelectedBuoy}" Grid.Column="1" Grid.Row="0" Height="25" Margin="7" VerticalAlignment="Top" Name="comboExistingBuoy"></ComboBox>
+            
+            <Grid Grid.Column="1" Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="60" />
+                </Grid.ColumnDefinitions>
+                
+                <ComboBox ItemsSource="{Binding AllBuoys, Mode=TwoWay}" SelectedItem="{Binding SelectedBuoy}" Grid.Column="0" Grid.Row="0" Height="25" Margin="7" VerticalAlignment="Top" Name="comboExistingBuoy" IsSynchronizedWithCurrentItem="True"></ComboBox>
+                <Button Name="btnDelete" Content="Delete" Grid.Column="1" Height="25" Margin="7" VerticalAlignment="Top" IsEnabled="{Binding CanOverwrite}" />
+            </Grid>
             
             <Border BorderThickness="0 5 0 0" BorderBrush="Silver" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2">
                 <TextBlock FontWeight="Bold" Margin="10 3" Text="Or, create a new buoy:" />    
@@ -63,22 +72,24 @@
                     <ColumnDefinition Width="1*" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="Latitude:" Grid.Column="0" Grid.Row="0" Margin="7" TextAlignment="Right" />
-                <TextBox Name="Latitude" Grid.Column="1" Grid.Row="0" Margin="3" Text="{Binding Latitude}" />
+                <TextBox Name="Latitude" Grid.Column="1" Grid.Row="0" Margin="3" Text="{Binding Latitude}" ToolTip="Enter latitude in Degrees Minutes Seconds or Decimal Degrees" />
 
                 <TextBlock Text="Longitude:" Grid.Column="2" Grid.Row="0" Margin="7" TextAlignment="Right" />
-                <TextBox Name="Longitude" Grid.Column="3" Grid.Row="0" Margin="3" Text="{Binding Longitude}" />
+                <TextBox Name="Longitude" Grid.Column="3" Grid.Row="0" Margin="3" Text="{Binding Longitude}" ToolTip="Enter longitude in Degrees Minutes Seconds or Decimal Degrees" />
             </Grid>
         </Grid>
 
         <Grid Grid.Column="0" Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="90" />
+                <ColumnDefinition Width="150" />
+                <ColumnDefinition Width="150" />
                 <ColumnDefinition Width="90" />
             </Grid.ColumnDefinitions>
-            
-            <Button Name="btnSave" Content="Save" Grid.Column="1" Margin="5"></Button>
-            <Button Name="btnCancel" Content="Cancel" Grid.Column="2" Margin="5"></Button>
+
+            <Button Name="btnUpdate" Content="Overwrite Existing Buoy" Grid.Column="1" Margin="5" IsEnabled="{Binding CanOverwrite}"></Button>
+            <Button Name="btnCreate" Content="Create New Buoy" Grid.Column="2" Margin="5"></Button>
+            <Button Name="btnCancel" Content="Cancel" Grid.Column="3" Margin="5"></Button>
         </Grid>
     </Grid>
 </Window>

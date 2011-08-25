@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization;
@@ -188,7 +189,7 @@ namespace IndiaTango.Models
             }
         }
 
-        public static void ExportAll(List<Buoy> buoys)
+        public static void ExportAll(ObservableCollection<Buoy> buoys)
         {
             NetDataContractSerializer dcs = new NetDataContractSerializer();
             var stream = new FileStream(ExportPath, FileMode.Create);
@@ -196,11 +197,15 @@ namespace IndiaTango.Models
             stream.Close();
         }
 
-        public static List<Buoy> ImportAll()
+        public static ObservableCollection<Buoy> ImportAll()
         {
             NetDataContractSerializer dcs = new NetDataContractSerializer();
+
+            if (!File.Exists(ExportPath))
+                return new ObservableCollection<Buoy>();
+
             var stream = new FileStream(ExportPath, FileMode.Open);
-            var list = (List<Buoy>)dcs.Deserialize(stream);
+            var list = (ObservableCollection<Buoy>)dcs.Deserialize(stream);
             stream.Close();
             return list;
         }
@@ -235,8 +240,8 @@ namespace IndiaTango.Models
 
         public override string ToString()
         {
-            return "Owned by " + Owner + ", located at (" + GpsLocation.DecimalDegreesLatitude + ", " +
-                   GpsLocation.DecimalDegreesLongitude + ")";
+            return Site + " (" + GpsLocation.DecimalDegreesLatitude + ", " +
+                   GpsLocation.DecimalDegreesLongitude + ")" + ", owned by " + Owner;
         }
     }
 }
