@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Windows.Forms;
 using Caliburn.Micro;
 using IndiaTango.Models;
@@ -10,6 +11,7 @@ namespace IndiaTango.ViewModels
         private readonly IWindowManager _windowManager = null;
         private readonly SimpleContainer _container = null;
     	private Contact _contact;
+        private ObservableCollection<Contact> _allContacts = new ObservableCollection<Contact>();
 
         public ContactEditorViewModel(IWindowManager manager, SimpleContainer container)
         {
@@ -19,7 +21,13 @@ namespace IndiaTango.ViewModels
 
         public string Title
         {
-            get { return _contact == null ? "Edit Contact" : "Create New Contact"; }
+            get { return _contact == null ? "Create New Contact" : "Edit Contact"; }
+        }
+
+        public ObservableCollection<Contact> AllContacts
+        {
+            get { return _allContacts; }
+            set { _allContacts = value; }
         }
 
 		public string ContactFirstName { get; set; }
@@ -61,14 +69,8 @@ namespace IndiaTango.ViewModels
 				NotifyOfPropertyChange(() => ContactEmail);
 				NotifyOfPropertyChange(() => ContactPhone);
 				NotifyOfPropertyChange(() => ContactBusiness);
-				NotifyOfPropertyChange(() => CanSave);
 			}
 		}
-
-    	public bool CanSave
-    	{
-			get { return _contact != null; }
-    	}
 
         public void btnCancel()
         {
@@ -77,12 +79,50 @@ namespace IndiaTango.ViewModels
 
         public void btnSave()
         {
-        	Contact.FirstName = ContactFirstName;
-        	Contact.LastName = ContactLastName;
-        	Contact.Email = ContactEmail;
-        	Contact.Business = ContactBusiness;
-        	Contact.Phone = ContactPhone;
-			this.TryClose();
+            if(Contact == null)
+            {
+                // New contact!
+                try
+                {
+                    Contact c = new Contact(ContactFirstName, ContactLastName, ContactEmail, ContactBusiness, ContactPhone);
+
+                    AllContacts.Add(c);
+
+                    Contact.ExportAll(AllContacts);
+
+                    this.TryClose();
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            else
+            {
+                // Update the contact
+                try
+                {
+                    // TODO: make this pretty!
+                    AllContacts.Remove(Contact);
+
+                    Contact.FirstName = ContactFirstName;
+                    Contact.LastName = ContactLastName;
+                    Contact.Email = ContactEmail;
+                    Contact.Business = ContactBusiness;
+                    Contact.Phone = ContactPhone;
+
+                    AllContacts.Add(Contact);
+
+                    // Updating the object itself, so just re-serialise
+                    Contact.ExportAll(AllContacts);
+
+                    this.TryClose();
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
     }
 }

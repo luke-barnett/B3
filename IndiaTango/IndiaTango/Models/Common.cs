@@ -27,5 +27,9 @@ namespace IndiaTango.Models
                 return path;
             }
         }
+
+        public static string AddIcon { get { return "/IndiaTango;component/Images/plus.png"; } }
+        public static string EditIcon { get { return "/IndiaTango;component/Images/pencil.png"; } }
+        public static string DeleteIcon { get { return "/IndiaTango;component/Images/cross-script.png"; } }
     }
 }

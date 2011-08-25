@@ -13,6 +13,8 @@ namespace IndiaTango.ViewModels
         private readonly SimpleContainer _container;
         private Buoy _buoy;
     	private Contact _primaryContact;
+        private Contact _secondaryContact;
+        private Contact _universityContact;
         private ObservableCollection<Buoy> _allBuoys = new ObservableCollection<Buoy>();
 		private ObservableCollection<Contact> _allContacts = new ObservableCollection<Contact>();
 
@@ -72,8 +74,27 @@ namespace IndiaTango.ViewModels
 			}
     	}
 
-        public Contact SecondaryContact { get; set; }
-        public Contact UniversityContact { get; set; }
+        public Contact SecondaryContact
+        {
+            get { return _secondaryContact; }
+            set
+            {
+                _secondaryContact = value;
+                NotifyOfPropertyChange(() => SecondaryContact);
+                NotifyOfPropertyChange(() => CanEditSecondary);
+            }
+        }
+
+        public Contact UniversityContact
+        {
+            get { return _universityContact; }
+            set
+            {
+                _universityContact = value;
+                NotifyOfPropertyChange(() => UniversityContact);
+                NotifyOfPropertyChange(() => CanEditUni);
+            }
+        }
 
         public Buoy SelectedBuoy
         {
@@ -108,6 +129,9 @@ namespace IndiaTango.ViewModels
                 NotifyOfPropertyChange(() => Owner);
                 NotifyOfPropertyChange(() => Latitude);
                 NotifyOfPropertyChange(() => Longitude);
+                NotifyOfPropertyChange(() => PrimaryContact);
+                NotifyOfPropertyChange(() => SecondaryContact);
+                NotifyOfPropertyChange(() => UniversityContact);
                 NotifyOfPropertyChange(() => CanOverwrite);
             }
         }
@@ -115,6 +139,16 @@ namespace IndiaTango.ViewModels
 		public bool CanEditPrimary
     	{
 			get { return PrimaryContact != null; }
+    	}
+
+        public bool CanEditSecondary
+    	{
+			get { return SecondaryContact != null; }
+    	}
+        
+        public bool CanEditUni
+    	{
+			get { return UniversityContact != null; }
     	}
 
 		public bool CanOverwrite
@@ -125,7 +159,6 @@ namespace IndiaTango.ViewModels
 		#endregion
 
 		#region ButtonHandlers
-
         public void btnCancel()
         {
             this.TryClose();
@@ -177,25 +210,99 @@ namespace IndiaTango.ViewModels
             }
         }
 
-        
+        // TODO: make this tidier...
+        public void btnNewPrimary()
+        {
+            var editor =
+                _container.GetInstance(typeof(ContactEditorViewModel), "ContactEditorViewModel") as
+                ContactEditorViewModel;
+
+            editor.Contact = null;
+            editor.AllContacts = AllContacts;
+
+            _windowManager.ShowDialog(editor);
+        }
+
+        public void btnNewSecondary()
+        {
+            var editor =
+                _container.GetInstance(typeof(ContactEditorViewModel), "ContactEditorViewModel") as
+                ContactEditorViewModel;
+
+            editor.Contact = null;
+            editor.AllContacts = AllContacts;
+
+            _windowManager.ShowDialog(editor);
+        }
+
+        public void btnNewUni()
+        {
+            var editor =
+                _container.GetInstance(typeof(ContactEditorViewModel), "ContactEditorViewModel") as
+                ContactEditorViewModel;
+
+            editor.Contact = null;
+            editor.AllContacts = AllContacts;
+
+            _windowManager.ShowDialog(editor);
+        }
 
         public void btnEditPrimary()
         {
             var editor =
-                _container.GetInstance(typeof (ContactEditorViewModel), "ContactEditorViewModel") as
+                _container.GetInstance(typeof(ContactEditorViewModel), "ContactEditorViewModel") as
                 ContactEditorViewModel;
 
-        	editor.Contact = PrimaryContact;
+            editor.Contact = PrimaryContact;
+            editor.AllContacts = AllContacts;
 
             _windowManager.ShowDialog(editor);
-
-			//Drop down box not refreshing... :(
-			//TODO: Fix it
-			NotifyOfPropertyChange(() => PrimaryContact);
-			NotifyOfPropertyChange(() => AllContacts);
         }
 
-    	
+        public void btnEditSecondary()
+        {
+            var editor =
+                _container.GetInstance(typeof(ContactEditorViewModel), "ContactEditorViewModel") as
+                ContactEditorViewModel;
+
+            editor.Contact = SecondaryContact;
+            editor.AllContacts = AllContacts;
+
+            _windowManager.ShowDialog(editor);
+        }
+
+        public void btnEditUni()
+        {
+            var editor =
+                _container.GetInstance(typeof(ContactEditorViewModel), "ContactEditorViewModel") as
+                ContactEditorViewModel;
+
+            editor.Contact = UniversityContact;
+            editor.AllContacts = AllContacts;
+
+            _windowManager.ShowDialog(editor);
+        }
+
+        public void btnDelPrimary()
+        {
+            if (MessageBox.Show("Are you sure you want to delete this contact?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            {
+                if (PrimaryContact != null)
+                {
+                    // TODO: consolidate into a single method - too much repetition of code!
+                    var allContacts = AllContacts;
+                    allContacts.Remove(PrimaryContact);
+
+                    AllContacts = allContacts;
+                    PrimaryContact = null;
+
+                    Contact.ExportAll(AllContacts);
+
+                    MessageBox.Show("Contact successfully removed.", "Success", MessageBoxButtons.OK,
+                                    MessageBoxIcon.Information);
+                }
+            }
+        }
 
         public void btnDelete()
         {

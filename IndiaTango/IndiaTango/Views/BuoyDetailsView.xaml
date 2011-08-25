@@ -18,7 +18,9 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="120" />
                 <ColumnDefinition Width="270" />
-                <ColumnDefinition Width="70" />
+                <ColumnDefinition Width="20" />
+                <ColumnDefinition Width="20" />
+                <ColumnDefinition Width="20" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="45" />
@@ -38,7 +40,7 @@
             <Button Name="btnDelete" Content="Delete" Grid.Column="2" Height="25" Margin="3,7" VerticalAlignment="Top" IsEnabled="{Binding CanOverwrite}" />
 
             
-            <Border BorderThickness="0 5 0 0" BorderBrush="Silver" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3">
+            <Border BorderThickness="0 2 0 0" BorderBrush="Silver" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3">
                 <TextBlock FontWeight="Bold" Margin="10 3" Text="Or, create a new buoy:" />    
             </Border>        
             
@@ -49,16 +51,25 @@
             <TextBox Name="txtOwnerName" Margin="3" Grid.Column="1" Grid.Row="4" Text="{Binding Owner}" />
 
             <TextBlock Text="Primary Contact:" TextAlignment="Right" Grid.Column="0" Grid.Row="5" Margin="7"></TextBlock>
-            <ComboBox ItemsSource="{Binding AllContacts, Mode=TwoWay}" SelectedItem="{Binding PrimaryContact}" Grid.Column="1" Grid.Row="5" Height="25" Margin="2" VerticalAlignment="Top" Name="comboPrimaryContact" IsSynchronizedWithCurrentItem="True"></ComboBox>
-            <Button Name="btnEditPrimary" Content="Edit..." Grid.Column="2" Grid.Row="5" Margin="3,3,3,0" IsEnabled="{Binding CanEditPrimary }" Height="24" VerticalAlignment="Top" />
+            <ComboBox ItemsSource="{Binding AllContacts, Mode=TwoWay}" SelectedItem="{Binding PrimaryContact}" Grid.Column="1" Grid.Row="5" Height="25" Margin="2" VerticalAlignment="Top" Name="comboPrimaryContact"></ComboBox>
+            
+            <Button Name="btnNewPrimary" Content="N" Grid.Column="2" Grid.Row="5" Margin="3,3,3,0" Height="24" VerticalAlignment="Top" ToolTip="New Contact" />
+            <Button Name="btnEditPrimary" Content="E" Grid.Column="3" Grid.Row="5" Margin="3,3,3,0" Height="24" VerticalAlignment="Top" ToolTip="Edit Contact" IsEnabled="{Binding CanEditPrimary}" />
+            <Button Name="btnDelPrimary" Content="D" Grid.Column="4" Grid.Row="5" Margin="3,3,3,0" Height="24" VerticalAlignment="Top" ToolTip="Delete Contact" IsEnabled="{Binding CanEditPrimary}" />
 
             <TextBlock Text="Secondary Contact:" TextAlignment="Right" Grid.Column="0" Grid.Row="6" Margin="7"></TextBlock>
-            <ComboBox Grid.Column="1" Grid.Row="6" Height="25" Margin="2" VerticalAlignment="Top" Name="comboSecondaryContact"></ComboBox>
-            <Button Name="btnEditSecondary" Content="Edit..." Grid.Column="3" Grid.Row="6" Margin="3" IsEnabled="{Binding CanEditSecondary }" />
-        
+            <ComboBox ItemsSource="{Binding AllContacts, Mode=TwoWay}" SelectedItem="{Binding SecondaryContact}" Grid.Column="1" Grid.Row="6" Height="25" Margin="2" VerticalAlignment="Top" Name="comboSecondaryContact"></ComboBox>
+
+            <Button Name="btnNewSecondary" Content="N" Grid.Column="2" Grid.Row="6" Margin="3,3,3,0" Height="24" VerticalAlignment="Top" ToolTip="New Contact" />
+            <Button Name="btnEditSecondary" Content="E" Grid.Column="3" Grid.Row="6" Margin="3,3,3,0" Height="24" VerticalAlignment="Top" ToolTip="Edit Contact" IsEnabled="{Binding CanEditSecondary}" />
+            <Button Name="btnDelSecondary" Content="D" Grid.Column="4" Grid.Row="6" Margin="3,3,3,0" Height="24" VerticalAlignment="Top" ToolTip="Delete Contact" IsEnabled="{Binding CanEditSecondary}" />
+
             <TextBlock Text="University Contact:" TextAlignment="Right" Grid.Column="0" Grid.Row="7" Margin="7"></TextBlock>
-            <ComboBox Grid.Column="1" Grid.Row="7" Height="25" Margin="2" VerticalAlignment="Top" Name="comboUniContact"></ComboBox>
-            <Button Name="btnEditUni" Content="Edit..." Grid.Column="3" Grid.Row="7" Margin="3" IsEnabled="{Binding CanEditUni }"/>
+            <ComboBox ItemsSource="{Binding AllContacts, Mode=TwoWay}" SelectedItem="{Binding UniversityContact}" Grid.Column="1" Grid.Row="7" Height="25" Margin="2" VerticalAlignment="Top" Name="comboUniContact"></ComboBox>
+
+            <Button Name="btnNewUni" Content="N" Grid.Column="2" Grid.Row="7" Margin="3,3,3,0" Height="24" VerticalAlignment="Top" ToolTip="New Contact" />
+            <Button Name="btnEditUni" Content="E" Grid.Column="3" Grid.Row="7" Margin="3,3,3,0" Height="24" VerticalAlignment="Top" ToolTip="Edit Contact" IsEnabled="{Binding CanEditUni}" />
+            <Button Name="btnDelUni" Content="D" Grid.Column="4" Grid.Row="7" Margin="3,3,3,0" Height="24" VerticalAlignment="Top" ToolTip="Delete Contact" IsEnabled="{Binding CanEditUni}" />
 
             <TextBlock Text="GPS Coordinates:" TextAlignment="Right" Grid.Column="0" Grid.Row="8" Margin="7"></TextBlock>
         
@@ -85,8 +96,8 @@
                 <ColumnDefinition Width="90" />
             </Grid.ColumnDefinitions>
 
-            <Button Name="btnUpdate" Content="Overwrite Existing Buoy" Grid.Column="1" Margin="5" IsEnabled="{Binding CanOverwrite}"></Button>
-            <Button Name="btnCreate" Content="Create New Buoy" Grid.Column="2" Margin="5"></Button>
+            <Button Name="btnCreate" Content="Create New Buoy" Grid.Column="1" Margin="5"></Button>
+            <Button Name="btnUpdate" Content="Overwrite Existing Buoy" Grid.Column="2" Margin="5" IsEnabled="{Binding CanOverwrite}"></Button>
             <Button Name="btnCancel" Content="Cancel" Grid.Column="3" Margin="5"></Button>
         </Grid>
     </Grid>

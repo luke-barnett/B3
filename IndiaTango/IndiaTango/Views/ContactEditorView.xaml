@@ -8,7 +8,7 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         
-        <TextBlock FontSize="18" Text="Enter Contact Details" Margin="10" />
+        <TextBlock FontSize="18" Text="{Binding Title}" Margin="10" />
         
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
@@ -59,8 +59,8 @@
                     <ColumnDefinition Width="80" />
                 </Grid.ColumnDefinitions>
 
-                <Button Name="btnSave" Grid.Column="1" Grid.Row="0" Margin="3" Content="Save" IsEnabled="{Binding CanSave}"></Button>
-                <Button Name="btnCancel" Grid.Column="2" Grid.Row="0" Margin="3,3" Content="Cancel"></Button>
+                <Button Name="btnSave" Grid.Column="1" Grid.Row="0" Margin="3" Content="Save"></Button>
+                <Button Name="btnCancel" Grid.Column="3" Grid.Row="0" Margin="3,3" Content="Cancel"></Button>
             </Grid>
         </Grid>
         
