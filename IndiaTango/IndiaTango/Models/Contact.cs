@@ -1,5 +1,7 @@
 ﻿
 using System;
+using System.Collections.ObjectModel;
+using System.IO;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 
@@ -9,6 +11,14 @@ namespace IndiaTango.Models
     public class Contact
     {
         private string _email;
+
+		/// <summary>
+		/// Gets the file location where exported contacts will be stored
+		/// </summary>
+		public static string ExportPath
+		{
+			get { return Path.Combine(Common.AppDataPath, "ExportedContacts.xml"); }
+		}
 
         private Contact() {} // Necessary for serialisation.
 
@@ -62,7 +72,10 @@ namespace IndiaTango.Models
         /// </summary>
         [DataMember(Name="Phone")]
         public string Phone { get; set; }
-        #endregion
+
+		
+
+    	#endregion
 
         public override bool Equals(object obj)
         {
@@ -110,5 +123,27 @@ namespace IndiaTango.Models
             return String.Format("{0} {1} ({2}) {3} {4}", FirstName, LastName, Business, Phone, Email);
         }
         #endregion
+
+		public static void ExportAll(ObservableCollection<Contact> contacts)
+    	{
+			NetDataContractSerializer serializer = new NetDataContractSerializer();
+			var stream = new FileStream(ExportPath, FileMode.Create);
+			serializer.Serialize(stream, contacts);
+			stream.Close();
+    	}
+
+		public static ObservableCollection<Contact> ImportAll()
+		{
+			NetDataContractSerializer serializer = new NetDataContractSerializer();
+
+			if (!File.Exists(ExportPath))
+				return new ObservableCollection<Contact>();
+
+			var stream = new FileStream(ExportPath, FileMode.Open);
+			var list = (ObservableCollection<Contact>)serializer.Deserialize(stream);
+			stream.Close();
+
+			return list;
+		}
     }
 }
