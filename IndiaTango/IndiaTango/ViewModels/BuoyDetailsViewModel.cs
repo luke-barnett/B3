@@ -12,15 +12,30 @@ namespace IndiaTango.ViewModels
         private readonly IWindowManager _windowManager;
         private readonly SimpleContainer _container;
         private Buoy _buoy;
+    	private Contact _primaryContact;
         private ObservableCollection<Buoy> _allBuoys = new ObservableCollection<Buoy>();
+		private ObservableCollection<Contact> _allContacts = new ObservableCollection<Contact>();
 
         public BuoyDetailsViewModel(IWindowManager windowManager, SimpleContainer container)
         {
             _windowManager = windowManager;
             _container = container;
             _allBuoys = Buoy.ImportAll(); // TODO: Make this a singleton across whole app?
+        	_allContacts = Contact.ImportAll();
+
+			//YUCK YUCK YUCK. We need to store all the contacts externally, 
+			//	and perhaps only store contact IDs when we serialize
+			foreach (Buoy b in _allBuoys)
+			{
+				foreach (Contact c in new[]{b.PrimaryContact,b.SecondaryContact,b.UniversityContact})
+				{
+					if(!_allContacts.Contains(c))
+						_allContacts.Add(c);
+				}
+        	}
         }
 
+		#region Properties
         public string Title
         {
             get { return "Edit Buoy Details"; }
@@ -32,6 +47,12 @@ namespace IndiaTango.ViewModels
             set { _allBuoys = value; NotifyOfPropertyChange(() => AllBuoys); }
         }
 
+		public ObservableCollection<Contact> AllContacts
+        {
+            get { return _allContacts; }
+            set { _allContacts = value; NotifyOfPropertyChange(() => AllContacts); }
+        }
+
         public string SiteName { get; set; }
 
         public string Owner { get; set; }
@@ -40,7 +61,17 @@ namespace IndiaTango.ViewModels
 
         public string Longitude { get; set; }
 
-        public Contact PrimaryContact { get; set; }
+    	public Contact PrimaryContact
+    	{
+    		get { return _primaryContact; }
+			set
+			{
+				_primaryContact = value; 
+				NotifyOfPropertyChange(()=> PrimaryContact);
+				NotifyOfPropertyChange(() => CanEditPrimary);
+			}
+    	}
+
         public Contact SecondaryContact { get; set; }
         public Contact UniversityContact { get; set; }
 
@@ -80,6 +111,20 @@ namespace IndiaTango.ViewModels
                 NotifyOfPropertyChange(() => CanOverwrite);
             }
         }
+
+		public bool CanEditPrimary
+    	{
+			get { return PrimaryContact != null; }
+    	}
+
+		public bool CanOverwrite
+        {
+            get { return SelectedBuoy != null; }
+        }
+
+		#endregion
+
+		#region ButtonHandlers
 
         public void btnCancel()
         {
@@ -132,18 +177,25 @@ namespace IndiaTango.ViewModels
             }
         }
 
-        public bool CanOverwrite
-        {
-            get { return SelectedBuoy != null; }
-        }
+        
 
-        public void btnChoosePrimary()
+        public void btnEditPrimary()
         {
             var editor =
                 _container.GetInstance(typeof (ContactEditorViewModel), "ContactEditorViewModel") as
                 ContactEditorViewModel;
+
+        	editor.Contact = PrimaryContact;
+
             _windowManager.ShowDialog(editor);
+
+			//Drop down box not refreshing... :(
+			//TODO: Fix it
+			NotifyOfPropertyChange(() => PrimaryContact);
+			NotifyOfPropertyChange(() => AllContacts);
         }
+
+    	
 
         public void btnDelete()
         {
@@ -164,5 +216,7 @@ namespace IndiaTango.ViewModels
                 }
             }
         }
+
+#endregion
     }
 }
