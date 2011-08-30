@@ -1,16 +1,18 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using Visiblox.Charts;
-using System.ComponentModel;
 
 namespace IndiaTango.Models
 {
-    class GraphBehaviour : BehaviourBase, INotifyPropertyChanged
+    class GraphBehaviour : BehaviourBase
     {
         private const double PATH_MAX_SIZE = 32000;
 
         private ZoomRectangle _zoomRectangle = new ZoomRectangle();
+        private Canvas _background;
         private bool _zooming;
         private bool _leftMouseDown;
         private Point _leftMouseDownPosition;
@@ -18,18 +20,32 @@ namespace IndiaTango.Models
         public event ZoomRequested ZoomRequested;
         public event ZoomResetRequested ZoomResetRequested;
 
-        public GraphBehaviour() : base("Custom Graph Behaviour") {}
+        public GraphBehaviour(Canvas background) : base("Custom Graph Behaviour")
+        {
+            _background = background;
+        }
 
         protected override void Init()
         {
             _zoomRectangle.Visibility = Visibility.Collapsed;
             BehaviourContainer.Children.Add(_zoomRectangle);
+
+            _background.Background = Brushes.Red;
+            _background.Opacity = 0.15;
+            _background.SetValue(Canvas.LeftProperty, 0.0);
+            _background.SetValue(Canvas.TopProperty, 0.0);
+            _background.Width = Double.IsNaN(Chart.ActualHeight) ? 400 : Chart.ActualWidth;
+            _background.Height = Double.IsNaN(Chart.ActualHeight) ? 400 : Chart.ActualHeight;
+            BehaviourContainer.Children.Add(_background);
         }
 
         public override void DeInit()
         {
             if (BehaviourContainer != null && BehaviourContainer.Children.Contains(_zoomRectangle))
                 BehaviourContainer.Children.Remove(_zoomRectangle);
+
+            if (BehaviourContainer != null && BehaviourContainer.Children.Contains(_background))
+                BehaviourContainer.Children.Remove(_background);
         }
 
         public override void MouseLeftButtonDown(Point position)
@@ -117,6 +133,12 @@ namespace IndiaTango.Models
         {
             if (ZoomResetRequested != null)
                 ZoomResetRequested(this);
+        }
+
+        public void RefreshVisual()
+        {
+            if(BehaviourContainer != null)
+                BehaviourContainer.InvalidateVisual();
         }
 
         #region private methods

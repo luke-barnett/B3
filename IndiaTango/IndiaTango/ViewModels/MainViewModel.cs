@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Windows.Forms;
 using Caliburn.Micro;
-using Visiblox.Charts;
-using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 using IndiaTango.Models;
 
 namespace IndiaTango.ViewModels

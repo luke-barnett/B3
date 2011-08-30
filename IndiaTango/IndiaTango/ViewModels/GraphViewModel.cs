@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Forms;
+using System.Windows;
+using System.Windows.Controls;
 using Caliburn.Micro;
 using IndiaTango.Models;
 using Visiblox.Charts;
-using Visiblox.Charts.Primitives;
 
 namespace IndiaTango.ViewModels
 {
@@ -13,24 +13,30 @@ namespace IndiaTango.ViewModels
     {
         private readonly SimpleContainer _container;
         private readonly IWindowManager _windowManager;
-        private const int MaxPointCount = 15000;
+        private readonly GraphBehaviour _graphBehaviour;
+        private readonly Canvas _graphBackground;
+        private const int MaxPointCount = 25000;
 
         public GraphViewModel(IWindowManager windowManager, SimpleContainer container)
         {
             _windowManager = windowManager;
             _container = container;
+            _graphBackground = new Canvas();
             var b = new BehaviourManager {AllowMultipleEnabled = true};
-            var g = new GraphBehaviour() {IsEnabled = true};
-            g.ZoomRequested += delegate(object o, ZoomRequestedArgs e)
+            _graphBehaviour = new GraphBehaviour(_graphBackground) { IsEnabled = true };
+            _graphBehaviour.ZoomRequested += (o, e) =>
                                    {
-                                       var filteredPoints = _dataPoints.Select(dataPointSet => dataPointSet.Where(x => x.X >= (DateTime) e.FirstPoint.X && x.X >= (DateTime) e.SecondPoint.X)).ToList();
-                                       SampleValues(MaxPointCount,filteredPoints);
+                                       var filteredPoints =
+                                           _dataPoints.Select(
+                                               dataPointSet =>
+                                               dataPointSet.Where(
+                                                   x =>
+                                                   x.X >= (DateTime) e.FirstPoint.X && x.X >= (DateTime) e.SecondPoint.X))
+                                               .ToList();
+                                       SampleValues(MaxPointCount, filteredPoints);
                                    };
-            g.ZoomResetRequested += delegate(object o)
-                                        {
-                                            SampleValues(MaxPointCount,_dataPoints);
-                                        };
-            b.Behaviours.Add(g);
+            _graphBehaviour.ZoomResetRequested += o => SampleValues(MaxPointCount, _dataPoints);
+            b.Behaviours.Add(_graphBehaviour);
             Behaviour = b;
         }
 
@@ -70,6 +76,10 @@ namespace IndiaTango.ViewModels
 
         private double _minimumMaximum;
         public double MinimumMaximum { get { return _minimumMaximum; } set { _minimumMaximum = value; NotifyOfPropertyChange(() => MinimumMaximum); } }
+
+        private bool _sampledValues;
+        public bool SampledValues { get { return _sampledValues; } set { _sampledValues = value; NotifyOfPropertyChange(() => SampledValuesString); } }
+        public string SampledValuesString { get { return (SampledValues) ? "WARNING SAMPLED VALUES" : String.Empty; } }
 
         private List<IEnumerable<DataPoint<DateTime, float>>> _dataPoints = new List<IEnumerable<DataPoint<DateTime, float>>>();
         private List<string> _seriesNames = new List<string>();
@@ -147,22 +157,32 @@ namespace IndiaTango.ViewModels
             return minY;
         }
 
-        private void SampleValues(int numberOfPoints, List<IEnumerable<DataPoint<DateTime, float>>> dataSource)
+        private void SampleValues(int numberOfPoints, IList<IEnumerable<DataPoint<DateTime, float>>> dataSource)
         {
-            List<DataSeries<DateTime, float>> generatedSeries = new List<DataSeries<DateTime, float>>();
-            for (int i = 0; i < dataSource.Count; i++)
+            var generatedSeries = new List<DataSeries<DateTime, float>>();
+            HideBackground();
+            for (var i = 0; i < dataSource.Count; i++)
             {
                 var sampleRate = dataSource[i].Count() / (numberOfPoints / dataSource.Count());
                 System.Diagnostics.Debug.Print("Number of points: {0} Max Number {1} Sampling rate {2}", dataSource[i].Count(), numberOfPoints, sampleRate);
-                var series = (sampleRate > 0) ? new DataSeries<DateTime, float>(_seriesNames[i], dataSource[i].Where((x, index) => index % sampleRate == 0)) : new DataSeries<DateTime, float>(_seriesNames[i], dataSource[i]);
+                var series = (sampleRate > 1) ? new DataSeries<DateTime, float>(_seriesNames[i], dataSource[i].Where((x, index) => index % sampleRate == 0)) : new DataSeries<DateTime, float>(_seriesNames[i], dataSource[i]);
                 generatedSeries.Add(series);
+                if (sampleRate > 1) ShowBackground();
             }
             ChartSeries = generatedSeries;
+            _graphBehaviour.RefreshVisual();
         }
 
-        private void CountValues()
+        private void ShowBackground()
         {
-            System.Diagnostics.Debug.Print("There are {0} data points", ChartSeries.Count);
+            _graphBackground.Visibility = Visibility.Visible;
+            SampledValues = true;
+        }
+
+        private void HideBackground()
+        {
+            _graphBackground.Visibility = Visibility.Collapsed;
+            SampledValues = false;
         }
     }
 }

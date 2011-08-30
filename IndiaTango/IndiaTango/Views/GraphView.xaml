@@ -9,18 +9,15 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="160" />
         </Grid.ColumnDefinitions>
-        <charts:Chart Title="{Binding ChartTitle}" Grid.Column="0" Grid.RowSpan="6" Behaviour="{Binding Behaviour}" multiseries:MultiSeries.Source="{Binding ChartSeries}">
+        <charts:Chart Title="{Binding ChartTitle}" Grid.Column="0" Behaviour="{Binding Behaviour}" multiseries:MultiSeries.Source="{Binding ChartSeries}">
             <charts:Chart.YAxis>
                 <charts:LinearAxis Title="{Binding YAxisTitle}" Range="{Binding Range}" />
             </charts:Chart.YAxis>
             <charts:Chart.XAxis>
                 <charts:DateTimeAxis Title="Date" />
             </charts:Chart.XAxis>
-            <!--<charts:Chart.Series>
-                <charts:LineSeries DataSeries="{Binding ChartSeries}" />
-            </charts:Chart.Series>-->
         </charts:Chart>
-        <Grid Grid.Column="1">
+        <Grid Grid.Column="1" Margin="0,0,10,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="30" />
                 <RowDefinition Height="30" />
@@ -33,6 +30,7 @@
             <TextBlock Grid.Row="2" Text="{Binding MinimumValue}" TextAlignment="Center" VerticalAlignment="Top" />
             <Slider Grid.Row="3" Minimum="{Binding MinimumMaximum}" Maximum="{Binding MaximumMaximum}" Value="{Binding Maximum, Mode=TwoWay}" TickFrequency="10" IsSnapToTickEnabled="True" />
             <TextBlock Grid.Row="4" Text="{Binding MaximumValue}" TextAlignment="Center" VerticalAlignment="Top" />
+            <TextBlock Grid.Row="5" Text="{Binding SampledValuesString}" TextAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,10" Foreground="Red" FontSize="14" TextWrapping="Wrap" />
         </Grid>
     </Grid>
 </Window>
