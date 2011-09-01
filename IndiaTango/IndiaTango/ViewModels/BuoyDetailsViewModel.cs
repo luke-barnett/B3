@@ -40,7 +40,7 @@ namespace IndiaTango.ViewModels
 		#region Properties
         public string Title
         {
-            get { return "Edit Buoy Details"; }
+            get { return "Edit Site Details"; }
         }
 
         public ObservableCollection<Buoy> AllBuoys
@@ -306,7 +306,7 @@ namespace IndiaTango.ViewModels
 
         public void btnDelete()
         {
-            if(MessageBox.Show("Are you sure you want to delete this buoy?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            if(MessageBox.Show("Are you sure you want to delete this site?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
                 if (SelectedBuoy != null)
                 {
@@ -318,7 +318,7 @@ namespace IndiaTango.ViewModels
 
                     Buoy.ExportAll(AllBuoys);
 
-                    MessageBox.Show("Buoy successfully removed.", "Success", MessageBoxButtons.OK,
+                    MessageBox.Show("Site successfully removed.", "Success", MessageBoxButtons.OK,
                                     MessageBoxIcon.Information);
                 }
             }

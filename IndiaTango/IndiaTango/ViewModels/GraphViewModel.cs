@@ -80,7 +80,7 @@ namespace IndiaTango.ViewModels
 
         private bool _sampledValues;
         public bool SampledValues { get { return _sampledValues; } set { _sampledValues = value; NotifyOfPropertyChange(() => SampledValuesString); } }
-        public string SampledValuesString { get { return (SampledValues) ? "WARNING SAMPLED VALUES" : String.Empty; } }
+        public string SampledValuesString { get { return (SampledValues) ? "Sampling " + sampleRate + " values" : String.Empty; } }
 
         private readonly List<IEnumerable<DataPoint<DateTime, float>>> _dataPoints = new List<IEnumerable<DataPoint<DateTime, float>>>();
         private readonly List<string> _seriesNames = new List<string>();
@@ -159,13 +159,15 @@ namespace IndiaTango.ViewModels
             return minY;
         }
 
+        private int sampleRate = 0;
+
         private void SampleValues(int numberOfPoints, IList<IEnumerable<DataPoint<DateTime, float>>> dataSource)
         {
             var generatedSeries = new List<LineSeries>();
             HideBackground();
             for (var i = 0; i < dataSource.Count; i++)
             {
-                var sampleRate = dataSource[i].Count() / (numberOfPoints / dataSource.Count());
+                sampleRate = dataSource[i].Count() / (numberOfPoints / dataSource.Count());
                 System.Diagnostics.Debug.Print("Number of points: {0} Max Number {1} Sampling rate {2}", dataSource[i].Count(), numberOfPoints, sampleRate);
                 var series = (sampleRate > 1) ? new DataSeries<DateTime, float>(_seriesNames[i], dataSource[i].Where((x, index) => index % sampleRate == 0)) : new DataSeries<DateTime, float>(_seriesNames[i], dataSource[i]);
                 generatedSeries.Add(new LineSeries{ DataSeries = series/*, LineStroke = Brushes.Black*/}); //This is where we have a list of brushes to wrap
