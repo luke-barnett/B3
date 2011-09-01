@@ -80,7 +80,7 @@ namespace IndiaTango.ViewModels
 
         private bool _sampledValues;
         public bool SampledValues { get { return _sampledValues; } set { _sampledValues = value; NotifyOfPropertyChange(() => SampledValuesString); } }
-        public string SampledValuesString { get { return (SampledValues) ? "Sampling " + sampleRate + " values" : String.Empty; } }
+        public string SampledValuesString { get { return (SampledValues) ? "Sampling every " + sampleRate + " values" : String.Empty; } }
 
         private readonly List<IEnumerable<DataPoint<DateTime, float>>> _dataPoints = new List<IEnumerable<DataPoint<DateTime, float>>>();
         private readonly List<string> _seriesNames = new List<string>();
