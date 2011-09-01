@@ -9,7 +9,7 @@ namespace IndiaTango.Models
 {
     class GraphBehaviour : BehaviourBase
     {
-        private const double PATH_MAX_SIZE = 100000;
+        private const double PATH_MAX_SIZE = 200000;
 
         private readonly ZoomRectangle _zoomRectangle = new ZoomRectangle();
         private readonly Canvas _background;
