@@ -9,11 +9,10 @@ namespace IndiaTango.Models
 {
     class GraphBehaviour : BehaviourBase
     {
-        private const double PATH_MAX_SIZE = 32000;
+        private const double PATH_MAX_SIZE = 100000;
 
-        private ZoomRectangle _zoomRectangle = new ZoomRectangle();
-        private Canvas _background;
-        private bool _zooming;
+        private readonly ZoomRectangle _zoomRectangle = new ZoomRectangle();
+        private readonly Canvas _background;
         private bool _leftMouseDown;
         private Point _leftMouseDownPosition;
 
@@ -34,9 +33,14 @@ namespace IndiaTango.Models
             _background.Opacity = 0.15;
             _background.SetValue(Canvas.LeftProperty, 0.0);
             _background.SetValue(Canvas.TopProperty, 0.0);
-            _background.Width = Double.IsNaN(Chart.ActualHeight) ? 400 : Chart.ActualWidth;
+            _background.Width = Double.IsNaN(Chart.ActualWidth) ? 400 : Chart.ActualWidth;
             _background.Height = Double.IsNaN(Chart.ActualHeight) ? 400 : Chart.ActualHeight;
             BehaviourContainer.Children.Add(_background);
+            BehaviourContainer.SizeChanged += (o, e) =>
+            {
+                _background.Width = Double.IsNaN(Chart.ActualWidth) ? 400 : Chart.ActualWidth;
+                _background.Height = Double.IsNaN(Chart.ActualHeight) ? 400 : Chart.ActualHeight;
+            };
         }
 
         public override void DeInit()
@@ -54,11 +58,11 @@ namespace IndiaTango.Models
 
             var closestX = FindClosestPoint(position);
             if(closestX != null)
-                System.Diagnostics.Debug.Print("X:{0} Y:{1} [{2}]", closestX.X, closestX.Y, position);
+                Debug.Print("X:{0} Y:{1} [{2}]", closestX.X, closestX.Y, position);
 
             #endregion
 
-            if(BehaviourContainer.CaptureMouse() && !_zooming)
+            if(BehaviourContainer.CaptureMouse())
             {
                 _leftMouseDown = true;
                 _leftMouseDownPosition = position;
@@ -116,7 +120,7 @@ namespace IndiaTango.Models
 
             if (CheckZoomIsPossible(position.X, _leftMouseDownPosition.X) && positionOne != positionTwo)
             {
-                System.Diagnostics.Debug.Print("{0} {1}", positionOne, positionTwo);
+                Debug.Print("{0} {1}", positionOne, positionTwo);
                 RequestZoom(positionOne, positionTwo);
             }
         }

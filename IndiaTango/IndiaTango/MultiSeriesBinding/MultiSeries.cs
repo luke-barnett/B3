@@ -55,7 +55,7 @@ namespace IndiaTango.MultiSeriesBinding
             foreach (object seriesDataSource in Source)
             {
                 // create a visiblox chart series
-                var chartSeries = new LineSeries() {DataSeries = (DataSeries<DateTime, float>) seriesDataSource};
+                var chartSeries = (LineSeries) seriesDataSource;
                 chart.Series.Add(chartSeries);
             }
         }

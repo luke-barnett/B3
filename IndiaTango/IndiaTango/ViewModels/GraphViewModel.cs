@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using Caliburn.Micro;
 using IndiaTango.Models;
 using Visiblox.Charts;
@@ -15,7 +16,7 @@ namespace IndiaTango.ViewModels
         private readonly IWindowManager _windowManager;
         private readonly GraphBehaviour _graphBehaviour;
         private readonly Canvas _graphBackground;
-        private const int MaxPointCount = 25000;
+        private const int MaxPointCount = 15000;
 
         public GraphViewModel(IWindowManager windowManager, SimpleContainer container)
         {
@@ -40,8 +41,8 @@ namespace IndiaTango.ViewModels
             Behaviour = b;
         }
 
-        private List<DataSeries<DateTime, float>> _chartSeries = new List<DataSeries<DateTime, float>>();
-        public List<DataSeries<DateTime, float>> ChartSeries { get { return _chartSeries; } set { _chartSeries = value; NotifyOfPropertyChange("ChartSeries"); } }
+        private List<LineSeries> _chartSeries = new List<LineSeries>();
+        public List<LineSeries> ChartSeries { get { return _chartSeries; } set { _chartSeries = value; NotifyOfPropertyChange("ChartSeries"); } }
 
         private string _chartTitle = String.Empty;
         public string ChartTitle { get { return _chartTitle; } set { _chartTitle = value; NotifyOfPropertyChange(()=> ChartTitle); } }
@@ -81,8 +82,9 @@ namespace IndiaTango.ViewModels
         public bool SampledValues { get { return _sampledValues; } set { _sampledValues = value; NotifyOfPropertyChange(() => SampledValuesString); } }
         public string SampledValuesString { get { return (SampledValues) ? "WARNING SAMPLED VALUES" : String.Empty; } }
 
-        private List<IEnumerable<DataPoint<DateTime, float>>> _dataPoints = new List<IEnumerable<DataPoint<DateTime, float>>>();
-        private List<string> _seriesNames = new List<string>();
+        private readonly List<IEnumerable<DataPoint<DateTime, float>>> _dataPoints = new List<IEnumerable<DataPoint<DateTime, float>>>();
+        private readonly List<string> _seriesNames = new List<string>();
+
         public Sensor Sensor { set
         {
             _dataPoints.Add(from dataValue in value.CurrentState.Values select new DataPoint<DateTime, float>(dataValue.Timestamp, dataValue.Value));
@@ -100,7 +102,7 @@ namespace IndiaTango.ViewModels
         public List<Sensor> Sensors { set
         {
             ChartTitle = value[0].Name;
-            for(int i = 0; i < value.Count(); i++)
+            for(var i = 0; i < value.Count(); i++)
             {
                 _dataPoints.Add(from dataValue in value[i].CurrentState.Values select new DataPoint<DateTime, float>(dataValue.Timestamp, dataValue.Value));
                 _seriesNames.Add(value[i].Name);
@@ -124,7 +126,7 @@ namespace IndiaTango.ViewModels
 
             foreach (var series in ChartSeries)
             {
-                foreach (var value in series)
+                foreach (var value in (DataSeries<DateTime, float>)series.DataSeries)
                 {
                     if (maxY == null)
                         maxY = value;
@@ -143,7 +145,7 @@ namespace IndiaTango.ViewModels
 
             foreach (var series in ChartSeries)
             {
-                foreach (var value in series)
+                foreach (var value in (DataSeries<DateTime, float>)series.DataSeries)
                 {
                     if (minY == null)
                         minY = value;
@@ -159,14 +161,14 @@ namespace IndiaTango.ViewModels
 
         private void SampleValues(int numberOfPoints, IList<IEnumerable<DataPoint<DateTime, float>>> dataSource)
         {
-            var generatedSeries = new List<DataSeries<DateTime, float>>();
+            var generatedSeries = new List<LineSeries>();
             HideBackground();
             for (var i = 0; i < dataSource.Count; i++)
             {
                 var sampleRate = dataSource[i].Count() / (numberOfPoints / dataSource.Count());
                 System.Diagnostics.Debug.Print("Number of points: {0} Max Number {1} Sampling rate {2}", dataSource[i].Count(), numberOfPoints, sampleRate);
                 var series = (sampleRate > 1) ? new DataSeries<DateTime, float>(_seriesNames[i], dataSource[i].Where((x, index) => index % sampleRate == 0)) : new DataSeries<DateTime, float>(_seriesNames[i], dataSource[i]);
-                generatedSeries.Add(series);
+                generatedSeries.Add(new LineSeries{ DataSeries = series/*, LineStroke = Brushes.Black*/}); //This is where we have a list of brushes to wrap
                 if (sampleRate > 1) ShowBackground();
             }
             ChartSeries = generatedSeries;
