@@ -12,11 +12,11 @@
             <RowDefinition Height="40" />
         </Grid.RowDefinitions>
         
-        <TextBlock FontSize="18" Text="Buoy Details" Margin="10"></TextBlock>
+        <TextBlock FontSize="18" Text="Site Details" Margin="10"></TextBlock>
         
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="120" />
+                <ColumnDefinition Width="120*" />
                 <ColumnDefinition Width="270" />
                 <ColumnDefinition Width="20" />
                 <ColumnDefinition Width="20" />
@@ -34,17 +34,17 @@
                 <RowDefinition Height="30" />
             </Grid.RowDefinitions>
             
-            <TextBlock FontWeight="Bold" Grid.Column="0" Grid.Row="0" Text="Select an existing buoy:" TextWrapping="Wrap" Margin="7" TextAlignment="Right" />
+            <TextBlock FontWeight="Bold" Grid.Column="0" Grid.Row="0" Text="Select an existing site:" TextWrapping="Wrap" Margin="7" TextAlignment="Right" />
 
             <ComboBox ItemsSource="{Binding AllBuoys, Mode=TwoWay}" SelectedItem="{Binding SelectedBuoy}" Grid.Column="1" Grid.Row="0" Height="25" Margin="3,7" VerticalAlignment="Top" Name="comboExistingBuoy" IsSynchronizedWithCurrentItem="True"></ComboBox>
             <Button Name="btnDelete" Content="Delete" Grid.Column="2" Height="25" Margin="3,7" VerticalAlignment="Top" IsEnabled="{Binding CanOverwrite}" />
 
             
             <Border BorderThickness="0 2 0 0" BorderBrush="Silver" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3">
-                <TextBlock FontWeight="Bold" Margin="10 3" Text="Or, create a new buoy:" />    
+                <TextBlock FontWeight="Bold" Margin="10 3" Text="Or, create a new site:" />    
             </Border>        
             
-            <TextBlock Text="Site:" TextAlignment="Right" Grid.Column="0" Grid.Row="3" Margin="7"></TextBlock>
+            <TextBlock Text="Site Name:" TextAlignment="Right" Grid.Column="0" Grid.Row="3" Margin="7"></TextBlock>
             <TextBox Name="txtSiteName" Margin="3" Grid.Column="1" Grid.Row="3" Text="{Binding SiteName}" />
 
             <TextBlock Text="Owner:" TextAlignment="Right" Grid.Column="0" Grid.Row="4" Margin="7"></TextBlock>
@@ -96,8 +96,8 @@
                 <ColumnDefinition Width="90" />
             </Grid.ColumnDefinitions>
 
-            <Button Name="btnCreate" Content="Create New Buoy" Grid.Column="1" Margin="5"></Button>
-            <Button Name="btnUpdate" Content="Overwrite Existing Buoy" Grid.Column="2" Margin="5" IsEnabled="{Binding CanOverwrite}"></Button>
+            <Button Name="btnCreate" Content="Create New Site" Grid.Column="1" Margin="5"></Button>
+            <Button Name="btnUpdate" Content="Overwrite Existing Site" Grid.Column="2" Margin="5" IsEnabled="{Binding CanOverwrite}"></Button>
             <Button Name="btnCancel" Content="Cancel" Grid.Column="3" Margin="5"></Button>
         </Grid>
     </Grid>
