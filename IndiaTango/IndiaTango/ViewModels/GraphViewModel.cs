@@ -239,6 +239,9 @@ namespace IndiaTango.ViewModels
 		
 		private void RemoveSensor(Sensor sensor)
 		{
+			if (!RenderedSensors.Contains(sensor))
+				return;
+
 			RenderedSensors.Remove(sensor);
 
 			_dataPoints.Remove(from dataValue in sensor.CurrentState.Values select new DataPoint<DateTime, float>(dataValue.Timestamp, dataValue.Value));
@@ -249,6 +252,9 @@ namespace IndiaTango.ViewModels
 
 		private void AddSensor(Sensor sensor)
 		{
+			if(RenderedSensors.Contains(sensor))
+				return;
+
 			RenderedSensors.Add(sensor);
 
 			_dataPoints.Add(from dataValue in sensor.CurrentState.Values select new DataPoint<DateTime, float>(dataValue.Timestamp, dataValue.Value));
@@ -300,9 +306,12 @@ namespace IndiaTango.ViewModels
 
 		public void SensorUnchecked(RoutedEventArgs e)
 		{
+			//TODO: Fix index out of range exception
 			CheckBox check = (CheckBox)e.Source;
-			Sensor sensor = (Sensor)check.Content;
-			RemoveSensor(sensor);
+			check.IsChecked = true;
+			//Sensor sensor = (Sensor)check.Content;
+			//RemoveSensor(sensor);
+
 		}
 
 		public void btnZoomIn()
