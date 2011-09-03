@@ -66,6 +66,7 @@ namespace IndiaTango.ViewModels
                     Unit = _sensor.Unit;
                     MaximumRateOfChange = _sensor.MaxRateOfChange.ToString();
                     Manufacturer = _sensor.Manufacturer;
+                    SerialNumber = _sensor.SerialNumber;
                 }
                 else
                 {
@@ -76,6 +77,7 @@ namespace IndiaTango.ViewModels
                     Unit = "";
                     MaximumRateOfChange = "0";
                     Manufacturer = "";
+                    SerialNumber = "";
                 }
 
                 NotifyOfPropertyChange(() => NeedsTip);
@@ -106,6 +108,8 @@ namespace IndiaTango.ViewModels
         public string MaximumRateOfChange { get; set; }
         public string Manufacturer { get; set; }
 
+        public string SerialNumber { get; set; }
+
         public void btnCancel()
         {
             this.TryClose();
@@ -119,7 +123,7 @@ namespace IndiaTango.ViewModels
                 try
                 {
                     // TODO: more user-friendly conversion messages!
-                    Sensor s = new Sensor(Name, Description, float.Parse(UpperLimit), float.Parse(LowerLimit), Unit, float.Parse(MaximumRateOfChange), Manufacturer);
+                    Sensor s = new Sensor(Name, Description, float.Parse(UpperLimit), float.Parse(LowerLimit), Unit, float.Parse(MaximumRateOfChange), Manufacturer, SerialNumber);
                     ActiveSensor = s;
                     this.TryClose();
                 }
@@ -140,6 +144,7 @@ namespace IndiaTango.ViewModels
                     ActiveSensor.Unit = Unit;
                     ActiveSensor.MaxRateOfChange = float.Parse(MaximumRateOfChange);
                     ActiveSensor.Manufacturer = Manufacturer;
+                    ActiveSensor.SerialNumber = SerialNumber;
 
                     this.TryClose();
                 }

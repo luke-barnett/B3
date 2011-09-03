@@ -15,7 +15,10 @@ namespace IndiaTango.Models
 			StringBuilder builder = new StringBuilder();
 			MD5 hasher = new MD5CryptoServiceProvider();
 
-			byte[] buffer = hasher.ComputeHash(file);
+		    byte[] data = new byte[file.Length];
+		    file.Read(data, 0, data.Length);
+
+		    byte[] buffer = hasher.ComputeHash(data);
 			file.Close();
 
 			foreach (Byte b in buffer)

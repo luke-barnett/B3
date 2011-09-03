@@ -1,7 +1,7 @@
 ﻿<Window x:Class="IndiaTango.Views.EditSensorView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="{Binding Title}" Height="400" Width="570" Icon="{Binding Icon}">
+        Title="{Binding Title}" Height="437" Width="570" Icon="{Binding Icon}">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="120" />
@@ -16,6 +16,7 @@
             <RowDefinition Height="30" />
             <RowDefinition Height="30" />
             <RowDefinition Height="50" />
+            <RowDefinition Height="30" />
             <RowDefinition Height="30" />
             <RowDefinition Height="*" />
             <RowDefinition Height="30" />
@@ -45,8 +46,11 @@
 
         <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Manufacturer:" Grid.Column="0" Grid.Row="8" ToolTip="A name that identifies this sensor uniquely." />
         <TextBox Margin="4" Grid.Column="1" Grid.Row="8" Text="{Binding Manufacturer, Mode=TwoWay}" />
-        
-        <Grid Grid.Row="10" Grid.Column="1">
+
+        <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Serial Number:" Grid.Column="0" Grid.Row="9" ToolTip="A serial number associated with this sensor." />
+        <TextBox Margin="4" Grid.Column="1" Grid.Row="9" Text="{Binding SerialNumber, Mode=TwoWay}" />
+
+        <Grid Grid.Row="11" Grid.Column="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="80" />
