@@ -1,7 +1,7 @@
 ﻿<Window x:Class="IndiaTango.Views.SpecifyValueView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="{Binding Title}" Height="106" Width="300" DataContext="{Binding}">
+        Title="{Binding Title}" Height="106" Width="300" DataContext="{Binding}" WindowStartupLocation="CenterOwner">
     <Grid Height="70">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="187*" />
