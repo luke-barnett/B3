@@ -1,7 +1,10 @@
 ﻿using System;
-using System.Windows.Forms;
+using System.Windows;
+using System.Windows.Interop;
+using System.Windows.Media;
 using Caliburn.Micro;
 using IndiaTango.Models;
+using MessageBox = System.Windows.Forms.MessageBox;
 
 namespace IndiaTango.ViewModels
 {
@@ -17,6 +20,8 @@ namespace IndiaTango.ViewModels
 
         public string Title { get { return ApplicationTitle; } }
 
+		public string TagLine { get { return ApplicationTagLine; } }
+
         public void BtnNew()
         {
             System.Diagnostics.Debug.Print("Window manager null {0}", _windowManager == null);
@@ -26,26 +31,7 @@ namespace IndiaTango.ViewModels
         
         public void BtnLoad()
         {
-            MessageBox.Show("Sorry.");
-        }
-
-        public void BtnGraphView()
-        {
-            var graphViewModel = _container.GetInstance(typeof (GraphViewModel), "GraphViewModel") as GraphViewModel;
-            if (graphViewModel != null)
-            {
-                var sensor = new Sensor("Dummy State", "Points of Awesome");
-                sensor.AddState(new SensorState(DateTime.Now));
-                var generator = new Random();
-                for (int i = 0; i < 5000; i++ )
-                {
-                    sensor.CurrentState.Values.Add(new DataValue(DateTime.Now.AddHours(i),(float)generator.NextDouble()*i));
-                }
-                graphViewModel.Sensor = sensor;
-                _windowManager.ShowDialog(graphViewModel);
-            }
-            else
-                MessageBox.Show("Failed to get a GraphViewModel");
+        	Common.ShowFeatureNotImplementedMessageBox();
         }
     }
 }

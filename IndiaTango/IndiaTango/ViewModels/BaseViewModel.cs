@@ -9,5 +9,6 @@ namespace IndiaTango.ViewModels
         public string Creators { get { return Common.Creators; } }
         public string Icon { get { return Common.Icon; } }
         public string ApplicationTitle { get { return Common.ApplicationTitle; } }
+		public string ApplicationTagLine { get { return Common.TagLine; } }
     }
 }

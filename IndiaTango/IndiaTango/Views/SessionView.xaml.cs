@@ -10,6 +10,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using IndiaTango.Models;
 
 namespace IndiaTango.Views
 {
@@ -22,5 +23,10 @@ namespace IndiaTango.Views
         {
             InitializeComponent();
         }
+
+		private void OnLoaded(object sender, RoutedEventArgs e)
+		{
+			Common.SetFancyBackground(this, grdMain,false, true);
+		}
     }
 }

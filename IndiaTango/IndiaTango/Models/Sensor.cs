@@ -18,6 +18,7 @@ namespace IndiaTango.Models
         private string _name;
         private string _unit;
         private int _errorThreshold;
+		private bool _isChecked = false;
         #endregion
 
         #region Constructors
@@ -107,6 +108,20 @@ namespace IndiaTango.Models
         #endregion
 
         #region Properties
+    	/// <summary>
+    	/// Used to provide check boxes within list boxes in the graph views.
+    	/// </summary>
+		public bool IsChecked
+    	{
+			get { return _isChecked; }
+			set { _isChecked = value; }
+    	}
+
+    	public Sensor This
+    	{
+			get { return this; }
+    	}
+
         /// <summary>
         /// Gets or sets the undo stack for this sensor. The undo stack contains a list of previous states this sensor was in before its current state. This stack cannot be null.
         /// </summary>

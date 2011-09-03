@@ -22,5 +22,10 @@ namespace IndiaTango.Views
         {
             InitializeComponent();
         }
+
+		private void sldZoom_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+		{
+
+		}
     }
 }

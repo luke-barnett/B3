@@ -3,21 +3,154 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:charts="clr-namespace:Visiblox.Charts;assembly=Visiblox.Charts"
         xmlns:multiseries="clr-namespace:IndiaTango.MultiSeriesBinding"
-        Title="{Binding ChartTitle}" Height="400" Width="800" Icon="{Binding Icon}">
-    <Grid Grid.Column="1">
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:cal="http://www.caliburnproject.org"
+        Title="{Binding ChartTitle}" Height="570" Width="950" Icon="{Binding Icon}" WindowStartupLocation="CenterScreen">
+    <Grid>
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="{Binding ColumnWidth}" />
+            <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="160" />
+            <ColumnDefinition Width="0" />
         </Grid.ColumnDefinitions>
-        <charts:Chart Title="{Binding ChartTitle}" Grid.Column="0" Behaviour="{Binding Behaviour}" multiseries:MultiSeries.Source="{Binding ChartSeries}">
-            <charts:Chart.YAxis>
-                <charts:LinearAxis Title="{Binding YAxisTitle}" Range="{Binding Range}" />
-            </charts:Chart.YAxis>
-            <charts:Chart.XAxis>
-                <charts:DateTimeAxis Title="Date" />
-            </charts:Chart.XAxis>
-        </charts:Chart>
-        <Grid Grid.Column="1" Margin="0,0,10,0">
+
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <GroupBox Grid.Row="0" Header="Graph Settings" BorderBrush="OrangeRed" Margin="10 10 0 5">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <TextBlock Text="Range:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" />
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" Margin="10 0 0 0">
+                        <DatePicker Width="32" />
+                        <TextBlock Text=" - to - " VerticalAlignment="Center" />
+                        <DatePicker Width="32" />
+                    </StackPanel>
+                    
+                    <TextBlock Text="Render Method:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" />
+                    <ComboBox Grid.Row="1" Grid.Column="1" Margin="5" SelectedIndex="0">
+                        <ComboBoxItem Content="Fast" />
+                        <ComboBoxItem Content="All Points" />
+                    </ComboBox>
+                </Grid>
+            </GroupBox>
+
+            <GroupBox Grid.Row="1" Header="Graphed Sensors" BorderBrush="OrangeRed" Margin="10 5 0 5">
+                <ListBox  ItemsSource="{Binding SensorList}" Margin="5" SelectionMode="Single">
+                    <ListBox.ItemTemplate>
+                        <HierarchicalDataTemplate>
+                            <CheckBox Content="{Binding This}" IsChecked="{Binding IsChecked}">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="Checked">
+                                        <cal:ActionMessage MethodName="SensorChecked">
+                                            <cal:Parameter Value="$eventArgs" />
+                                        </cal:ActionMessage>
+                                    </i:EventTrigger>
+                                    <i:EventTrigger EventName="Unchecked">
+                                        <cal:ActionMessage MethodName="SensorUnchecked">
+                                            <cal:Parameter Value="$eventArgs" />
+                                        </cal:ActionMessage>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </CheckBox>
+                        </HierarchicalDataTemplate>
+                    </ListBox.ItemTemplate>
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectionChanged">
+                            <cal:ActionMessage MethodName="SelectionChanged">
+                                <cal:Parameter Value="$eventArgs" />
+                            </cal:ActionMessage>
+                        </i:EventTrigger>                        
+                    </i:Interaction.Triggers>
+                </ListBox>
+            </GroupBox>
+
+            <GroupBox Grid.Row="2" Header="Selected Sensor Properties" BorderBrush="OrangeRed" Margin="10 5 0 10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Color:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" />
+                    <Rectangle  Grid.Row="0" Grid.Column="1" Width="20" Height="20" HorizontalAlignment="Left" VerticalAlignment="Center" Fill="OrangeRed" Stroke="Black" StrokeEndLineCap="Flat" StrokeThickness="1" RadiusX="5" RadiusY="5" Margin="10 5 0 0" />
+
+                    <TextBlock Text="Y Scale:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" />
+                    <Slider Grid.Row="1" Grid.Column="1" Name="sldYScale" Maximum="100" TickFrequency="10" TickPlacement="BottomRight" Value="100" VerticalAlignment="Center" Margin="5" LargeChange="10" SmallChange="1" IsSnapToTickEnabled="True" />
+                    <TextBlock Width="40"  Grid.Row="1" Grid.Column="2" Name="lblYScale" Text="100%" VerticalAlignment="Center" Margin="0" FontSize="15" />
+                </Grid>
+            </GroupBox>
+        </Grid>
+
+        <Rectangle Grid.Column="1" Width="3" Fill="OrangeRed" Margin="10,0"  SnapsToDevicePixels="True" Stroke="White" />
+        <Image Grid.Column="1" Source="{Binding ToggleButtonImage}" Width="16" Height="16" VerticalAlignment="Center" HorizontalAlignment="Center" >
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="MouseUp">
+                    <cal:ActionMessage MethodName="btnColumnToggle" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </Image>
+
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <charts:Chart Title="{Binding ChartTitle}" Grid.Row="0" Behaviour="{Binding Behaviour}" multiseries:MultiSeries.Source="{Binding ChartSeries}" Margin="0 10 10 0">
+                <charts:Chart.YAxis>
+                    <charts:LinearAxis Title="{Binding YAxisTitle}" Range="{Binding Range}" />
+                </charts:Chart.YAxis>
+                <charts:Chart.XAxis>
+                    <charts:DateTimeAxis Title="Date" />
+                </charts:Chart.XAxis>
+            </charts:Chart>
+            
+            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Stretch">
+                <Button Name="btnZoomIn" FontSize="15" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="/IndiaTango;component/Images/zoom_in.png" Width="32" Height="32" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+
+                <Button Name="btnZoomOut" FontSize="15" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="/IndiaTango;component/Images/zoom_out.png" Width="32" Height="32" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+                
+                <Slider Width="100" Maximum="1000" TickFrequency="100" TickPlacement="BottomRight" Value="{Binding ZoomLevel}" VerticalAlignment="Center" SmallChange="10" LargeChange="100" Margin="10" IsSnapToTickEnabled="True" IsSelectionRangeEnabled="False" Minimum="100" SelectionEnd="1000" />
+                <TextBlock Name="lblZoom" Text="{Binding ZoomText}" VerticalAlignment="Center" Margin="0" FontSize="15" />
+            </StackPanel>
+            
+            <StackPanel Grid.Row="1"  HorizontalAlignment="Right">
+                <Button Name="btnExportGraph"   FontSize="15" Margin="10" VerticalContentAlignment="Bottom">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="/IndiaTango;component/Images/export_graph.png" Width="32" Height="32" VerticalAlignment="Center" />
+                        <TextBlock Text="Export Graph" VerticalAlignment="Center" Margin="5" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Grid>
+        
+        
+        <Grid Grid.Column="3" Margin="0,0,10,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="30" />
                 <RowDefinition Height="30" />

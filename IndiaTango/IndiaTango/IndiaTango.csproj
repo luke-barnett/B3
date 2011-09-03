@@ -11,7 +11,8 @@
     <RootNamespace>IndiaTango</RootNamespace>
     <AssemblyName>IndiaTango</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
@@ -37,6 +38,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Images\icon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>Properties\IndiaTango.exe.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Caliburn.Micro">
@@ -65,6 +69,9 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="WindowsFormsAero">
+      <HintPath>..\..\Externals\VistaControls\WindowsFormsAero.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -142,16 +149,13 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="app.config" />
+    <None Include="Properties\IndiaTango.exe.manifest" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\logo.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
   </ItemGroup>
   <ItemGroup>
     <Page Include="Views\BuoyDetailsView.xaml">
@@ -187,13 +191,35 @@
     <Resource Include="Images\icon.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\plus.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\pencil.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\cross-script.png" />
+    <Resource Include="Images\add_data.png" />
+    <Resource Include="Images\B3_icon.png" />
+    <Resource Include="Images\cancel_32.png" />
+    <Resource Include="Images\done.png" />
+    <Resource Include="Images\done_32.png" />
+    <Resource Include="Images\edit_points.png" />
+    <Resource Include="Images\expand_left.png" />
+    <Resource Include="Images\expand_right.png" />
+    <Resource Include="Images\export_data.png" />
+    <Resource Include="Images\export_graph.png" />
+    <Resource Include="Images\find_missing.png" />
+    <Resource Include="Images\find_range.png" />
+    <Resource Include="Images\graph.png" />
+    <Resource Include="Images\graph_extrapolate.png" />
+    <Resource Include="Images\graph_specify.png" />
+    <Resource Include="Images\graph_zero.png" />
+    <Resource Include="Images\new.png" />
+    <Resource Include="Images\new_site.png" />
+    <Resource Include="Images\open.png" />
+    <Resource Include="Images\open2.png" />
+    <Resource Include="Images\open3.png" />
+    <Resource Include="Images\redo.png" />
+    <Resource Include="Images\save.png" />
+    <Resource Include="Images\sensors.png" />
+    <Resource Include="Images\site_delete.png" />
+    <Resource Include="Images\site_edit.png" />
+    <Resource Include="Images\undo.png" />
+    <Resource Include="Images\zoom_in.png" />
+    <Resource Include="Images\zoom_out.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

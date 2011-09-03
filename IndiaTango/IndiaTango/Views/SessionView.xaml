@@ -3,66 +3,238 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:caliburn="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro"
-        Title="{Binding Title}" Icon="{Binding Icon}" Height="450" Width="450">
+        Title="{Binding Title}" Icon="{Binding Icon}" Height="570" Width="950" WindowStartupLocation="CenterScreen" Loaded="OnLoaded">
     <Window.TaskbarItemInfo>
         <TaskbarItemInfo Description="India Tango" ProgressState="{Binding ProgressState}" ProgressValue="{Binding ProgressBarPercentDouble}" />
     </Window.TaskbarItemInfo>
-    <Grid>
+    <Grid Name="grdMain">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="150" />
+            <ColumnDefinition Width="440" />
         </Grid.ColumnDefinitions>
-        <Grid Grid.Column="0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="30" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            <TextBlock Text="Available Sensors:" FontWeight="Bold" Margin="12 7" Grid.Row="0" />
-            <ListBox Grid.Row="1" ItemsSource="{Binding SensorList}" Margin="10 0 0 10" SelectionMode="Extended">
-                <i:Interaction.Triggers>
-                    <i:EventTrigger EventName="MouseDoubleClick">
-                        <caliburn:ActionMessage MethodName="btnGraph" />
-                    </i:EventTrigger>
-                    <i:EventTrigger EventName="SelectionChanged">
-                        <caliburn:ActionMessage MethodName="SelectionChanged">
-                            <caliburn:Parameter Value="$eventArgs" />
-                        </caliburn:ActionMessage>
-                    </i:EventTrigger>
-                </i:Interaction.Triggers>
-            </ListBox>
-        </Grid>
-        <Grid Grid.Column="1" Margin="10 0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="30"/>
-                <RowDefinition Height="10"/>
-                <RowDefinition Height="30"/>
-                <RowDefinition Height="10"/>
-                <RowDefinition Height="30" />
-                <RowDefinition Height="10" />
-                <RowDefinition Height="30" />
-                <RowDefinition Height="10" />
-                <RowDefinition Height="30" />
-                <RowDefinition Height="10" />
-                <RowDefinition Height="15" />
-                <RowDefinition Height="10" />
-                <RowDefinition Height="30" />
-                <RowDefinition Height="10" />
-            </Grid.RowDefinitions>
-            <Button Grid.Row="1" Name="btnEditSensor" IsEnabled="{Binding ButtonsEnabled}" Content = "Edit Sensor..."/>
-            <Button Grid.Row="3" Name="btnFindMissingValues" IsEnabled="{Binding ButtonsEnabled}" Content = "Find missing values"/>
-            <Button Grid.Row="5" Name="btnDetails" IsEnabled="{Binding ButtonsEnabled}" Content="Site Details..." />
-            <Button Grid.Row="7" Name="btnImport" IsEnabled="{Binding ButtonsEnabled}" Content="Import" />
-            <Button Grid.Row="9" Name="btnGraph" IsEnabled="{Binding ButtonsEnabled}" Content="Graph" />
-            <Grid Grid.Row="11">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <GroupBox Grid.Column="1" Grid.Row="0" Header="Site Properties"  Margin="5 10 10 5" Name="groupBox1" Padding="5" BorderBrush="OrangeRed">
+            <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="90" />
+                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <ProgressBar Grid.Column="0" IsIndeterminate="False" Visibility="{Binding LoadingComponentsVisible}" Value="{Binding ProgressBarPercent}"/>
-                <TextBlock Grid.Column="1" Margin="5 0 0 0" Text="{Binding LoadingProgress}" Visibility="{Binding LoadingComponentsVisible}" TextAlignment="Right" />
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Column="0" Grid.Row="0" Text="Site:" Margin="7" TextAlignment="Right" />
+                <ComboBox ItemsSource="{Binding AllBuoys, Mode=TwoWay}" SelectedItem="{Binding SelectedBuoy}" Grid.Column="1" Height="25" Margin="3,4,3,0" VerticalAlignment="Top" Name="comboBuoyList" IsSynchronizedWithCurrentItem="True" IsEnabled="{Binding SiteListEnabled}"/>
+
+                <Rectangle Height="3" Fill="OrangeRed" Margin="0,5" Grid.Row="1" Grid.ColumnSpan="5" SnapsToDevicePixels="True" Stroke="White" />
+                
+
+                <TextBlock Text="Site Name:" TextAlignment="Right" Grid.Column="0" Grid.Row="3" Margin="7"/>
+                <TextBox Name="txtSiteName" Margin="3" Grid.Column="1" Grid.Row="3" Text="{Binding SiteName}" IsEnabled="{Binding SiteControlsEnabled}" />
+
+                <TextBlock Text="Owner:" TextAlignment="Right" Grid.Column="0" Grid.Row="4" Margin="7"></TextBlock>
+                <TextBox Name="txtOwnerName" Margin="3" Grid.Column="1" Grid.Row="4" Text="{Binding Owner}" IsEnabled="{Binding SiteControlsEnabled}" />
+
+                <TextBlock Text="Primary Contact:" TextAlignment="Right" Grid.Column="0" Grid.Row="5" Margin="7"></TextBlock>
+                <ComboBox ItemsSource="{Binding AllContacts, Mode=TwoWay}" SelectedItem="{Binding PrimaryContact}" Grid.Column="1" Grid.Row="5" Height="25" Margin="2,2,2,0" VerticalAlignment="Top" Name="comboPrimaryContact" IsEnabled="{Binding SiteControlsEnabled}"></ComboBox>
+                <Button Name="btnNewPrimary" Content="N" Grid.Column="2" Grid.Row="5" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="New Contact" Visibility="{Binding DoneCancelVisible}"/>
+                <Button Name="btnEditPrimary" Content="E" Grid.Column="3" Grid.Row="5" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="Edit Contact" IsEnabled="{Binding CanEditPrimary}" Visibility="{Binding DoneCancelVisible}"/>
+                <Button Name="btnDelPrimary" Content="D" Grid.Column="4" Grid.Row="5" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="Delete Contact" IsEnabled="{Binding CanEditPrimary}" Visibility="{Binding DoneCancelVisible}"/>
+                
+                <TextBlock Text="Secondary Contact:" TextAlignment="Right" Grid.Column="0" Grid.Row="6" Margin="7"></TextBlock>
+                <ComboBox ItemsSource="{Binding AllContacts, Mode=TwoWay}" SelectedItem="{Binding SecondaryContact}" Grid.Column="1" Grid.Row="6" Height="25" Margin="2,2,2,0" VerticalAlignment="Top" Name="comboSecondaryContact" IsEnabled="{Binding SiteControlsEnabled}"></ComboBox>
+                <Button Name="btnNewSecondary" Content="N" Grid.Column="2" Grid.Row="6" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="New Contact" Visibility="{Binding DoneCancelVisible}"/>
+                <Button Name="btnEditSecondary" Content="E" Grid.Column="3" Grid.Row="6" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="Edit Contact" IsEnabled="{Binding CanEditSecondary}" Visibility="{Binding DoneCancelVisible}"/>
+                <Button Name="btnDelSecondary" Content="D" Grid.Column="4" Grid.Row="6" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="Delete Contact" IsEnabled="{Binding CanEditSecondary}" Visibility="{Binding DoneCancelVisible}"/>
+
+                <TextBlock Text="University Contact:" TextAlignment="Right" Grid.Column="0" Grid.Row="7" Margin="7"></TextBlock>
+                <ComboBox ItemsSource="{Binding AllContacts, Mode=TwoWay}" SelectedItem="{Binding UniversityContact}" Grid.Column="1" Grid.Row="7" Height="25" Margin="2,2,2,0" VerticalAlignment="Top" Name="comboUniContact" IsEnabled="{Binding SiteControlsEnabled}"></ComboBox>
+                <Button Name="btnNewUni" Content="N" Grid.Column="2" Grid.Row="7" Margin="3,3,3,0" Height="24" VerticalAlignment="Top" ToolTip="New Contact" Visibility="{Binding DoneCancelVisible}"/>
+                <Button Name="btnEditUni" Content="E" Grid.Column="3" Grid.Row="7" Margin="3,3,3,0" Height="24" VerticalAlignment="Top" ToolTip="Edit Contact" IsEnabled="{Binding CanEditUni}" Visibility="{Binding DoneCancelVisible}"/>
+                <Button Name="btnDelUni" Content="D" Grid.Column="4" Grid.Row="7" Margin="3,3,3,0" Height="24" VerticalAlignment="Top" ToolTip="Delete Contact" IsEnabled="{Binding CanEditUni}" Visibility="{Binding DoneCancelVisible}"/>
+                
+                <TextBlock Text="GPS Coordinates:" TextAlignment="Right" Grid.Column="0" Grid.Row="8" Margin="7"></TextBlock>
+                <Grid Grid.Column="1" Grid.Row="8" Background="GhostWhite">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    
+                    <TextBlock Text="Lat:" Grid.Column="0" Grid.Row="0" Margin="7" TextAlignment="Right" />
+                    <TextBox Name="Latitude" Grid.Column="1" Grid.Row="0" Margin="3" Text="{Binding Latitude}" ToolTip="Enter latitude in Degrees Minutes Seconds or Decimal Degrees" IsEnabled="{Binding SiteControlsEnabled}" />
+
+                    <TextBlock Text="Long:" Grid.Column="2" Grid.Row="0" Margin="7" TextAlignment="Right" />
+                    <TextBox Name="Longitude" Grid.Column="3" Grid.Row="0" Margin="3" Text="{Binding Longitude}" ToolTip="Enter longitude in Degrees Minutes Seconds or Decimal Degrees" IsEnabled="{Binding SiteControlsEnabled}"/>
+                </Grid>
+
+                <StackPanel  Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="5" Orientation="Horizontal" FlowDirection="RightToLeft">
+                    <Button Name="btnSensors" FontSize="15" Width="100" Height="100" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Padding="0" IsEnabled="{Binding SensorsEnabled}">
+                        <StackPanel Orientation="Vertical">
+                            <Image Source="/IndiaTango;component/Images/sensors.png" Width="64" Height="64" />
+                            <TextBlock Text="Sensors" HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+                
+                <Rectangle Height="3" Fill="OrangeRed" Margin="0,5" Grid.Row="10" Grid.ColumnSpan="5" SnapsToDevicePixels="True" Stroke="White" />
+
+                <Button Name="btnSiteCreate" Grid.Row="11" Grid.Column="0" FontSize="15" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Visibility="{Binding CreateEditDeleteVisible}">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="/IndiaTango;component/Images/new_site.png" Width="32" Height="32" VerticalAlignment="Center" />
+                        <TextBlock Text="New Site" VerticalAlignment="Center" Margin="5" />
+                    </StackPanel>
+                </Button>
+                
+                <StackPanel  Grid.Row="11" Grid.Column="1" Grid.ColumnSpan="5" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Name="btnSiteDone" FontSize="15" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Visibility="{Binding DoneCancelVisible}">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/IndiaTango;component/Images/done_32.png" Width="32" Height="32" VerticalAlignment="Center" />
+                            <TextBlock Text="Done" VerticalAlignment="Center" Margin="5" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Name="btnSiteCancel" FontSize="15" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Visibility="{Binding DoneCancelVisible}">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/IndiaTango;component/Images/cancel_32.png" Width="32" Height="32" VerticalAlignment="Center" />
+                            <TextBlock Text="Cancel" VerticalAlignment="Center" Margin="5" />
+                        </StackPanel>
+                    </Button>
+                    
+                    <Button Name="btnSiteEdit" FontSize="15" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Visibility="{Binding CreateEditDeleteVisible}" IsEnabled="{Binding EditDeleteEnabled}">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/IndiaTango;component/Images/site_edit.png" Width="32" Height="32" VerticalAlignment="Center"  />
+                            <TextBlock Text="Edit" VerticalAlignment="Center" Margin="5" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Name="btnSiteDelete" FontSize="15"  HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Visibility="{Binding CreateEditDeleteVisible}" IsEnabled="{Binding EditDeleteEnabled}">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/IndiaTango;component/Images/site_delete.png" Width="32" Height="32" VerticalAlignment="Center" />
+                            <TextBlock Text="Delete" VerticalAlignment="Center" Margin="5" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
             </Grid>
-            <Button Grid.Row="13" Name="btnCancel" Visibility="{Binding LoadingComponentsVisible}" Content="Cancel" />
-        </Grid>
+        </GroupBox>
+        
+        <GroupBox Grid.Column="0" Grid.Row="0" Header="Actions" Name="groupBox2" Margin="10 10 5 5" Padding="0" BorderBrush="OrangeRed">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <WrapPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left">
+                    
+                    <Button Name="btnImport" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" >
+                        <StackPanel Orientation="Vertical">
+                            <Image Source="/IndiaTango;component/Images/add_data.png" Width="64" Height="64" />
+                            <TextBlock Text="Import Data"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Name="btnGraph" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding ActionButtonsEnabled}">
+                        <StackPanel Orientation="Vertical">
+                            <Image Source="/IndiaTango;component/Images/graph.png" Width="64" Height="64" />
+                            <TextBlock Text="Graph Data"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Name="btnSave" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom">
+                        <StackPanel Orientation="Vertical">
+                            <Image Source="/IndiaTango;component/Images/save.png" Width="64" Height="64" />
+                            <TextBlock Text="Save Session"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Name="btnExport" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding ActionButtonsEnabled}">
+                        <StackPanel Orientation="Vertical">
+                            <Image Source="/IndiaTango;component/Images/export_data.png" Width="64" Height="64" />
+                            <TextBlock Text="Export Data"/>
+                        </StackPanel>
+                    </Button>
+
+                </WrapPanel>
+
+                <Rectangle Height="3" Fill="OrangeRed" Margin="5" Grid.Row="1" SnapsToDevicePixels="True" Stroke="White" />
+                
+                <ScrollViewer Grid.Row="2" Margin="0,0,5,0" VerticalScrollBarVisibility="Auto" CanContentScroll="True">
+                    <StackPanel>
+                        <WrapPanel>
+                            <Button Name="btnOutOfRangeValues" FontSize="15" Width="100" Height="100" Margin="5" IsEnabled="{Binding ActionButtonsEnabled}" >
+                                <Image Source="/IndiaTango;component/Images/find_range.png" Width="64" Height="64" />
+                            </Button>
+                            <TextBlock  Text="Find Out of Range Values" FontSize="15" VerticalAlignment="Center" Margin="5" />
+                        </WrapPanel>
+
+                        <WrapPanel>
+                            <Button Name="btnMissingValues" FontSize="15" Width="100" Height="100" Margin="5" IsEnabled="{Binding ActionButtonsEnabled}">
+                            <Image Source="/IndiaTango;component/Images/find_missing.png" Width="64" Height="64" />
+                        </Button>
+                        <TextBlock Text="Find Missing Values" FontSize="15" VerticalAlignment="Center" Margin="5" />
+                        </WrapPanel>
+
+                        <WrapPanel>
+                            <Button Name="btnEditPoints" FontSize="15" Width="100" Height="100" Margin="5" IsEnabled="{Binding ActionButtonsEnabled}">
+                            <Image Source="/IndiaTango;component/Images/edit_points.png" Width="64" Height="64" />
+                        </Button>
+                        <TextBlock Text="Edit Data Points" FontSize="15" VerticalAlignment="Center" Margin="5" />
+                        </WrapPanel>
+
+                        <Button FontSize="15" Width="100" Height="100" Margin="5" VerticalContentAlignment="Bottom" HorizontalAlignment="Left">
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="/IndiaTango;component/Images/undo.png" Width="64" Height="64" />
+                                <TextBlock Text="Undo" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button FontSize="15" Width="100" Height="100" Margin="5" VerticalContentAlignment="Bottom" HorizontalAlignment="Left">
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="/IndiaTango;component/Images/redo.png" Width="64" Height="64" />
+                                <TextBlock Text="Redo" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button FontSize="15" Width="100" Height="100" Margin="5" VerticalContentAlignment="Bottom" HorizontalAlignment="Left">
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="/IndiaTango;component/Images/done.png" Width="64" Height="64" />
+                                <TextBlock Text="Done" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+        </GroupBox>
+
+        <Rectangle Height="3" Fill="OrangeRed" Margin="-5 5 -5 0" Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" SnapsToDevicePixels="True" Stroke="White"/>
+
+        <Label Name="lblStatus" Content="{Binding StatusLabelText}" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" />
+
+        <ProgressBar Name="progBar" Width="100"  HorizontalAlignment="Right" Grid.Row="2" Grid.Column="1" Margin="5" Height="18" Value="{Binding ProgressBarPercent}" Visibility="{Binding ProgressBarVisible}" Foreground="OrangeRed" />
     </Grid>
 </Window>

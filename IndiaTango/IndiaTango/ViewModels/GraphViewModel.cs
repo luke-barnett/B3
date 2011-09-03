@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using Caliburn.Micro;
 using IndiaTango.Models;
 using Visiblox.Charts;
@@ -17,29 +18,39 @@ namespace IndiaTango.ViewModels
         private readonly GraphBehaviour _graphBehaviour;
         private readonly Canvas _graphBackground;
         private const int MaxPointCount = 15000;
+		private List<Sensor> _sensorList = new List<Sensor>();
+		private List<Sensor> _renderedSensors = new List<Sensor>();
+		private List<Sensor> _checkedSensors = new List<Sensor>();
+    	private bool _columnVisible = true;
+    	private int _zoomLevel = 100;
 
-        public GraphViewModel(IWindowManager windowManager, SimpleContainer container)
-        {
-            _windowManager = windowManager;
-            _container = container;
-            _graphBackground = new Canvas();
-            var b = new BehaviourManager {AllowMultipleEnabled = true};
-            _graphBehaviour = new GraphBehaviour(_graphBackground) { IsEnabled = true };
-            _graphBehaviour.ZoomRequested += (o, e) =>
-                                   {
-                                       var filteredPoints =
-                                           _dataPoints.Select(
-                                               dataPointSet =>
-                                               dataPointSet.Where(
-                                                   x =>
-                                                   x.X >= (DateTime) e.FirstPoint.X && x.X >= (DateTime) e.SecondPoint.X))
-                                               .ToList();
-                                       SampleValues(MaxPointCount, filteredPoints);
-                                   };
-            _graphBehaviour.ZoomResetRequested += o => SampleValues(MaxPointCount, _dataPoints);
-            b.Behaviours.Add(_graphBehaviour);
-            Behaviour = b;
-        }
+		public GraphViewModel(IWindowManager windowManager, SimpleContainer container)
+		{
+			_windowManager = windowManager;
+			_container = container;
+
+
+			_graphBackground = new Canvas();
+			var b = new BehaviourManager { AllowMultipleEnabled = true };
+			_graphBehaviour = new GraphBehaviour(_graphBackground) { IsEnabled = true };
+			_graphBehaviour.ZoomRequested += (o, e) =>
+			{
+				var filteredPoints =
+					_dataPoints.Select(
+						dataPointSet =>
+						dataPointSet.Where(
+							x =>
+							x.X >= (DateTime)e.FirstPoint.X && x.X >= (DateTime)e.SecondPoint.X))
+						.ToList();
+				SampleValues(MaxPointCount, filteredPoints);
+			};
+			_graphBehaviour.ZoomResetRequested += o => SampleValues(MaxPointCount, _dataPoints);
+			b.Behaviours.Add(_graphBehaviour);
+			Behaviour = b;
+		}
+
+		#region Graph Properties
+        
 
         private List<LineSeries> _chartSeries = new List<LineSeries>();
         public List<LineSeries> ChartSeries { get { return _chartSeries; } set { _chartSeries = value; NotifyOfPropertyChange("ChartSeries"); } }
@@ -82,43 +93,34 @@ namespace IndiaTango.ViewModels
         public bool SampledValues { get { return _sampledValues; } set { _sampledValues = value; NotifyOfPropertyChange(() => SampledValuesString); } }
         public string SampledValuesString { get { return (SampledValues) ? "Sampling every " + sampleRate + " values" : String.Empty; } }
 
-        private readonly List<IEnumerable<DataPoint<DateTime, float>>> _dataPoints = new List<IEnumerable<DataPoint<DateTime, float>>>();
-        private readonly List<string> _seriesNames = new List<string>();
+        private List<IEnumerable<DataPoint<DateTime, float>>> _dataPoints = new List<IEnumerable<DataPoint<DateTime, float>>>();
+        private List<string> _seriesNames = new List<string>();
 
-        public Sensor Sensor { set
-        {
-            _dataPoints.Add(from dataValue in value.CurrentState.Values select new DataPoint<DateTime, float>(dataValue.Timestamp, dataValue.Value));
-            _seriesNames.Add(value.Name);
-            ChartTitle = value.Name;
-            YAxisTitle = value.Unit;
-            SampleValues(MaxPointCount, _dataPoints);
+        public List<Sensor> RenderedSensors 
+		{ 
+			set
+			{_renderedSensors = value;
+				for(var i = 0; i < value.Count(); i++)
+				{
+					
+				}
 
-            MaximumMaximum = MaximumY().Y + 100;
-            MinimumMinimum = MinimumY().Y - 100;
+				
+			}
+			get { return _renderedSensors; }
+		}
 
-            Maximum = MaximumMaximum;
-        }}
+    	public List<Sensor> SensorList
+    	{
+			get { return _sensorList;  }
+			set
+			{
+				_sensorList = value;
+				NotifyOfPropertyChange(() => SensorList);
+			}
+    	}
 
-        public List<Sensor> Sensors { set
-        {
-            ChartTitle = value[0].Name;
-            for(var i = 0; i < value.Count(); i++)
-            {
-                _dataPoints.Add(from dataValue in value[i].CurrentState.Values select new DataPoint<DateTime, float>(dataValue.Timestamp, dataValue.Value));
-                _seriesNames.Add(value[i].Name);
-
-                if (i > 0)
-                    ChartTitle += " vs " + value[i].Name;
-            }
-            YAxisTitle = (((from dataSeries in value select dataSeries.Unit).Distinct()).Count() == 1) ? value[0].Unit : String.Empty;
-            SampleValues(MaxPointCount, _dataPoints);
-
-            MaximumMaximum = MaximumY().Y + 100;
-            MinimumMinimum = MinimumY().Y - 100;
-
-            Maximum = MaximumMaximum;
-            Minimum = MinimumMinimum;
-        }}
+    	public Sensor SelectedSensor = null;
 
         private DataPoint<DateTime, float> MaximumY()
         {
@@ -169,7 +171,10 @@ namespace IndiaTango.ViewModels
             {
                 sampleRate = dataSource[i].Count() / (numberOfPoints / dataSource.Count());
                 System.Diagnostics.Debug.Print("Number of points: {0} Max Number {1} Sampling rate {2}", dataSource[i].Count(), numberOfPoints, sampleRate);
-                var series = (sampleRate > 1) ? new DataSeries<DateTime, float>(_seriesNames[i], dataSource[i].Where((x, index) => index % sampleRate == 0)) : new DataSeries<DateTime, float>(_seriesNames[i], dataSource[i]);
+
+				//TODO: Index out of range exception of sensor removal
+                
+				var series = (sampleRate > 1) ? new DataSeries<DateTime, float>(_seriesNames[i], dataSource[i].Where((x, index) => index % sampleRate == 0)) : new DataSeries<DateTime, float>(_seriesNames[i], dataSource[i]);
                 generatedSeries.Add(new LineSeries{ DataSeries = series/*, LineStroke = Brushes.Black*/}); //This is where we have a list of brushes to wrap
                 if (sampleRate > 1) ShowBackground();
             }
@@ -188,5 +193,133 @@ namespace IndiaTango.ViewModels
             _graphBackground.Visibility = Visibility.Collapsed;
             SampledValues = false;
         }
+		
+		#endregion
+
+		#region View Properties
+
+    	public int ZoomLevel
+    	{
+			get { return _zoomLevel; }
+			set
+			{
+				_zoomLevel = Math.Max(100, value);
+				_zoomLevel = Math.Min(1000, _zoomLevel);
+
+				NotifyOfPropertyChange(() => ZoomLevel);
+				NotifyOfPropertyChange(() => ZoomText);
+
+				//TODO: Actually zoom
+			}
+    	}
+
+    	public string ZoomText
+    	{
+    		get { return ZoomLevel + "%"; }
+    	}
+
+		public int ColumnWidth
+		{
+			get { return _columnVisible ? 250 : 0; }
+		}
+
+    	public ImageSource ToggleButtonImage
+    	{
+			get 
+			{
+				return _columnVisible 
+					? new BitmapImage(new Uri("pack://application:,,,/Images/expand_left.png")) 
+					: new BitmapImage(new Uri("pack://application:,,,/Images/expand_right.png")); 
+			}
+    	}
+
+		#endregion
+		
+		#region Graph Methods
+		
+		private void RemoveSensor(Sensor sensor)
+		{
+			RenderedSensors.Remove(sensor);
+
+			_dataPoints.Remove(from dataValue in sensor.CurrentState.Values select new DataPoint<DateTime, float>(dataValue.Timestamp, dataValue.Value));
+			_seriesNames.Remove(sensor.Name);
+
+			RedrawGraph();
+		}
+
+		private void AddSensor(Sensor sensor)
+		{
+			RenderedSensors.Add(sensor);
+
+			_dataPoints.Add(from dataValue in sensor.CurrentState.Values select new DataPoint<DateTime, float>(dataValue.Timestamp, dataValue.Value));
+			_seriesNames.Add(sensor.Name);
+
+			RedrawGraph();
+		}
+
+		private void RedrawGraph()
+		{
+			foreach (Sensor sen in RenderedSensors)
+			{
+				ChartTitle += " VS " + sen.Name;
+			}
+
+			YAxisTitle = (((from dataSeries in RenderedSensors select dataSeries.Unit).Distinct()).Count() == 1) ? RenderedSensors[0].Unit : String.Empty;
+			SampleValues(MaxPointCount, _dataPoints);
+
+			MaximumMaximum = MaximumY().Y + 100;
+			MinimumMinimum = MinimumY().Y - 100;
+
+			Maximum = MaximumMaximum;
+			Minimum = MinimumMinimum;
+		}
+
+		#endregion
+
+		#region Event Handlers
+
+		public void btnColumnToggle()
+		{
+			_columnVisible = !_columnVisible;
+			NotifyOfPropertyChange(() => ColumnWidth);
+			NotifyOfPropertyChange(() => ToggleButtonImage);
+		}
+
+		public void SelectionChanged(SelectionChangedEventArgs e)
+		{
+			SelectedSensor = (Sensor)e.AddedItems[0];
+			//MessageBox.Show("selected");
+		}
+
+		public void SensorChecked(RoutedEventArgs e)
+		{
+			CheckBox check = (CheckBox)e.Source;
+			Sensor sensor = (Sensor) check.Content;
+			AddSensor(sensor);
+		}
+
+		public void SensorUnchecked(RoutedEventArgs e)
+		{
+			CheckBox check = (CheckBox)e.Source;
+			Sensor sensor = (Sensor)check.Content;
+			RemoveSensor(sensor);
+		}
+
+		public void btnZoomIn()
+		{
+			ZoomLevel += 100;
+		}
+
+		public void btnZoomOut()
+		{
+			ZoomLevel -= 100;
+		}
+
+		public void sldZoom(object sender, RoutedPropertyChangedEventArgs<double> e)
+		{
+			ZoomLevel = (int)e.NewValue;
+		}
+
+		#endregion
     }
 }
