@@ -105,9 +105,6 @@ namespace IndiaTango.ViewModels
 
 		#endregion
 
-
-
-
 		#region Event Handlers
 
 		public void SelectionChanged(SelectionChangedEventArgs e)
@@ -223,11 +220,13 @@ namespace IndiaTango.ViewModels
 
 		public void btnExtrapolate()
 		{
+			//TODO: Implement
 			Common.ShowFeatureNotImplementedMessageBox();
 		}
 
 		public void btnZoomIn()
 		{
+			//TODO: Implement zoom
 			ZoomLevel += 100;
 		}
 

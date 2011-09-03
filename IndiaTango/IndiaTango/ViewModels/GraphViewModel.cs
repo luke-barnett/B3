@@ -329,6 +329,11 @@ namespace IndiaTango.ViewModels
 			ZoomLevel = (int)e.NewValue;
 		}
 
+		public void btnExportGraph()
+		{
+			Common.ShowFeatureNotImplementedMessageBox();
+		}
+
 		#endregion
     }
 }

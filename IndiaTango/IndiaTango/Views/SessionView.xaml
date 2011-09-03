@@ -194,38 +194,17 @@
 
                         <WrapPanel>
                             <Button Name="btnMissingValues" FontSize="15" Width="100" Height="100" Margin="5" IsEnabled="{Binding ActionButtonsEnabled}">
-                            <Image Source="/IndiaTango;component/Images/find_missing.png" Width="64" Height="64" />
-                        </Button>
-                        <TextBlock Text="Find Missing Values" FontSize="15" VerticalAlignment="Center" Margin="5" />
+                                <Image Source="/IndiaTango;component/Images/find_missing.png" Width="64" Height="64" />
+                            </Button>
+                            <TextBlock Text="Find Missing Values" FontSize="15" VerticalAlignment="Center" Margin="5" />
                         </WrapPanel>
 
                         <WrapPanel>
                             <Button Name="btnEditPoints" FontSize="15" Width="100" Height="100" Margin="5" IsEnabled="{Binding ActionButtonsEnabled}">
-                            <Image Source="/IndiaTango;component/Images/edit_points.png" Width="64" Height="64" />
-                        </Button>
-                        <TextBlock Text="Edit Data Points" FontSize="15" VerticalAlignment="Center" Margin="5" />
+                                <Image Source="/IndiaTango;component/Images/edit_points.png" Width="64" Height="64" />
+                            </Button>
+                            <TextBlock Text="Edit Data Points" FontSize="15" VerticalAlignment="Center" Margin="5" />
                         </WrapPanel>
-
-                        <Button FontSize="15" Width="100" Height="100" Margin="5" VerticalContentAlignment="Bottom" HorizontalAlignment="Left">
-                            <StackPanel Orientation="Vertical">
-                                <Image Source="/IndiaTango;component/Images/undo.png" Width="64" Height="64" />
-                                <TextBlock Text="Undo" HorizontalAlignment="Center"/>
-                            </StackPanel>
-                        </Button>
-
-                        <Button FontSize="15" Width="100" Height="100" Margin="5" VerticalContentAlignment="Bottom" HorizontalAlignment="Left">
-                            <StackPanel Orientation="Vertical">
-                                <Image Source="/IndiaTango;component/Images/redo.png" Width="64" Height="64" />
-                                <TextBlock Text="Redo" HorizontalAlignment="Center"/>
-                            </StackPanel>
-                        </Button>
-
-                        <Button FontSize="15" Width="100" Height="100" Margin="5" VerticalContentAlignment="Bottom" HorizontalAlignment="Left">
-                            <StackPanel Orientation="Vertical">
-                                <Image Source="/IndiaTango;component/Images/done.png" Width="64" Height="64" />
-                                <TextBlock Text="Done" HorizontalAlignment="Center"/>
-                            </StackPanel>
-                        </Button>
                     </StackPanel>
                 </ScrollViewer>
             </Grid>
