@@ -59,22 +59,40 @@
 
                 <TextBlock Text="Primary Contact:" TextAlignment="Right" Grid.Column="0" Grid.Row="5" Margin="7"></TextBlock>
                 <ComboBox ItemsSource="{Binding AllContacts, Mode=TwoWay}" SelectedItem="{Binding PrimaryContact}" Grid.Column="1" Grid.Row="5" Height="25" Margin="2,2,2,0" VerticalAlignment="Top" Name="comboPrimaryContact" IsEnabled="{Binding SiteControlsEnabled}"></ComboBox>
-                <Button Name="btnNewPrimary" Content="N" Grid.Column="2" Grid.Row="5" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="New Contact" Visibility="{Binding DoneCancelVisible}"/>
-                <Button Name="btnEditPrimary" Content="E" Grid.Column="3" Grid.Row="5" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="Edit Contact" IsEnabled="{Binding CanEditPrimary}" Visibility="{Binding DoneCancelVisible}"/>
-                <Button Name="btnDelPrimary" Content="D" Grid.Column="4" Grid.Row="5" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="Delete Contact" IsEnabled="{Binding CanEditPrimary}" Visibility="{Binding DoneCancelVisible}"/>
-                
+                <Button Name="btnNewPrimary" Grid.Column="2" Grid.Row="5" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="New Contact" Visibility="{Binding DoneCancelVisible}">
+                    <Image Source="/IndiaTango;component/Images/new_16.png" Width="16" Height="16" />
+                </Button>
+                <Button Name="btnEditPrimary" Grid.Column="3" Grid.Row="5" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="Edit Contact" IsEnabled="{Binding CanEditPrimary}" Visibility="{Binding DoneCancelVisible}">
+                    <Image Source="/IndiaTango;component/Images/edit_16.png" Width="16" Height="16" />
+                </Button>
+                <Button Name="btnDelPrimary" Grid.Column="4" Grid.Row="5" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="Delete Contact" IsEnabled="{Binding CanEditPrimary}" Visibility="{Binding DoneCancelVisible}">
+                    <Image Source="/IndiaTango;component/Images/delete_16.png" Width="16" Height="16" />
+                </Button>
+
                 <TextBlock Text="Secondary Contact:" TextAlignment="Right" Grid.Column="0" Grid.Row="6" Margin="7"></TextBlock>
                 <ComboBox ItemsSource="{Binding AllContacts, Mode=TwoWay}" SelectedItem="{Binding SecondaryContact}" Grid.Column="1" Grid.Row="6" Height="25" Margin="2,2,2,0" VerticalAlignment="Top" Name="comboSecondaryContact" IsEnabled="{Binding SiteControlsEnabled}"></ComboBox>
-                <Button Name="btnNewSecondary" Content="N" Grid.Column="2" Grid.Row="6" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="New Contact" Visibility="{Binding DoneCancelVisible}"/>
-                <Button Name="btnEditSecondary" Content="E" Grid.Column="3" Grid.Row="6" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="Edit Contact" IsEnabled="{Binding CanEditSecondary}" Visibility="{Binding DoneCancelVisible}"/>
-                <Button Name="btnDelSecondary" Content="D" Grid.Column="4" Grid.Row="6" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="Delete Contact" IsEnabled="{Binding CanEditSecondary}" Visibility="{Binding DoneCancelVisible}"/>
+                <Button Name="btnNewSecondary" Grid.Column="2" Grid.Row="6" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="New Contact" Visibility="{Binding DoneCancelVisible}">
+                    <Image Source="/IndiaTango;component/Images/new_16.png" Width="16" Height="16" />
+                </Button>
+                <Button Name="btnEditSecondary" Grid.Column="3" Grid.Row="6" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="Edit Contact" IsEnabled="{Binding CanEditSecondary}" Visibility="{Binding DoneCancelVisible}">
+                    <Image Source="/IndiaTango;component/Images/edit_16.png" Width="16" Height="16" />
+                </Button>
+                <Button Name="btnDelSecondary" Grid.Column="4" Grid.Row="6" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="Delete Contact" IsEnabled="{Binding CanEditSecondary}" Visibility="{Binding DoneCancelVisible}">
+                    <Image Source="/IndiaTango;component/Images/delete_16.png" Width="16" Height="16" />
+                </Button>
 
                 <TextBlock Text="University Contact:" TextAlignment="Right" Grid.Column="0" Grid.Row="7" Margin="7"></TextBlock>
                 <ComboBox ItemsSource="{Binding AllContacts, Mode=TwoWay}" SelectedItem="{Binding UniversityContact}" Grid.Column="1" Grid.Row="7" Height="25" Margin="2,2,2,0" VerticalAlignment="Top" Name="comboUniContact" IsEnabled="{Binding SiteControlsEnabled}"></ComboBox>
-                <Button Name="btnNewUni" Content="N" Grid.Column="2" Grid.Row="7" Margin="3,3,3,0" Height="24" VerticalAlignment="Top" ToolTip="New Contact" Visibility="{Binding DoneCancelVisible}"/>
-                <Button Name="btnEditUni" Content="E" Grid.Column="3" Grid.Row="7" Margin="3,3,3,0" Height="24" VerticalAlignment="Top" ToolTip="Edit Contact" IsEnabled="{Binding CanEditUni}" Visibility="{Binding DoneCancelVisible}"/>
-                <Button Name="btnDelUni" Content="D" Grid.Column="4" Grid.Row="7" Margin="3,3,3,0" Height="24" VerticalAlignment="Top" ToolTip="Delete Contact" IsEnabled="{Binding CanEditUni}" Visibility="{Binding DoneCancelVisible}"/>
-                
+                <Button Name="btnNewUni" Grid.Column="2" Grid.Row="7" Margin="3,3,3,0" Height="24" VerticalAlignment="Top" ToolTip="New Contact" Visibility="{Binding DoneCancelVisible}">
+                    <Image Source="/IndiaTango;component/Images/new_16.png" Width="16" Height="16" />    
+                </Button>
+                <Button Name="btnEditUni" Grid.Column="3" Grid.Row="7" Margin="3,3,3,0" Height="24" VerticalAlignment="Top" ToolTip="Edit Contact" IsEnabled="{Binding CanEditUni}" Visibility="{Binding DoneCancelVisible}">
+                    <Image Source="/IndiaTango;component/Images/edit_16.png" Width="16" Height="16" />
+                </Button>
+                <Button Name="btnDelUni" Grid.Column="4" Grid.Row="7" Margin="3,3,3,0" Height="24" VerticalAlignment="Top" ToolTip="Delete Contact" IsEnabled="{Binding CanEditUni}" Visibility="{Binding DoneCancelVisible}">
+                    <Image Source="/IndiaTango;component/Images/delete_16.png" Width="16" Height="16" />
+                </Button>
+
                 <TextBlock Text="GPS Coordinates:" TextAlignment="Right" Grid.Column="0" Grid.Row="8" Margin="7"></TextBlock>
                 <Grid Grid.Column="1" Grid.Row="8" Background="GhostWhite">
                     <Grid.ColumnDefinitions>
@@ -126,14 +144,14 @@
                     
                     <Button Name="btnSiteEdit" FontSize="15" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Visibility="{Binding CreateEditDeleteVisible}" IsEnabled="{Binding EditDeleteEnabled}">
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="/IndiaTango;component/Images/site_edit.png" Width="32" Height="32" VerticalAlignment="Center"  />
+                            <Image Source="/IndiaTango;component/Images/edit_32.png" Width="32" Height="32" VerticalAlignment="Center"  />
                             <TextBlock Text="Edit" VerticalAlignment="Center" Margin="5" />
                         </StackPanel>
                     </Button>
 
                     <Button Name="btnSiteDelete" FontSize="15"  HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Visibility="{Binding CreateEditDeleteVisible}" IsEnabled="{Binding EditDeleteEnabled}">
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="/IndiaTango;component/Images/site_delete.png" Width="32" Height="32" VerticalAlignment="Center" />
+                            <Image Source="/IndiaTango;component/Images/delete_32.png" Width="32" Height="32" VerticalAlignment="Center" />
                             <TextBlock Text="Delete" VerticalAlignment="Center" Margin="5" />
                         </StackPanel>
                     </Button>

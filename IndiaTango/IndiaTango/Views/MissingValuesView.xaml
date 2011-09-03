@@ -60,7 +60,7 @@
 
                         <Button Name="btnDone" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding ActionButtonsEnabled}">
                             <StackPanel Orientation="Vertical">
-                                <Image Source="/IndiaTango;component/Images/done.png" Width="64" Height="64" />
+                                <Image Source="/IndiaTango;component/Images/done_64.png" Width="64" Height="64" />
                                 <TextBlock Text="Done" HorizontalAlignment="Center" />
                             </StackPanel>
                         </Button>

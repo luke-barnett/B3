@@ -202,7 +202,7 @@
     <Resource Include="Images\add_data.png" />
     <Resource Include="Images\B3_icon.png" />
     <Resource Include="Images\cancel_32.png" />
-    <Resource Include="Images\done.png" />
+    <Resource Include="Images\done_64.png" />
     <Resource Include="Images\done_32.png" />
     <Resource Include="Images\edit_points.png" />
     <Resource Include="Images\expand_left.png" />
@@ -223,11 +223,18 @@
     <Resource Include="Images\redo.png" />
     <Resource Include="Images\save.png" />
     <Resource Include="Images\sensors.png" />
-    <Resource Include="Images\site_delete.png" />
-    <Resource Include="Images\site_edit.png" />
+    <Resource Include="Images\delete_32.png" />
+    <Resource Include="Images\edit_32.png" />
     <Resource Include="Images\undo.png" />
     <Resource Include="Images\zoom_in.png" />
     <Resource Include="Images\zoom_out.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\new_16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\delete_16.png" />
+    <Resource Include="Images\edit_16.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
