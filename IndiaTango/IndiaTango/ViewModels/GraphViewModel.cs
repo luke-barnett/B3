@@ -70,7 +70,7 @@ namespace IndiaTango.ViewModels
         private double _minimum = 0;
         public double Minimum { get { return _minimum; } set { _minimum = value; NotifyOfPropertyChange(() => Minimum); NotifyOfPropertyChange(() => MinimumValue); MinimumMaximum = Minimum; Range = new DoubleRange(Minimum, Maximum); if (Math.Abs(Maximum - Minimum) < 0.001) Minimum -= 1; } }
 
-        public string MinimumValue { get { return string.Format("Minimum Value: {0}", (int)Minimum); } }
+        public string MinimumValue { get { return string.Format("Y Axis Min: {0}", (int)Minimum); } }
 
         private double _maximumMinimum;
         public double MaximumMinimum { get { return _maximumMinimum; } set { _maximumMinimum = value; NotifyOfPropertyChange(() => MaximumMinimum); } }
@@ -81,7 +81,7 @@ namespace IndiaTango.ViewModels
         private double _maximum = 0;
         public double Maximum { get { return _maximum; } set { _maximum = value; NotifyOfPropertyChange(() => Maximum); NotifyOfPropertyChange(() => MaximumValue); MaximumMinimum = Maximum; Range = new DoubleRange(Minimum, Maximum); if (Math.Abs(Maximum - Minimum) < 0.001) Maximum += 1; } }
 
-        public string MaximumValue { get { return string.Format("Maximum Value: {0}", (int)Maximum); } }
+        public string MaximumValue { get { return string.Format("Y Axis Max: {0}", (int)Maximum); } }
 
         private double _maximumMaximum;
         public double MaximumMaximum { get { return _maximumMaximum; } set { _maximumMaximum = value; NotifyOfPropertyChange(() => MaximumMaximum); } }
