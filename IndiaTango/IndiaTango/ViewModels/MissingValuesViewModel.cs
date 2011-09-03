@@ -92,12 +92,12 @@ namespace IndiaTango.ViewModels
             {
                 try
                 {
-                    var str = Microsoft.VisualBasic.Interaction.InputBox("Please specify a new value:", "", "Value");
+                    var specifyVal = _container.GetInstance(typeof (SpecifyValueViewModel), "SpecifyValueViewModel") as SpecifyValueViewModel;
+                    _windowManager.ShowDialog(specifyVal);
                     //cancel
-                    if (str == "")
+                    if (specifyVal.Text == null)
                         return;
-                    value =
-                        Int32.Parse(str);
+                    value = Int32.Parse(specifyVal.Text);
                 }
                 catch (FormatException f)
                 {
