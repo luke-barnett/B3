@@ -219,10 +219,10 @@ namespace IndiaTango.ViewModels
 
 		public void btnExtrapolate()
 		{
-			//TODO: Implement
+			//TODO: Refactor
             if (SelectedValues.Count == 0)
                 return;
-            if (!Common.ShowMessageBox("Extrapolate", "Will find first and last value in current range and extrapolate between them.\nPlease confirm",true,false))
+            if (!Common.ShowMessageBox("Extrapolate", "Will find first and last value in current range and extrapolate between them.\nPlease confirm:",true,false))
             {
                 return;
             }
@@ -241,7 +241,6 @@ namespace IndiaTango.ViewModels
                 startValue = _sensor.CurrentState.Values.Find(dv => dv.Timestamp.AddMinutes(time) == first.Timestamp);
                 time += 15;
             }
-		    MessageBox.Show(startValue.Timestamp.ToString());
 		    var timeDiff = endValue.Timestamp.Subtract(startValue.Timestamp).TotalMinutes;
 		    var valDiff = endValue.Value - startValue.Value;
 		    var step = valDiff/(timeDiff/15);
