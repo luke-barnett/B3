@@ -11,8 +11,6 @@ namespace IndiaTango.ViewModels
     {
         private readonly SimpleContainer _container;
         private readonly IWindowManager _windowManager;
-
-        private bool _okPressed = false;
         
 
         public SpecifyValueViewModel(IWindowManager windowManager, SimpleContainer container)
@@ -29,14 +27,7 @@ namespace IndiaTango.ViewModels
 
         public void btnOK()
         {
-            _okPressed = true;
             this.TryClose();
-        }
-
-        public void Closing()
-        {
-            if (_okPressed == false)
-                Text = null;
         }
     }
 }

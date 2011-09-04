@@ -159,10 +159,9 @@ namespace IndiaTango.ViewModels
 				{ return dv == prevValue; }) + 1, newDV);
         	}
             
-            _missingValues = _sensor.CurrentState.GetMissingTimes(15);
+            MissingValues = _sensor.CurrentState.GetMissingTimes(15);
             NotifyOfPropertyChange(()=>MissingValues);
 			NotifyOfPropertyChange(() => SelectedSensor);
-            NotifyOfPropertyChange(()=>MissingCount);
 
 			Common.ShowMessageBox("Values Updated", "The selected values have been set to 0.", false, false);
         }
@@ -189,12 +188,12 @@ namespace IndiaTango.ViewModels
                 }
                 catch (FormatException f)
                 {
-                	bool exit = Common.ShowMessageBox("An Error Occured", "Please enter a valid number.", true, true);
+                	var exit = Common.ShowMessageBox("An Error Occured", "Please enter a valid number.", true, true);
 					if (exit) return;
                 }
             }
 
-			foreach (DataValue dataValue in SelectedValues)
+			foreach (var dataValue in SelectedValues)
 			{
 				DataValue prevValue = null;
 				var time = 15;
@@ -221,7 +220,48 @@ namespace IndiaTango.ViewModels
 		public void btnExtrapolate()
 		{
 			//TODO: Implement
-			Common.ShowFeatureNotImplementedMessageBox();
+            if (SelectedValues.Count == 0)
+                return;
+            if (!Common.ShowMessageBox("Extrapolate", "Will find first and last value in current range and extrapolate between them.\nPlease confirm",true,false))
+            {
+                return;
+            }
+		    var first = SelectedValues[0];
+		    DataValue startValue = null;
+		    DataValue endValue = null;
+		    var time = -15;
+            while (endValue == null)
+            {
+                endValue = _sensor.CurrentState.Values.Find(dv => dv.Timestamp.AddMinutes(time) == first.Timestamp);
+                time -= 15;
+            }
+		    time = 15;
+            while (startValue == null)
+            {
+                startValue = _sensor.CurrentState.Values.Find(dv => dv.Timestamp.AddMinutes(time) == first.Timestamp);
+                time += 15;
+            }
+		    MessageBox.Show(startValue.Timestamp.ToString());
+		    var timeDiff = endValue.Timestamp.Subtract(startValue.Timestamp).TotalMinutes;
+		    var valDiff = endValue.Value - startValue.Value;
+		    var step = valDiff/(timeDiff/15);
+		    var value = startValue.Value + step;
+            var newDV = new DataValue(startValue.Timestamp.AddMinutes(15), (float)value);
+            _sensor.CurrentState.Values.Insert(_sensor.CurrentState.Values.FindIndex(delegate(DataValue dv)
+                { return dv.Timestamp.AddMinutes(15) == startValue.Timestamp; }) + 1, newDV);
+            for(var i = 30;i<timeDiff;i+=15)
+            {
+                newDV = new DataValue(startValue.Timestamp.AddMinutes(i), (float)value);
+                _sensor.CurrentState.Values.Insert(_sensor.CurrentState.Values.FindIndex(delegate(DataValue dv)
+                { return dv.Timestamp.AddMinutes(15) == newDV.Timestamp; }) + 1, newDV);
+                value += step;
+            }
+
+            _missingValues = _sensor.CurrentState.GetMissingTimes(15);
+            NotifyOfPropertyChange(() => MissingValues);
+            NotifyOfPropertyChange(() => MissingCount);
+
+            Common.ShowMessageBox("Values Updated", "The vaues have been extrapolated", false, false);
 		}
 
 		public void btnZoomIn()
