@@ -32,11 +32,6 @@ namespace IndiaTango.ViewModels
 
         public string Icon { get { return Common.Icon; } }
 
-        public string TipVisibleEnum
-        {
-            get { return (TipVisible) ? "Visible" : "Collapsed"; }
-        }
-
         public int TipRowHeight
         {
             get { return (TipVisible) ? 45 : 0; }
@@ -50,6 +45,7 @@ namespace IndiaTango.ViewModels
                 _tipVisible = value;
                 
                 NotifyOfPropertyChange(() => TipVisible);
+                NotifyOfPropertyChange(() => TipRowHeight);
             }
         }
 

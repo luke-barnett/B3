@@ -44,7 +44,7 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <TextBlock Text="Based on the name of this sensor, some suggested values have been entered below. Feel free to change these as you see fit." Padding="12 5" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" TextWrapping="Wrap" Background="LightYellow" Visibility="{Binding TipVisibleEnum}" />
+                <TextBlock Text="Based on the name of this sensor, some suggested values have been entered below. Feel free to change these as you see fit." Padding="12 5" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" TextWrapping="Wrap" Background="#FFD5AC" />
 
                 <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Name:" Grid.Column="0" Grid.Row="2" ToolTip="A name that identifies this sensor uniquely." />
                 <TextBox Margin="4" Grid.Column="1" Grid.Row="2" Text="{Binding Name, Mode=TwoWay}" IsEnabled="{Binding Editing}" />
