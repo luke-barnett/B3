@@ -248,12 +248,14 @@ namespace IndiaTango.ViewModels
 		    var value = startValue.Value + step;
             var newDV = new DataValue(startValue.Timestamp.AddMinutes(15), (float)value);
             _sensor.CurrentState.Values.Insert(_sensor.CurrentState.Values.FindIndex(delegate(DataValue dv)
-                { return dv.Timestamp.AddMinutes(15) == startValue.Timestamp; }) + 1, newDV);
+                { return dv == startValue; }) + 1, newDV);
+		    var prevDV = newDV;
             for(var i = 30;i<timeDiff;i+=15)
             {
                 newDV = new DataValue(startValue.Timestamp.AddMinutes(i), (float)value);
                 _sensor.CurrentState.Values.Insert(_sensor.CurrentState.Values.FindIndex(delegate(DataValue dv)
-                { return dv.Timestamp.AddMinutes(15) == newDV.Timestamp; }) + 1, newDV);
+                { return dv == prevDV; }) + 1, newDV);
+                prevDV = newDV;
                 value += step;
             }
 
