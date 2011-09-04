@@ -108,6 +108,14 @@ namespace IndiaTango.ViewModels
                         MaximumRateOfChange = "9";
                         TipVisible = true;
                     }
+                    else
+                    {
+                        TipVisible = false;
+                    }
+                }
+                else
+                {
+                    TipVisible = false;
                 }
 
 				NotifyOfPropertyChange(() => Name);
