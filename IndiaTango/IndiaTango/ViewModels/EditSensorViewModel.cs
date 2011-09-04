@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Forms;
 using Caliburn.Micro;
 using IndiaTango.Models;
+using MessageBox = System.Windows.Forms.MessageBox;
 
 namespace IndiaTango.ViewModels
 {
@@ -12,13 +16,19 @@ namespace IndiaTango.ViewModels
     {
         private IWindowManager _windowManager;
         private SimpleContainer _container;
-        private Sensor _sensor = null;
+        private Sensor _selectedSensor = new Sensor();
+		private bool _tipVisible = false;
+		private List<Sensor> _sensors;
+    	private bool _editing = false;
 
         public EditSensorViewModel(IWindowManager windowManager, SimpleContainer container)
         {
             _windowManager = windowManager;
             _container = container;
         }
+
+		#region View Properties
+		public string Title { get { return "Edit Sensor"; } }
 
         public string Icon { get { return Common.Icon; } }
 
@@ -31,8 +41,6 @@ namespace IndiaTango.ViewModels
         {
             get { return (TipVisible) ? 45 : 0; }
         }
-
-        private bool _tipVisible = false;
 
         public bool TipVisible
         {
@@ -50,23 +58,33 @@ namespace IndiaTango.ViewModels
             get { return String.IsNullOrEmpty(Unit); }
         }
 
-        public Sensor ActiveSensor
+		public List<Sensor> Sensors
+    	{
+			get { return _sensors; }
+			set
+			{
+				_sensors = value;
+				NotifyOfPropertyChange(() => Sensors);
+			}
+    	}
+
+        public Sensor SelectedSensor
         {
-            get { return _sensor; }
+            get { return _selectedSensor; }
             set
             {
-                _sensor = value; 
+                _selectedSensor = value; 
 
-                if(_sensor != null)
+                if(_selectedSensor != null)
                 {
-                    Name = _sensor.Name;
-                    Description = _sensor.Description;
-                    LowerLimit = _sensor.LowerLimit.ToString();
-                    UpperLimit = _sensor.UpperLimit.ToString();
-                    Unit = _sensor.Unit;
-                    MaximumRateOfChange = _sensor.MaxRateOfChange.ToString();
-                    Manufacturer = _sensor.Manufacturer;
-                    SerialNumber = _sensor.SerialNumber;
+                    Name = _selectedSensor.Name;
+                    Description = _selectedSensor.Description;
+                    LowerLimit = _selectedSensor.LowerLimit.ToString();
+                    UpperLimit = _selectedSensor.UpperLimit.ToString();
+                    Unit = _selectedSensor.Unit;
+                    MaximumRateOfChange = _selectedSensor.MaxRateOfChange.ToString();
+                    Manufacturer = _selectedSensor.Manufacturer;
+                    SerialNumber = _selectedSensor.SerialNumber;
                 }
                 else
                 {
@@ -80,7 +98,7 @@ namespace IndiaTango.ViewModels
                     SerialNumber = "";
                 }
 
-                NotifyOfPropertyChange(() => NeedsTip);
+				NotifyOfPropertyChange(() => NeedsTip);
 
                 if(NeedsTip)
                 {
@@ -95,11 +113,51 @@ namespace IndiaTango.ViewModels
                         TipVisible = true;
                     }
                 }
+
+				NotifyOfPropertyChange(() => Name);
+				NotifyOfPropertyChange(() => Description);
+				NotifyOfPropertyChange(() => LowerLimit);
+				NotifyOfPropertyChange(() => UpperLimit);
+				NotifyOfPropertyChange(() => Unit);
+				NotifyOfPropertyChange(() => MaximumRateOfChange);
+				NotifyOfPropertyChange(() => Manufacturer);
+				NotifyOfPropertyChange(() => SerialNumber);
+				
             }
         }
 
-        public string Title { get { return "Edit Sensor"; } }
+    	public bool Editing
+    	{
+			get { return _editing; }
+			set
+			{
+				_editing = value;
+				NotifyOfPropertyChange(() => SaveCancelVisible);
+				NotifyOfPropertyChange(() => EditDoneVisible);
+				NotifyOfPropertyChange(() => ListEnabled);
+				NotifyOfPropertyChange(() => Editing);
+			}
+    	}
 
+    	public Visibility SaveCancelVisible
+    	{
+			get { return _editing ? Visibility.Visible : Visibility.Collapsed; }
+    	}
+
+		public Visibility EditDoneVisible
+		{
+			get { return _editing ? Visibility.Collapsed : Visibility.Visible; }
+		}
+
+    	public bool ListEnabled
+    	{
+			get { return !Editing; }
+    	}
+
+		#endregion
+
+		
+		#region Sensor Properties
         public string Name { get; set; }
         public string Description { get; set; }
         public string LowerLimit { get; set; }
@@ -107,29 +165,45 @@ namespace IndiaTango.ViewModels
         public string Unit { get; set; }
         public string MaximumRateOfChange { get; set; }
         public string Manufacturer { get; set; }
-
         public string SerialNumber { get; set; }
+		#endregion
 
-        public void btnCancel()
-        {
-            this.TryClose();
-        }
+
+		#region Event Handlers
+        
+		public void SelectionChanged(SelectionChangedEventArgs e)
+		{
+			//if(e.AddedItems.Count > 0)
+			//	SelectedSensor = (Sensor)e.AddedItems[0];
+
+			//MessageBox.Show(((Sensor)e.AddedItems[0]).ToString());
+		}
+
+		public void btnEdit()
+		{
+			Editing = true;
+		}
+
+		public void btnDone()
+		{
+			this.TryClose();
+		}
 
         public void btnSave()
         {
-            if(ActiveSensor == null)
+            if(SelectedSensor == null)
             {
                 // New sensor
                 try
                 {
                     // TODO: more user-friendly conversion messages!
                     Sensor s = new Sensor(Name, Description, float.Parse(UpperLimit), float.Parse(LowerLimit), Unit, float.Parse(MaximumRateOfChange), Manufacturer, SerialNumber);
-                    ActiveSensor = s;
+                    SelectedSensor = s;
                     this.TryClose();
                 }
                 catch (Exception e)
                 {
-                    MessageBox.Show(e.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                	Common.ShowMessageBox("Format Error", e.Message, false, true);
                 }
             }
             else
@@ -137,22 +211,37 @@ namespace IndiaTango.ViewModels
                 // Existing sensor
                 try
                 {
-                    ActiveSensor.Name = Name;
-                    ActiveSensor.Description = Description;
-                    ActiveSensor.UpperLimit = float.Parse(UpperLimit);
-                    ActiveSensor.LowerLimit = float.Parse(LowerLimit);
-                    ActiveSensor.Unit = Unit;
-                    ActiveSensor.MaxRateOfChange = float.Parse(MaximumRateOfChange);
-                    ActiveSensor.Manufacturer = Manufacturer;
-                    ActiveSensor.SerialNumber = SerialNumber;
-
-                    this.TryClose();
+                    SelectedSensor.Name = Name;
+                    SelectedSensor.Description = Description;
+                    SelectedSensor.UpperLimit = float.Parse(UpperLimit);
+                    SelectedSensor.LowerLimit = float.Parse(LowerLimit);
+                    SelectedSensor.Unit = Unit;
+                    SelectedSensor.MaxRateOfChange = float.Parse(MaximumRateOfChange);
+                    SelectedSensor.Manufacturer = Manufacturer;
+                    SelectedSensor.SerialNumber = SerialNumber;
                 }
                 catch (Exception e)
                 {
-                    MessageBox.Show(e.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                	Common.ShowMessageBox("An Error Occured", e.Message, false, true);
                 }
             }
+
+        	Editing = false;
+
+			//Force the damn list box to update the sensor names
+        	List<Sensor> old = Sensors;
+			Sensors = new List<Sensor>();
+        	Sensors = old;
         }
+
+		public void btnCancel()
+		{
+			Editing = false;
+
+			//Force the controls to update
+			SelectedSensor = SelectedSensor;
+		}
+
+		#endregion
     }
 }

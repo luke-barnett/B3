@@ -127,11 +127,6 @@ namespace IndiaTango.ViewModels
 			get { return SelectedBuoy != null; }
 		}
 
-    	public bool SensorsEnabled
-    	{
-			get { return SelectedBuoy != null || DoneCancelVisible == Visibility.Visible; }
-    	}
-
     	public bool SiteListEnabled
     	{
 			get { return DoneCancelVisible != Visibility.Visible; }
@@ -272,7 +267,6 @@ namespace IndiaTango.ViewModels
 				NotifyOfPropertyChange(() => SecondaryContact);
 				NotifyOfPropertyChange(() => UniversityContact);
 				NotifyOfPropertyChange(() => EditDeleteEnabled);
-				NotifyOfPropertyChange(() => SensorsEnabled);
 			}
 		}
 		#endregion
@@ -330,6 +324,10 @@ namespace IndiaTango.ViewModels
 
 		public void btnExport()
 		{
+			//TODO: Need to make dataset return startTime and endTime dynamilly depending on data
+			//Buoy buoy;// = new Buoy();
+			//Dataset dataSet = new Dataset(buoy,);
+			//DatasetExporter exporter = new DatasetExporter(dataSet);
 			Common.ShowFeatureNotImplementedMessageBox();
 		}
 
@@ -442,11 +440,13 @@ namespace IndiaTango.ViewModels
 			SiteControlsEnabled = false;
 		}
 
-		public void btnDetails()
+		public void btnSensors()
 		{
-			var detailView =
-				(_container.GetInstance(typeof(BuoyDetailsViewModel), "BuoyDetailsViewModel") as BuoyDetailsViewModel);
-			_windowManager.ShowDialog(detailView);
+			var editSensor =
+					_container.GetInstance(typeof(EditSensorViewModel), "EditSensorViewModel") as EditSensorViewModel;
+			editSensor.Sensors = SensorList;
+
+			_windowManager.ShowWindow(editSensor);
 		}
 
 		public void btnCancel()
