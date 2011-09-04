@@ -122,36 +122,37 @@
 
                 <Button Name="btnSiteCreate" Grid.Row="11" Grid.Column="0" FontSize="15" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Visibility="{Binding CreateEditDeleteVisible}">
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="/IndiaTango;component/Images/new_site.png" Width="32" Height="32" VerticalAlignment="Center" />
+                        <Image Source="/IndiaTango;component/Images/new_site.png" Width="32" Height="32" VerticalAlignment="Top" SnapsToDevicePixels="True" HorizontalAlignment="Left" />
                         <TextBlock Text="New Site" VerticalAlignment="Center" Margin="5" />
                     </StackPanel>
                 </Button>
                 
                 <StackPanel  Grid.Row="11" Grid.Column="1" Grid.ColumnSpan="5" Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Name="btnSiteDone" FontSize="15" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Visibility="{Binding DoneCancelVisible}">
+                    <Button Name="btnSiteDone" FontSize="15" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Visibility="{Binding DoneCancelVisible}" VerticalAlignment="Bottom" SnapsToDevicePixels="True">
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="/IndiaTango;component/Images/save_32.png" Width="32" Height="32" VerticalAlignment="Center" />
+                            <Image Source="/IndiaTango;component/Images/save_32.png" Width="32" Height="32" />
                             <TextBlock Text="Save" VerticalAlignment="Center" Margin="5" />
                         </StackPanel>
                     </Button>
 
-                    <Button Name="btnSiteCancel" FontSize="15" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Visibility="{Binding DoneCancelVisible}">
+                    <!--WPF is doing crazy things to these icons. Im not sure why they get blurred as is seen in the save icon-->
+                    <Button Name="btnSiteCancel" FontSize="15" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Visibility="{Binding DoneCancelVisible}" VerticalAlignment="Bottom">
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="/IndiaTango;component/Images/cancel_32.png" Width="32" Height="32" VerticalAlignment="Center" />
+                            <Image Source="/IndiaTango;component/Images/cancel_32.png" Width="32" Height="32" VerticalAlignment="Top" SnapsToDevicePixels="True" HorizontalAlignment="Left" />
                             <TextBlock Text="Cancel" VerticalAlignment="Center" Margin="5" />
                         </StackPanel>
                     </Button>
                     
-                    <Button Name="btnSiteEdit" FontSize="15" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Visibility="{Binding CreateEditDeleteVisible}" IsEnabled="{Binding EditDeleteEnabled}">
+                    <Button Name="btnSiteEdit" FontSize="15" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Visibility="{Binding CreateEditDeleteVisible}" IsEnabled="{Binding EditDeleteEnabled}" VerticalAlignment="Bottom">
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="/IndiaTango;component/Images/edit_32.png" Width="32" Height="32" VerticalAlignment="Center"  />
+                            <Image Source="/IndiaTango;component/Images/edit_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="False" />
                             <TextBlock Text="Edit" VerticalAlignment="Center" Margin="5" />
                         </StackPanel>
                     </Button>
 
-                    <Button Name="btnSiteDelete" FontSize="15"  HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Visibility="{Binding CreateEditDeleteVisible}" IsEnabled="{Binding EditDeleteEnabled}">
+                    <Button Name="btnSiteDelete" FontSize="15"  HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Visibility="{Binding CreateEditDeleteVisible}" IsEnabled="{Binding EditDeleteEnabled}" VerticalAlignment="Bottom">
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="/IndiaTango;component/Images/delete_32.png" Width="32" Height="32" VerticalAlignment="Center" />
+                            <Image Source="/IndiaTango;component/Images/delete_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
                             <TextBlock Text="Delete" VerticalAlignment="Center" Margin="5" />
                         </StackPanel>
                     </Button>
