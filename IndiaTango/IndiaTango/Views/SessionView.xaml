@@ -170,7 +170,7 @@
 
                 <WrapPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left">
                     
-                    <Button Name="btnImport" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" >
+                    <Button Name="btnImport" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding ImportEnabled}" >
                         <StackPanel Orientation="Vertical">
                             <Image Source="/IndiaTango;component/Images/add_data.png" Width="64" Height="64" />
                             <TextBlock Text="Import Data"/>

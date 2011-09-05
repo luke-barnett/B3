@@ -31,6 +31,7 @@ namespace IndiaTango.ViewModels
 
 
 			_graphBackground = new Canvas();
+            _graphBackground.Visibility = Visibility.Collapsed;
 			var b = new BehaviourManager { AllowMultipleEnabled = true };
 			_graphBehaviour = new GraphBehaviour(_graphBackground) { IsEnabled = true };
 			_graphBehaviour.ZoomRequested += (o, e) =>
@@ -40,7 +41,7 @@ namespace IndiaTango.ViewModels
 						dataPointSet =>
 						dataPointSet.Where(
 							x =>
-							x.X >= (DateTime)e.FirstPoint.X && x.X >= (DateTime)e.SecondPoint.X))
+							x.X >= (DateTime)e.FirstPoint.X && x.X <= (DateTime)e.SecondPoint.X))
 						.ToList();
 				SampleValues(MaxPointCount, filteredPoints);
 			};
@@ -265,12 +266,16 @@ namespace IndiaTango.ViewModels
 
 		private void RedrawGraph()
 		{
-			foreach (Sensor sen in RenderedSensors)
-			{
-				ChartTitle += " VS " + sen.Name;
-			}
+		    ChartTitle = String.Empty;
+		    for (var index = 0; index < RenderedSensors.Count; index++)
+		    {
+		        var sen = RenderedSensors[index];
+                if (index > 0)
+                    ChartTitle += " vs. ";
+		        ChartTitle += sen.Name;
+		    }
 
-			YAxisTitle = (((from dataSeries in RenderedSensors select dataSeries.Unit).Distinct()).Count() == 1) ? RenderedSensors[0].Unit : String.Empty;
+		    YAxisTitle = (((from dataSeries in RenderedSensors select dataSeries.Unit).Distinct()).Count() == 1) ? RenderedSensors[0].Unit : String.Empty;
 			SampleValues(MaxPointCount, _dataPoints);
 
 			MaximumMaximum = MaximumY().Y + 100;

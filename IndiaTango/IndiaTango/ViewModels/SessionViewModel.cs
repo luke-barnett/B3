@@ -177,6 +177,9 @@ namespace IndiaTango.ViewModels
 				NotifyOfPropertyChange(() => SiteListEnabled);
 			}
 		}
+
+        private bool _importEnabled = true;
+        public bool ImportEnabled { get { return _importEnabled; } set { _importEnabled = value; NotifyOfPropertyChange(() => ImportEnabled); } }
 		#endregion
 
 		#region Site Properties
@@ -305,7 +308,10 @@ namespace IndiaTango.ViewModels
 					ProgressBarVisible = Visibility.Hidden;
 					ActionButtonsEnabled = true;
 					StatusLabelText = "";
+				    ImportEnabled = true;
 				};
+
+                ImportEnabled = false;
 				_bw.RunWorkerAsync();
 			}
 		}
