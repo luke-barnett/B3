@@ -13,6 +13,11 @@ namespace IndiaTango.ViewModels
     	private Contact _contact;
         private ObservableCollection<Contact> _allContacts = new ObservableCollection<Contact>();
 
+        public new string Icon
+        {
+            get { return (_contact == null) ? "/IndiaTango;component/Images/new_16.png" : "/IndiaTango;component/Images/edit_16.png"; }
+        }
+
         public ContactEditorViewModel(IWindowManager manager, SimpleContainer container)
         {
             _windowManager = manager;
@@ -115,6 +120,9 @@ namespace IndiaTango.ViewModels
 
                     // Updating the object itself, so just re-serialise
                     Contact.ExportAll(AllContacts);
+
+                    MessageBox.Show("Contact successfully " + (_contact == null ? "created." : "updated."), Title,
+                                    MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                     this.TryClose();
                 }

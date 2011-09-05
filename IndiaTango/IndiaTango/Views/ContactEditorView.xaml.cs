@@ -10,6 +10,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using IndiaTango.Models;
 
 namespace IndiaTango.Views
 {
@@ -21,6 +22,11 @@ namespace IndiaTango.Views
         public ContactEditorView()
         {
             InitializeComponent();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            Common.SetFancyBackground(this, grdMain, false, true);
         }
     }
 }

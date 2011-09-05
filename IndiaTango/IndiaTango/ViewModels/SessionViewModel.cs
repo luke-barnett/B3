@@ -485,32 +485,88 @@ namespace IndiaTango.ViewModels
 			}
 		}
 
+#endregion
+
+        #region Contact Add/Edit/Delete Handlers
         public void btnNewPrimary()
         {
-            var editor =
-                _container.GetInstance(typeof(ContactEditorViewModel), "ContactEditorViewModel") as
-                ContactEditorViewModel;
-
-            editor.Contact = null;
-            editor.AllContacts = AllContacts;
-
-            _windowManager.ShowDialog(editor);
+            NewContact();
         }
 
         public void btnNewSecondary()
         {
-            var editor =
-                _container.GetInstance(typeof(ContactEditorViewModel), "ContactEditorViewModel") as
-                ContactEditorViewModel;
-
-            editor.Contact = null;
-            editor.AllContacts = AllContacts;
-
-            _windowManager.ShowDialog(editor);
+            NewContact();
         }
 
         public void btnNewUni()
         {
+            NewContact();   
+        }
+
+        public void btnEditPrimary()
+        {
+            EditContact(PrimaryContact);
+        }
+
+        public void btnEditSecondary()
+        {
+            EditContact(SecondaryContact);
+        }
+
+        public void btnEditUni()
+        {
+            EditContact(UniversityContact);
+        }
+
+        public void btnDelPrimary()
+        {
+            DeleteContact(PrimaryContact);
+        }
+
+        public void btnDelSecondary()
+        {
+            DeleteContact(SecondaryContact);
+        }
+
+        public void btnDelUni()
+        {
+            DeleteContact(UniversityContact);
+        }
+
+        private void DeleteContact(Contact c)
+        {
+            if (MessageBox.Show("Are you sure you want to delete this contact?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            {
+                if (c != null)
+                {
+                    var allContacts = AllContacts;
+                    allContacts.Remove(c);
+
+                    AllContacts = allContacts;
+                    c = null;
+
+                    Contact.ExportAll(AllContacts);
+
+                    MessageBox.Show("Contact successfully removed.", "Success", MessageBoxButtons.OK,
+                                    MessageBoxIcon.Information);
+                }
+            }
+        }
+
+        private void EditContact(Contact c)
+        {
+            var editor =
+                _container.GetInstance(typeof(ContactEditorViewModel), "ContactEditorViewModel") as
+                ContactEditorViewModel;
+
+            editor.Contact = c;
+            editor.AllContacts = AllContacts;
+
+            _windowManager.ShowDialog(editor);
+        }
+
+        private void NewContact()
+        {
             var editor =
                 _container.GetInstance(typeof(ContactEditorViewModel), "ContactEditorViewModel") as
                 ContactEditorViewModel;
@@ -519,105 +575,6 @@ namespace IndiaTango.ViewModels
             editor.AllContacts = AllContacts;
 
             _windowManager.ShowDialog(editor);
-        }
-
-        public void btnEditPrimary()
-        {
-            var editor =
-                _container.GetInstance(typeof(ContactEditorViewModel), "ContactEditorViewModel") as
-                ContactEditorViewModel;
-
-            editor.Contact = PrimaryContact;
-            editor.AllContacts = AllContacts;
-
-            _windowManager.ShowDialog(editor);
-        }
-
-        public void btnEditSecondary()
-        {
-            var editor =
-                _container.GetInstance(typeof(ContactEditorViewModel), "ContactEditorViewModel") as
-                ContactEditorViewModel;
-
-            editor.Contact = SecondaryContact;
-            editor.AllContacts = AllContacts;
-
-            _windowManager.ShowDialog(editor);
-        }
-
-        public void btnEditUni()
-        {
-            var editor =
-                _container.GetInstance(typeof(ContactEditorViewModel), "ContactEditorViewModel") as
-                ContactEditorViewModel;
-
-            editor.Contact = UniversityContact;
-            editor.AllContacts = AllContacts;
-
-            _windowManager.ShowDialog(editor);
-        }
-
-        public void btnDelPrimary()
-        {
-            if (MessageBox.Show("Are you sure you want to delete this contact?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
-            {
-                if (PrimaryContact != null)
-                {
-                    // TODO: consolidate into a single method - too much repetition of code!
-                    var allContacts = AllContacts;
-                    allContacts.Remove(PrimaryContact);
-
-                    AllContacts = allContacts;
-                    PrimaryContact = null;
-
-                    Contact.ExportAll(AllContacts);
-
-                    MessageBox.Show("Contact successfully removed.", "Success", MessageBoxButtons.OK,
-                                    MessageBoxIcon.Information);
-                }
-            }
-        }
-
-        public void btnDelSecondary()
-        {
-            if (MessageBox.Show("Are you sure you want to delete this contact?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
-            {
-                if (SecondaryContact != null)
-                {
-                    // TODO: consolidate into a single method - too much repetition of code!
-                    var allContacts = AllContacts;
-                    allContacts.Remove(SecondaryContact);
-
-                    AllContacts = allContacts;
-                    SecondaryContact = null;
-
-                    Contact.ExportAll(AllContacts);
-
-                    MessageBox.Show("Contact successfully removed.", "Success", MessageBoxButtons.OK,
-                                    MessageBoxIcon.Information);
-                }
-            }
-        }
-
-        public void btnDelUni()
-        {
-            if (MessageBox.Show("Are you sure you want to delete this contact?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
-            {
-                if (UniversityContact != null)
-                {
-                    // TODO: consolidate into a single method - too much repetition of code!
-                    var allContacts = AllContacts;
-                    allContacts.Remove(UniversityContact);
-
-                    AllContacts = allContacts;
-                    UniversityContact = null;
-
-                    Contact.ExportAll(AllContacts);
-
-                    MessageBox.Show("Contact successfully removed.", "Success", MessageBoxButtons.OK,
-                                    MessageBoxIcon.Information);
-                }
-            }
         }
 		#endregion
     }
