@@ -39,7 +39,10 @@
     <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Xml" />
-    <Reference Include="Visiblox.Charts, Version=2.0.8.5757, Culture=neutral, PublicKeyToken=1543c03f04c4461b, processorArchitecture=MSIL" />
+    <Reference Include="Visiblox.Charts, Version=2.0.8.5757, Culture=neutral, PublicKeyToken=1543c03f04c4461b, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Externals\Visiblox\Visiblox.Charts.dll</HintPath>
+    </Reference>
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
