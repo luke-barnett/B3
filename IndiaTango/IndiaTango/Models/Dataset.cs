@@ -19,8 +19,6 @@ namespace IndiaTango.Models
         /// <param name="endTimeStamp">The end time of the dataset</param>
         public Dataset(Buoy buoy, DateTime startTimeStamp, DateTime endTimeStamp)
         {
-            if (buoy == null)
-                throw new ArgumentException("Please provide a buoy this dataset came from");
             if (DateTime.Compare(startTimeStamp, endTimeStamp) >= 0)
                 throw new ArgumentException("End time stamp must be after start");
             _buoy = buoy;
@@ -37,8 +35,6 @@ namespace IndiaTango.Models
         /// <param name="endTimeStamp">The end time of the dataset</param>
         public Dataset(Buoy buoy, List<Sensor> sensors)
         {
-            if (buoy == null)
-                throw new ArgumentException("Please provide a buoy this dataset came from");
             if (sensors == null)
                 throw new ArgumentException("Please provide a list of sensors that belong to this site.");
             if (sensors.Count == 0)
@@ -54,13 +50,7 @@ namespace IndiaTango.Models
         public Buoy Buoy
         {
             get { return _buoy; }
-            set
-            {
-                if (value == null)
-                    throw new FormatException("Buoy must not be null");
-
-                _buoy = value;
-            }
+            set { _buoy = value; }
         }
 
         /// <summary>

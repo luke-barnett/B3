@@ -330,11 +330,16 @@ namespace IndiaTango.ViewModels
 
 		public void btnExport()
 		{
-			//TODO: Need to make dataset return startTime and endTime dynamilly depending on data
-			//Buoy buoy;// = new Buoy();
-			//Dataset dataSet = new Dataset(buoy,);
-			//DatasetExporter exporter = new DatasetExporter(dataSet);
-			Common.ShowFeatureNotImplementedMessageBox();
+            //TODO add custom export format that allows user to embed buoy data in the csv
+			var dialog = new SaveFileDialog();
+            dialog.Filter = "CSV Files|*.csv";
+
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                Dataset dataSet = new Dataset(SelectedBuoy, SensorList);
+                DatasetExporter exporter = new DatasetExporter(dataSet);
+                exporter.Export(dialog.FileName, ExportFormat.CSV, true);
+            }
 		}
 
 		public void btnOutOfRangeValues()

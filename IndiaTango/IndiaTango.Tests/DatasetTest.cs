@@ -76,20 +76,6 @@ namespace IndiaTango.Tests
 
         [Test]
         [ExpectedException(typeof(ArgumentException))]
-        public void NullBuoyConstructor1Test()
-        {
-            new Dataset(null, _startTime1, _endTime1);
-        }
-
-        [Test]
-        [ExpectedException(typeof(ArgumentException))]
-        public void NullBuoyConstructor2Test()
-        {
-            new Dataset(null, _sensors);
-        }
-
-        [Test]
-        [ExpectedException(typeof(ArgumentException))]
         public void AddNullSensorTest()
         {
             _ds1.AddSensor(null);
@@ -107,13 +93,6 @@ namespace IndiaTango.Tests
         public void EndTimeSameAsStartTest()
         {
             new Dataset(_b, _startTime1, _startTime1);
-        }
-
-        [Test]
-        [ExpectedException(typeof(FormatException))]
-        public void NullBuoyPropertyTest()
-        {
-            _ds1.Buoy = null;
         }
     }
 }
