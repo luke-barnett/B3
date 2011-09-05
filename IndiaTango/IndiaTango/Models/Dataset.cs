@@ -7,12 +7,12 @@ namespace IndiaTango.Models
     public class Dataset
     {
         private Buoy _buoy;
-        private readonly DateTime _startTimeStamp;
-        private readonly DateTime _endTimeStamp;
+        private DateTime _startTimeStamp;
+        private DateTime _endTimeStamp;
         private List<Sensor> _sensors;
 
         /// <summary>
-        /// Creates a new dataset
+        /// Creates a new dataset with a specified start and end timestamp
         /// </summary>
         /// <param name="buoy">The buoy that the dataset came from</param>
         /// <param name="startTimeStamp">The start time of the dataset</param>
@@ -30,6 +30,25 @@ namespace IndiaTango.Models
         }
 
         /// <summary>
+        /// Creates a new dataset from a list of sensors. Start and end timestamp will be dynamically created
+        /// </summary>
+        /// <param name="buoy">The buoy that the dataset came from</param>
+        /// <param name="startTimeStamp">The start time of the dataset</param>
+        /// <param name="endTimeStamp">The end time of the dataset</param>
+        public Dataset(Buoy buoy, List<Sensor> sensors)
+        {
+            if (buoy == null)
+                throw new ArgumentException("Please provide a buoy this dataset came from");
+            if (sensors == null)
+                throw new ArgumentException("Please provide a list of sensors that belong to this site.");
+            if (sensors.Count == 0)
+                throw new ArgumentException("Sensor list must contain at least one sensor.");
+
+            _buoy = buoy;
+            Sensors = sensors;//To trigger setter
+        }
+
+        /// <summary>
         /// Gets and sets the buoy that this dataset came from
         /// </summary>
         public Buoy Buoy
@@ -39,6 +58,7 @@ namespace IndiaTango.Models
             {
                 if (value == null)
                     throw new FormatException("Buoy must not be null");
+
                 _buoy = value;
             }
         }
@@ -65,7 +85,28 @@ namespace IndiaTango.Models
         public List<Sensor> Sensors
         {
         	get { return _sensors; }
-        	set { _sensors = value; }
+        	set
+        	{
+                if (value == null)
+                    throw new ArgumentException("Sensors cannot be null");
+
+        	    _sensors = value;
+
+                //Set the start and end time dynamically
+                
+                foreach (Sensor sensor in _sensors)
+        	    {
+                    if (sensor.CurrentState.Values.Count > 0)
+                    {
+                        if (_startTimeStamp == null || _startTimeStamp == DateTime.MinValue || sensor.CurrentState.Values[0].Timestamp < _startTimeStamp)
+                            _startTimeStamp = sensor.CurrentState.Values[0].Timestamp;
+
+                        if (_endTimeStamp == null || _startTimeStamp == DateTime.MinValue ||
+                            sensor.CurrentState.Values[sensor.CurrentState.Values.Count - 1].Timestamp > _endTimeStamp)
+                            _endTimeStamp = sensor.CurrentState.Values[sensor.CurrentState.Values.Count - 1].Timestamp;
+                    }
+        	    }
+        	}
         }
 
     	/// <summary>

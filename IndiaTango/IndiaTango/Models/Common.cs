@@ -100,14 +100,14 @@ namespace IndiaTango.Models
 		{
 			//Does not work. GAY.
 
-			//if (CanUseGlass)
-			//{
-			//    TaskDialog dialog = new TaskDialog(title, title, text,
-			//                                       (showCancel ? (TaskDialogButton.OK | TaskDialogButton.Cancel) : TaskDialogButton.OK),
-			//                                       isError ? TaskDialogIcon.Stop : TaskDialogIcon.Information);
-			//    return dialog.Show().ButtonID == 1;
-			//}
-			//else
+            //if (CanUseGlass)
+            //{
+            //    TaskDialog dialog = new TaskDialog(title, title, text,
+            //                                       (showCancel ? (TaskDialogButton.OK | TaskDialogButton.Cancel) : TaskDialogButton.OK),
+            //                                       isError ? TaskDialogIcon.Stop : TaskDialogIcon.Information);
+            //    return dialog.Show().Equals(WindowsFormsAero.TaskDialog.Result.OK);
+            //}
+            //else
 			{
 				return System.Windows.Forms.MessageBox.Show(text, title,
 				                                            showCancel ? MessageBoxButtons.OKCancel : MessageBoxButtons.OK,
