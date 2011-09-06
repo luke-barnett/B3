@@ -29,7 +29,7 @@ namespace IndiaTango.Models
         /// </summary>
         /// <param name="name">The name of the sensor.</param>
         /// <param name="unit">The unit used to report values given by this sensor.</param>
-        public Sensor(string name, string unit) : this(name, "", 0, 0, unit, 0, "", "") { }
+        public Sensor(string name, string unit) : this(name, "", 100, 0, unit, 0, "", "") { }
 
         /// <summary>
         /// Creates a new sensor, using default values for Undo/Redo stacks, calibration dates, error threshold and a failure-indicating value.
@@ -95,6 +95,9 @@ namespace IndiaTango.Models
 
             if (redoStack == null)
                 throw new ArgumentNullException("The redo stack cannot be null.");
+
+            if(upperLimit <= lowerLimit)
+                throw new ArgumentOutOfRangeException("Upper limit for this sensor must be greater than the lower limit.");
 
             _name = name;
             Description = description;

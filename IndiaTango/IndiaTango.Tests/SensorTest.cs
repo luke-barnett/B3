@@ -731,6 +731,13 @@ namespace IndiaTango.Tests
             _tempSensor.FailureIndicator = 0;
             Assert.AreEqual(0, _tempSensor.FailureIndicator);
         }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void UpperLimitLessThanLowerLimit()
+        {
+            var s = new Sensor("Awesome Sensor", "An awesome sensor", 10, 100, "A", 2, "Awesome Co", "XX323929");
+        }
         #endregion
     }
 }
