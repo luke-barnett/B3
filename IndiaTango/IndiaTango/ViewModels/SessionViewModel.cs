@@ -334,13 +334,13 @@ namespace IndiaTango.ViewModels
 		{
             //TODO add custom export format that allows user to embed buoy data in the csv
 			var dialog = new SaveFileDialog();
-            dialog.Filter = "CSV Files|*.csv";
+		    dialog.Filter = ExportFormat.CSV.FilterText + "|" + ExportFormat.CSVWithMetaData.FilterText;
 
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 Dataset dataSet = new Dataset(SelectedBuoy, SensorList);
                 DatasetExporter exporter = new DatasetExporter(dataSet);
-                exporter.Export(dialog.FileName, ExportFormat.CSV, true);
+                exporter.Export(dialog.FileName, ExportFormat.CSV, true, dialog.Filter == ExportFormat.CSVWithMetaData.FilterText);
             }
 		}
 

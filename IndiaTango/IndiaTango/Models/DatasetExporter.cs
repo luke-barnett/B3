@@ -24,7 +24,8 @@ namespace IndiaTango.Models
         /// <param name="filePath">The desired path and file name of the file to be saved. No not include an extension.</param>
         /// <param name="format">The format to save the file in.</param>
         /// <param name="includeEmptyLines">Wether to export the file with empty lines or not.</param>
-		public void Export(string filePath, ExportFormat format,bool includeEmptyLines)
+        /// <param name="embedMetaData">Wether to export the file with embedded site meta data.</param>
+		public void Export(string filePath, ExportFormat format,bool includeEmptyLines, bool addMetaData)
 		{
 			if (String.IsNullOrWhiteSpace(filePath))
 				throw new ArgumentNullException("filePath cannot be null");
@@ -34,6 +35,7 @@ namespace IndiaTango.Models
 
             //Strip the existing extension and add the one specified in the method args
             filePath = Path.ChangeExtension(filePath,format.Extension);
+            string metaDataPath = filePath + ".SiteMetaData.txt";
 
             if (format.Equals(ExportFormat.CSV) || format.Equals(ExportFormat.TXT))
 			{
@@ -81,13 +83,58 @@ namespace IndiaTango.Models
 
 				    writer.Close();
 				}
+
+                //add site meta data
+                if (addMetaData)
+                {
+                    using (StreamWriter writer = File.CreateText(metaDataPath))
+                    {
+                        writer.WriteLine("Site details for file: " + filePath);
+                        writer.WriteLine("ID: " + Data.Buoy.Id);
+                        writer.WriteLine("Name: " + Data.Buoy.Site);
+                        writer.WriteLine("Owner: " + Data.Buoy.Owner);
+
+                        if(Data.Buoy.PrimaryContact != null)
+                        {
+                            writer.WriteLine("Primary Contact:");
+                            writer.WriteLine("\tName: " + Data.Buoy.PrimaryContact.FirstName + " " +
+                                             Data.Buoy.PrimaryContact.LastName);
+                            writer.WriteLine("\tBusiness: " + Data.Buoy.PrimaryContact.Business);
+                            writer.WriteLine("\tPhone: " + Data.Buoy.PrimaryContact.Phone);
+                            writer.WriteLine("\tEmail: " + Data.Buoy.PrimaryContact.Email);
+                        }
+
+                        if(Data.Buoy.SecondaryContact != null)
+                        {
+                            writer.WriteLine("Secondary Contact:");
+                            writer.WriteLine("\tName: " + Data.Buoy.SecondaryContact.FirstName + " " +
+                                             Data.Buoy.PrimaryContact.LastName);
+                            writer.WriteLine("\tBusiness: " + Data.Buoy.SecondaryContact.Business);
+                            writer.WriteLine("\tPhone: " + Data.Buoy.SecondaryContact.Phone);
+                            writer.WriteLine("\tEmail: " + Data.Buoy.SecondaryContact.Email);
+                        }
+
+                        if(Data.Buoy.UniversityContact != null)
+                        {
+                            writer.WriteLine("University Contact:");
+                            writer.WriteLine("\tName: " + Data.Buoy.UniversityContact.FirstName + " " +
+                                             Data.Buoy.PrimaryContact.LastName);
+                            writer.WriteLine("\tBusiness: " + Data.Buoy.UniversityContact.Business);
+                            writer.WriteLine("\tPhone: " + Data.Buoy.UniversityContact.Phone);
+                            writer.WriteLine("\tEmail: " + Data.Buoy.UniversityContact.Email);
+                        }
+
+                        Debug.WriteLine(filePath);
+                        writer.Close();
+                    }
+                }
 			}
 			else if (format.Equals(ExportFormat.XLSX))
 			{
 				//Do stuff
 			}
 
-			//No more stuff!
+			//No more stuff! maybe.
 		}
 
         private int GetArrayRowFromTime(DateTime startDate, DateTime currentDate)
@@ -120,7 +167,11 @@ namespace IndiaTango.Models
 
 		public string Name { get { return _name; } }
 
+        public string FilterText { get { return ToString() + "|*" + _extension; } }
+
 		public static ExportFormat CSV { get { return new ExportFormat(".csv", "Comma Seperated Value File"); } }
+
+        public static ExportFormat CSVWithMetaData { get { return new ExportFormat(".csv", "Comma Seperated Value File with accompanying Site Meta Data"); } }
 
 		public static ExportFormat TXT { get { return new ExportFormat(".txt", "Tab Deliminated Text File"); } }
 
