@@ -17,7 +17,6 @@ namespace IndiaTango.ViewModels
     	private int _zoomLevel = 100;
 		private List<DateTime> _missingValues = new List<DateTime>();
 		private List<DateTime> _selectedValues = new List<DateTime>();
-    	//private List<Sensor> _sensorList = new List<Sensor>();
         private Dataset _ds;
 
         public MissingValuesViewModel(IWindowManager windowManager, SimpleContainer container)
@@ -244,11 +243,11 @@ namespace IndiaTango.ViewModels
 		    var valDiff = endValue.Value - startValue.Value;
 		    var step = valDiff/(timeDiff/15);
 		    var value = startValue.Value + step;
-            var newDV = new DataValue(startValue.Timestamp.AddMinutes(15), (float)value);
+            var newDV = new DataValue(startValue.Timestamp.AddMinutes(15), (float)Math.Round(value,2));
             tempList.Add(newDV);
             for(var i = 30;i<timeDiff;i+=15)
             {
-                newDV = new DataValue(startValue.Timestamp.AddMinutes(i), (float)value);
+                newDV = new DataValue(startValue.Timestamp.AddMinutes(i), (float)Math.Round(value,2));
                 tempList.Add(newDV);
                 value += step;
             }
