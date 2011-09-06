@@ -164,5 +164,33 @@ namespace IndiaTango.Tests
 
             Assert.AreEqual(A, B);
         }
+
+        [Test]
+        public void GetSetNextIDValid()
+        {
+            var A = new Contact("Steve", "Hamilton", "steve@hamilton.co.nz", "Steve Limited", "(07)7533 2343");
+            Contact.NextID = 1;
+
+            Assert.AreEqual(Contact.NextID, 1);
+            Assert.AreEqual(Contact.NextID, 2);
+
+            Contact.NextID = 10;
+            Assert.AreEqual(Contact.NextID, 10);
+            Assert.AreEqual(Contact.NextID, 11);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void SetInvalidZeroNextID()
+        {
+            Contact.NextID = 0;
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void SetInvalidNegativeNextID()
+        {
+            Contact.NextID = -1;
+        }
     }
 }

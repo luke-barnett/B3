@@ -26,7 +26,7 @@ namespace IndiaTango.Tests
             _startTime2 = new DateTime(2009,1,9,14,45,0);
             _endTime2 = new DateTime(2009, 1, 14, 19, 15, 0);
             _b = new Buoy(1, "dsf", "asdf", new Contact("asdf", "asdf", "adsf@sdfg.com", "uerh", "sadf"), new Contact("asdf", "asdf", "adsf@sdfg.com", "uerh", "sadf"), null, new GPSCoords(32, 5));
-            _ds1 = new Dataset(_b, _startTime1, _endTime1);
+            _ds1 = new Dataset(_b);
             _ds2 = new Dataset(_b,_sensors);
         }
         [Test]
@@ -36,18 +36,6 @@ namespace IndiaTango.Tests
             _b = new Buoy(2, "dsf", "asdf", new Contact("asdf", "asdf", "adsf@sdfg.com", "uerh", "sadf"), new Contact("asdf", "asdf", "adsf@sdfg.com", "uerh", "sadf"), null, new GPSCoords(32, 5));
             _ds1.Buoy = _b;
             Assert.AreEqual(_b, _ds1.Buoy);
-        }
-
-        [Test]
-        public void StartTimeStampGetTest()
-        {
-            Assert.AreEqual(_startTime1, _ds1.StartTimeStamp);
-        }
-
-        [Test]
-        public void EndTimeStampGetTest()
-        {
-            Assert.AreEqual(_endTime1, _ds1.EndTimeStamp);
         }
 
         [Test]
@@ -79,20 +67,6 @@ namespace IndiaTango.Tests
         public void AddNullSensorTest()
         {
             _ds1.AddSensor(null);
-        }
-
-        [Test]
-        [ExpectedException(typeof(ArgumentException))]
-        public void EndTimeBeforeStartTimeTest()
-        {
-            new Dataset(_b, _endTime1, _startTime1);
-        }
-
-        [Test]
-        [ExpectedException(typeof(ArgumentException))]
-        public void EndTimeSameAsStartTest()
-        {
-            new Dataset(_b, _startTime1, _startTime1);
         }
     }
 }
