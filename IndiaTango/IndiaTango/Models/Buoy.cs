@@ -44,8 +44,6 @@ namespace IndiaTango.Models
                 throw new ArgumentException("Owner must not be empty");
             if(primaryContact == null)
                 throw new ArgumentException("Primary contact must not be null");
-            if(secondaryContact == null)
-                throw new ArgumentException("Secondary contact must not be null");
             if(gpsLocation == null)
                 throw new ArgumentException("GPS Location must be supplied");
             _iD = iD;
@@ -126,12 +124,7 @@ namespace IndiaTango.Models
         public Contact SecondaryContact
         {
             get { return _secondaryContact; }
-            set
-            {
-                if(value == null)
-                    throw new FormatException("Secondary contact must not be null");
-                _secondaryContact = value;
-            }
+            set { _secondaryContact = value; }
         }
 
         /// <summary>
@@ -216,6 +209,7 @@ namespace IndiaTango.Models
                 return false;
 
             var buoy = obj as Buoy;
+            bool ctwo, cthree;
 
             if (buoy.Events.Count != Events.Count)
                 return false; // Must have compatible length lists
@@ -223,19 +217,20 @@ namespace IndiaTango.Models
             for (int i = 0; i < buoy.Events.Count; i++)
                 if (!buoy.Events[i].Equals(Events[i]))
                     return false;
+            
+            if(buoy.SecondaryContact != null)
+                ctwo = buoy.SecondaryContact.Equals(SecondaryContact);
+            else
+                ctwo = SecondaryContact == null;
 
-            var gps = buoy.GpsLocation.Equals(GpsLocation);
-            var id = buoy.Id == Id;
-            var owner = buoy.Owner == Owner;
-            var cone = buoy.PrimaryContact.Equals(PrimaryContact);
-            var ctwo = buoy.SecondaryContact.Equals(SecondaryContact);
-            var cthree = buoy.UniversityContact.Equals(UniversityContact);
-            var site = buoy.Site == Site;
+            if (buoy.UniversityContact != null)
+                cthree = buoy.UniversityContact.Equals(UniversityContact);
+            else
+                cthree = UniversityContact == null;
 
             return (buoy.GpsLocation.Equals(GpsLocation) && buoy.Id == Id &&
                     buoy.Owner == Owner && buoy.PrimaryContact.Equals(PrimaryContact) &&
-                    buoy.SecondaryContact.Equals(SecondaryContact) && buoy.Site == Site &&
-                    buoy.UniversityContact.Equals(UniversityContact));
+                    ctwo && buoy.Site == Site && cthree);
         }
 
         public override string ToString()

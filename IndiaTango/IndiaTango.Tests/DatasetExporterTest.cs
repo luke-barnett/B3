@@ -29,7 +29,7 @@ namespace IndiaTango.Tests
     		CSVReader reader = new CSVReader(Path.Combine(_inputFilePath));
     		_data.Sensors = reader.ReadSensors();
 			_exporter = new DatasetExporter(_data);
-			_exporter.Export(_outputFilePath,ExportFormat.CSV,false);
+			_exporter.Export(_outputFilePath,ExportFormat.CSV,false,false);
 			Assert.AreEqual(Tools.GenerateMD5HashFromFile(_outputFilePath), Tools.GenerateMD5HashFromFile(_inputFilePath));
         }
 
@@ -39,8 +39,18 @@ namespace IndiaTango.Tests
             CSVReader reader = new CSVReader(Path.Combine(_inputFilePath));
             _data.Sensors = reader.ReadSensors();
             _exporter = new DatasetExporter(_data);
-            _exporter.Export(_outputFilePath, ExportFormat.CSV, true);
+            _exporter.Export(_outputFilePath, ExportFormat.CSV, true,false);
             Assert.AreEqual(File.ReadLines(_outputFilePath).Count(), _data.DataPointCount + 1);
+        }
+
+        [Test]
+        public void ExportAsCSVNoEmptyLinesAndMetaData()
+        {
+            CSVReader reader = new CSVReader(Path.Combine(_inputFilePath));
+            _data.Sensors = reader.ReadSensors();
+            _exporter = new DatasetExporter(_data);
+            _exporter.Export(_outputFilePath, ExportFormat.CSV, false, true);
+            Assert.AreEqual(Tools.GenerateMD5HashFromFile(_outputFilePath), Tools.GenerateMD5HashFromFile(_inputFilePath));
         }
 
         [Test]
