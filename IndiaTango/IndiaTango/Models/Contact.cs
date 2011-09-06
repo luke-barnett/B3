@@ -145,5 +145,13 @@ namespace IndiaTango.Models
 
 			return list;
 		}
+
+        private static int _nextID = 1;
+
+        public static int NextID
+        {
+            get { return _nextID++; }
+            set { _nextID = value; }
+        }
     }
 }
