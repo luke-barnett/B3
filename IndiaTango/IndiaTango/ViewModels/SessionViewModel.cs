@@ -317,7 +317,6 @@ namespace IndiaTango.ViewModels
 						eventArgs.Cancel = true;
 						ProgressBarPercent = 0;
 					    StatusLabelText = STATUS_TEXT_AWAITING_INPUT;
-					    ImportEnabled = true;
 					    ActionButtonsEnabled = false;
 					}
 					else
@@ -325,8 +324,9 @@ namespace IndiaTango.ViewModels
                         ActionButtonsEnabled = true;
                         StatusLabelText = "";
 					    SensorList = readSensors;
-                        ImportEnabled = false;
 					}
+
+                    ImportEnabled = true;
 
                     ProgressBarVisible = Visibility.Hidden;
 				};
