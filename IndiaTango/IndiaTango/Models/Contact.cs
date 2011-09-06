@@ -21,6 +21,12 @@ namespace IndiaTango.Models
 		}
 
         private Contact() {} // Necessary for serialisation.
+        private int _id = 0;
+        
+        public int ID
+        {
+            get { return _id; }
+        }
 
         /// <summary>
         /// Creates a new contact
@@ -151,7 +157,13 @@ namespace IndiaTango.Models
         public static int NextID
         {
             get { return _nextID++; }
-            set { _nextID = value; }
+            set
+            {
+                if(value < 1)
+                    throw new ArgumentOutOfRangeException("The next ID for a contact must be greater than 0.");
+
+                _nextID = value;
+            }
         }
     }
 }
