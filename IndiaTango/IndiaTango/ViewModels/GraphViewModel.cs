@@ -20,9 +20,9 @@ namespace IndiaTango.ViewModels
 
         private readonly GraphBehaviour _graphBehaviour;
         private readonly Canvas _graphBackground;
+        private readonly List<GraphableSensor> _selectedSensors = new List<GraphableSensor>();
 
         private List<GraphableSensor> _sensors;
-        private List<GraphableSensor> _selectedSensors = new List<GraphableSensor>();
         private BehaviourManager _behaviourManager;
         private List<LineSeries> _chartSeries = new List<LineSeries>();
         private string _chartTitle = String.Empty;
@@ -32,6 +32,7 @@ namespace IndiaTango.ViewModels
         private bool _sampledValues;
         private bool SampledValues { get { return _sampledValues; } set { _sampledValues = value; NotifyOfPropertyChange(() => SampledValuesString); } }
         private int _sampleRate;
+        private GraphableSensor _selectedSensor;
 
         #region YAxisControls
 
@@ -113,6 +114,10 @@ namespace IndiaTango.ViewModels
         public ImageSource ToggleButtonImage { get { return _columnVisible ? new BitmapImage(new Uri("pack://application:,,,/Images/expand_left.png")) : new BitmapImage(new Uri("pack://application:,,,/Images/expand_right.png")); } }
 
         public string SampledValuesString { get { return (SampledValues) ? "Sampling every " + _sampleRate + " values" : String.Empty; } }
+
+        public GraphableSensor SelectedSensor { get { return _selectedSensor; } set { _selectedSensor = value; NotifyOfPropertyChange(() => SelectedSensorColour); } }
+
+        public Brush SelectedSensorColour { get { return (_selectedSensor == null) ? Brushes.Black : _selectedSensor.Colour; } }
 
         #endregion
 

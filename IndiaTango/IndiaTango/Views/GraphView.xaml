@@ -47,7 +47,7 @@
             </GroupBox>
 
             <GroupBox Grid.Row="1" Header="Graphed Sensors" BorderBrush="OrangeRed" Margin="10 5 0 5">
-                <ListBox  ItemsSource="{Binding GraphableSensors}" Margin="5" SelectionMode="Single">
+                <ListBox  ItemsSource="{Binding GraphableSensors}" Margin="5" SelectionMode="Single" SelectedItem="{Binding SelectedSensor, Mode=TwoWay}">
                     <ListBox.ItemTemplate>
                         <HierarchicalDataTemplate>
                             <CheckBox Content="{Binding This}">
@@ -82,7 +82,7 @@
                     </Grid.ColumnDefinitions>
 
                     <TextBlock Text="Color:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" />
-                    <Rectangle  Grid.Row="0" Grid.Column="1" Width="20" Height="20" HorizontalAlignment="Left" VerticalAlignment="Center" Fill="OrangeRed" Stroke="Black" StrokeEndLineCap="Flat" StrokeThickness="1" RadiusX="5" RadiusY="5" Margin="10 5 0 0" />
+                    <Rectangle  Grid.Row="0" Grid.Column="1" Width="20" Height="20" HorizontalAlignment="Left" VerticalAlignment="Center" Fill="{Binding SelectedSensorColour}" Stroke="Black" StrokeEndLineCap="Flat" StrokeThickness="1" RadiusX="5" RadiusY="5" Margin="10 5 0 0" />
 
                     <TextBlock Text="Y Scale:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" />
                     <Slider Grid.Row="1" Grid.Column="1" Name="sldYScale" Maximum="100" TickFrequency="10" TickPlacement="BottomRight" Value="100" VerticalAlignment="Center" Margin="5" LargeChange="10" SmallChange="1" IsSnapToTickEnabled="True" IsEnabled="False" />
