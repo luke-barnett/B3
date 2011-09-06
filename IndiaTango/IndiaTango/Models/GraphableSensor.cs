@@ -20,7 +20,7 @@ namespace IndiaTango.Models
         {
             Sensor = baseSensor;
             //Create a random colour
-            Colour = new SolidColorBrush(Color.FromRgb((byte)(Common.Generator.Next()), (byte)(Common.Generator.Next()), (byte)(Common.Generator.Next())));
+            Colour = Color.FromRgb((byte)(Common.Generator.Next()), (byte)(Common.Generator.Next()), (byte)(Common.Generator.Next()));
 
             DataPoints = from dataValue in Sensor.CurrentState.Values select new DataPoint<DateTime, float>(dataValue.Timestamp, dataValue.Value);
         }
@@ -44,7 +44,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// The colour to use for the line series
         /// </summary>
-        public Brush Colour { get; set; }
+        public Color Colour { get; set; }
 
         /// <summary>
         /// The sensor to base it all on

@@ -8,6 +8,7 @@ using System.Windows.Media.Imaging;
 using Caliburn.Micro;
 using IndiaTango.Models;
 using System.Linq;
+using Microsoft.Samples.CustomControls;
 using Visiblox.Charts;
 
 namespace IndiaTango.ViewModels
@@ -117,7 +118,7 @@ namespace IndiaTango.ViewModels
 
         public GraphableSensor SelectedSensor { get { return _selectedSensor; } set { _selectedSensor = value; NotifyOfPropertyChange(() => SelectedSensorColour); NotifyOfPropertyChange(() => SelectedSensorName); NotifyOfPropertyChange(() => SelectedSensor); } }
 
-        public Brush SelectedSensorColour { get { return (_selectedSensor == null) ? Brushes.Black : _selectedSensor.Colour; } }
+        public Brush SelectedSensorColour { get { return (_selectedSensor == null) ? Brushes.Black : new SolidColorBrush(_selectedSensor.Colour); } }
 
         public string SelectedSensorName { get { return (_selectedSensor == null) ? string.Empty : _selectedSensor.Sensor.Name; } }
 
@@ -187,7 +188,7 @@ namespace IndiaTango.ViewModels
                 Debug.Print("Number of points: {0} Max Number {1} Sampling rate {2}", sensor.DataPoints.Count(), numberOfPoints, _sampleRate);
 
                 var series = (_sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints.Where((x, index) => index % _sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints);
-                generatedSeries.Add(new LineSeries{ DataSeries = series, LineStroke = sensor.Colour});
+                generatedSeries.Add(new LineSeries{ DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour)});
                 if (_sampleRate > 1) ShowBackground();
             }
 
@@ -259,6 +260,21 @@ namespace IndiaTango.ViewModels
         public void btnExportGraph()
         {
             Common.ShowFeatureNotImplementedMessageBox();
+        }
+
+        public void ShowColourDialog()
+        {
+            if (_selectedSensor == null)
+                return;
+            var colourPickerDialog = new ColorPickerDialog {StartingColor = SelectedSensor.Colour};
+            var result = colourPickerDialog.ShowDialog();
+            if(result == true)
+            {
+                _selectedSensor.Colour = colourPickerDialog.SelectedColor;
+                NotifyOfPropertyChange(() => SelectedSensorColour);
+                if(_selectedSensors.Contains(_selectedSensor))
+                    RedrawGraph();
+            }
         }
 
         #endregion

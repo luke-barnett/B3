@@ -85,7 +85,13 @@
                     <TextBlock Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedSensorName}" Margin="10,0,0,0" />
 
                     <TextBlock Text="Color:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" />
-                    <Rectangle  Grid.Row="1" Grid.Column="1" Width="20" Height="20" HorizontalAlignment="Left" VerticalAlignment="Center" Fill="{Binding SelectedSensorColour}" Stroke="Black" StrokeEndLineCap="Flat" StrokeThickness="1" RadiusX="5" RadiusY="5" Margin="10 5 0 0" />
+                    <Rectangle  Grid.Row="1" Grid.Column="1" Width="20" Height="20" HorizontalAlignment="Left" VerticalAlignment="Center" Fill="{Binding SelectedSensorColour}" Stroke="Black" StrokeEndLineCap="Flat" StrokeThickness="1" RadiusX="5" RadiusY="5" Margin="10 5 0 0">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseLeftButtonDown">
+                                <cal:ActionMessage MethodName="ShowColourDialog" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Rectangle>
 
                 </Grid>
             </GroupBox>

@@ -29,9 +29,9 @@ namespace IndiaTango.Tests
         {
             Assert.IsNotNull(sensor.Colour);
 
-            sensor.Colour = Brushes.Black;
+            sensor.Colour = Colors.Black;
 
-            Assert.AreEqual(sensor.Colour, Brushes.Black);
+            Assert.AreEqual(sensor.Colour, Colors.Black);
         }
 
         [Test]
