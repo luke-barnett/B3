@@ -81,8 +81,6 @@ namespace IndiaTango.Models
         	    _sensors = value;
 
                 //Set the start and end time dynamically
-        	    _startTimeStamp = DateTime.MinValue;
-        	    _endTimeStamp = DateTime.MinValue;
                 foreach (Sensor sensor in _sensors)
         	    {
                     if (sensor.CurrentState.Values.Count > 0)
