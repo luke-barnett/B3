@@ -119,5 +119,7 @@ namespace IndiaTango.Models
 		{
 			ShowMessageBox("Feature Not Implemented", "Sorry, this feature has not been created yet.", false, false);
 		}
+
+        public static Random Generator = new Random();
     }
 }
