@@ -304,11 +304,15 @@ namespace IndiaTango.ViewModels
 						eventArgs.Cancel = true;
 						ProgressBarPercent = 0;
 					}
+					else
+					{
+                        ActionButtonsEnabled = true;
+                        StatusLabelText = "";
+                            
+					}
 
-					ProgressBarVisible = Visibility.Hidden;
-					ActionButtonsEnabled = true;
-					StatusLabelText = "";
-				    ImportEnabled = true;
+                    ImportEnabled = true;
+                    ProgressBarVisible = Visibility.Hidden;
 				};
 
                 ImportEnabled = false;

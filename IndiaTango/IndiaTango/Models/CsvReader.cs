@@ -37,61 +37,71 @@ namespace IndiaTango.Models
                 return sensors.ToList();
 
             sensors = new Sensor[0];
-            using (var sr = new StreamReader(_filename))
+
+            try
             {
-                linesInFile = File.ReadLines(_filename).Count();
-                
-                var sensorNamesString = sr.ReadLine();
-
-                String[] sensorNames;
-                if(sensorNamesString != null)
-                    sensorNames = sensorNamesString.Split(',');
-                else
-                    throw new FormatException("Couldn't get the sensor names from the csv");
-                
-                //First two are the time stamp
-                sensors = new Sensor[sensorNames.Length - 2];
-
-                for (int i = 2; i < sensorNames.Length; i++ )
+                using (var sr = new StreamReader(_filename))
                 {
-                    if (asyncWorker != null && asyncWorker.CancellationPending)
-                        return null;
+                    linesInFile = File.ReadLines(_filename).Count();
 
-                    sensors[i - 2] = new Sensor(sensorNames[i], null);
-                    sensors[i -2].AddState(new SensorState(DateTime.Now));
-                }
+                    var sensorNamesString = sr.ReadLine();
 
+                    String[] sensorNames;
+                    if (sensorNamesString != null)
+                        sensorNames = sensorNamesString.Split(',');
+                    else
+                        throw new FormatException("Couldn't get the sensor names from the csv");
 
-                String readLine = null;
-                while((readLine = sr.ReadLine()) != null)
-                {
-                    if (asyncWorker != null && asyncWorker.CancellationPending)
-                        return null;
+                    //First two are the time stamp
+                    sensors = new Sensor[sensorNames.Length - 2];
 
-                    linesRead++;
-                    OnProgressChanged((object)this, new ReaderProgressChangedArgs((int)(linesRead / linesInFile * 100)));
-
-
-                    var values = readLine.Split(',');
-                    if(values.Length != sensorNames.Length)
-                        throw new FormatException("Number of values mismatch from the number of sensors");
-                    var timeStamp = DateTime.Parse(values[0] + " " + values[1]);
-
-                    for (int i = 2; i < values.Length; i++)
+                    for (int i = 2; i < sensorNames.Length; i++)
                     {
-                        if (!String.IsNullOrWhiteSpace(values[i]))
+                        if (asyncWorker != null && asyncWorker.CancellationPending)
+                            return null;
+
+                        sensors[i - 2] = new Sensor(sensorNames[i], null);
+                        sensors[i - 2].AddState(new SensorState(DateTime.Now));
+                    }
+
+
+                    String readLine = null;
+                    while ((readLine = sr.ReadLine()) != null)
+                    {
+                        if (asyncWorker != null && asyncWorker.CancellationPending)
+                            return null;
+
+                        linesRead++;
+                        OnProgressChanged((object) this,
+                                          new ReaderProgressChangedArgs((int) (linesRead/linesInFile*100)));
+
+
+                        var values = readLine.Split(',');
+                        if (values.Length != sensorNames.Length)
+                            throw new FormatException("Number of values mismatch from the number of sensors");
+                        var timeStamp = DateTime.Parse(values[0] + " " + values[1]);
+
+                        for (int i = 2; i < values.Length; i++)
                         {
-                            try
+                            if (!String.IsNullOrWhiteSpace(values[i]))
                             {
-                                sensors[i - 2].CurrentState.Values.Add(new DataValue(timeStamp, float.Parse(values[i])));
-                            }
-                            catch (Exception e)
-                            {
+                                try
+                                {
+                                    sensors[i - 2].CurrentState.Values.Add(new DataValue(timeStamp,
+                                                                                         float.Parse(values[i])));
+                                }
+                                catch (Exception e)
+                                {
+                                }
                             }
                         }
                     }
                 }
-
+            }
+            catch (IOException e)
+            {
+                Common.ShowMessageBox("An Error Occured", e.Message, false, true);
+                return null;
             }
             
             return sensors.ToList();
