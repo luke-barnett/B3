@@ -83,5 +83,25 @@ namespace IndiaTango.Tests
 
             Assert.AreEqual(A, B);
         }
+
+        // TODO: more break it to make it!
+        [Test]
+        public void CorrectlyParsesDMS()
+        {
+            GPSCoords degreeTest = GPSCoords.Parse("S37 47 16", "E175 18 37");
+
+            Assert.AreEqual(-37.788047d, Convert.ToDouble(degreeTest.DecimalDegreesLatitude), PRECISION);
+            Assert.AreEqual(175.310512d, Convert.ToDouble(degreeTest.DecimalDegreesLongitude), PRECISION);
+        }
+
+        [Test]
+        public void CorrectlyParsesDecimalDegrees()
+        {
+            GPSCoords degreeTest = GPSCoords.Parse("-37.788047", "175.310512");
+
+            Assert.AreEqual("S37 47 16", degreeTest.DMSLatitude);
+
+            Assert.AreEqual("E175 18 37", degreeTest.DMSLongitude);
+        }
     }
 }

@@ -123,5 +123,16 @@ namespace IndiaTango.Models
             return (obj is GPSCoords) && (obj as GPSCoords).DecimalDegreesLatitude == DecimalDegreesLatitude &&
                    (obj as GPSCoords).DecimalDegreesLongitude == DecimalDegreesLongitude;
         }
+
+        public static GPSCoords Parse(string latitude, string longitude)
+        {
+            decimal lat = 0;
+            decimal lng = 0;
+
+            if (decimal.TryParse(latitude, out lat) && decimal.TryParse(longitude, out lng))
+                return new GPSCoords(lat, lng);
+            else
+                return new GPSCoords(latitude, longitude);
+        }
     }
 }

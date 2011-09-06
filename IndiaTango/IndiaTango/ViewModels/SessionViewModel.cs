@@ -424,13 +424,7 @@ namespace IndiaTango.ViewModels
 				//If saving an existing Site
 				if (SelectedSite != null)
 				{
-					decimal lat = 0;
-					decimal lng = 0;
-
-					if (decimal.TryParse(Latitude, out lat) && decimal.TryParse(Longitude, out lng))
-						SelectedSite.GpsLocation = new GPSCoords(lat, lng);
-					else
-						SelectedSite.GpsLocation = new GPSCoords(Latitude, Longitude);
+				    SelectedSite.GpsLocation = GPSCoords.Parse(Latitude, Longitude);
 
 					SelectedSite.Owner = Owner;
 					SelectedSite.PrimaryContact = PrimaryContact;
@@ -441,7 +435,7 @@ namespace IndiaTango.ViewModels
 				//else if creating a new one
 				else
 				{
-					Site b = new Site(Site.NextID, SiteName, Owner, PrimaryContact, SecondaryContact, UniversityContact, new GPSCoords(Latitude, Longitude));
+					Site b = new Site(Site.NextID, SiteName, Owner, PrimaryContact, SecondaryContact, UniversityContact, GPSCoords.Parse(Latitude, Longitude));
 					_allSites.Add(b);
 					Site.ExportAll(_allSites);
 					SelectedSite = b;

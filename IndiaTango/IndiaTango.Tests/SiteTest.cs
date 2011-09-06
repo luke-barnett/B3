@@ -310,5 +310,34 @@ namespace IndiaTango.Tests
             B.Events.Add(new Event(DateTime.Now, "Created the Site"));
             Assert.IsFalse(B.Equals(A));
         }
+
+        // No tests for this for Primary contact because it can't be null
+        [Test]
+        public void SiteNoSecondaryContactReturnsZeroID()
+        {
+            B.SecondaryContact = null;
+            Assert.AreEqual(0, B.SecondaryContactID);
+
+            var C = new Site(Site.NextID, "Awesome Place", "Awesome", _pc, null, null, new GPSCoords(5, 10));
+            Assert.AreEqual(0, C.SecondaryContactID);
+        }
+
+        [Test]
+        public void SiteNoUniversityContactReturnsZeroID()
+        {
+            B.UniversityContact = null;
+            Assert.AreEqual(0, B.UniversityContactID);
+
+            var C = new Site(Site.NextID, "Awesome Place", "Awesome", _pc, null, null, new GPSCoords(5, 10));
+            Assert.AreEqual(0, C.UniversityContactID);
+        }
+
+        [Test]
+        public void ReportsCorrectContactIDs()
+        {
+            Assert.AreEqual(B.PrimaryContactID, B.PrimaryContact.ID);
+            Assert.AreEqual(B.SecondaryContactID, B.SecondaryContact.ID);
+            Assert.AreEqual(B.UniversityContactID, B.UniversityContact.ID);
+        }
     }
 }
