@@ -17,7 +17,8 @@ namespace IndiaTango.Models
         /// Creates a new sensor state with the specified timestamp representing the date it was last edited.
         /// </summary>
         /// <param name="editTimestamp">A DateTime object representing the last edit date and time for this sensor state.</param>
-        public SensorState(DateTime editTimestamp) : this(editTimestamp, new List<DataValue>())
+        public SensorState(DateTime editTimestamp)
+            : this(editTimestamp, new List<DataValue>())
         {
         }
 
@@ -82,18 +83,39 @@ namespace IndiaTango.Models
 
 
 
-        public List<DataValue> GetMissingTimes(int timeDiff)
+        public List<DateTime> GetMissingTimes(int timeGap, DateTime start, DateTime end)
         {
-            var missing = new List<DataValue>();
+            var timeDiff = (int) end.Subtract(start).TotalMinutes/15;
+            var missing = new List<DateTime>();
+            if (Values.Count != timeDiff)
+            {
+                if (Values[0].Timestamp > start)
+                {
+                    while (start <= Values[0].Timestamp)
+                    {
+                        missing.Insert(0, start);
+                        start = start.AddMinutes(timeGap);
+                    }
+                }
+                if (Values[Values.Count - 1].Timestamp < end)
+                {
+                    var tmpTime = Values[Values.Count - 1].Timestamp;
+                    while (tmpTime <= end)
+                    {
+                        missing.Add(tmpTime);
+                        tmpTime = tmpTime.AddMinutes(timeGap);
+                    }
+                }
+            }
             for (var i = 1; i < Values.Count; i++)
             {
-                if (Values[i - 1].Timestamp.AddMinutes(timeDiff) != Values[i].Timestamp)
+                if (Values[i - 1].Timestamp.AddMinutes(timeGap) != Values[i].Timestamp)
                 {
-                    var tmpTime = Values[i - 1].Timestamp.AddMinutes(timeDiff);
+                    var tmpTime = Values[i - 1].Timestamp.AddMinutes(timeGap);
                     while (tmpTime < Values[i].Timestamp)
                     {
-                        missing.Add(new DataValue(tmpTime, 0));
-                        tmpTime = tmpTime.AddMinutes(timeDiff);
+                        missing.Add(tmpTime);
+                        tmpTime = tmpTime.AddMinutes(timeGap);
                     }
                 }
             }

@@ -19,7 +19,7 @@ namespace IndiaTango.Tests
 		//Secondary contact cannot be null? Argh...
 		//Also need a setter on the Dataset class for the sensor list
     	private static readonly Contact Contact = new Contact("K", "A", "k@a.com", "", "0");
-		private readonly Dataset _data = new Dataset(new Buoy(1, "Your Mother", "Kerry", Contact, Contact, Contact, new GPSCoords(0,0)), new DateTime(2009,1,9,14,45,0), new DateTime(2011,1,12,6,45,0));
+		private readonly Dataset _data = new Dataset(new Buoy(1, "Your Mother", "Kerry", Contact, Contact, Contact, new GPSCoords(0,0)));
 
 		#region Tests
 
@@ -57,13 +57,13 @@ namespace IndiaTango.Tests
         public void ExportAsCSVCorrectValueCount()
         {
             var dateTime = new DateTime(2011, 8, 4, 0, 0, 0);
-            var givenDataSet = new Dataset(new Buoy(1, "Steven", "Kerry", Contact, Contact, Contact, new GPSCoords(0, 0)), dateTime, dateTime.AddDays(2));
+            var givenDataSet = new Dataset(new Buoy(1, "Steven", "Kerry", Contact, Contact, Contact, new GPSCoords(0, 0)));
 
             // 24 * 4 = # of 15 min slots in a day
             Assert.AreEqual(givenDataSet.DataPointCount, (24 * 4) * 2 + 1);
 
             dateTime = new DateTime(2011, 8, 4, 0, 0, 0);
-            givenDataSet = new Dataset(new Buoy(1, "Steven", "Kerry", Contact, Contact, Contact, new GPSCoords(0, 0)), dateTime, dateTime.AddDays(1));
+            givenDataSet = new Dataset(new Buoy(1, "Steven", "Kerry", Contact, Contact, Contact, new GPSCoords(0, 0)));
 
             // 24 * 4 = # of 15 min slots in a day
             Assert.AreEqual(givenDataSet.DataPointCount, (24 * 4) + 1);

@@ -17,7 +17,7 @@ namespace IndiaTango.ViewModels
 		#region Private Members
         private readonly SimpleContainer _container;
         private readonly IWindowManager _windowManager;
-        private List<Sensor> _sensors;
+        private Dataset _ds;
         private BackgroundWorker _bw;
 
 		private static double _progressBarPercent = 0;
@@ -28,7 +28,6 @@ namespace IndiaTango.ViewModels
 		private Visibility _createEditDeleteVisible = Visibility.Visible;
 		private Visibility _doneCancelVisible = Visibility.Hidden;
 
-		private Buoy _buoy;
 		private Contact _primaryContact;
 		private Contact _secondaryContact;
 		private Contact _universityContact;
@@ -41,7 +40,7 @@ namespace IndiaTango.ViewModels
         {
             _windowManager = windowManager;
             _container = container;
-            _sensors = new List<Sensor>();
+            _ds = new Dataset(null);
 			_allBuoys = Buoy.ImportAll();
 			_allContacts = Contact.ImportAll();
 
@@ -136,10 +135,10 @@ namespace IndiaTango.ViewModels
 
     	public List<Sensor> SensorList
     	{
-    		get { return _sensors; } 
+            get { return _ds.Sensors; }
 			set
 			{
-				_sensors = value; 
+			    _ds.Sensors = value;
 				NotifyOfPropertyChange(() => SensorList);
 			}
     	}
@@ -235,20 +234,19 @@ namespace IndiaTango.ViewModels
 
 		public Buoy SelectedBuoy
 		{
-			get { return _buoy; }
+            get { return _ds.Buoy; }
 			set
 			{
-				_buoy = value;
-
-				if (_buoy != null)
+			    _ds.Buoy = value;
+                if(_ds.Buoy != null)
 				{
-					SiteName = _buoy.Site; // This is all necessary because we create the buoy when we save, not now
-					Owner = _buoy.Owner;
-					Latitude = _buoy.GpsLocation.DecimalDegreesLatitude.ToString();
-					Longitude = _buoy.GpsLocation.DecimalDegreesLongitude.ToString();
-					PrimaryContact = _buoy.PrimaryContact;
-					SecondaryContact = _buoy.SecondaryContact;
-					UniversityContact = _buoy.UniversityContact;
+                    SiteName = _ds.Buoy.Site; // This is all necessary because we create the buoy when we save, not now
+                    Owner = _ds.Buoy.Owner;
+                    Latitude = _ds.Buoy.GpsLocation.DecimalDegreesLatitude.ToString();
+                    Longitude = _ds.Buoy.GpsLocation.DecimalDegreesLongitude.ToString();
+                    PrimaryContact = _ds.Buoy.PrimaryContact;
+                    SecondaryContact = _ds.Buoy.SecondaryContact;
+                    UniversityContact = _ds.Buoy.UniversityContact;
 				}
 				else
 				{
@@ -354,7 +352,8 @@ namespace IndiaTango.ViewModels
 		public void btnMissingValues()
 		{
 			var MissingValuesView =
-				(_container.GetInstance(typeof(MissingValuesViewModel), "MissingValuesViewModel") as MissingValuesViewModel);
+                (_container.GetInstance(typeof(MissingValuesViewModel), "MissingValuesViewModel") as MissingValuesViewModel);
+            MissingValuesView.Dataset = _ds;
 			MissingValuesView.SensorList = SensorList;
 			_windowManager.ShowDialog(MissingValuesView);
 		}
