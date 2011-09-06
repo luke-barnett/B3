@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Forms;
 using Caliburn.Micro;
@@ -340,7 +341,7 @@ namespace IndiaTango.ViewModels
             {
                 Dataset dataSet = new Dataset(SelectedBuoy, SensorList);
                 DatasetExporter exporter = new DatasetExporter(dataSet);
-                exporter.Export(dialog.FileName, ExportFormat.CSV, true, dialog.Filter == ExportFormat.CSVWithMetaData.FilterText);
+                exporter.Export(dialog.FileName, ExportFormat.CSV, true, dialog.FilterIndex == 2);
             }
 		}
 

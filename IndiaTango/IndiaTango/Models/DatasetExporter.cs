@@ -35,7 +35,7 @@ namespace IndiaTango.Models
 
             //Strip the existing extension and add the one specified in the method args
             filePath = Path.ChangeExtension(filePath,format.Extension);
-            string metaDataPath = filePath + ".SiteMetaData.txt";
+            string metaDataPath = filePath + " Site Meta Data.txt";
 
             if (format.Equals(ExportFormat.CSV) || format.Equals(ExportFormat.TXT))
 			{
@@ -85,15 +85,16 @@ namespace IndiaTango.Models
 				}
 
                 //add site meta data
-                if (addMetaData)
+                if (addMetaData && Data.Buoy != null)
                 {
                     using (StreamWriter writer = File.CreateText(metaDataPath))
                     {
-                        writer.WriteLine("Site details for file: " + filePath);
+                        writer.WriteLine("Site details for file: " + Path.GetFileName(filePath));
                         writer.WriteLine("ID: " + Data.Buoy.Id);
                         writer.WriteLine("Name: " + Data.Buoy.Site);
                         writer.WriteLine("Owner: " + Data.Buoy.Owner);
 
+                        //TODO: clean up
                         if(Data.Buoy.PrimaryContact != null)
                         {
                             writer.WriteLine("Primary Contact:");
@@ -124,7 +125,7 @@ namespace IndiaTango.Models
                             writer.WriteLine("\tEmail: " + Data.Buoy.UniversityContact.Email);
                         }
 
-                        Debug.WriteLine(filePath);
+                        Debug.WriteLine(metaDataPath);
                         writer.Close();
                     }
                 }
