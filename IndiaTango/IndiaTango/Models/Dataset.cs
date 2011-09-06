@@ -17,13 +17,11 @@ namespace IndiaTango.Models
         /// <param name="buoy">The buoy that the dataset came from</param>
         /// <param name="startTimeStamp">The start time of the dataset</param>
         /// <param name="endTimeStamp">The end time of the dataset</param>
-        public Dataset(Buoy buoy, DateTime startTimeStamp, DateTime endTimeStamp)
+        public Dataset(Buoy buoy)
         {
-            if (DateTime.Compare(startTimeStamp, endTimeStamp) >= 0)
-                throw new ArgumentException("End time stamp must be after start");
             _buoy = buoy;
-            _startTimeStamp = startTimeStamp;
-            _endTimeStamp = endTimeStamp;
+            _startTimeStamp = DateTime.MinValue;
+            _endTimeStamp = DateTime.MinValue;
             _sensors = new List<Sensor>();
         }
 
@@ -83,7 +81,8 @@ namespace IndiaTango.Models
         	    _sensors = value;
 
                 //Set the start and end time dynamically
-                
+        	    _startTimeStamp = DateTime.MinValue;
+        	    _endTimeStamp = DateTime.MinValue;
                 foreach (Sensor sensor in _sensors)
         	    {
                     if (sensor.CurrentState.Values.Count > 0)

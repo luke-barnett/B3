@@ -15,9 +15,10 @@ namespace IndiaTango.ViewModels
         private readonly IWindowManager _windowManager;
         private Sensor _sensor;
     	private int _zoomLevel = 100;
-		private List<DataValue> _missingValues = new List<DataValue>();
+		private List<DateTime> _missingValues = new List<DateTime>();
 		private List<DataValue> _selectedValues = new List<DataValue>();
-    	private List<Sensor> _sensorList = new List<Sensor>();
+    	//private List<Sensor> _sensorList = new List<Sensor>();
+        private Dataset _ds;
 
         public MissingValuesViewModel(IWindowManager windowManager, SimpleContainer container)
         {
@@ -44,6 +45,8 @@ namespace IndiaTango.ViewModels
 			}
 		}
 
+        public Dataset Dataset { get { return _ds; } set { _ds = value; } }
+
 		public string ZoomText
 		{
 			get { return ZoomLevel + "%"; }
@@ -54,7 +57,7 @@ namespace IndiaTango.ViewModels
 			get { return SelectedSensor == null ? "" : SelectedSensor.Name; }
         }
 
-        public List<DataValue> MissingValues
+        public List<DateTime> MissingValues
         {
             get { return _missingValues; }
 			set
@@ -72,10 +75,10 @@ namespace IndiaTango.ViewModels
 
 		public List<Sensor> SensorList
 		{
-			get { return _sensorList; }
+			get { return _ds.Sensors; }
 			set
 			{
-				_sensorList = value;
+				_ds.Sensors = value;
 				NotifyOfPropertyChange(() => SensorList);
 			}
 		}
@@ -87,7 +90,7 @@ namespace IndiaTango.ViewModels
 			{
 				_sensor = value;
 				NotifyOfPropertyChange(() => SelectedSensor);
-				MissingValues = _sensor.CurrentState.GetMissingTimes(15);
+				MissingValues = _sensor.CurrentState.GetMissingTimes(15,_ds.StartTimeStamp,_ds.EndTimeStamp);
 				NotifyOfPropertyChange(() => SensorName);
 				NotifyOfPropertyChange(() => MissingCount);
 			}
@@ -159,7 +162,7 @@ namespace IndiaTango.ViewModels
 				{ return dv == prevValue; }) + 1, newDV);
         	}
             
-            MissingValues = _sensor.CurrentState.GetMissingTimes(15);
+            MissingValues = _sensor.CurrentState.GetMissingTimes(15,_ds.StartTimeStamp,_ds.EndTimeStamp);
             NotifyOfPropertyChange(()=>MissingValues);
 			NotifyOfPropertyChange(() => SelectedSensor);
 
@@ -209,7 +212,7 @@ namespace IndiaTango.ViewModels
 				                                                                         	{ return dv == prevValue; }) + 1, newDV);
 			}
 
-        	_missingValues = _sensor.CurrentState.GetMissingTimes(15);
+        	_missingValues = _sensor.CurrentState.GetMissingTimes(15,_ds.StartTimeStamp,_ds.EndTimeStamp);
             NotifyOfPropertyChange(() => MissingValues);
 			NotifyOfPropertyChange(() => SelectedSensor);
             NotifyOfPropertyChange(() => MissingCount);
@@ -258,7 +261,7 @@ namespace IndiaTango.ViewModels
                 value += step;
             }
 
-            _missingValues = _sensor.CurrentState.GetMissingTimes(15);
+            _missingValues = _sensor.CurrentState.GetMissingTimes(15,_ds.StartTimeStamp,_ds.EndTimeStamp);
             NotifyOfPropertyChange(() => MissingValues);
             NotifyOfPropertyChange(() => MissingCount);
 
