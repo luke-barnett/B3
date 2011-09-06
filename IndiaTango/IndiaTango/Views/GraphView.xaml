@@ -81,12 +81,12 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Text="Color:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" />
-                    <Rectangle  Grid.Row="0" Grid.Column="1" Width="20" Height="20" HorizontalAlignment="Left" VerticalAlignment="Center" Fill="{Binding SelectedSensorColour}" Stroke="Black" StrokeEndLineCap="Flat" StrokeThickness="1" RadiusX="5" RadiusY="5" Margin="10 5 0 0" />
+                    <TextBlock Text="Name:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" />
+                    <TextBlock Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedSensorName}" Margin="10,0,0,0" />
 
-                    <TextBlock Text="Y Scale:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" />
-                    <Slider Grid.Row="1" Grid.Column="1" Name="sldYScale" Maximum="100" TickFrequency="10" TickPlacement="BottomRight" Value="100" VerticalAlignment="Center" Margin="5" LargeChange="10" SmallChange="1" IsSnapToTickEnabled="True" IsEnabled="False" />
-                    <TextBlock Width="40"  Grid.Row="1" Grid.Column="2" Name="lblYScale" Text="100%" VerticalAlignment="Center" Margin="0" FontSize="15" />
+                    <TextBlock Text="Color:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" />
+                    <Rectangle  Grid.Row="1" Grid.Column="1" Width="20" Height="20" HorizontalAlignment="Left" VerticalAlignment="Center" Fill="{Binding SelectedSensorColour}" Stroke="Black" StrokeEndLineCap="Flat" StrokeThickness="1" RadiusX="5" RadiusY="5" Margin="10 5 0 0" />
+
                 </Grid>
             </GroupBox>
         </Grid>

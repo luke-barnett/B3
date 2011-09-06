@@ -115,9 +115,11 @@ namespace IndiaTango.ViewModels
 
         public string SampledValuesString { get { return (SampledValues) ? "Sampling every " + _sampleRate + " values" : String.Empty; } }
 
-        public GraphableSensor SelectedSensor { get { return _selectedSensor; } set { _selectedSensor = value; NotifyOfPropertyChange(() => SelectedSensorColour); } }
+        public GraphableSensor SelectedSensor { get { return _selectedSensor; } set { _selectedSensor = value; NotifyOfPropertyChange(() => SelectedSensorColour); NotifyOfPropertyChange(() => SelectedSensorName); NotifyOfPropertyChange(() => SelectedSensor); } }
 
         public Brush SelectedSensorColour { get { return (_selectedSensor == null) ? Brushes.Black : _selectedSensor.Colour; } }
+
+        public string SelectedSensorName { get { return (_selectedSensor == null) ? string.Empty : _selectedSensor.Sensor.Name; } }
 
         #endregion
 
@@ -244,6 +246,8 @@ namespace IndiaTango.ViewModels
         {
             var checkbox = (CheckBox) e.Source;
             AddSensor((GraphableSensor)checkbox.Content);
+
+            SelectedSensor = (GraphableSensor)checkbox.Content;
         }
 
         public void SensorUnchecked(RoutedEventArgs e)
