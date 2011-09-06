@@ -46,7 +46,7 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.Column="0" Grid.Row="0" Text="Site:" Margin="7" TextAlignment="Right" />
-                <ComboBox ItemsSource="{Binding AllBuoys, Mode=TwoWay}" SelectedItem="{Binding SelectedBuoy}" Grid.Column="1" Height="25" Margin="3,4,3,0" VerticalAlignment="Top" Name="comboBuoyList" IsSynchronizedWithCurrentItem="True" IsEnabled="{Binding SiteListEnabled}"/>
+                <ComboBox ItemsSource="{Binding AllSites, Mode=TwoWay}" SelectedItem="{Binding SelectedSite}" Grid.Column="1" Height="25" Margin="3,4,3,0" VerticalAlignment="Top" Name="comboBuoyList" IsSynchronizedWithCurrentItem="True" IsEnabled="{Binding SiteListEnabled}"/>
 
                 <Rectangle Height="3" Fill="OrangeRed" Margin="0,5" Grid.Row="1" Grid.ColumnSpan="5" SnapsToDevicePixels="True" Stroke="White" />
                 
@@ -59,13 +59,13 @@
 
                 <TextBlock Text="Primary Contact:" TextAlignment="Right" Grid.Column="0" Grid.Row="5" Margin="7"></TextBlock>
                 <ComboBox ItemsSource="{Binding AllContacts, Mode=TwoWay}" SelectedItem="{Binding PrimaryContact}" Grid.Column="1" Grid.Row="5" Height="25" Margin="2,2,2,0" VerticalAlignment="Top" Name="comboPrimaryContact" IsEnabled="{Binding SiteControlsEnabled}"></ComboBox>
-                <Button Name="btnNewPrimary" Grid.Column="2" Grid.Row="5" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="New Contact" Visibility="{Binding DoneCancelVisible}">
+                <Button Name="btnNewPrimary" Grid.Column="2" Grid.Row="5" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="New Contact" Visibility="{Binding DoneCancelVisible}" >
                     <Image Source="/IndiaTango;component/Images/new_16.png" Width="16" Height="16" />
                 </Button>
-                <Button Name="btnEditPrimary" Grid.Column="3" Grid.Row="5" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="Edit Contact" IsEnabled="{Binding CanEditPrimary}" Visibility="{Binding DoneCancelVisible}">
+                <Button Name="btnEditPrimary" Grid.Column="3" Grid.Row="5" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="Edit Contact" IsEnabled="{Binding HasSelectedPrimaryContact}" Visibility="{Binding DoneCancelVisible}">
                     <Image Source="/IndiaTango;component/Images/edit_16.png" Width="16" Height="16" />
                 </Button>
-                <Button Name="btnDelPrimary" Grid.Column="4" Grid.Row="5" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="Delete Contact" IsEnabled="{Binding CanEditPrimary}" Visibility="{Binding DoneCancelVisible}">
+                <Button Name="btnDelPrimary" Grid.Column="4" Grid.Row="5" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="Delete Contact" IsEnabled="{Binding HasSelectedPrimaryContact}" Visibility="{Binding DoneCancelVisible}">
                     <Image Source="/IndiaTango;component/Images/delete_16.png" Width="16" Height="16" />
                 </Button>
 
@@ -74,10 +74,10 @@
                 <Button Name="btnNewSecondary" Grid.Column="2" Grid.Row="6" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="New Contact" Visibility="{Binding DoneCancelVisible}">
                     <Image Source="/IndiaTango;component/Images/new_16.png" Width="16" Height="16" />
                 </Button>
-                <Button Name="btnEditSecondary" Grid.Column="3" Grid.Row="6" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="Edit Contact" IsEnabled="{Binding CanEditSecondary}" Visibility="{Binding DoneCancelVisible}">
+                <Button Name="btnEditSecondary" Grid.Column="3" Grid.Row="6" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="Edit Contact" IsEnabled="{Binding HasSelectedSecondaryContact}" Visibility="{Binding DoneCancelVisible}">
                     <Image Source="/IndiaTango;component/Images/edit_16.png" Width="16" Height="16" />
                 </Button>
-                <Button Name="btnDelSecondary" Grid.Column="4" Grid.Row="6" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="Delete Contact" IsEnabled="{Binding CanEditSecondary}" Visibility="{Binding DoneCancelVisible}">
+                <Button Name="btnDelSecondary" Grid.Column="4" Grid.Row="6" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="Delete Contact" IsEnabled="{Binding HasSelectedSecondaryContact}" Visibility="{Binding DoneCancelVisible}">
                     <Image Source="/IndiaTango;component/Images/delete_16.png" Width="16" Height="16" />
                 </Button>
 
@@ -86,10 +86,10 @@
                 <Button Name="btnNewUni" Grid.Column="2" Grid.Row="7" Margin="3,3,3,0" Height="24" VerticalAlignment="Top" ToolTip="New Contact" Visibility="{Binding DoneCancelVisible}">
                     <Image Source="/IndiaTango;component/Images/new_16.png" Width="16" Height="16" />    
                 </Button>
-                <Button Name="btnEditUni" Grid.Column="3" Grid.Row="7" Margin="3,3,3,0" Height="24" VerticalAlignment="Top" ToolTip="Edit Contact" IsEnabled="{Binding CanEditUni}" Visibility="{Binding DoneCancelVisible}">
+                <Button Name="btnEditUni" Grid.Column="3" Grid.Row="7" Margin="3,3,3,0" Height="24" VerticalAlignment="Top" ToolTip="Edit Contact" IsEnabled="{Binding HasSelectedUniContact}" Visibility="{Binding DoneCancelVisible}">
                     <Image Source="/IndiaTango;component/Images/edit_16.png" Width="16" Height="16" />
                 </Button>
-                <Button Name="btnDelUni" Grid.Column="4" Grid.Row="7" Margin="3,3,3,0" Height="24" VerticalAlignment="Top" ToolTip="Delete Contact" IsEnabled="{Binding CanEditUni}" Visibility="{Binding DoneCancelVisible}">
+                <Button Name="btnDelUni" Grid.Column="4" Grid.Row="7" Margin="3,3,3,0" Height="24" VerticalAlignment="Top" ToolTip="Delete Contact" IsEnabled="{Binding HasSelectedUniContact}" Visibility="{Binding DoneCancelVisible}">
                     <Image Source="/IndiaTango;component/Images/delete_16.png" Width="16" Height="16" />
                 </Button>
 
@@ -233,6 +233,17 @@
 
         <Label Name="lblStatus" Content="{Binding StatusLabelText}" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" />
 
-        <ProgressBar Name="progBar" Width="100"  HorizontalAlignment="Right" Grid.Row="2" Grid.Column="1" Margin="5" Height="18" Value="{Binding ProgressBarPercent}" Visibility="{Binding ProgressBarVisible}" Foreground="OrangeRed" />
+        <Grid Grid.Row="2" Grid.Column="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <ProgressBar Name="progBar" Width="100"  HorizontalAlignment="Right" Grid.Row="0" Grid.Column="1" Margin="5" Height="18" Value="{Binding ProgressBarPercent}" Visibility="{Binding ProgressBarVisible}" Foreground="OrangeRed" />
+
+            <Button Name="btnCancel" HorizontalAlignment="Right" Grid.Row="0" Grid.Column="2" Margin="5" Content="Cancel" Visibility="{Binding ShowImportCancel}" />
+        </Grid>
+        
     </Grid>
 </Window>

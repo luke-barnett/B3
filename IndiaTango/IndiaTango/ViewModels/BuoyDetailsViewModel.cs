@@ -188,7 +188,7 @@ namespace IndiaTango.ViewModels
             }
             catch (Exception e)
             {
-                MessageBox.Show(e.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Common.ShowMessageBox("Error", e.Message, false, true);
             }
         }
 
@@ -206,7 +206,7 @@ namespace IndiaTango.ViewModels
             }
             catch (Exception e)
             {
-                MessageBox.Show(e.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Common.ShowMessageBox("Error", e.Message, false, true);
             }
         }
 
@@ -285,7 +285,7 @@ namespace IndiaTango.ViewModels
 
         public void btnDelPrimary()
         {
-            if (MessageBox.Show("Are you sure you want to delete this contact?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            if (Common.Confirm("Confirm Delete", "Are you sure you want to delete this contact?"))
             {
                 if (PrimaryContact != null)
                 {
@@ -298,15 +298,14 @@ namespace IndiaTango.ViewModels
 
                     Contact.ExportAll(AllContacts);
 
-                    MessageBox.Show("Contact successfully removed.", "Success", MessageBoxButtons.OK,
-                                    MessageBoxIcon.Information);
+                    Common.ShowMessageBox("Success", "Contact successfully removed.", false, false);
                 }
             }
         }
 
         public void btnDelete()
         {
-            if(MessageBox.Show("Are you sure you want to delete this site?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            if(Common.Confirm("Confirm Delete", "Are you sure you want to delete this site?"))
             {
                 if (SelectedSite != null)
                 {
@@ -318,8 +317,7 @@ namespace IndiaTango.ViewModels
 
                     Site.ExportAll(AllBuoys);
 
-                    MessageBox.Show("Site successfully removed.", "Success", MessageBoxButtons.OK,
-                                    MessageBoxIcon.Information);
+                    Common.ShowMessageBox("Success", "Site successfully removed.", false, false);
                 }
             }
         }

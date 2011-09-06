@@ -121,5 +121,11 @@ namespace IndiaTango.Models
 		}
 
         public static Random Generator = new Random();
+
+        public static bool Confirm(string title, string message)
+        {
+            return System.Windows.Forms.MessageBox.Show(message, title, MessageBoxButtons.YesNo,
+                                                        MessageBoxIcon.Warning) == DialogResult.Yes;
+        }
     }
 }

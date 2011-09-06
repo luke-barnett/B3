@@ -22,7 +22,11 @@ namespace IndiaTango.ViewModels
         private BackgroundWorker _bw;
 
 		private static double _progressBarPercent = 0;
-		private string _statusLabelText = "To Start, click Import Data, then fill out the properties to the right.";
+
+        private const string STATUS_TEXT_AWAITING_INPUT =
+            "To Start, click Import Data, then fill out the properties to the right.";
+
+        private string _statusLabelText = STATUS_TEXT_AWAITING_INPUT;
 		private Visibility _progressBarVisible = Visibility.Hidden;
 		private bool _actionButtonsEnabled = false;
 		private bool _siteControlsEnabled = false;
@@ -32,7 +36,7 @@ namespace IndiaTango.ViewModels
 		private Contact _primaryContact;
 		private Contact _secondaryContact;
 		private Contact _universityContact;
-		private ObservableCollection<Site> _allBuoys = new ObservableCollection<Site>();
+		private ObservableCollection<Site> _allSites = new ObservableCollection<Site>();
 		private ObservableCollection<Contact> _allContacts = new ObservableCollection<Contact>();
 
 		#endregion
@@ -42,7 +46,7 @@ namespace IndiaTango.ViewModels
             _windowManager = windowManager;
             _container = container;
             _ds = new Dataset(null);
-			_allBuoys = Site.ImportAll();
+			_allSites = Site.ImportAll();
 			_allContacts = Contact.ImportAll();
 
 			//Hack used to force the damn buttons to update
@@ -166,14 +170,34 @@ namespace IndiaTango.ViewModels
 		}
 
         private bool _importEnabled = true;
-        public bool ImportEnabled { get { return _importEnabled; } set { _importEnabled = value; NotifyOfPropertyChange(() => ImportEnabled); } }
+        public bool ImportEnabled { get { return _importEnabled; } set { _importEnabled = value; NotifyOfPropertyChange(() => ImportEnabled); NotifyOfPropertyChange(() => ShowImportCancel); } }
+
+        public bool HasSelectedPrimaryContact
+        {
+            get { return PrimaryContact != null; }
+        }
+
+        public bool HasSelectedSecondaryContact
+        {
+            get { return SecondaryContact != null; }
+        }
+
+        public bool HasSelectedUniContact
+        {
+            get { return UniversityContact != null; }
+        }
+
+        public Visibility ShowImportCancel
+        {
+            get { return (ImportEnabled) ? Visibility.Collapsed : Visibility.Visible; }
+        }
 		#endregion
 
 		#region Site Properties
-		public ObservableCollection<Site> AllBuoys
+		public ObservableCollection<Site> AllSites
 		{
-			get { return _allBuoys; }
-			set { _allBuoys = value; NotifyOfPropertyChange(() => AllBuoys); }
+			get { return _allSites; }
+            set { _allSites = value; NotifyOfPropertyChange(() => AllSites); }
 		}
 
 		public ObservableCollection<Contact> AllContacts
@@ -197,6 +221,7 @@ namespace IndiaTango.ViewModels
 			{
 				_primaryContact = value;
 				NotifyOfPropertyChange(() => PrimaryContact);
+                NotifyOfPropertyChange(() => HasSelectedPrimaryContact);
 			}
 		}
 
@@ -207,6 +232,7 @@ namespace IndiaTango.ViewModels
 			{
 				_secondaryContact = value;
 				NotifyOfPropertyChange(() => SecondaryContact);
+                NotifyOfPropertyChange(() => HasSelectedSecondaryContact);
 			}
 		}
 
@@ -217,6 +243,7 @@ namespace IndiaTango.ViewModels
 			{
 				_universityContact = value;
 				NotifyOfPropertyChange(() => UniversityContact);
+                NotifyOfPropertyChange(() => HasSelectedUniContact);
 			}
 		}
 
@@ -283,21 +310,24 @@ namespace IndiaTango.ViewModels
 						ProgressBarPercent = e.Progress;
 					};
 
-					SensorList = reader.ReadSensors(_bw);
+				    var readSensors = reader.ReadSensors(_bw);  // Prevent null references
 
-					if (SensorList == null)
+					if (readSensors == null)
 					{
 						eventArgs.Cancel = true;
 						ProgressBarPercent = 0;
+					    StatusLabelText = STATUS_TEXT_AWAITING_INPUT;
+					    ImportEnabled = true;
+					    ActionButtonsEnabled = false;
 					}
 					else
 					{
                         ActionButtonsEnabled = true;
                         StatusLabelText = "";
-                            
+					    SensorList = readSensors;
+                        ImportEnabled = false;
 					}
 
-                    ImportEnabled = true;
                     ProgressBarVisible = Visibility.Hidden;
 				};
 
@@ -371,18 +401,17 @@ namespace IndiaTango.ViewModels
 		{
 			if (SelectedSite != null)
 			{
-				if(MessageBox.Show("Are you sure you want to delete this site?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                if (Common.Confirm("Confirm Delete", "Are you sure you want to delete this site?"))
 				{
-                    var allBuoys = AllBuoys;
-                    allBuoys.Remove(SelectedSite);
+                    var allSites = AllSites;
+                    allSites.Remove(SelectedSite);
 
-                    AllBuoys = allBuoys;
+                    AllSites = allSites;
                     SelectedSite = null;
 
-                    Site.ExportAll(AllBuoys);
+                    Site.ExportAll(AllSites);
 
-                    MessageBox.Show("Site successfully removed.", "Success", MessageBoxButtons.OK,
-                                    MessageBoxIcon.Information);
+				    Common.ShowMessageBox("Site Management", "Site successfully removed.", false, false);
                 }
             }
 		}
@@ -413,12 +442,12 @@ namespace IndiaTango.ViewModels
 				else
 				{
 					Site b = new Site(Site.NextID, SiteName, Owner, PrimaryContact, SecondaryContact, UniversityContact, new GPSCoords(Latitude, Longitude));
-					_allBuoys.Add(b);
-					Site.ExportAll(_allBuoys);
+					_allSites.Add(b);
+					Site.ExportAll(_allSites);
 					SelectedSite = b;
 				}
 
-				Site.ExportAll(_allBuoys);
+				Site.ExportAll(_allSites);
 
 				CreateEditDeleteVisible = Visibility.Visible;
 				DoneCancelVisible = Visibility.Collapsed;
@@ -531,7 +560,7 @@ namespace IndiaTango.ViewModels
 
         private void DeleteContact(Contact c)
         {
-            if (MessageBox.Show("Are you sure you want to delete this contact?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            if (Common.Confirm("Confirm Delete", "Are you sure you want to delete this contact?"))
             {
                 if (c != null)
                 {
@@ -543,8 +572,7 @@ namespace IndiaTango.ViewModels
 
                     Contact.ExportAll(AllContacts);
 
-                    MessageBox.Show("Contact successfully removed.", "Success", MessageBoxButtons.OK,
-                                    MessageBoxIcon.Information);
+                    Common.ShowMessageBox("Success", "Contact successfully removed.", false, false);
                 }
             }
         }
