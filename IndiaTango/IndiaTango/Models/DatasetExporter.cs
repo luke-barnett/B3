@@ -85,44 +85,44 @@ namespace IndiaTango.Models
 				}
 
                 //add site meta data
-                if (addMetaData && Data.Buoy != null)
+                if (addMetaData && Data.Site != null)
                 {
                     using (StreamWriter writer = File.CreateText(metaDataPath))
                     {
                         writer.WriteLine("Site details for file: " + Path.GetFileName(filePath));
-                        writer.WriteLine("ID: " + Data.Buoy.Id);
-                        writer.WriteLine("Name: " + Data.Buoy.Site);
-                        writer.WriteLine("Owner: " + Data.Buoy.Owner);
+                        writer.WriteLine("ID: " + Data.Site.Id);
+                        writer.WriteLine("Name: " + Data.Site.Name);
+                        writer.WriteLine("Owner: " + Data.Site.Owner);
 
                         //TODO: clean up
-                        if(Data.Buoy.PrimaryContact != null)
+                        if(Data.Site.PrimaryContact != null)
                         {
                             writer.WriteLine("Primary Contact:");
-                            writer.WriteLine("\tName: " + Data.Buoy.PrimaryContact.FirstName + " " +
-                                             Data.Buoy.PrimaryContact.LastName);
-                            writer.WriteLine("\tBusiness: " + Data.Buoy.PrimaryContact.Business);
-                            writer.WriteLine("\tPhone: " + Data.Buoy.PrimaryContact.Phone);
-                            writer.WriteLine("\tEmail: " + Data.Buoy.PrimaryContact.Email);
+                            writer.WriteLine("\tName: " + Data.Site.PrimaryContact.FirstName + " " +
+                                             Data.Site.PrimaryContact.LastName);
+                            writer.WriteLine("\tBusiness: " + Data.Site.PrimaryContact.Business);
+                            writer.WriteLine("\tPhone: " + Data.Site.PrimaryContact.Phone);
+                            writer.WriteLine("\tEmail: " + Data.Site.PrimaryContact.Email);
                         }
 
-                        if(Data.Buoy.SecondaryContact != null)
+                        if(Data.Site.SecondaryContact != null)
                         {
                             writer.WriteLine("Secondary Contact:");
-                            writer.WriteLine("\tName: " + Data.Buoy.SecondaryContact.FirstName + " " +
-                                             Data.Buoy.PrimaryContact.LastName);
-                            writer.WriteLine("\tBusiness: " + Data.Buoy.SecondaryContact.Business);
-                            writer.WriteLine("\tPhone: " + Data.Buoy.SecondaryContact.Phone);
-                            writer.WriteLine("\tEmail: " + Data.Buoy.SecondaryContact.Email);
+                            writer.WriteLine("\tName: " + Data.Site.SecondaryContact.FirstName + " " +
+                                             Data.Site.PrimaryContact.LastName);
+                            writer.WriteLine("\tBusiness: " + Data.Site.SecondaryContact.Business);
+                            writer.WriteLine("\tPhone: " + Data.Site.SecondaryContact.Phone);
+                            writer.WriteLine("\tEmail: " + Data.Site.SecondaryContact.Email);
                         }
 
-                        if(Data.Buoy.UniversityContact != null)
+                        if(Data.Site.UniversityContact != null)
                         {
                             writer.WriteLine("University Contact:");
-                            writer.WriteLine("\tName: " + Data.Buoy.UniversityContact.FirstName + " " +
-                                             Data.Buoy.PrimaryContact.LastName);
-                            writer.WriteLine("\tBusiness: " + Data.Buoy.UniversityContact.Business);
-                            writer.WriteLine("\tPhone: " + Data.Buoy.UniversityContact.Phone);
-                            writer.WriteLine("\tEmail: " + Data.Buoy.UniversityContact.Email);
+                            writer.WriteLine("\tName: " + Data.Site.UniversityContact.FirstName + " " +
+                                             Data.Site.PrimaryContact.LastName);
+                            writer.WriteLine("\tBusiness: " + Data.Site.UniversityContact.Business);
+                            writer.WriteLine("\tPhone: " + Data.Site.UniversityContact.Phone);
+                            writer.WriteLine("\tEmail: " + Data.Site.UniversityContact.Email);
                         }
 
                         Debug.WriteLine(metaDataPath);

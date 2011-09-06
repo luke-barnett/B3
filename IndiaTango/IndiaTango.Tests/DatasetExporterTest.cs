@@ -19,7 +19,7 @@ namespace IndiaTango.Tests
 		//Secondary contact cannot be null? Argh...
 		//Also need a setter on the Dataset class for the sensor list
     	private static readonly Contact Contact = new Contact("K", "A", "k@a.com", "", "0");
-		private readonly Dataset _data = new Dataset(new Buoy(1, "Your Mother", "Kerry", Contact, Contact, Contact, new GPSCoords(0,0)));
+		private readonly Dataset _data = new Dataset(new Site(1, "Your Mother", "Kerry", Contact, Contact, Contact, new GPSCoords(0,0)));
 
 		#region Tests
 
@@ -57,21 +57,30 @@ namespace IndiaTango.Tests
         public void ExportAsCSVCorrectValueCount()
         {
             var dateTime = new DateTime(2011, 8, 4, 0, 0, 0);
-            var givenDataSet = new Dataset(new Buoy(1, "Steven", "Kerry", Contact, Contact, Contact, new GPSCoords(0, 0)));
+            var givenDataSet = new Dataset(new Site(1, "Steven", "Kerry", Contact, Contact, Contact, new GPSCoords(0, 0)));
+            var sampleData = new List<DataValue>(new DataValue[] { new DataValue(dateTime.AddMinutes(15), 100), new DataValue(dateTime.AddMinutes(30), 100), new DataValue(dateTime.AddMinutes(45), 100), new DataValue(dateTime.AddMinutes(60), 100) });
+            var s = new Sensor("Awesome Sensor", "Awesome");
+            var ss = new SensorState(DateTime.Now, sampleData);
+            s.AddState(ss);
+            givenDataSet.AddSensor(s);
 
-            // 24 * 4 = # of 15 min slots in a day
-            Assert.AreEqual(givenDataSet.DataPointCount, (24 * 4) * 2 + 1);
+            Assert.AreEqual(4, givenDataSet.DataPointCount);
 
             dateTime = new DateTime(2011, 8, 4, 0, 0, 0);
-            givenDataSet = new Dataset(new Buoy(1, "Steven", "Kerry", Contact, Contact, Contact, new GPSCoords(0, 0)));
+            givenDataSet = new Dataset(new Site(1, "Steven", "Kerry", Contact, Contact, Contact, new GPSCoords(0, 0)));
 
-            // 24 * 4 = # of 15 min slots in a day
-            Assert.AreEqual(givenDataSet.DataPointCount, (24 * 4) + 1);
+            sampleData = new List<DataValue>(new DataValue[] { new DataValue(dateTime.AddMinutes(60), 100), new DataValue(dateTime.AddMinutes(75), 100), new DataValue(dateTime.AddMinutes(90), 100), new DataValue(dateTime.AddMinutes(105), 100) });
+            s = new Sensor("Awesome Sensor", "Awesome");
+            ss = new SensorState(DateTime.Now, sampleData);
+            s.AddState(ss);
+            givenDataSet.AddSensor(s);
+
+            Assert.AreEqual(4, givenDataSet.DataPointCount);
         }
 
 		[Test]
 		[ExpectedException(typeof(ArgumentNullException))]
-		public void NullArguementConstructorTest()
+		public void NullArgumentConstructorTest()
 		{
 			_exporter = new DatasetExporter(null);
 		}

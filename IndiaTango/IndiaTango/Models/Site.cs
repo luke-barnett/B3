@@ -8,37 +8,38 @@ using System.Runtime.Serialization;
 namespace IndiaTango.Models
 {
     [DataContract]
-    public class Buoy
+    public class Site
     {
         private int _iD;
-        private string _site;
+        private string _name;
         private string _owner;
         private Contact _primaryContact;
         private Contact _secondaryContact;
+        private Contact _universityContact;
         private GPSCoords _gpsLocation;
 
         public static string ExportPath
         {
-            get { return Common.AppDataPath + "\\ExportedBuoys.xml"; }
+            get { return Common.AppDataPath + "\\ExportedSites.xml"; }
         }
 
-        private Buoy() {} // Necessary for serialisation.
+        private Site() {} // Necessary for serialisation.
 
         /// <summary>
-        /// Creates a new buoy.
+        /// Creates a new Site.
         /// </summary>
-        /// <param name="iD">The unique ID field of the buoy</param>
-        /// <param name="site">The name of the site of the buoy</param>
-        /// <param name="owner">The name of the owner of the buoy</param>
+        /// <param name="iD">The unique ID field of the Site</param>
+        /// <param name="name">The name of this site</param>
+        /// <param name="owner">The name of the owner of the Site</param>
         /// <param name="primaryContact">The details of the primary contact</param>
         /// <param name="secondaryContact">The details of the secondary contact</param>
         /// <param name="universityContact">The details of the optional university contact</param>
-        /// <param name="gpsLocation">The GPS coordinates of the buoy</param>
-        public Buoy(int iD, string site, string owner, Contact primaryContact, Contact secondaryContact, Contact universityContact, GPSCoords gpsLocation)
+        /// <param name="gpsLocation">The GPS coordinates of the Site</param>
+        public Site(int iD, string name, string owner, Contact primaryContact, Contact secondaryContact, Contact universityContact, GPSCoords gpsLocation)
         {
             if(iD<0)
                 throw new ArgumentException("ID number must a non-negative integer");
-            if(String.IsNullOrEmpty(site))
+            if(String.IsNullOrEmpty(name))
                 throw new ArgumentException("Site must not be empty");
             if(String.IsNullOrEmpty(owner))
                 throw new ArgumentException("Owner must not be empty");
@@ -46,19 +47,20 @@ namespace IndiaTango.Models
                 throw new ArgumentException("Primary contact must not be null");
             if(gpsLocation == null)
                 throw new ArgumentException("GPS Location must be supplied");
+
             _iD = iD;
-            _site = site;
+            _name = name;
             _owner = owner;
             _primaryContact = primaryContact;
             _secondaryContact = secondaryContact;
-            UniversityContact = universityContact;
+            _universityContact = universityContact;
             _gpsLocation = gpsLocation;
             Events = new List<Event>();
         }
 
         #region Public variables
         /// <summary>
-        /// Sets and gets the ID of the buoy
+        /// Sets and gets the ID of the Site
         /// </summary>
         [DataMember(Name="ID")]
         public int Id
@@ -73,22 +75,22 @@ namespace IndiaTango.Models
         }
 
         /// <summary>
-        /// Sets and gets the site name of the buoy
+        /// Sets and gets the site name of the Site
         /// </summary>
-        [DataMember(Name="Site")]
-        public string Site
+        [DataMember(Name="Name")]
+        public string Name
         {
-            get { return _site; }
+            get { return _name; }
             set
             {
                 if (String.IsNullOrEmpty(value))
                     throw new FormatException("Site must not be empty");
-                _site = value;
+                _name = value;
             }
         }
 
         /// <summary>
-        /// Sets and gets the owner of the buoy
+        /// Sets and gets the owner of the Site
         /// </summary>
         [DataMember(Name="Owner")]
         public string Owner
@@ -102,10 +104,66 @@ namespace IndiaTango.Models
             }
         }
 
+        [DataMember]
+        public int PrimaryContactID
+        {
+            get
+            {
+                if (_primaryContact != null)
+                    return _primaryContact.ID;
+
+                return 0;
+            }
+            private set
+            {
+                if(_primaryContact == null)
+                    _primaryContact = new Contact("", "", "user@domain.com", "", "", 0); // This is only used for serialisation generally, so should be suitable
+
+                _primaryContact.ID = value;
+            }
+        }
+
+        [DataMember]
+        public int SecondaryContactID
+        {
+            get
+            {
+                if (_secondaryContact != null)
+                    return _secondaryContact.ID;
+
+                return 0;
+            }
+            private set
+            {
+                if (_secondaryContact == null)
+                    _secondaryContact = new Contact("", "", "user@domain.com", "", "", 0); // This is only used for serialisation generally, so should be suitable
+
+                _secondaryContact.ID = value;
+            }
+        }
+
+        [DataMember]
+        public int UniversityContactID
+        {
+            get
+            {
+                if (_universityContact != null)
+                    return _universityContact.ID;
+
+                return 0;
+            }
+            private set
+            {
+                if (_universityContact == null)
+                    _universityContact = new Contact("", "", "user@domain.com", "", "", 0); // This is only used for serialisation generally, so should be suitable
+
+                _universityContact.ID = value;
+            }
+        }
+
         /// <summary>
-        /// Sets and gets the details of the primary contact for this buoy
+        /// Sets and gets the details of the primary contact for this Site
         /// </summary>
-        [DataMember(Name="PrimaryContact")]
         public Contact PrimaryContact
         {
             get { return _primaryContact; }
@@ -118,9 +176,8 @@ namespace IndiaTango.Models
         }
 
         /// <summary>
-        /// Sets and gets the details of the secondary contact for this buoy
+        /// Sets and gets the details of the secondary contact for this Site
         /// </summary>
-        [DataMember(Name="SecondaryContact")]
         public Contact SecondaryContact
         {
             get { return _secondaryContact; }
@@ -128,19 +185,22 @@ namespace IndiaTango.Models
         }
 
         /// <summary>
-        /// Sets and gets the details of the university contact for this buoy
+        /// Sets and gets the details of the university contact for this Site
         /// </summary>
-        [DataMember(Name="UniversityContact")]
-        public Contact UniversityContact { get; set; }
+        public Contact UniversityContact
+        {
+            get { return _universityContact; }
+            set { _universityContact = value; }
+        }
         
         /// <summary>
-        /// Gets the list of events for this buoy
+        /// Gets the list of events for this Site
         /// </summary>
         [DataMember(Name="Events")]
         public List<Event> Events { get; private set; }
 
         /// <summary>
-        /// Sets and gets the GPS location of this buoy
+        /// Sets and gets the GPS location of this Site
         /// </summary>
         [DataMember(Name="GPSLocation")]
         public GPSCoords GpsLocation
@@ -157,7 +217,7 @@ namespace IndiaTango.Models
 
         #region Public methods
         /// <summary>
-        /// Adds an event to the list of events for this buoy
+        /// Adds an event to the list of events for this Site
         /// </summary>
         /// <param name="event">The event to add to the list events</param>
         public void AddEvent(Event @event)
@@ -182,60 +242,75 @@ namespace IndiaTango.Models
             }
         }
 
-        public static void ExportAll(ObservableCollection<Buoy> buoys)
+        public static void ExportAll(ObservableCollection<Site> buoys)
         {
-            NetDataContractSerializer dcs = new NetDataContractSerializer();
+            var dcs = new DataContractSerializer(typeof(ObservableCollection<Site>));
             var stream = new FileStream(ExportPath, FileMode.Create);
-            dcs.Serialize(stream, buoys);
+            dcs.WriteObject(stream, buoys);
             stream.Close();
         }
 
-        public static ObservableCollection<Buoy> ImportAll()
+        public static ObservableCollection<Site> ImportAll()
         {
-            NetDataContractSerializer dcs = new NetDataContractSerializer();
+            var dcs = new DataContractSerializer(typeof(ObservableCollection<Site>));
 
             if (!File.Exists(ExportPath))
-                return new ObservableCollection<Buoy>();
+                return new ObservableCollection<Site>();
 
             var stream = new FileStream(ExportPath, FileMode.Open);
-            var list = (ObservableCollection<Buoy>)dcs.Deserialize(stream);
+            var list = (ObservableCollection<Site>)dcs.ReadObject(stream);
             stream.Close();
+
+            var contacts = Contact.ImportAll();
+
+            // Get the contact object associated with the operation
+            foreach(Site s in list)
+                foreach(Contact c in contacts)
+                {
+                    if (s.PrimaryContactID == c.ID)
+                        s.PrimaryContact = c;
+                    if (s.SecondaryContactID == c.ID)
+                        s.SecondaryContact = c;
+                    if (s.UniversityContactID == c.ID)
+                        s.UniversityContact = c;
+                }
+
             return list;
         }
 
         public override bool Equals(object obj)
         {
-            if (!(obj is Buoy))
+            if (!(obj is Site))
                 return false;
 
-            var buoy = obj as Buoy;
+            var site = obj as Site;
             bool ctwo, cthree;
 
-            if (buoy.Events.Count != Events.Count)
+            if (site.Events.Count != Events.Count)
                 return false; // Must have compatible length lists
 
-            for (int i = 0; i < buoy.Events.Count; i++)
-                if (!buoy.Events[i].Equals(Events[i]))
+            for (int i = 0; i < site.Events.Count; i++)
+                if (!site.Events[i].Equals(Events[i]))
                     return false;
             
-            if(buoy.SecondaryContact != null)
-                ctwo = buoy.SecondaryContact.Equals(SecondaryContact);
+            if(site.SecondaryContact != null)
+                ctwo = site.SecondaryContact.Equals(SecondaryContact);
             else
                 ctwo = SecondaryContact == null;
 
-            if (buoy.UniversityContact != null)
-                cthree = buoy.UniversityContact.Equals(UniversityContact);
+            if (site.UniversityContact != null)
+                cthree = site.UniversityContact.Equals(UniversityContact);
             else
                 cthree = UniversityContact == null;
 
-            return (buoy.GpsLocation.Equals(GpsLocation) && buoy.Id == Id &&
-                    buoy.Owner == Owner && buoy.PrimaryContact.Equals(PrimaryContact) &&
-                    ctwo && buoy.Site == Site && cthree);
+            return (site.GpsLocation.Equals(GpsLocation) && site.Id == Id &&
+                    site.Owner == Owner && site.PrimaryContact.Equals(PrimaryContact) &&
+                    ctwo && site.Name == Name && cthree);
         }
 
         public override string ToString()
         {
-            return Site + " (" + GpsLocation.DecimalDegreesLatitude + ", " +
+            return Name + " (" + GpsLocation.DecimalDegreesLatitude + ", " +
                    GpsLocation.DecimalDegreesLongitude + ")" + ", owned by " + Owner;
         }
     }

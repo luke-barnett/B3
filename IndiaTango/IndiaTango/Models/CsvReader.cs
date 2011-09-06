@@ -107,7 +107,7 @@ namespace IndiaTango.Models
             return sensors.ToList();
         }
 
-        public Buoy ReadBuoy()
+        public Site ReadBuoy()
         {
             throw new NotImplementedException();
         }

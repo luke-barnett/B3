@@ -129,7 +129,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bootstrapper.cs" />
-    <Compile Include="Models\Buoy.cs" />
+    <Compile Include="Models\Site.cs" />
     <Compile Include="Models\Contact.cs" />
     <Compile Include="Models\Dataset.cs" />
     <Compile Include="Models\DataStringReader.cs" />

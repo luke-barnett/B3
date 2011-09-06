@@ -12,7 +12,7 @@ namespace IndiaTango.Tests
         [SetUp]
         public void SetUp()
         {
-            reader = new DataStringReader("Buoy:NewBuoy,Sensors:Temperature[0.4;0.8;1.5]&OtherValues[0.0;0.0;1.2]");
+            reader = new DataStringReader("Site:NewBuoy,Sensors:Temperature[0.4;0.8;1.5]&OtherValues[0.0;0.0;1.2]");
         }
 
         #region Constructor Tests
@@ -21,14 +21,14 @@ namespace IndiaTango.Tests
         [ExpectedException(typeof(FormatException))]
         public void ConstructorWithoutACommaToSeperate()
         {
-            reader = new DataStringReader("Buoy:NewBuoySensors:Temperature[0.4;0.8;1.5]&OtherValues[0.0;0.0;1.2]");
+            reader = new DataStringReader("Site:NewBuoySensors:Temperature[0.4;0.8;1.5]&OtherValues[0.0;0.0;1.2]");
         }
 
         [Test]
         [ExpectedException(typeof(FormatException))]
         public void ConstructorTooManySections()
         {
-            reader = new DataStringReader("Buoy:NewBuoy,Sensors:Temperature[0.4;0.8;1.5]&OtherValues[0.0;0.0;1.2],Sensors:Temperature[0.4;0.8;1.5]&OtherValues[0.0;0.0;1.2]");
+            reader = new DataStringReader("Site:NewBuoy,Sensors:Temperature[0.4;0.8;1.5]&OtherValues[0.0;0.0;1.2],Sensors:Temperature[0.4;0.8;1.5]&OtherValues[0.0;0.0;1.2]");
         }
 
         [Test]
@@ -42,7 +42,7 @@ namespace IndiaTango.Tests
         [ExpectedException(typeof(FormatException))]
         public void ConstructorCantDetermineTypeTooManyParts()
         {
-            reader = new DataStringReader("Buoy:NewBuoy:MoreInformation,Sensors:Temperature[0.4;0.8;1.5]&OtherValues[0.0;0.0;1.2]");
+            reader = new DataStringReader("Site:NewBuoy:MoreInformation,Sensors:Temperature[0.4;0.8;1.5]&OtherValues[0.0;0.0;1.2]");
         }
 
         [Test]
@@ -56,7 +56,7 @@ namespace IndiaTango.Tests
         [ExpectedException(typeof(FormatException))]
         public void ConstructorDuplicateBuoys()
         {
-            reader = new DataStringReader("Buoy:NewBuoy,Buoy:NewBuoy");
+            reader = new DataStringReader("Site:NewBuoy,Site:NewBuoy");
         }
 
         [Test]

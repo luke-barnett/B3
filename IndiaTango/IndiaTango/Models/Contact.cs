@@ -23,10 +23,21 @@ namespace IndiaTango.Models
         private Contact() {} // Necessary for serialisation.
         private int _id = 0;
         
+        [DataMember]
         public int ID
         {
             get { return _id; }
+            set
+            {
+                if (value >= _nextID)
+                    _nextID = value + 1;
+
+                _id = value;
+            }
         }
+
+        public Contact(string firstName, string lastName, string email, string business, string phone)
+            : this(firstName, lastName, email, business, phone, -1) {}
 
         /// <summary>
         /// Creates a new contact
@@ -36,7 +47,8 @@ namespace IndiaTango.Models
         /// <param name="email">The email address of the contact</param>
         /// <param name="business">The Business the contact belongs to</param>
         /// <param name="phone">The contact phone number of the contact</param>
-        public Contact(string firstName, string lastName, string email, string business, string phone)
+        /// <param name="id">Optional identifier for this contact. Specify as -1 to have an auto-incrementing value assigned during construction.</param>
+        public Contact(string firstName, string lastName, string email, string business, string phone, int id)
         {
             if (firstName == null) throw new ArgumentNullException("firstName");
             if (lastName == null) throw new ArgumentNullException("lastName");
@@ -46,6 +58,8 @@ namespace IndiaTango.Models
                 Email = email;
             Business = business;
             Phone = phone;
+            // Give it a fresh ID
+            ID = (id > -1) ? id : NextID;
         }
 
         #region public variables
@@ -132,22 +146,24 @@ namespace IndiaTango.Models
 
 		public static void ExportAll(ObservableCollection<Contact> contacts)
     	{
-			NetDataContractSerializer serializer = new NetDataContractSerializer();
+			var serializer = new DataContractSerializer(typeof(ObservableCollection<Contact>));
 			var stream = new FileStream(ExportPath, FileMode.Create);
-			serializer.Serialize(stream, contacts);
+			serializer.WriteObject(stream, contacts);
 			stream.Close();
     	}
 
 		public static ObservableCollection<Contact> ImportAll()
 		{
-			NetDataContractSerializer serializer = new NetDataContractSerializer();
+			var serializer = new DataContractSerializer(typeof(ObservableCollection<Contact>));
 
 			if (!File.Exists(ExportPath))
 				return new ObservableCollection<Contact>();
 
 			var stream = new FileStream(ExportPath, FileMode.Open);
-			var list = (ObservableCollection<Contact>)serializer.Deserialize(stream);
+			var list = (ObservableCollection<Contact>)serializer.ReadObject(stream);
 			stream.Close();
+
+            // TODO: Next ID for when imported!
 
 			return list;
 		}

@@ -12,7 +12,7 @@ namespace IndiaTango.Tests
     class DatasetTest
     {
         private Dataset _ds1, _ds2;
-        private Buoy _b;
+        private Site _b;
         private DateTime _startTime1, _startTime2, _endTime1,_endTime2 ;
         private List<Sensor> _sensors;
 
@@ -25,17 +25,17 @@ namespace IndiaTango.Tests
             _endTime1 = new DateTime(84, 2, 8, 2, 4, 20);
             _startTime2 = new DateTime(2009,1,9,14,45,0);
             _endTime2 = new DateTime(2009, 1, 14, 19, 15, 0);
-            _b = new Buoy(1, "dsf", "asdf", new Contact("asdf", "asdf", "adsf@sdfg.com", "uerh", "sadf"), new Contact("asdf", "asdf", "adsf@sdfg.com", "uerh", "sadf"), null, new GPSCoords(32, 5));
+            _b = new Site(1, "dsf", "asdf", new Contact("asdf", "asdf", "adsf@sdfg.com", "uerh", "sadf"), new Contact("asdf", "asdf", "adsf@sdfg.com", "uerh", "sadf"), null, new GPSCoords(32, 5));
             _ds1 = new Dataset(_b);
             _ds2 = new Dataset(_b,_sensors);
         }
         [Test]
         public void BuoyGetSetTest()
         {
-            Assert.AreEqual(_b, _ds1.Buoy);
-            _b = new Buoy(2, "dsf", "asdf", new Contact("asdf", "asdf", "adsf@sdfg.com", "uerh", "sadf"), new Contact("asdf", "asdf", "adsf@sdfg.com", "uerh", "sadf"), null, new GPSCoords(32, 5));
-            _ds1.Buoy = _b;
-            Assert.AreEqual(_b, _ds1.Buoy);
+            Assert.AreEqual(_b, _ds1.Site);
+            _b = new Site(2, "dsf", "asdf", new Contact("asdf", "asdf", "adsf@sdfg.com", "uerh", "sadf"), new Contact("asdf", "asdf", "adsf@sdfg.com", "uerh", "sadf"), null, new GPSCoords(32, 5));
+            _ds1.Site = _b;
+            Assert.AreEqual(_b, _ds1.Site);
         }
 
         [Test]
@@ -49,7 +49,6 @@ namespace IndiaTango.Tests
         {
             Assert.AreEqual(_endTime2, _ds2.EndTimeStamp);
         }
-
 
         [Test]
         public void SensorListTest()

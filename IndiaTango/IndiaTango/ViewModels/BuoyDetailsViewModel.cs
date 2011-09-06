@@ -11,23 +11,23 @@ namespace IndiaTango.ViewModels
     {
         private readonly IWindowManager _windowManager;
         private readonly SimpleContainer _container;
-        private Buoy _buoy;
+        private Site _site;
     	private Contact _primaryContact;
         private Contact _secondaryContact;
         private Contact _universityContact;
-        private ObservableCollection<Buoy> _allBuoys = new ObservableCollection<Buoy>();
+        private ObservableCollection<Site> _allBuoys = new ObservableCollection<Site>();
 		private ObservableCollection<Contact> _allContacts = new ObservableCollection<Contact>();
 
         public BuoyDetailsViewModel(IWindowManager windowManager, SimpleContainer container)
         {
             _windowManager = windowManager;
             _container = container;
-            _allBuoys = Buoy.ImportAll(); // TODO: Make this a singleton across whole app?
+            _allBuoys = Site.ImportAll(); // TODO: Make this a singleton across whole app?
         	_allContacts = Contact.ImportAll();
 
 			//YUCK YUCK YUCK. We need to store all the contacts externally, 
 			//	and perhaps only store contact IDs when we serialize
-			foreach (Buoy b in _allBuoys)
+			foreach (Site b in _allBuoys)
 			{
 				foreach (Contact c in new[]{b.PrimaryContact,b.SecondaryContact,b.UniversityContact})
 				{
@@ -43,7 +43,7 @@ namespace IndiaTango.ViewModels
             get { return "Edit Site Details"; }
         }
 
-        public ObservableCollection<Buoy> AllBuoys
+        public ObservableCollection<Site> AllBuoys
         {
             get { return _allBuoys; }
             set { _allBuoys = value; NotifyOfPropertyChange(() => AllBuoys); }
@@ -96,22 +96,22 @@ namespace IndiaTango.ViewModels
             }
         }
 
-        public Buoy SelectedBuoy
+        public Site SelectedSite
         {
-            get { return _buoy; }
+            get { return _site; }
             set
             {
-                _buoy = value;
+                _site = value;
 
-                if (_buoy != null)
+                if (_site != null)
                 {
-                    SiteName = _buoy.Site; // This is all necessary because we create the buoy when we save, not now
-                    Owner = _buoy.Owner;
-                    Latitude = _buoy.GpsLocation.DecimalDegreesLatitude.ToString();
-                    Longitude = _buoy.GpsLocation.DecimalDegreesLongitude.ToString();
-                    PrimaryContact = _buoy.PrimaryContact;
-                    SecondaryContact = _buoy.SecondaryContact;
-                    UniversityContact = _buoy.UniversityContact;
+                    SiteName = _site.Name; // This is all necessary because we create the Site when we save, not now
+                    Owner = _site.Owner;
+                    Latitude = _site.GpsLocation.DecimalDegreesLatitude.ToString();
+                    Longitude = _site.GpsLocation.DecimalDegreesLongitude.ToString();
+                    PrimaryContact = _site.PrimaryContact;
+                    SecondaryContact = _site.SecondaryContact;
+                    UniversityContact = _site.UniversityContact;
                 }
                 else
                 {
@@ -124,7 +124,7 @@ namespace IndiaTango.ViewModels
                     UniversityContact = null;
                 }
 
-                NotifyOfPropertyChange(() => SelectedBuoy);
+                NotifyOfPropertyChange(() => SelectedSite);
                 NotifyOfPropertyChange(() => SiteName);
                 NotifyOfPropertyChange(() => Owner);
                 NotifyOfPropertyChange(() => Latitude);
@@ -153,7 +153,7 @@ namespace IndiaTango.ViewModels
 
 		public bool CanOverwrite
         {
-            get { return SelectedBuoy != null; }
+            get { return SelectedSite != null; }
         }
 
 		#endregion
@@ -166,24 +166,24 @@ namespace IndiaTango.ViewModels
 
         public void btnUpdate()
         {
-            // Buoy exists but has changed - update and re-export
+            // Site exists but has changed - update and re-export
             try
             {
                 decimal lat = 0;
                 decimal lng = 0;
 
                 if(decimal.TryParse(Latitude, out lat) && decimal.TryParse(Longitude, out lng))
-                    SelectedBuoy.GpsLocation = new GPSCoords(lat, lng);
+                    SelectedSite.GpsLocation = new GPSCoords(lat, lng);
                 else
-                    SelectedBuoy.GpsLocation = new GPSCoords(Latitude, Longitude);
+                    SelectedSite.GpsLocation = new GPSCoords(Latitude, Longitude);
 
-                SelectedBuoy.Owner = Owner;
-                SelectedBuoy.PrimaryContact = PrimaryContact;
-                SelectedBuoy.SecondaryContact = SecondaryContact;
-                SelectedBuoy.Site = SiteName;
-                SelectedBuoy.UniversityContact = UniversityContact;
+                SelectedSite.Owner = Owner;
+                SelectedSite.PrimaryContact = PrimaryContact;
+                SelectedSite.SecondaryContact = SecondaryContact;
+                SelectedSite.Name = SiteName;
+                SelectedSite.UniversityContact = UniversityContact;
 
-                Buoy.ExportAll(_allBuoys);
+                Site.ExportAll(_allBuoys);
                 this.TryClose();
             }
             catch (Exception e)
@@ -194,14 +194,14 @@ namespace IndiaTango.ViewModels
 
         public void btnCreate()
         {
-            // Brand new buoy; create a new buoy and save it
-            Buoy b = null;
+            // Brand new Site; create a new Site and save it
+            Site b = null;
 
             try
             {
-                b = new Buoy(Buoy.NextID, SiteName, Owner, PrimaryContact, SecondaryContact, UniversityContact, new GPSCoords(Latitude, Longitude));
+                b = new Site(Site.NextID, SiteName, Owner, PrimaryContact, SecondaryContact, UniversityContact, new GPSCoords(Latitude, Longitude));
                 _allBuoys.Add(b);
-                Buoy.ExportAll(_allBuoys);
+                Site.ExportAll(_allBuoys);
                 this.TryClose();
             }
             catch (Exception e)
@@ -308,15 +308,15 @@ namespace IndiaTango.ViewModels
         {
             if(MessageBox.Show("Are you sure you want to delete this site?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
-                if (SelectedBuoy != null)
+                if (SelectedSite != null)
                 {
                     var allBuoys = AllBuoys;
-                    allBuoys.Remove(SelectedBuoy);
+                    allBuoys.Remove(SelectedSite);
 
                     AllBuoys = allBuoys;
-                    SelectedBuoy = null;
+                    SelectedSite = null;
 
-                    Buoy.ExportAll(AllBuoys);
+                    Site.ExportAll(AllBuoys);
 
                     MessageBox.Show("Site successfully removed.", "Success", MessageBoxButtons.OK,
                                     MessageBoxIcon.Information);

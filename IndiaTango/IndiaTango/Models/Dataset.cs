@@ -6,7 +6,7 @@ namespace IndiaTango.Models
 {
     public class Dataset
     {
-        private Buoy _buoy;
+        private Site _site;
         private DateTime _startTimeStamp;
         private DateTime _endTimeStamp;
         private List<Sensor> _sensors;
@@ -14,12 +14,10 @@ namespace IndiaTango.Models
         /// <summary>
         /// Creates a new dataset with a specified start and end timestamp
         /// </summary>
-        /// <param name="buoy">The buoy that the dataset came from</param>
-        /// <param name="startTimeStamp">The start time of the dataset</param>
-        /// <param name="endTimeStamp">The end time of the dataset</param>
-        public Dataset(Buoy buoy)
+        /// <param name="site">The Site that the dataset came from</param>
+        public Dataset(Site site)
         {
-            _buoy = buoy;
+            _site = site;
             _startTimeStamp = DateTime.MinValue;
             _endTimeStamp = DateTime.MinValue;
             _sensors = new List<Sensor>();
@@ -28,27 +26,25 @@ namespace IndiaTango.Models
         /// <summary>
         /// Creates a new dataset from a list of sensors. Start and end timestamp will be dynamically created
         /// </summary>
-        /// <param name="buoy">The buoy that the dataset came from</param>
-        /// <param name="startTimeStamp">The start time of the dataset</param>
-        /// <param name="endTimeStamp">The end time of the dataset</param>
-        public Dataset(Buoy buoy, List<Sensor> sensors)
+        /// <param name="site">The Site that the dataset came from</param>
+        public Dataset(Site site, List<Sensor> sensors)
         {
             if (sensors == null)
                 throw new ArgumentException("Please provide a list of sensors that belong to this site.");
             if (sensors.Count == 0)
                 throw new ArgumentException("Sensor list must contain at least one sensor.");
 
-            _buoy = buoy;
+            _site = site;
             Sensors = sensors;//To trigger setter
         }
 
         /// <summary>
-        /// Gets and sets the buoy that this dataset came from
+        /// Gets and sets the Site that this dataset came from
         /// </summary>
-        public Buoy Buoy
+        public Site Site
         {
-            get { return _buoy; }
-            set { _buoy = value; }
+            get { return _site; }
+            set { _site = value; }
         }
 
         /// <summary>
@@ -82,17 +78,20 @@ namespace IndiaTango.Models
 
                 //Set the start and end time dynamically
                 foreach (Sensor sensor in _sensors)
-        	    {
-                    if (sensor.CurrentState.Values.Count > 0)
+                {
+                    if (sensor.CurrentState != null && sensor.CurrentState.Values.Count > 0)
                     {
-                        if (_startTimeStamp == null || _startTimeStamp == DateTime.MinValue || sensor.CurrentState.Values[0].Timestamp < _startTimeStamp)
+                        if (_startTimeStamp == null || _startTimeStamp == DateTime.MinValue ||
+                            sensor.CurrentState.Values[0].Timestamp < _startTimeStamp)
                             _startTimeStamp = sensor.CurrentState.Values[0].Timestamp;
 
                         if (_endTimeStamp == null || _startTimeStamp == DateTime.MinValue ||
-                            sensor.CurrentState.Values[sensor.CurrentState.Values.Count - 1].Timestamp > _endTimeStamp)
-                            _endTimeStamp = sensor.CurrentState.Values[sensor.CurrentState.Values.Count - 1].Timestamp;
+                            sensor.CurrentState.Values[sensor.CurrentState.Values.Count - 1].Timestamp >
+                            _endTimeStamp)
+                            _endTimeStamp =
+                                sensor.CurrentState.Values[sensor.CurrentState.Values.Count - 1].Timestamp;
                     }
-        	    }
+                }
         	}
         }
 
@@ -104,7 +103,11 @@ namespace IndiaTango.Models
         {
             if (sensor == null)
                 throw new ArgumentException("Sensor cannot be null");
-            _sensors.Add(sensor);
+
+            // Force an update of the start and end timestamps - very important!
+    	    var sensorList = Sensors;
+    	    sensorList.Add(sensor);
+    	    Sensors = sensorList;
         }
 
         public int DataPointCount

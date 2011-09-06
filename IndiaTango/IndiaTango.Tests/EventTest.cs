@@ -15,7 +15,7 @@ namespace IndiaTango.Tests
         public void SetUp()
         {
             _timeStamp = new DateTime(2011, 8, 10, 13, 13, 0);
-            _action = "Buoy put in water";
+            _action = "Site put in water";
             _e = new Event(_timeStamp,_action);
         }
 
@@ -31,7 +31,7 @@ namespace IndiaTango.Tests
         [Test]
         public void ActionGetSetTest()
         {
-            Assert.AreEqual("Buoy put in water",_e.Action);
+            Assert.AreEqual("Site put in water",_e.Action);
             _e.Action = "What";
             Assert.AreEqual("What",_e.Action);
         }
@@ -67,8 +67,8 @@ namespace IndiaTango.Tests
         [Test]
         public void EqualityTest()
         {
-            var A = new Event(new DateTime(2011, 7, 4, 12, 59, 0), "Created a buoy");
-            var B = new Event(new DateTime(2011, 7, 4, 12, 59, 0), "Created a buoy");
+            var A = new Event(new DateTime(2011, 7, 4, 12, 59, 0), "Created a Site");
+            var B = new Event(new DateTime(2011, 7, 4, 12, 59, 0), "Created a Site");
 
             Assert.AreEqual(A, B);
         }

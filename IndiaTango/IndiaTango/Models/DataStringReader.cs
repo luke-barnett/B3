@@ -10,7 +10,7 @@ namespace IndiaTango.Models
         private string buoyInformation;
 
         /// <summary>
-        /// Creates a new DataStringReader object that reads basic buoy and sensor information from a string
+        /// Creates a new DataStringReader object that reads basic Site and sensor information from a string
         /// </summary>
         /// <param name="inputString">The input string to gather the information from</param>
         public DataStringReader(string inputString)
@@ -25,15 +25,15 @@ namespace IndiaTango.Models
                 //Split it into it's sections
                 var partsections = part.Split(':');
                 //If we don't have enough sections then something is wrong
-                if(partsections.Length != 2) throw new FormatException(String.Format("Incorrect number of parts in {0}. Could not determine between Buoy and Sensor information", part));
+                if(partsections.Length != 2) throw new FormatException(String.Format("Incorrect number of parts in {0}. Could not determine between Site and Sensor information", part));
                 //Check it against the two possible outcomes
-                if (partsections[0].CompareTo("Buoy") == 0)
+                if (partsections[0].CompareTo("Site") == 0)
                 {
                     //If we have already set a value for this then we have something wrong with the data
                     if (String.IsNullOrEmpty(buoyInformation))
                         buoyInformation = partsections[1];
                     else
-                        throw new FormatException(String.Format("Multiple Buoy data in {0}", inputString));
+                        throw new FormatException(String.Format("Multiple Site data in {0}", inputString));
                 }
                 else if (partsections[0].CompareTo("Sensors") == 0)
                 {
@@ -45,7 +45,7 @@ namespace IndiaTango.Models
                 }
                 else
                     //If it's not something that we recognise then we should stop processing
-                    throw new FormatException(String.Format("Couldn't match the type of {0} to a Buoy or Sensor type", partsections[0]));
+                    throw new FormatException(String.Format("Couldn't match the type of {0} to a Site or Sensor type", partsections[0]));
             }
         }
 
@@ -65,7 +65,7 @@ namespace IndiaTango.Models
             return stringSensors.Select(stringSensor => new Sensor()).ToList();
         }
 
-        public Buoy ReadBuoy()
+        public Site ReadBuoy()
         {
             throw new NotImplementedException();
         }

@@ -14,9 +14,9 @@ namespace IndiaTango.Models
         List<Sensor> ReadSensors();
 
         /// <summary>
-        /// Reads in the Buoy information from a given data source.
+        /// Reads in the Site information from a given data source.
         /// </summary>
-        /// <returns>The Buoy object created.</returns>
-        Buoy ReadBuoy();
+        /// <returns>The Site object created.</returns>
+        Site ReadBuoy();
     }
 }
