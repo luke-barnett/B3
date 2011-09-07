@@ -44,15 +44,21 @@ namespace IndiaTango.Tests
         public void SensorNameMatchedCorrectly()
         {
             var testSensor = new Sensor("Temperature", "C");
+            var testSensorTwo = new Sensor("Dissolved Oxygen", "Q");
 
             var s = new SensorTemplate(_sensor, SensorTemplate.MatchStyle.Contains, "Temp");
             Assert.IsTrue(s.Matches(testSensor));
+            Assert.IsFalse(s.Matches(testSensorTwo));
 
             s = new SensorTemplate(_sensor, SensorTemplate.MatchStyle.StartsWith, "Temp");
             Assert.IsTrue(s.Matches(testSensor));
+            Assert.IsFalse(s.Matches(testSensorTwo));
 
             s = new SensorTemplate(_sensor, SensorTemplate.MatchStyle.EndsWith, "Temp");
             Assert.IsFalse(s.Matches(testSensor));
+
+            s = new SensorTemplate(_sensor, SensorTemplate.MatchStyle.EndsWith, "n");
+            Assert.IsTrue(s.Matches(testSensorTwo));
         }
 
         [Test]
