@@ -46,6 +46,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SensorTemplateTest.cs" />
     <Compile Include="SiteExportTest.cs" />
     <Compile Include="SiteTest.cs" />
     <Compile Include="ContactExportTests.cs" />
