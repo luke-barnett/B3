@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using WindowsFormsAero.Dwm;
 using WindowsFormsAero.TaskDialog;
@@ -126,6 +127,27 @@ namespace IndiaTango.Models
         {
             return System.Windows.Forms.MessageBox.Show(message, title, MessageBoxButtons.YesNo,
                                                         MessageBoxIcon.Warning) == DialogResult.Yes;
+        }
+
+        public static void RenderImage(UIElement elementToRender, string filename)
+        {
+            if (elementToRender == null)
+                return;
+
+            var height = (int)elementToRender.RenderSize.Height;
+            var width = (int)elementToRender.RenderSize.Width;
+
+            var renderer = new RenderTargetBitmap(width, height, 96d, 96d, PixelFormats.Pbgra32);
+
+            renderer.Render(elementToRender);
+
+            var pngEncoder = new PngBitmapEncoder();
+            pngEncoder.Frames.Add(BitmapFrame.Create(renderer));
+
+            using (var file = File.Create(filename))
+            {
+                pngEncoder.Save(file);
+            }
         }
     }
 }

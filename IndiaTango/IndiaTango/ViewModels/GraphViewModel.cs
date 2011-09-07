@@ -10,6 +10,9 @@ using IndiaTango.Models;
 using System.Linq;
 using Microsoft.Samples.CustomControls;
 using Visiblox.Charts;
+using System.Windows.Forms;
+using CheckBox = System.Windows.Controls.CheckBox;
+using MessageBox = System.Windows.Forms.MessageBox;
 
 namespace IndiaTango.ViewModels
 {
@@ -259,9 +262,20 @@ namespace IndiaTango.ViewModels
             RemoveSensor((GraphableSensor)checkbox.Content);
         }
 
-        public void btnExportGraph()
+        public void ExportGraph(object chart)
         {
-            Common.ShowFeatureNotImplementedMessageBox();
+            var fileDialog = new SaveFileDialog
+                                 {
+                                     AddExtension = true,
+                                     CheckPathExists = true,
+                                     CheckFileExists = true,
+                                     Filter = @"Images|*.png"
+                                 };
+
+            var result = fileDialog.ShowDialog();
+
+            if(result == DialogResult.OK)
+                Common.RenderImage((Chart)chart, fileDialog.FileName);
         }
 
         public void ShowColourDialog()

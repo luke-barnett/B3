@@ -112,7 +112,7 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <charts:Chart Title="{Binding ChartTitle}" Grid.Row="0" Behaviour="{Binding Behaviour}" multiseries:MultiSeries.Source="{Binding ChartSeries}" Margin="0 10 10 0">
+            <charts:Chart x:Name="MainChart" Title="{Binding ChartTitle}" Grid.Row="0" Behaviour="{Binding Behaviour}" multiseries:MultiSeries.Source="{Binding ChartSeries}" Margin="0 10 10 0">
                 <charts:Chart.YAxis>
                     <charts:LinearAxis Title="{Binding YAxisTitle}" Range="{Binding Range}" />
                 </charts:Chart.YAxis>
@@ -130,7 +130,14 @@
             </StackPanel>
             
             <StackPanel Grid.Row="1"  HorizontalAlignment="Right">
-                <Button Name="btnExportGraph"   FontSize="15" Margin="10" VerticalContentAlignment="Bottom">
+                <Button FontSize="15" Margin="10" VerticalContentAlignment="Bottom">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click" >
+                            <cal:ActionMessage MethodName="ExportGraph">
+                                <cal:Parameter Value="{Binding ElementName=MainChart}" />
+                            </cal:ActionMessage>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
                     <StackPanel Orientation="Horizontal">
                         <Image Source="/IndiaTango;component/Images/export_graph.png" Width="32" Height="32" VerticalAlignment="Center" />
                         <TextBlock Text="Export Graph" VerticalAlignment="Center" Margin="5" />
