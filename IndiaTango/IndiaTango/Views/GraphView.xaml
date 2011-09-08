@@ -35,7 +35,7 @@
                     <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" Margin="10 0 0 0">
                         <DatePicker Width="32" IsEnabled="False" />
                         <TextBlock Text=" - to - " VerticalAlignment="Center" />
-                        <DatePicker Width="32" IsEnabled="False" />
+                        <DatePicker Width="32" IsEnabled="True" />
                     </StackPanel>
                     
                     <TextBlock Text="Render Method:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" />

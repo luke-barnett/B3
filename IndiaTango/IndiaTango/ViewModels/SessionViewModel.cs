@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Threading;
 using System.Windows;
 using System.Windows.Forms;
 using Caliburn.Micro;
@@ -52,6 +53,8 @@ namespace IndiaTango.ViewModels
 			//Hack used to force the damn buttons to update
         	DoneCancelVisible = Visibility.Visible;
 			DoneCancelVisible = Visibility.Collapsed;
+
+            
         }
 
 		#region View Properties
@@ -288,6 +291,16 @@ namespace IndiaTango.ViewModels
 		#endregion
 
 		#region Event Handlers
+        public void OnLoaded()
+        {
+            EventLogger.LogInfo(GetType().ToString(), "Session loaded.");
+        }
+
+        public void OnUnloaded()
+        {
+            EventLogger.LogInfo(GetType().ToString(), "Session closed.");
+        }
+
 		public void btnImport()
 		{
 			_bw = new BackgroundWorker();
@@ -301,6 +314,7 @@ namespace IndiaTango.ViewModels
 			{
 				_bw.DoWork += delegate(object sender, DoWorkEventArgs eventArgs)
 				{
+                    EventLogger.LogInfo("BackgroundImportThread", "Data import started.");
 					ActionButtonsEnabled = false;
 					ProgressBarVisible = Visibility.Visible;
 
@@ -327,11 +341,12 @@ namespace IndiaTango.ViewModels
 					}
 
                     ImportEnabled = true;
-
                     ProgressBarVisible = Visibility.Hidden;
+                    EventLogger.LogInfo("BackgroundImportThread", "Data import complete.");
 				};
 
                 ImportEnabled = false;
+			    
 				_bw.RunWorkerAsync();
 			}
 		}
@@ -345,7 +360,9 @@ namespace IndiaTango.ViewModels
 
 		public void btnSave()
 		{
+            EventLogger.LogInfo(GetType().ToString(), "Session save started.");
 			Common.ShowFeatureNotImplementedMessageBox();
+            EventLogger.LogInfo(GetType().ToString(), "Session save complete. File saved to:");
 		}
 
 		public void btnExport()
@@ -403,6 +420,8 @@ namespace IndiaTango.ViewModels
 			{
                 if (Common.Confirm("Confirm Delete", "Are you sure you want to delete this site?"))
 				{
+                    EventLogger.LogInfo(GetType().ToString(), "Site deleted. Site name: " + SelectedSite.Name);
+
                     var allSites = AllSites;
                     allSites.Remove(SelectedSite);
 
@@ -412,7 +431,7 @@ namespace IndiaTango.ViewModels
                     Site.ExportAll(AllSites);
 
 				    Common.ShowMessageBox("Site Management", "Site successfully removed.", false, false);
-                }
+				}
             }
 		}
 
@@ -431,6 +450,7 @@ namespace IndiaTango.ViewModels
 					SelectedSite.SecondaryContact = SecondaryContact;
                     SelectedSite.Name = SiteName;
 					SelectedSite.UniversityContact = UniversityContact;
+                    EventLogger.LogInfo(GetType().ToString(), "Site saved. Site name: " + SelectedSite.Name);
 				}
 				//else if creating a new one
 				else
@@ -439,6 +459,7 @@ namespace IndiaTango.ViewModels
 					_allSites.Add(b);
 					Site.ExportAll(_allSites);
 					SelectedSite = b;
+                    EventLogger.LogInfo(GetType().ToString(), "Site created. Site name: " + SelectedSite.Name);
 				}
 
 				Site.ExportAll(_allSites);
@@ -482,11 +503,13 @@ namespace IndiaTango.ViewModels
 				{
 					_bw.CancelAsync();
 					ActionButtonsEnabled = true;
+                    EventLogger.LogWarning(GetType().ToString(), "Data import canceled by user.");
 				}
 				catch (InvalidOperationException ex)
 				{
 					// TODO: meaningful error here
 					System.Diagnostics.Debug.WriteLine("Cannot cancel data loading thread - " + ex);
+                    EventLogger.LogError(GetType().ToString(), "Data import could not be canceled.");
 				}
 			}
 		}

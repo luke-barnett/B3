@@ -259,7 +259,9 @@ namespace IndiaTango.ViewModels
 
         public void btnExportGraph()
         {
+            EventLogger.LogInfo(GetType().ToString(), "Graph export started.");
             Common.ShowFeatureNotImplementedMessageBox();
+            EventLogger.LogInfo(GetType().ToString(), "Graph export complete. File saved to: ");
         }
 
         public void ShowColourDialog()

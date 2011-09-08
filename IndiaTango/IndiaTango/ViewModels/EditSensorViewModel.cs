@@ -203,11 +203,13 @@ namespace IndiaTango.ViewModels
                     // TODO: more user-friendly conversion messages!
                     Sensor s = new Sensor(Name, Description, float.Parse(UpperLimit), float.Parse(LowerLimit), Unit, float.Parse(MaximumRateOfChange), Manufacturer, SerialNumber);
                     SelectedSensor = s;
+                    EventLogger.LogInfo(GetType().ToString(), "Created new sensor. Sensor name: " + s.Name);
                     this.TryClose();
                 }
                 catch (Exception e)
                 {
                 	Common.ShowMessageBox("Format Error", e.Message, false, true);
+                    EventLogger.LogWarning(GetType().ToString(), "Attempted to create new sensor, but failed. Details: " + e.Message);
                 }
             }
             else
@@ -223,10 +225,12 @@ namespace IndiaTango.ViewModels
                     SelectedSensor.MaxRateOfChange = float.Parse(MaximumRateOfChange);
                     SelectedSensor.Manufacturer = Manufacturer;
                     SelectedSensor.SerialNumber = SerialNumber;
+                    EventLogger.LogInfo(GetType().ToString(), "Saved existing sensor. Sensor name: " + Name);
                 }
                 catch (Exception e)
                 {
                 	Common.ShowMessageBox("An Error Occured", e.Message, false, true);
+                    EventLogger.LogWarning(GetType().ToString(), "Attempted to save existing sensor, but failed. Details: " + e.Message);
                 }
             }
 
