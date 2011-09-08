@@ -58,32 +58,16 @@ namespace IndiaTango.Tests
             _undoSensor = new Sensor("Temperature", "C");
             _undoSensor.UndoStack = new Stack<SensorState>();
             _undoSensor.UndoStack.Push(new SensorState(new DateTime(2011, 8, 11),
-                                                       new List<DataValue>(new DataValue[]
-																	   {
-																		   new DataValue(
-																			   new DateTime(2011, 8, 12), 66.77f)
-																	   })));
+                                                       new Dictionary<DateTime, float>{{new DateTime(2011, 8, 12), 66.77f}}));
             _undoSensor.UndoStack.Push(new SensorState(new DateTime(2011, 8, 12),
-                                            new List<DataValue>(new DataValue[]
-															{
-																new DataValue(
-																	new DateTime(2011, 8, 12), 66.77f)
-															})));
+                                            new Dictionary<DateTime, float>{{new DateTime(2011, 8, 12), 66.77f}}));
 
             _secondUndoSensor = new Sensor("Temperature", "C");
             _secondUndoSensor.UndoStack = new Stack<SensorState>();
             _secondUndoSensor.UndoStack.Push(new SensorState(new DateTime(2011, 3, 11),
-                                                       new List<DataValue>(new DataValue[]
-																   {
-																	   new DataValue(
-																		   new DateTime(2011, 8, 12), 66.77f)
-																   })));
+                                                       new Dictionary<DateTime, float>{{ new DateTime(2011, 8, 12), 66.77f} }));
             _secondUndoSensor.UndoStack.Push(new SensorState(new DateTime(2011, 3, 12),
-                                            new List<DataValue>(new DataValue[]
-														{
-															new DataValue(
-																new DateTime(2011, 8, 12), 66.77f)
-														})));
+                                            new Dictionary<DateTime, float>{{new DateTime(2011, 8, 12), 66.77f}}));
 
             _sensorEmpty = new Sensor("Temperature", "C");
             _sensorEmpty.UndoStack = new Stack<SensorState>();
@@ -408,21 +392,13 @@ namespace IndiaTango.Tests
         {
             var correctStack = new Stack<SensorState>();
             correctStack.Push(new SensorState(new DateTime(2011, 8, 11),
-                                           new List<DataValue>(new DataValue[]
-																	   {
-																		   new DataValue(
-																			   new DateTime(2011, 8, 12), 66.77f)
-																	   })));
+                                           new Dictionary<DateTime, float>{{new DateTime(2011, 8, 12), 66.77f}}));
             _undoSensor.Undo();
             Assert.AreEqual(correctStack, _undoSensor.UndoStack);
 
             var correctStackTwo = new Stack<SensorState>();
             correctStackTwo.Push(new SensorState(new DateTime(2011, 3, 11),
-                                           new List<DataValue>(new DataValue[]
-																   {
-																	   new DataValue(
-																		   new DateTime(2011, 8, 12), 66.77f)
-																   })));
+                                           new Dictionary<DateTime, float>{{ new DateTime(2011, 8, 12), 66.77f} }));
             _secondUndoSensor.Undo();
             Assert.AreEqual(correctStackTwo, _secondUndoSensor.UndoStack);
 
@@ -436,22 +412,14 @@ namespace IndiaTango.Tests
         {
             var correctStack = new Stack<SensorState>();
             correctStack.Push(new SensorState(new DateTime(2011, 8, 12),
-                                           new List<DataValue>(new DataValue[]
-																	   {
-																		   new DataValue(
-																			   new DateTime(2011, 8, 12), 66.77f)
-																	   })));
+                                           new Dictionary<DateTime, float>{{new DateTime(2011, 8, 12), 66.77f}}));
 
             _undoSensor.Undo();
             Assert.AreEqual(correctStack, _undoSensor.RedoStack);
 
             var correctStackTwo = new Stack<SensorState>();
             correctStackTwo.Push(new SensorState(new DateTime(2011, 3, 12),
-                                           new List<DataValue>(new DataValue[]
-																   {
-																	   new DataValue(
-																		   new DateTime(2011, 8, 12), 66.77f)
-																   })));
+                                           new Dictionary<DateTime, float>{{new DateTime(2011, 8, 12), 66.77f}}));
 
             _secondUndoSensor.Undo();
             Assert.AreEqual(correctStackTwo, _secondUndoSensor.RedoStack);
@@ -467,13 +435,9 @@ namespace IndiaTango.Tests
             var redoSensor = new Sensor("Temperature", "C");
             redoSensor.UndoStack = new Stack<SensorState>();
 
-            var dvA = new DataValue(new DateTime(2010, 5, 5, 22, 00, 0), 22.5f);
-            var dvB = new DataValue(new DateTime(2010, 5, 5, 22, 15, 0), 21.4f);
-            var dvC = new DataValue(new DateTime(2010, 5, 5, 22, 30, 0), 22.0f);
+            var correctStack = new Stack<SensorState>(new SensorState[] { new SensorState(new DateTime(2011, 7, 5, 22, 47, 0), new Dictionary<DateTime, float> { { new DateTime(2010, 5, 5, 22, 00, 0), 22.5f }, { new DateTime(2010, 5, 5, 22, 15, 0), 21.4f }, { new DateTime(2010, 5, 5, 22, 30, 0), 22.0f } }) });
 
-            var correctStack = new Stack<SensorState>(new SensorState[] { new SensorState(new DateTime(2011, 7, 5, 22, 47, 0), new List<DataValue>(new DataValue[] { dvA, dvB, dvC })) });
-
-            redoSensor.RedoStack = new Stack<SensorState>(new SensorState[] { new SensorState(new DateTime(2011, 7, 5, 22, 47, 0), new List<DataValue>(new DataValue[] { dvA, dvB, dvC })) });
+            redoSensor.RedoStack = new Stack<SensorState>(new SensorState[] { new SensorState(new DateTime(2011, 7, 5, 22, 47, 0), new Dictionary<DateTime, float>{ { new DateTime(2010, 5, 5, 22, 00, 0), 22.5f }, { new DateTime(2010, 5, 5, 22, 15, 0), 21.4f }, { new DateTime(2010, 5, 5, 22, 30, 0), 22.0f } }) });
             redoSensor.Redo();
 
             Assert.AreEqual(correctStack, redoSensor.UndoStack);
@@ -485,13 +449,9 @@ namespace IndiaTango.Tests
             var redoSensor = new Sensor("Temperature", "C");
             redoSensor.UndoStack = new Stack<SensorState>();
 
-            var dvA = new DataValue(new DateTime(2010, 5, 5, 22, 00, 0), 22.5f);
-            var dvB = new DataValue(new DateTime(2010, 5, 5, 22, 15, 0), 21.4f);
-            var dvC = new DataValue(new DateTime(2010, 5, 5, 22, 30, 0), 22.0f);
-
             var correctStack = new Stack<SensorState>();
 
-            redoSensor.RedoStack = new Stack<SensorState>(new SensorState[] { new SensorState(new DateTime(2011, 7, 5, 22, 47, 0), new List<DataValue>(new DataValue[] { dvA, dvB, dvC })) });
+            redoSensor.RedoStack = new Stack<SensorState>(new SensorState[] { new SensorState(new DateTime(2011, 7, 5, 22, 47, 0), new Dictionary<DateTime, float> { { new DateTime(2010, 5, 5, 22, 00, 0), 22.5f }, { new DateTime(2010, 5, 5, 22, 15, 0), 21.4f }, { new DateTime(2010, 5, 5, 22, 30, 0), 22.0f } }) });
             redoSensor.Redo();
 
             Assert.AreEqual(correctStack, redoSensor.RedoStack);
@@ -538,17 +498,9 @@ namespace IndiaTango.Tests
         {
             var correctRedoStack = new Stack<SensorState>();
             correctRedoStack.Push(new SensorState(new DateTime(2011, 8, 12),
-                                                       new List<DataValue>(new DataValue[]
-																	   {
-																		   new DataValue(
-																			   new DateTime(2011, 8, 12), 66.77f)
-																	   })));
+                                                       new Dictionary<DateTime, float> {{new DateTime(2011, 8, 12), 66.77f}}));
             correctRedoStack.Push(new SensorState(new DateTime(2011, 8, 11),
-                                            new List<DataValue>(new DataValue[]
-															{
-																new DataValue(
-																	new DateTime(2011, 8, 12), 66.77f)
-															})));
+                                            new Dictionary<DateTime, float>{{new DateTime(2011, 8, 12), 66.77f}}));
 
             _undoSensor.Undo();
             _undoSensor.Undo();
@@ -563,31 +515,15 @@ namespace IndiaTango.Tests
         {
             var correctStack = new Stack<SensorState>();
             correctStack.Push(new SensorState(new DateTime(2011, 8, 12),
-                                                       new List<DataValue>(new DataValue[]
-																	   {
-																		   new DataValue(
-																			   new DateTime(2011, 8, 12), 66.77f)
-																	   })));
+                                                       new Dictionary<DateTime, float>{{new DateTime(2011, 8, 12), 66.77f}}));
             correctStack.Push(new SensorState(new DateTime(2011, 8, 11),
-                                            new List<DataValue>(new DataValue[]
-															{
-																new DataValue(
-																	new DateTime(2011, 8, 12), 66.77f)
-															})));
+                                            new Dictionary<DateTime, float>{{new DateTime(2011, 8, 12), 66.77f}}));
 
             _undoSensor.UndoStack = new Stack<SensorState>();
             _undoSensor.RedoStack.Push(new SensorState(new DateTime(2011, 8, 11),
-                                                       new List<DataValue>(new DataValue[]
-																	   {
-																		   new DataValue(
-																			   new DateTime(2011, 8, 12), 66.77f)
-																	   })));
+                                                       new Dictionary<DateTime, float>{{new DateTime(2011, 8, 12), 66.77f}}));
             _undoSensor.RedoStack.Push(new SensorState(new DateTime(2011, 8, 12),
-                                            new List<DataValue>(new DataValue[]
-															{
-																new DataValue(
-																	new DateTime(2011, 8, 12), 66.77f)
-															})));
+                                            new Dictionary<DateTime, float>{{new DateTime(2011, 8, 12), 66.77f}}));
 
             _undoSensor.Redo();
             _undoSensor.Redo();
@@ -600,17 +536,9 @@ namespace IndiaTango.Tests
         {
             _undoSensor.UndoStack = new Stack<SensorState>();
             _undoSensor.RedoStack.Push(new SensorState(new DateTime(2011, 8, 11),
-                                                       new List<DataValue>(new DataValue[]
-																	   {
-																		   new DataValue(
-																			   new DateTime(2011, 8, 12), 66.77f)
-																	   })));
+                                                       new Dictionary<DateTime, float>{{ new DateTime(2011, 8, 12), 66.77f}}));
             _undoSensor.RedoStack.Push(new SensorState(new DateTime(2011, 8, 12),
-                                            new List<DataValue>(new DataValue[]
-															{
-																new DataValue(
-																	new DateTime(2011, 8, 12), 66.77f)
-															})));
+                                            new Dictionary<DateTime, float>{{new DateTime(2011, 8, 12), 66.77f}}));
 
             _undoSensor.Redo();
             _undoSensor.Redo();

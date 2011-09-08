@@ -146,12 +146,9 @@ namespace IndiaTango.ViewModels
             if(_selectedValues.Count == 0)
                 return;
 
-			foreach (DateTime time in SelectedValues)
+			foreach (var time in SelectedValues)
         	{
-				var prevValue = FindPrevValue(time);
-        	    var newDV = new DataValue(time, 0);
-				_sensor.CurrentState.Values.Insert(_sensor.CurrentState.Values.FindIndex(delegate(DataValue dv)
-				{ return dv == prevValue; }) + 1, newDV);
+				_sensor.CurrentState.Values.Add(time,0);
         	}
             
             Cleanup();
@@ -159,15 +156,17 @@ namespace IndiaTango.ViewModels
 			Common.ShowMessageBox("Values Updated", "The selected values have been set to 0.", false, false);
         }
 
-        private DataValue FindPrevValue(DateTime dataValue)
+        private DateTime FindPrevValue(DateTime dataValue)
         {
-            DataValue prevValue = null;
-            var time = 15;
+            var prevValue = DateTime.MinValue;
+            var time = 0;
 
-            while (prevValue == null)
+            while (prevValue == DateTime.MinValue)
             {
-                prevValue = _sensor.CurrentState.Values.Find(dv => dv.Timestamp.AddMinutes(time) == dataValue);
-                time += 15;
+                prevValue = (_sensor.CurrentState.Values.ContainsKey(dataValue.AddMinutes(time))
+                                 ? dataValue.AddMinutes(time)
+                                 : DateTime.MinValue);
+                time -= 15;
             }
             return prevValue;
         }
@@ -201,11 +200,7 @@ namespace IndiaTango.ViewModels
 
 			foreach (var time in SelectedValues)
 			{
-                var prevValue = FindPrevValue(time);
-
-				var newDV = new DataValue(time, value);
-				_sensor.CurrentState.Values.Insert(_sensor.CurrentState.Values.FindIndex(delegate(DataValue dv)
-				                                                                         	{ return dv == prevValue; }) + 1, newDV);
+                _sensor.CurrentState.Values.Add(time,value);
 			}
 
         	Cleanup();
@@ -231,28 +226,24 @@ namespace IndiaTango.ViewModels
             }
 		    var first = SelectedValues[0];
             var startValue = FindPrevValue(first);
-		    DataValue endValue = null;
-		    var time = -15;
-            while (endValue == null)
+            var endValue = DateTime.MinValue;
+            var time = 0;
+            while (endValue == DateTime.MinValue)
             {
-                endValue = _sensor.CurrentState.Values.Find(dv => dv.Timestamp.AddMinutes(time) == first);
-                time -= 15;
+                endValue = (_sensor.CurrentState.Values.ContainsKey(first.AddMinutes(time))
+                                 ? first.AddMinutes(time)
+                                 : DateTime.MinValue);
+                time += 15;
             }
-            var tempList = new List<DataValue>();
-		    var timeDiff = endValue.Timestamp.Subtract(startValue.Timestamp).TotalMinutes;
-		    var valDiff = endValue.Value - startValue.Value;
+		    var timeDiff = endValue.Subtract(startValue).TotalMinutes;
+		    var valDiff = _sensor.CurrentState.Values[endValue] - _sensor.CurrentState.Values[startValue];
 		    var step = valDiff/(timeDiff/15);
-		    var value = startValue.Value + step;
-            var newDV = new DataValue(startValue.Timestamp.AddMinutes(15), (float)Math.Round(value,2));
-            tempList.Add(newDV);
-            for(var i = 30;i<timeDiff;i+=15)
+		    var value = _sensor.CurrentState.Values[startValue] + step;
+            for(var i = 15;i<timeDiff;i+=15)
             {
-                newDV = new DataValue(startValue.Timestamp.AddMinutes(i), (float)Math.Round(value,2));
-                tempList.Add(newDV);
+                _sensor.CurrentState.Values.Add(startValue.AddMinutes(i),(float)Math.Round(value,2));
                 value += step;
             }
-            _sensor.CurrentState.Values.InsertRange(_sensor.CurrentState.Values.FindIndex(delegate(DataValue dv)
-                { return dv == startValue; })+1,tempList);
             Cleanup();
 
             Common.ShowMessageBox("Values Updated", "The vaues have been extrapolated", false, false);

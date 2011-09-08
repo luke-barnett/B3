@@ -13,16 +13,19 @@ namespace IndiaTango.Tests
         private DateTime testDate = new DateTime(2011, 08, 09, 12, 18, 54);
         private SensorState testSensorState;
         private DateTime modifiedDate = new DateTime(2011, 11, 17, 5, 0, 0);
-        private List<DataValue> valueList = new List<DataValue>();
-        private List<DataValue> secondValueList = new List<DataValue>();
+        private Dictionary<DateTime,float> valueList ;
+        private Dictionary<DateTime,float> secondValueList;
 
         [SetUp]
         public void Setup()
         {
             testSensorState = new SensorState(testDate);
-
-            valueList.AddRange(new DataValue[] { new DataValue(testDate, 55.2f), new DataValue(modifiedDate, 63.77f) });
-            secondValueList.AddRange(new DataValue[] { new DataValue(new DateTime(2005, 11, 3, 14, 27, 12), 22.7f), new DataValue(new DateTime(2005, 11, 4, 14, 27, 28), 22.3f) });
+            valueList = new Dictionary<DateTime, float>();
+            secondValueList = new Dictionary<DateTime, float>(); 
+            valueList.Add(testDate, 55.2f);
+            valueList.Add(modifiedDate, 63.77f);
+            secondValueList.Add(new DateTime(2005, 11, 3, 14, 27, 12), 22.7f);
+            secondValueList.Add(new DateTime(2005, 12, 4, 14, 27, 28), 22.3f);
         }
 
         #region Timestamp Tests
@@ -60,7 +63,7 @@ namespace IndiaTango.Tests
             Assert.IsTrue(AllDataValuesCorrect(secondValueSensorState, secondValueList));
 
             SensorState listCountWrongSensorState = new SensorState(testDate, valueList);
-            List<DataValue> inconsistentValues = new List<DataValue>(new DataValue[] { new DataValue(testDate, 55.2f), new DataValue(modifiedDate, 63.77f), new DataValue(modifiedDate, 77.77f) });
+            var inconsistentValues = new Dictionary<DateTime, float>{ {testDate, 55.2f}, {modifiedDate, 63.77f}, {modifiedDate.AddDays(1), 77.77f} };
             Assert.IsFalse(AllDataValuesCorrect(listCountWrongSensorState, inconsistentValues));
         }
 
@@ -95,7 +98,7 @@ namespace IndiaTango.Tests
         [Test]
         public void ConstructionWithOnlyEditTimestampCreatesNewList()
         {
-            SensorState testState = new SensorState(DateTime.Now);
+            SensorState testState = new SensorState(DateTime.Now.AddDays(20));
 
             Assert.NotNull(testState.Values);
             Assert.IsTrue(testState.Values.Count == 0);
@@ -103,14 +106,21 @@ namespace IndiaTango.Tests
         #endregion
 
         #region Test Convenience Methods
-        private bool AllDataValuesCorrect(SensorState sensorState, List<DataValue> listOfValues)
+        private bool AllDataValuesCorrect(SensorState sensorState, Dictionary<DateTime,float> listOfValues)
         {
             if (sensorState.Values.Count != listOfValues.Count)
                 return false;
 
-            for (int i = 0; i < listOfValues.Count; i++)
-                if (!sensorState.Values[i].Equals(listOfValues[i]))
+            //for (int i = 0; i < listOfValues.Count; i++)
+            //    if (!sensorState.Values[i].Equals(listOfValues[i]))
+            //        return false;
+            foreach(var key in listOfValues.Keys)
+            {
+                if (!listOfValues.Keys.Contains(key))
                     return false;
+                if (!sensorState.Values[key].Equals(listOfValues[key]))
+                    return false;
+            }
 
             return true;
         }
@@ -132,10 +142,10 @@ namespace IndiaTango.Tests
                                        new DateTime(2011, 8, 20, 1, 45, 0)
                                    };
             var sensorState = new SensorState(new DateTime(2011, 8, 23, 0, 0, 0));
-            sensorState.Values = new List<DataValue>
+            sensorState.Values = new Dictionary<DateTime, float>
                                      {
-                                         new DataValue(new DateTime(2011, 8, 20, 0, 0, 0), 100),
-                                         new DataValue(new DateTime(2011, 8, 20, 2, 0, 0), 50)
+                                         {new DateTime(2011, 8, 20, 0, 0, 0), 100},
+                                         {new DateTime(2011, 8, 20, 2, 0, 0), 50}
                                      };
             Assert.AreEqual(missingDates, sensorState.GetMissingTimes(15,new DateTime(2011, 8, 20, 0, 0, 0),new DateTime(2011, 8, 20, 2, 0, 0)));
         }

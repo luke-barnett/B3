@@ -81,15 +81,20 @@ namespace IndiaTango.Models
                 {
                     if (sensor.CurrentState != null && sensor.CurrentState.Values.Count > 0)
                     {
+                        var timesArray = new DateTime[sensor.CurrentState.Values.Count];
+                        sensor.CurrentState.Values.Keys.CopyTo(timesArray, 0);
+                        var timesList = new List<DateTime>(timesArray);
+                        timesList.Sort();
+
                         if (_startTimeStamp == null || _startTimeStamp == DateTime.MinValue ||
-                            sensor.CurrentState.Values[0].Timestamp < _startTimeStamp)
-                            _startTimeStamp = sensor.CurrentState.Values[0].Timestamp;
+                            timesList[0] < _startTimeStamp)
+                            _startTimeStamp = timesList[0];
 
                         if (_endTimeStamp == null || _startTimeStamp == DateTime.MinValue ||
-                            sensor.CurrentState.Values[sensor.CurrentState.Values.Count - 1].Timestamp >
+                            timesList[timesList.Count - 1] >
                             _endTimeStamp)
                             _endTimeStamp =
-                                sensor.CurrentState.Values[sensor.CurrentState.Values.Count - 1].Timestamp;
+                                timesList[timesList.Count - 1];
                     }
                 }
         	}

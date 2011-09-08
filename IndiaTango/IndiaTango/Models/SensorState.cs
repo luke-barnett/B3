@@ -11,14 +11,14 @@ namespace IndiaTango.Models
     public class SensorState
     {
         private DateTime _editTimestamp;
-        private List<DataValue> _valueList;
+        private Dictionary<DateTime, float> _valueList;
 
         /// <summary>
         /// Creates a new sensor state with the specified timestamp representing the date it was last edited.
         /// </summary>
         /// <param name="editTimestamp">A DateTime object representing the last edit date and time for this sensor state.</param>
         public SensorState(DateTime editTimestamp)
-            : this(editTimestamp, new List<DataValue>())
+            : this(editTimestamp, new Dictionary<DateTime, float>())
         {
         }
 
@@ -27,7 +27,7 @@ namespace IndiaTango.Models
         /// </summary>
         /// <param name="editTimestamp">A DateTime object representing the last edit date and time for this sensor state.</param>
         /// <param name="valueList">A list of data values, representing values recorded in this sensor state.</param>
-        public SensorState(DateTime editTimestamp, List<DataValue> valueList)
+        public SensorState(DateTime editTimestamp, Dictionary<DateTime, float> valueList)
         {
             if (valueList == null)
                 throw new ArgumentNullException("The list of values in this state cannot be null.");
@@ -48,7 +48,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the list of values this sensor state holds.
         /// </summary>
-        public List<DataValue> Values
+        public Dictionary<DateTime, float> Values
         {
             get { return _valueList; }
             set { _valueList = value; }
@@ -74,53 +74,31 @@ namespace IndiaTango.Models
             if (s.Values.Count != Values.Count)
                 return false;
 
-            for (int i = 0; i < Values.Count; i++)
-                if (!s.Values[i].Equals(Values[i]))
+            foreach (var f in _valueList)
+            {
+                if (!s.Values[f.Key].Equals(f.Value))
                     return false;
+            }
 
             return true;
         }
 
-
-
         public List<DateTime> GetMissingTimes(int timeGap, DateTime start, DateTime end)
         {
-            var timeDiff = (int) end.Subtract(start).TotalMinutes/15;
             var missing = new List<DateTime>();
-            if (Values.Count != timeDiff)
+            for (var time = start; time <= end; time = time.AddMinutes(timeGap))
             {
-                if (Values[0].Timestamp > start)
+                if (!Values.ContainsKey(time))
                 {
-                    while (start <= Values[0].Timestamp)
-                    {
-                        missing.Insert(0, start);
-                        start = start.AddMinutes(timeGap);
-                    }
-                }
-                if (Values[Values.Count - 1].Timestamp < end)
-                {
-                    var tmpTime = Values[Values.Count - 1].Timestamp;
-                    while (tmpTime <= end)
-                    {
-                        missing.Add(tmpTime);
-                        tmpTime = tmpTime.AddMinutes(timeGap);
-                    }
-                }
-            }
-            for (var i = 1; i < Values.Count; i++)
-            {
-                if (Values[i - 1].Timestamp.AddMinutes(timeGap) != Values[i].Timestamp)
-                {
-                    var tmpTime = Values[i - 1].Timestamp.AddMinutes(timeGap);
-                    while (tmpTime < Values[i].Timestamp)
-                    {
-                        missing.Add(tmpTime);
-                        tmpTime = tmpTime.AddMinutes(timeGap);
-                    }
+                    missing.Add(time);
                 }
             }
             return missing;
         }
 
+        public override string ToString()
+        {
+            return _editTimestamp.ToString() + " " + Values.First().Key + " " + Values.First().Value;
+        }
     }
 }

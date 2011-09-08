@@ -53,8 +53,8 @@ namespace IndiaTango.Models
                         columnHeadings += del + sensor.Name;
                        
                         //Fill the array with the data
-                        foreach (DataValue value in sensor.CurrentState.Values)
-                            outputData[currentSensorIndex, GetArrayRowFromTime(Data.StartTimeStamp, value.Timestamp)] = value.Value.ToString();
+                        foreach (var value in sensor.CurrentState.Values)
+                            outputData[currentSensorIndex, GetArrayRowFromTime(Data.StartTimeStamp, value.Key)] = value.Value.ToString();
 
                         currentSensorIndex++;
                     }

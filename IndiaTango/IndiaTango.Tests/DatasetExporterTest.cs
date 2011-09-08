@@ -58,7 +58,7 @@ namespace IndiaTango.Tests
         {
             var dateTime = new DateTime(2011, 8, 4, 0, 0, 0);
             var givenDataSet = new Dataset(new Site(1, "Steven", "Kerry", Contact, Contact, Contact, new GPSCoords(0, 0)));
-            var sampleData = new List<DataValue>(new DataValue[] { new DataValue(dateTime.AddMinutes(15), 100), new DataValue(dateTime.AddMinutes(30), 100), new DataValue(dateTime.AddMinutes(45), 100), new DataValue(dateTime.AddMinutes(60), 100) });
+            var sampleData = new Dictionary<DateTime,float>{ {dateTime.AddMinutes(15), 100},{dateTime.AddMinutes(30), 100}, {dateTime.AddMinutes(45), 100}, {dateTime.AddMinutes(60), 100} };
             var s = new Sensor("Awesome Sensor", "Awesome");
             var ss = new SensorState(DateTime.Now, sampleData);
             s.AddState(ss);
@@ -69,7 +69,7 @@ namespace IndiaTango.Tests
             dateTime = new DateTime(2011, 8, 4, 0, 0, 0);
             givenDataSet = new Dataset(new Site(1, "Steven", "Kerry", Contact, Contact, Contact, new GPSCoords(0, 0)));
 
-            sampleData = new List<DataValue>(new DataValue[] { new DataValue(dateTime.AddMinutes(60), 100), new DataValue(dateTime.AddMinutes(75), 100), new DataValue(dateTime.AddMinutes(90), 100), new DataValue(dateTime.AddMinutes(105), 100) });
+            sampleData = new Dictionary<DateTime, float>{{dateTime.AddMinutes(60), 100}, {dateTime.AddMinutes(75), 100}, {dateTime.AddMinutes(90), 100},{dateTime.AddMinutes(105), 100} };
             s = new Sensor("Awesome Sensor", "Awesome");
             ss = new SensorState(DateTime.Now, sampleData);
             s.AddState(ss);

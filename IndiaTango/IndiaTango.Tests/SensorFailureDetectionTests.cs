@@ -22,7 +22,11 @@ namespace IndiaTango.Tests
         [Test]
         public void DetectNonFailingSensorBoundary()
         {
-            var sensorState = new SensorState(DateTime.Now, new List<DataValue>(new DataValue[] { new DataValue(DateTime.Now, 22.3f), new DataValue(DateTime.Now, 0), new DataValue(DateTime.Now, 0), new DataValue(DateTime.Now, 0) }));
+            var sensorState = new SensorState(DateTime.Now, new Dictionary<DateTime, float>());
+            sensorState.Values.Add(DateTime.Now, 22.3f);
+            sensorState.Values.Add(DateTime.Now.AddDays(1), 0);
+            sensorState.Values.Add(DateTime.Now.AddDays(2), 0);
+            sensorState.Values.Add(DateTime.Now.AddDays(3), 0);
             _temperatureSensor.AddState(sensorState);
 
             Assert.IsFalse(_temperatureSensor.IsFailing);
@@ -31,7 +35,12 @@ namespace IndiaTango.Tests
         [Test]
         private void DetectNonFailingSensorNoFailedValues()
         {
-            var sensorState = new SensorState(DateTime.Now, new List<DataValue>(new DataValue[] { new DataValue(DateTime.Now, 22.3f), new DataValue(DateTime.Now, 25.5f), new DataValue(DateTime.Now, 21.3f), new DataValue(DateTime.Now, 26.2f), new DataValue(DateTime.Now, 20f) }));
+            var sensorState = new SensorState(DateTime.Now, new Dictionary<DateTime, float>());
+            sensorState.Values.Add(DateTime.Now, 22.3f);
+            sensorState.Values.Add(DateTime.Now.AddDays(1), 25.5f);
+            sensorState.Values.Add(DateTime.Now.AddDays(2), 21.3f);
+            sensorState.Values.Add(DateTime.Now.AddDays(3), 26.2f);
+            sensorState.Values.Add(DateTime.Now.AddDays(4), 20f);
             _temperatureSensor.AddState(sensorState);
 
             Assert.IsFalse(_temperatureSensor.IsFailing);
@@ -40,7 +49,12 @@ namespace IndiaTango.Tests
         [Test]
         public void DetectNonFailingSensorNonConsecutiveValues()
         {
-            var sensorState = new SensorState(DateTime.Now, new List<DataValue>(new DataValue[] { new DataValue(DateTime.Now, 0f), new DataValue(DateTime.Now, 0f), new DataValue(DateTime.Now, 0f), new DataValue(DateTime.Now, 26.2f), new DataValue(DateTime.Now, 0f) }));
+            var sensorState = new SensorState(DateTime.Now, new Dictionary<DateTime, float>());
+            sensorState.Values.Add(DateTime.Now, 0f);
+            sensorState.Values.Add(DateTime.Now.AddDays(1), 0f);
+            sensorState.Values.Add(DateTime.Now.AddDays(2), 0f);
+            sensorState.Values.Add(DateTime.Now.AddDays(3), 26.2f);
+            sensorState.Values.Add(DateTime.Now.AddDays(4), 0f);
             _temperatureSensor.AddState(sensorState);
 
             Assert.IsFalse(_temperatureSensor.IsFailing);
@@ -49,7 +63,12 @@ namespace IndiaTango.Tests
         [Test]
         public void DetectFailingSensorConsecutiveValuesBoundary()
         {
-            var sensorState = new SensorState(DateTime.Now, new List<DataValue>(new DataValue[] { new DataValue(DateTime.Now, 22.3f), new DataValue(DateTime.Now, 0), new DataValue(DateTime.Now, 0), new DataValue(DateTime.Now, 0), new DataValue(DateTime.Now, 0) }));
+            var sensorState = new SensorState(DateTime.Now, new Dictionary<DateTime, float>());
+            sensorState.Values.Add(DateTime.Now, 22.3f);
+            sensorState.Values.Add(DateTime.Now.AddDays(1), 0);
+            sensorState.Values.Add(DateTime.Now.AddDays(2), 0);
+            sensorState.Values.Add(DateTime.Now.AddDays(3), 0);
+            sensorState.Values.Add(DateTime.Now.AddDays(4), 0);
             _temperatureSensor.AddState(sensorState);
 
             Assert.IsTrue(_temperatureSensor.IsFailing);
@@ -58,7 +77,15 @@ namespace IndiaTango.Tests
         [Test]
         public void DetectFailingSensorNonConsecutiveValues()
         {
-            var sensorState = new SensorState(DateTime.Now, new List<DataValue>(new DataValue[] { new DataValue(DateTime.Now, 22.3f), new DataValue(DateTime.Now, 0), new DataValue(DateTime.Now, 22.5f), new DataValue(DateTime.Now, 0), new DataValue(DateTime.Now, 0), new DataValue(DateTime.Now, 0), new DataValue(DateTime.Now, 0), new DataValue(DateTime.Now, 23.3f) }));
+            var sensorState = new SensorState(DateTime.Now, new Dictionary<DateTime, float>());
+            sensorState.Values.Add(DateTime.Now, 22.3f);
+            sensorState.Values.Add(DateTime.Now.AddDays(1), 0);
+            sensorState.Values.Add(DateTime.Now.AddDays(2), 22.5f);
+            sensorState.Values.Add(DateTime.Now.AddDays(3), 0);
+            sensorState.Values.Add(DateTime.Now.AddDays(4), 0);
+            sensorState.Values.Add(DateTime.Now.AddDays(5), 0);
+            sensorState.Values.Add(DateTime.Now.AddDays(6), 0);
+            sensorState.Values.Add(DateTime.Now.AddDays(7), 23.3f);
             _temperatureSensor.AddState(sensorState);
 
             Assert.IsTrue(_temperatureSensor.IsFailing);

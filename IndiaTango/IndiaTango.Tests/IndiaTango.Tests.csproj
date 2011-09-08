@@ -53,7 +53,6 @@
     <Compile Include="CSVReaderTest.cs" />
     <Compile Include="DatasetTest.cs" />
     <Compile Include="DataStringReaderTest.cs" />
-    <Compile Include="DataValueTest.cs" />
     <Compile Include="EventLoggerTest.cs" />
     <Compile Include="EventTest.cs" />
     <Compile Include="DatasetExporterTest.cs" />

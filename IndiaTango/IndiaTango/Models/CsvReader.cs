@@ -87,8 +87,7 @@ namespace IndiaTango.Models
                             {
                                 try
                                 {
-                                    sensors[i - 2].CurrentState.Values.Add(new DataValue(timeStamp,
-                                                                                         float.Parse(values[i])));
+                                    sensors[i - 2].CurrentState.Values.Add(timeStamp,float.Parse(values[i]));
                                 }
                                 catch (Exception e)
                                 {

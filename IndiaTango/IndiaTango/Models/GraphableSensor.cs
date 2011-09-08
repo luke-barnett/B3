@@ -22,7 +22,7 @@ namespace IndiaTango.Models
             //Create a random colour
             Colour = Color.FromRgb((byte)(Common.Generator.Next()), (byte)(Common.Generator.Next()), (byte)(Common.Generator.Next()));
 
-            DataPoints = from dataValue in Sensor.CurrentState.Values select new DataPoint<DateTime, float>(dataValue.Timestamp, dataValue.Value);
+            DataPoints = from dataValue in Sensor.CurrentState.Values select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value);
         }
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace IndiaTango.Models
             Sensor = baseSensor.Sensor;
             Colour = baseSensor.Colour;
 
-            DataPoints = from dataValue in Sensor.CurrentState.Values where dataValue.Timestamp >= lowerTimeBound && dataValue.Timestamp <= upperTimeBound select new DataPoint<DateTime, float>(dataValue.Timestamp, dataValue.Value);
+            DataPoints = from dataValue in Sensor.CurrentState.Values where dataValue.Key >= lowerTimeBound && dataValue.Key <= upperTimeBound select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value);
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace IndiaTango.Models
         /// </summary>
         public void RefreshDataPoints()
         {
-            DataPoints = from dataValue in Sensor.CurrentState.Values select new DataPoint<DateTime, float>(dataValue.Timestamp, dataValue.Value);
+            DataPoints = from dataValue in Sensor.CurrentState.Values select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value);
         }
 
         /// <summary>
