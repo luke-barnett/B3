@@ -12,6 +12,11 @@ namespace IndiaTango.Models
     /// </summary>
     public class GraphableSensor
     {
+        private IEnumerable<DataPoint<DateTime, float>> _dataPoints;
+        private DateTime _lowerBound;
+        private DateTime _upperBound;
+        private bool _subSample;
+
         /// <summary>
         /// Creates a new GraphableSensor based on the given sensor
         /// </summary>
@@ -22,7 +27,7 @@ namespace IndiaTango.Models
             //Create a random colour
             Colour = Color.FromRgb((byte)(Common.Generator.Next()), (byte)(Common.Generator.Next()), (byte)(Common.Generator.Next()));
 
-            DataPoints = from dataValue in Sensor.CurrentState.Values select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value);
+            DataPoints = null;
         }
 
         /// <summary>
@@ -38,7 +43,12 @@ namespace IndiaTango.Models
             Sensor = baseSensor.Sensor;
             Colour = baseSensor.Colour;
 
-            DataPoints = from dataValue in Sensor.CurrentState.Values where dataValue.Key >= lowerTimeBound && dataValue.Key <= upperTimeBound select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value);
+            _lowerBound = lowerTimeBound;
+            _upperBound = upperTimeBound;
+
+            _subSample = true;
+
+            DataPoints = null;
         }
 
         /// <summary>
@@ -54,7 +64,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// The datapoints to use
         /// </summary>
-        public IEnumerable<DataPoint<DateTime, float>> DataPoints { get; private set; }
+        public IEnumerable<DataPoint<DateTime, float>> DataPoints { get { if (_dataPoints == null) { RefreshDataPoints(); } return _dataPoints; } private set { _dataPoints = value; } }
 
         /// <summary>
         /// Reflects back on itself
@@ -66,7 +76,32 @@ namespace IndiaTango.Models
         /// </summary>
         public void RefreshDataPoints()
         {
-            DataPoints = from dataValue in Sensor.CurrentState.Values select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value);
+            DataPoints = !_subSample ? (from dataValue in Sensor.CurrentState.Values select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value)).OrderBy(dataPoint => dataPoint.X) : (from dataValue in Sensor.CurrentState.Values where dataValue.Key >= _lowerBound && dataValue.Key <= _upperBound select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value)).OrderBy(dataPoint => dataPoint.X);
+        }
+
+        /// <summary>
+        /// Changes the sensor to take a particular subsample of their data source
+        /// </summary>
+        /// <param name="lowerBound">The lower bound</param>
+        /// <param name="upperBound">The upper bound</param>
+        public void SetUpperAndLowerBounds(DateTime lowerBound, DateTime upperBound)
+        {
+            _lowerBound = lowerBound;
+            _upperBound = upperBound;
+            _subSample = true;
+
+            //Force it to be recalculated
+            DataPoints = null;
+        }
+
+        /// <summary>
+        /// Removes the sub sample bounds
+        /// </summary>
+        public void RemoveBounds()
+        {
+            _subSample = false;
+            //Force it to be recalculated
+            DataPoints = null;
         }
 
         /// <summary>
