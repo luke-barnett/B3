@@ -16,5 +16,7 @@ namespace IndiaTango.ViewModels
             _windowManager = windowManager;
             _container = container;
         }
+
+        public string Title { get { return "Manage Sensor Presets"; } }
     }
 }

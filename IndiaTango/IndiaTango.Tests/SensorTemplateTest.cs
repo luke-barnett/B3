@@ -10,34 +10,46 @@ namespace IndiaTango.Tests
     [TestFixture]
     class SensorTemplateTest
     {
-        private Sensor _sensor;
-        private string _pattern = "Temp";
+        private const string UNIT = "C";
+        private const float UPPER_LIMIT = 500;
+        private const float LOWER_LIMIT = 200;
+        private const float MAX_CHANGE = 10;
 
-        [SetUp]
-        public void SetUp()
-        {
-            _sensor = new Sensor("Temperature", "C");
-        }
+        private string _pattern = "Temp";
 
         [Test]
         public void ConstructionWithValidSensor()
         {
-            var s = new SensorTemplate(_sensor, SensorTemplate.MatchStyle.Contains, _pattern);
+            var s = new SensorTemplate(UNIT, UPPER_LIMIT, LOWER_LIMIT, MAX_CHANGE, SensorTemplate.MatchStyle.Contains, _pattern);
             Assert.Pass();
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void ConstructionWithNullSensor()
+        [ExpectedException(typeof(ArgumentException))]
+        public void ConstructionWithBlankSensorUnit()
         {
-            var s = new SensorTemplate(null, SensorTemplate.MatchStyle.Contains, _pattern);
+            var s = new SensorTemplate("", UPPER_LIMIT, LOWER_LIMIT, MAX_CHANGE, SensorTemplate.MatchStyle.Contains, _pattern);
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentException))]
-        public void ConstructionWithEmptyPattern()
+        public void ConstructionWithNullSensorUnit()
         {
-            var s = new SensorTemplate(_sensor, SensorTemplate.MatchStyle.Contains, "");
+            var s = new SensorTemplate(null, UPPER_LIMIT, LOWER_LIMIT, MAX_CHANGE, SensorTemplate.MatchStyle.Contains, _pattern);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentException))]
+        public void ConstructionWithWhitespaceSensorUnit()
+        {
+            var s = new SensorTemplate("    ", UPPER_LIMIT, LOWER_LIMIT, MAX_CHANGE, SensorTemplate.MatchStyle.Contains, _pattern);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentException))]
+        public void ConstructionWithNullPattern()
+        {
+            var s = new SensorTemplate(UNIT, UPPER_LIMIT, LOWER_LIMIT, MAX_CHANGE, SensorTemplate.MatchStyle.Contains, null);
         }
 
         [Test]
@@ -46,18 +58,18 @@ namespace IndiaTango.Tests
             var testSensor = new Sensor("Temperature", "C");
             var testSensorTwo = new Sensor("Dissolved Oxygen", "Q");
 
-            var s = new SensorTemplate(_sensor, SensorTemplate.MatchStyle.Contains, "Temp");
+            var s = new SensorTemplate(UNIT, UPPER_LIMIT, LOWER_LIMIT, MAX_CHANGE, SensorTemplate.MatchStyle.Contains, "Temp");
             Assert.IsTrue(s.Matches(testSensor));
             Assert.IsFalse(s.Matches(testSensorTwo));
 
-            s = new SensorTemplate(_sensor, SensorTemplate.MatchStyle.StartsWith, "Temp");
+            s = new SensorTemplate(UNIT, UPPER_LIMIT, LOWER_LIMIT, MAX_CHANGE, SensorTemplate.MatchStyle.StartsWith, "Temp");
             Assert.IsTrue(s.Matches(testSensor));
             Assert.IsFalse(s.Matches(testSensorTwo));
 
-            s = new SensorTemplate(_sensor, SensorTemplate.MatchStyle.EndsWith, "Temp");
+            s = new SensorTemplate(UNIT, UPPER_LIMIT, LOWER_LIMIT, MAX_CHANGE, SensorTemplate.MatchStyle.EndsWith, "Temp");
             Assert.IsFalse(s.Matches(testSensor));
 
-            s = new SensorTemplate(_sensor, SensorTemplate.MatchStyle.EndsWith, "n");
+            s = new SensorTemplate(UNIT, UPPER_LIMIT, LOWER_LIMIT, MAX_CHANGE, SensorTemplate.MatchStyle.EndsWith, "n");
             Assert.IsTrue(s.Matches(testSensorTwo));
         }
 
@@ -65,7 +77,7 @@ namespace IndiaTango.Tests
         [ExpectedException(typeof(ArgumentNullException), ExpectedMessage="Cannot assign template values to a null sensor.")]
         public void ProvideDefaultValuesNullSensor()
         {
-            var s = new SensorTemplate(_sensor, SensorTemplate.MatchStyle.Contains, "Temp");
+            var s = new SensorTemplate(UNIT, UPPER_LIMIT, LOWER_LIMIT, MAX_CHANGE, SensorTemplate.MatchStyle.Contains, "Temp");
             s.ProvideDefaultValues(null);
         }
 
@@ -73,7 +85,7 @@ namespace IndiaTango.Tests
         public void ProvidesDefaultValuesWhenMatches()
         {
             var testSensor = new Sensor("Temperature", "C", 150, 50, "F", 8.3f, "Random Corporation", "ASA932832");
-            var s = new SensorTemplate(_sensor, SensorTemplate.MatchStyle.Contains, "Temp");
+            var s = new SensorTemplate(UNIT, UPPER_LIMIT, LOWER_LIMIT, MAX_CHANGE, SensorTemplate.MatchStyle.Contains, "Temp");
 
             s.ProvideDefaultValues(testSensor);
 
@@ -81,6 +93,17 @@ namespace IndiaTango.Tests
             Assert.AreEqual(testSensor.UpperLimit, s.UpperLimit);
             Assert.AreEqual(testSensor.LowerLimit, s.LowerLimit);
             Assert.AreEqual(testSensor.MaxRateOfChange, s.MaximumRateOfChange);
+        }
+        
+        [Test]
+        public void GetterTests()
+        {
+            var s = new SensorTemplate(UNIT, UPPER_LIMIT, LOWER_LIMIT, MAX_CHANGE, SensorTemplate.MatchStyle.Contains, "Temp");
+
+            Assert.AreEqual(UNIT, s.Unit);
+            Assert.AreEqual(UPPER_LIMIT, s.UpperLimit);
+            Assert.AreEqual(LOWER_LIMIT, s.LowerLimit);
+            Assert.AreEqual(MAX_CHANGE, s.MaximumRateOfChange);
         }
     }
 }
