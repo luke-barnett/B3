@@ -21,6 +21,8 @@ namespace IndiaTango.Models
                 throw new ArgumentException("File wasn't found");
 
             _filename = fileName;
+
+        	//ProgressChanged += OnProgressChanged;
         }
 
         public List<Sensor> ReadSensors()
@@ -30,10 +32,7 @@ namespace IndiaTango.Models
 
         public List<Sensor> ReadSensors(BackgroundWorker asyncWorker)
         {
-            var linesRead = 0d;
-            var linesInFile = 0d;
-
-            if (sensors != null)
+        	if (sensors != null)
                 return sensors.ToList();
 
             sensors = new Sensor[0];
@@ -42,7 +41,10 @@ namespace IndiaTango.Models
             {
                 using (var sr = new StreamReader(_filename))
                 {
-                    linesInFile = File.ReadLines(_filename).Count();
+                    var linesInFile = File.ReadLines(_filename).Count();
+					var linesRead = 0d;
+                	var progressValue = 0;
+					var oldProgressValue = 0;
 
                     var sensorNamesString = sr.ReadLine();
 
@@ -65,35 +67,43 @@ namespace IndiaTango.Models
                     }
 
 
-                    String readLine = null;
+                    string readLine = null;
                     while ((readLine = sr.ReadLine()) != null)
                     {
                         if (asyncWorker != null && asyncWorker.CancellationPending)
                             return null;
 
-                        linesRead++;
-                        OnProgressChanged((object) this,
-                                          new ReaderProgressChangedArgs((int) (linesRead/linesInFile*100)));
+                    	linesRead++;
+                    	progressValue = (int) (linesRead/linesInFile*100);
 
+						//We now only trigger the event every time the return value increases.
+						//There seems to be a crazy overhead on firing events, so we only fire it when it matters (when that value has changed)
+						//Comment out 'OnProgressChanged()' below to see speed improvements if we dont fire events at all. Times can be seen in the log file or debug window
+						//I think we can easily afford to fire only 100 events, rather than ~50000 :) Speedy speed!!!
+                    	if(progressValue > oldProgressValue)
+                    	{
+                    		OnProgressChanged((object) this,new ReaderProgressChangedArgs(progressValue));
+                    		oldProgressValue = progressValue;
+                    	}
 
-                        var values = readLine.Split(',');
-                        if (values.Length != sensorNames.Length)
-                            throw new FormatException("Number of values mismatch from the number of sensors");
-                        var timeStamp = DateTime.Parse(values[0] + " " + values[1]);
+						var values = readLine.Split(',');
+						if (values.Length != sensorNames.Length)
+							throw new FormatException("Number of values mismatch from the number of sensors");
+						var timeStamp = DateTime.Parse(values[0] + " " + values[1]);
 
-                        for (int i = 2; i < values.Length; i++)
-                        {
-                            if (!String.IsNullOrWhiteSpace(values[i]))
-                            {
-                                try
-                                {
-                                    sensors[i - 2].CurrentState.Values.Add(timeStamp,float.Parse(values[i]));
-                                }
-                                catch (Exception e)
-                                {
-                                }
-                            }
-                        }
+						for (int i = 2; i < values.Length; i++)
+						{
+							if (!String.IsNullOrWhiteSpace(values[i]))
+							{
+								try
+								{
+									sensors[i - 2].CurrentState.Values.Add(timeStamp, float.Parse(values[i]));
+								}
+								catch (Exception e)
+								{
+								}
+							}
+						}
                     }
                 }
             }

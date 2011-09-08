@@ -1,0 +1,19 @@
+Site details for file: dataSetExporterTest.csv
+ID: 1
+Name: Your Mother
+Owner: Kerry
+Primary Contact:
+	Name: K A
+	Business: 
+	Phone: 0
+	Email: k@a.com
+Secondary Contact:
+	Name: K A
+	Business: 
+	Phone: 0
+	Email: k@a.com
+University Contact:
+	Name: K A
+	Business: 
+	Phone: 0
+	Email: k@a.com
