@@ -93,6 +93,7 @@ namespace IndiaTango.ViewModels
 
                     AllContacts.Add(c);
 
+                    EventLogger.LogInfo(GetType().ToString(), "New contact created. Contact name: "+ c.FirstName + " " + c.LastName);
                     Contact.ExportAll(AllContacts);
 
                     this.TryClose();
@@ -100,6 +101,7 @@ namespace IndiaTango.ViewModels
                 catch (Exception e)
                 {
                     MessageBox.Show(e.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    EventLogger.LogWarning(GetType().ToString(), "Attempted to create new contact, but failed. Details: " + e.Message);
                 }
             }
             else
@@ -117,6 +119,7 @@ namespace IndiaTango.ViewModels
                     Contact.Phone = ContactPhone;
 
                     AllContacts.Add(Contact);
+                    EventLogger.LogInfo(GetType().ToString(), "Contact saved. Contact name: " + Contact.FirstName + " " + Contact.FirstName);
 
                     // Updating the object itself, so just re-serialise
                     Contact.ExportAll(AllContacts);
@@ -129,6 +132,7 @@ namespace IndiaTango.ViewModels
                 catch (Exception e)
                 {
                     MessageBox.Show(e.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    EventLogger.LogWarning(GetType().ToString(), "Attempted to save existing contact, but failed. Details: " + e.Message);
                 }
             }
         }

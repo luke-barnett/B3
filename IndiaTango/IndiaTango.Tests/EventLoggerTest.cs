@@ -41,67 +41,64 @@ namespace IndiaTango.Tests
         [Test]
         public void InformationLogTest()
         {
-            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + " INFO     Thread-1             Application started", EventLogger.LogInfo(_threadOne.Name, "Application started"));
-            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + " INFO     Thread-1             Loaded CSV File", EventLogger.LogInfo(_threadOne.Name, "Loaded CSV File"));
-            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + " INFO     A_LONG_THREAD_NAME_I Loaded CSV File", EventLogger.LogInfo(_longThreadName.Name, "Loaded CSV File"));
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       Thread-1                  Application started", EventLogger.LogInfo(_threadOne.Name, "Application started"));
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       Thread-1                  Loaded CSV File", EventLogger.LogInfo(_threadOne.Name, "Loaded CSV File"));
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       A_LONG_THREAD_NAME_IS_THI Loaded CSV File", EventLogger.LogInfo(_longThreadName.Name, "Loaded CSV File"));
         }
 
         [Test]
         public void WarningLogTest()
         {
-            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + " WARNING  GUI Thread           Levels of Low IQ detected", EventLogger.LogWarning(_guiThread.Name, "Levels of Low IQ detected"));
-            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + " WARNING  GUI Thread           Just another silly test", EventLogger.LogWarning(_guiThread.Name, "Just another silly test"));
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + "    WARNING    GUI Thread                Levels of Low IQ detected", EventLogger.LogWarning(_guiThread.Name, "Levels of Low IQ detected"));
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + "    WARNING    GUI Thread                Just another silly test", EventLogger.LogWarning(_guiThread.Name, "Just another silly test"));
         }
 
         [Test]
         public void ErrorLogTest()
         {
-            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + " ERROR    Thread-0             Application fatal error or something", EventLogger.LogError(_threadZero.Name, "Application fatal error or something"));
-            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + " ERROR    Thread-0             User has uploaded a picture of a cat, not a .csv file", EventLogger.LogError(_threadZero.Name, "User has uploaded a picture of a cat, not a .csv file"));
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + "    ERROR      Thread-0                  Application fatal error or something", EventLogger.LogError(_threadZero.Name, "Application fatal error or something"));
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + "    ERROR      Thread-0                  User has uploaded a picture of a cat, not a .csv file", EventLogger.LogError(_threadZero.Name, "User has uploaded a picture of a cat, not a .csv file"));
         }
         #endregion
 
         #region NullArguementTests
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void InformationLogNullThreadTest()
         {
-            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + " INFO                         Levels of Low IQ detected", EventLogger.LogInfo(null, "Levels of Low IQ detected"));
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       <No Thread Name>          Levels of Low IQ detected", EventLogger.LogInfo(null, "Levels of Low IQ detected"));
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void InformationLogNullDetailsTest()
         {
-            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + " INFO     GUI Thread           ", EventLogger.LogInfo(_guiThread.Name, ""));
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       GUI Thread                ", EventLogger.LogInfo(_guiThread.Name, ""));
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void WarningLogNullThreadTest()
         {
-            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + " WARNING                      Levels of Low IQ detected", EventLogger.LogWarning(null, "Levels of Low IQ detected"));
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + "    WARNING    <No Thread Name>          Levels of Low IQ detected", EventLogger.LogWarning(null, "Levels of Low IQ detected"));
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void WarningLogNullDetailsTest()
         {
-            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + " WARNING  GUI Thread           ", EventLogger.LogWarning(_guiThread.Name, ""));
-        }
-
-        [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void ErrorLogNullThreadTest()
-        {
-            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + " ERROR                        Levels of Low IQ detected", EventLogger.LogError(null, "Levels of Low IQ detected"));
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + "    WARNING    GUI Thread                ", EventLogger.LogWarning(_guiThread.Name, ""));
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void ErrorLogNullDetailsTest()
         {
-            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + " ERROR    GUI Thread           ", EventLogger.LogError(_guiThread.Name, ""));
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + "    ERROR      GUI Thread                ", EventLogger.LogError(_guiThread.Name, ""));
+        }
+
+        [Test]
+        public void ErrorLogNullThreadTest()
+        {
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + "    ERROR      <No Thread Name>          Levels of Low IQ detected", EventLogger.LogError(null, "Levels of Low IQ detected"));
         }
         #endregion
 

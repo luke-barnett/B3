@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -47,18 +48,19 @@ namespace IndiaTango.Models
                 _writer = File.AppendText(LogFilePath);
                 _writer.WriteLine(log);
                 _writer.Close();
+                Debug.WriteLine(log);
             }
         }
 
         private static string LogBase(string logType, string threadName, string eventDetails)
         {
             if (String.IsNullOrWhiteSpace(threadName))
-                throw new ArgumentNullException("Thread name cannot be null or empty");
+                threadName = "<No Thread Name>";
 
             if (String.IsNullOrWhiteSpace(eventDetails))
                 throw new ArgumentNullException("Parameter 'eventDetails' cannot be null or empty");
 
-            string logString = DateTime.Now.ToString(TimeFormatString) + " " + logType.PadRight(8).Substring(0, 8) + " " + threadName.PadRight(20).Substring(0, 20) + " " + eventDetails;
+            string logString = DateTime.Now.ToString(TimeFormatString) + "    " + logType.PadRight(10).Substring(0, 10) + " " + threadName.PadRight(25).Substring(0, 25) + " " + eventDetails;
             
             WriteLogToFile(logString);
 

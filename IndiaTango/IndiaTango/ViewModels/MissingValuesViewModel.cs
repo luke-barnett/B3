@@ -142,6 +142,7 @@ namespace IndiaTango.ViewModels
         public void btnMakeZero()
         {
 			//TODO refactor
+            EventLogger.LogInfo(GetType().ToString(), "Value updation started.");
 
             if(_selectedValues.Count == 0)
                 return;
@@ -154,6 +155,7 @@ namespace IndiaTango.ViewModels
             Cleanup();
 
 			Common.ShowMessageBox("Values Updated", "The selected values have been set to 0.", false, false);
+            EventLogger.LogInfo(GetType().ToString(), "Value updation complete. Sensor: " + SelectedSensor.Name + ". Value: 0.");
         }
 
         private DateTime FindPrevValue(DateTime dataValue)
@@ -174,6 +176,7 @@ namespace IndiaTango.ViewModels
         public void btnSpecify()
         {
 			//TODO refactor
+            EventLogger.LogInfo(GetType().ToString(), "Value updation started.");
 
 			if (_selectedValues.Count == 0)
 				return;
@@ -206,6 +209,8 @@ namespace IndiaTango.ViewModels
         	Cleanup();
 
             Common.ShowMessageBox("Values Updated", "The selected values have been set to " + value + ".", false, false);
+            EventLogger.LogInfo(GetType().ToString(),"Value updation complete. Sensor: " + SelectedSensor.Name + ". Value: " + value + ".");
+
         }
 
         private void Cleanup()
@@ -216,7 +221,8 @@ namespace IndiaTango.ViewModels
         }
 
         public void btnExtrapolate()
-		{
+        {
+            EventLogger.LogInfo(GetType().ToString(), "Value Extrapolation started.");
 			//TODO: Refactor
             if (SelectedValues.Count == 0)
                 return;
@@ -247,6 +253,9 @@ namespace IndiaTango.ViewModels
             Cleanup();
 
             Common.ShowMessageBox("Values Updated", "The vaues have been extrapolated", false, false);
+            EventLogger.LogInfo(GetType().ToString(),
+                                "Value extrapolation complete. Sensor: " + SelectedSensor.Name + ". Range: " +
+                                startValue.Timestamp + " to " + endValue.Timestamp);
 		}
 
 		public void btnZoomIn()

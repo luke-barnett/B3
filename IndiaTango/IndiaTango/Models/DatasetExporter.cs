@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 
 namespace IndiaTango.Models
 {
@@ -27,6 +28,8 @@ namespace IndiaTango.Models
         /// <param name="embedMetaData">Wether to export the file with embedded site meta data.</param>
 		public void Export(string filePath, ExportFormat format,bool includeEmptyLines, bool addMetaData)
 		{
+            EventLogger.LogInfo(GetType().ToString(), "Data export started.");
+
 			if (String.IsNullOrWhiteSpace(filePath))
 				throw new ArgumentNullException("filePath cannot be null");
 
@@ -80,8 +83,8 @@ namespace IndiaTango.Models
                     }
 
                     Debug.WriteLine(filePath);
-
 				    writer.Close();
+                    
 				}
 
                 //add site meta data
@@ -129,6 +132,8 @@ namespace IndiaTango.Models
                         writer.Close();
                     }
                 }
+
+                EventLogger.LogInfo(GetType().ToString(), "Data export complete. File saved to: " + filePath);
 			}
 			else if (format.Equals(ExportFormat.XLSX))
 			{
@@ -136,6 +141,7 @@ namespace IndiaTango.Models
 			}
 
 			//No more stuff! maybe.
+
 		}
 
         private int GetArrayRowFromTime(DateTime startDate, DateTime currentDate)
