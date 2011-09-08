@@ -70,8 +70,22 @@ namespace IndiaTango.ViewModels
             var behaviourManager = new BehaviourManager {AllowMultipleEnabled = true};
 
             _graphBehaviour = new GraphBehaviour(_graphBackground) {IsEnabled = true};
-            _graphBehaviour.ZoomRequested += (o, e) => SampleValues(MaxPointCount , (from sensor in _selectedSensors select new GraphableSensor(sensor, (DateTime)e.FirstPoint.X, (DateTime)e.SecondPoint.X)).ToList());
-            _graphBehaviour.ZoomResetRequested += o => SampleValues(MaxPointCount, _selectedSensors);
+            _graphBehaviour.ZoomRequested += (o, e) =>
+                                                 {
+                                                     foreach (var sensor in _selectedSensors)
+                                                     {
+                                                         sensor.SetUpperAndLowerBounds((DateTime)e.FirstPoint.X, (DateTime)e.SecondPoint.X);
+                                                     }
+                                                     SampleValues(MaxPointCount, _selectedSensors);
+                                                 };
+            _graphBehaviour.ZoomResetRequested += o =>
+                                                      {
+                                                          foreach (var sensor in _selectedSensors)
+                                                          {
+                                                              sensor.RemoveBounds();
+                                                          }
+                                                          SampleValues(MaxPointCount, _selectedSensors);
+                                                      };
             
             behaviourManager.Behaviours.Add(_graphBehaviour);
             Behaviour = behaviourManager;
@@ -174,8 +188,8 @@ namespace IndiaTango.ViewModels
 
             SampleValues(MaxPointCount, _selectedSensors);
 
-            MaximumMaximum = MaximumY().Y + 100;
-            MinimumMinimum = MinimumY().Y - 100;
+            MaximumMaximum = MaximumY().Y + 10;
+            MinimumMinimum = MinimumY().Y - 10;
 
             Maximum = MaximumMaximum;
             Minimum = MinimumMinimum;
