@@ -255,7 +255,7 @@ namespace IndiaTango.ViewModels
             Common.ShowMessageBox("Values Updated", "The vaues have been extrapolated", false, false);
             EventLogger.LogInfo(GetType().ToString(),
                                 "Value extrapolation complete. Sensor: " + SelectedSensor.Name + ". Range: " +
-                                startValue.Timestamp + " to " + endValue.Timestamp);
+                                startValue + " to " + endValue);
 		}
 
 		public void btnZoomIn()

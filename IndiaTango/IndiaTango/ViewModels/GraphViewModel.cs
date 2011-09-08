@@ -264,11 +264,9 @@ namespace IndiaTango.ViewModels
 
         public void ExportGraph(object chart)
         {
-<<<<<<< HEAD
             EventLogger.LogInfo(GetType().ToString(), "Graph export started.");
             Common.ShowFeatureNotImplementedMessageBox();
             EventLogger.LogInfo(GetType().ToString(), "Graph export complete. File saved to: ");
-=======
             var fileDialog = new SaveFileDialog
                                  {
                                      AddExtension = true,
@@ -281,7 +279,6 @@ namespace IndiaTango.ViewModels
 
             if(result == DialogResult.OK)
                 Common.RenderImage((Chart)chart, fileDialog.FileName);
->>>>>>> 536df50cb3ff0a4330bc18cdfce71b34b2c14c7c
         }
 
         public void ShowColourDialog()
