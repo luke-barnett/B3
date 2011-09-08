@@ -19,6 +19,8 @@ namespace IndiaTango.Models
         private string _unit;
         private int _errorThreshold;
         private string _serialNumber;
+        private float _lowerLimit;
+        private float _upperLimit;
         #endregion
 
         #region Constructors
@@ -187,12 +189,32 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the lower limit for values reported by this sensor.
         /// </summary>
-        public float LowerLimit { get; set; }
+        public float LowerLimit
+        {
+            get { return _lowerLimit; }
+            set
+            {
+                if(value > UpperLimit)
+                    throw new ArgumentOutOfRangeException("Lower limit must be lower than upper limit.");
+
+                _lowerLimit = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the upper limit for values reported by this sensor.
         /// </summary>
-        public float UpperLimit { get; set; }
+        public float UpperLimit
+        {
+            get { return _upperLimit; }
+            set
+            {
+                if(value < LowerLimit)
+                    throw new ArgumentOutOfRangeException("Upper limit must be greater than lower limit.");
+
+                _upperLimit = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the measurement unit reported with values collected by this sensor.

@@ -17,9 +17,12 @@ namespace IndiaTango.Tests
             var rawSensor = new Sensor("Temperature", "Temperature at 30m", 40, 20, "C", 20, "Temperature Sensors Ltd.", "1102123");
 
             rawSensor.AddState(new SensorState(DateTime.Now));
-            rawSensor.CurrentState.Values.Add(DateTime.Now,15);
-            rawSensor.CurrentState.Values.Add(DateTime.Now, 20);
-            rawSensor.CurrentState.Values.Add(DateTime.Now, 25);
+
+            var baseDate = DateTime.Now;
+
+            rawSensor.CurrentState.Values.Add(baseDate, 15);
+            rawSensor.CurrentState.Values.Add(baseDate.AddMinutes(15), 20);
+            rawSensor.CurrentState.Values.Add(baseDate.AddMinutes(30), 25);
 
             sensor = new GraphableSensor(rawSensor);
         }

@@ -354,6 +354,20 @@ namespace IndiaTango.Tests
             new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange,
                        _testManufacturer, null);
         }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void SetLowerLimitGreaterThanUpperLimit()
+        {
+            _sensor1.LowerLimit = 120;
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void SetUpperLimitLowerThanLowerLimit()
+        {
+            _sensor1.UpperLimit = 0;
+        }
         #endregion
 
         #region Invalid Values Tests

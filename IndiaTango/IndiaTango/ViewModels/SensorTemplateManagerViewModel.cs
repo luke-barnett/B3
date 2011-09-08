@@ -10,6 +10,7 @@ namespace IndiaTango.ViewModels
     {
         private IWindowManager _windowManager;
         private SimpleContainer _container;
+        private int _selectedMatchMode = 0;
 
         public SensorTemplateManagerViewModel(IWindowManager windowManager, SimpleContainer container)
         {
@@ -18,5 +19,24 @@ namespace IndiaTango.ViewModels
         }
 
         public string Title { get { return "Manage Sensor Presets"; } }
+        public string[] SensorMatchStyles
+        {
+            get
+            {
+                return
+                    new string[]
+                        {
+                            "If they start with the text to match", "If they end with the text to match",
+                            "If they contain the text to match"
+                        };
+            }
+        }
+
+        public string Unit { get; set; }
+        public float UpperLimit { get; set; }
+        public float LowerLimit { get; set; }
+        public float MaximumRateOfChange { get; set; }
+        public string TextToMatch { get; set; }
+        public int MatchMode { get { return _selectedMatchMode; } set { _selectedMatchMode = value; } }
     }
 }
