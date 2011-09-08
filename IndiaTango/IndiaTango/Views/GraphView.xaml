@@ -69,7 +69,7 @@
                 </ListBox>
             </GroupBox>
 
-            <GroupBox Grid.Row="2" Header="Selected Sensor Properties" BorderBrush="OrangeRed" Margin="10 5 0 10">
+            <GroupBox Grid.Row="2" Header="Selected Sensor Properties" BorderBrush="OrangeRed" Margin="10 5 0 10" Visibility="{Binding SelectedSensorVisibility}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -112,7 +112,7 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <charts:Chart Title="{Binding ChartTitle}" Grid.Row="0" Behaviour="{Binding Behaviour}" multiseries:MultiSeries.Source="{Binding ChartSeries}" Margin="0 10 10 0">
+            <charts:Chart x:Name="MainChart" Title="{Binding ChartTitle}" Grid.Row="0" Behaviour="{Binding Behaviour}" multiseries:MultiSeries.Source="{Binding ChartSeries}" Margin="0 10 10 0">
                 <charts:Chart.YAxis>
                     <charts:LinearAxis Title="{Binding YAxisTitle}" Range="{Binding Range}" />
                 </charts:Chart.YAxis>
@@ -122,21 +122,6 @@
             </charts:Chart>
             
             <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Stretch">
-                <!--<Button Name="btnZoomIn" FontSize="15" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Center">
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="/IndiaTango;component/Images/zoom_in.png" Width="32" Height="32" VerticalAlignment="Center" />
-                    </StackPanel>
-                </Button>
-
-                <Button Name="btnZoomOut" FontSize="15" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Center">
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="/IndiaTango;component/Images/zoom_out.png" Width="32" Height="32" VerticalAlignment="Center" />
-                    </StackPanel>
-                </Button>
-                
-                <Slider Width="100" Maximum="1000" TickFrequency="100" TickPlacement="BottomRight" Value="{Binding ZoomLevel}" VerticalAlignment="Center" SmallChange="10" LargeChange="100" Margin="10" IsSnapToTickEnabled="True" IsSelectionRangeEnabled="False" Minimum="100" SelectionEnd="1000" />
-                <TextBlock Name="lblZoom" Text="{Binding ZoomText}" VerticalAlignment="Center" Margin="0" FontSize="15" />-->
-
                 <Slider Width="100" Minimum="{Binding MinimumMinimum}" Maximum="{Binding MaximumMinimum}" Value="{Binding Minimum, Mode=TwoWay}" TickPlacement="BottomRight" VerticalAlignment="Center" Margin="10" IsSnapToTickEnabled="True" TickFrequency="10" />
                 <TextBlock Text="{Binding MinimumValue}"  VerticalAlignment="Center" Margin="0" FontSize="15" />
 
@@ -145,7 +130,14 @@
             </StackPanel>
             
             <StackPanel Grid.Row="1"  HorizontalAlignment="Right">
-                <Button Name="btnExportGraph"   FontSize="15" Margin="10" VerticalContentAlignment="Bottom">
+                <Button FontSize="15" Margin="10" VerticalContentAlignment="Bottom">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click" >
+                            <cal:ActionMessage MethodName="ExportGraph">
+                                <cal:Parameter Value="{Binding ElementName=MainChart}" />
+                            </cal:ActionMessage>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
                     <StackPanel Orientation="Horizontal">
                         <Image Source="/IndiaTango;component/Images/export_graph.png" Width="32" Height="32" VerticalAlignment="Center" />
                         <TextBlock Text="Export Graph" VerticalAlignment="Center" Margin="5" />
@@ -153,7 +145,6 @@
                 </Button>
             </StackPanel>
         </Grid>
-        
         
         <Grid Grid.Column="3" Margin="0,0,10,0">
             <Grid.RowDefinitions>

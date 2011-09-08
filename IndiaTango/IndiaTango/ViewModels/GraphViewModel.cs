@@ -10,6 +10,9 @@ using IndiaTango.Models;
 using System.Linq;
 using Microsoft.Samples.CustomControls;
 using Visiblox.Charts;
+using System.Windows.Forms;
+using CheckBox = System.Windows.Controls.CheckBox;
+using MessageBox = System.Windows.Forms.MessageBox;
 
 namespace IndiaTango.ViewModels
 {
@@ -116,11 +119,13 @@ namespace IndiaTango.ViewModels
 
         public string SampledValuesString { get { return (SampledValues) ? "Sampling every " + _sampleRate + " values" : String.Empty; } }
 
-        public GraphableSensor SelectedSensor { get { return _selectedSensor; } set { _selectedSensor = value; NotifyOfPropertyChange(() => SelectedSensorColour); NotifyOfPropertyChange(() => SelectedSensorName); NotifyOfPropertyChange(() => SelectedSensor); } }
+        public GraphableSensor SelectedSensor { get { return _selectedSensor; } set { _selectedSensor = value; NotifyOfPropertyChange(() => SelectedSensorColour); NotifyOfPropertyChange(() => SelectedSensorName); NotifyOfPropertyChange(() => SelectedSensor); NotifyOfPropertyChange(() => SelectedSensorVisibility); } }
 
         public Brush SelectedSensorColour { get { return (_selectedSensor == null) ? Brushes.Black : new SolidColorBrush(_selectedSensor.Colour); } }
 
         public string SelectedSensorName { get { return (_selectedSensor == null) ? string.Empty : _selectedSensor.Sensor.Name; } }
+
+        public Visibility SelectedSensorVisibility { get { return (_selectedSensor == null) ? Visibility.Collapsed : Visibility.Visible; } }
 
         #endregion
 
@@ -257,11 +262,26 @@ namespace IndiaTango.ViewModels
             RemoveSensor((GraphableSensor)checkbox.Content);
         }
 
-        public void btnExportGraph()
+        public void ExportGraph(object chart)
         {
+<<<<<<< HEAD
             EventLogger.LogInfo(GetType().ToString(), "Graph export started.");
             Common.ShowFeatureNotImplementedMessageBox();
             EventLogger.LogInfo(GetType().ToString(), "Graph export complete. File saved to: ");
+=======
+            var fileDialog = new SaveFileDialog
+                                 {
+                                     AddExtension = true,
+                                     CheckPathExists = true,
+                                     CheckFileExists = true,
+                                     Filter = @"Images|*.png"
+                                 };
+
+            var result = fileDialog.ShowDialog();
+
+            if(result == DialogResult.OK)
+                Common.RenderImage((Chart)chart, fileDialog.FileName);
+>>>>>>> 536df50cb3ff0a4330bc18cdfce71b34b2c14c7c
         }
 
         public void ShowColourDialog()
