@@ -1,14 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Forms;
 using Caliburn.Micro;
 using IndiaTango.Models;
-using MessageBox = System.Windows.Forms.MessageBox;
 
 namespace IndiaTango.ViewModels
 {
@@ -16,7 +11,7 @@ namespace IndiaTango.ViewModels
     {
         private IWindowManager _windowManager;
         private SimpleContainer _container;
-        private Sensor _selectedSensor = new Sensor();
+        private Sensor _selectedSensor = null;
 		private bool _tipVisible = false;
 		private List<Sensor> _sensors;
     	private bool _editing = false;
@@ -126,8 +121,13 @@ namespace IndiaTango.ViewModels
 				NotifyOfPropertyChange(() => MaximumRateOfChange);
 				NotifyOfPropertyChange(() => Manufacturer);
 				NotifyOfPropertyChange(() => SerialNumber);
-				
+                NotifyOfPropertyChange(() => HasSelectedSensor);
             }
+        }
+
+        public bool HasSelectedSensor
+        {
+            get { return SelectedSensor != null; }
         }
 
     	public bool Editing
@@ -249,6 +249,12 @@ namespace IndiaTango.ViewModels
 			//Force the controls to update
 			SelectedSensor = SelectedSensor;
 		}
+
+        public void btnPresets()
+        {
+            var v = _container.GetInstance(typeof (SensorTemplateManagerViewModel), "SensorTemplateManagerViewModel");
+            _windowManager.ShowDialog(v);
+        }
 
 		#endregion
     }
