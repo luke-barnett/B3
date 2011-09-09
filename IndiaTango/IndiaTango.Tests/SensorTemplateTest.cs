@@ -128,6 +128,9 @@ namespace IndiaTango.Tests
 
             s.MaximumRateOfChange = 200;
             Assert.AreEqual(200, s.MaximumRateOfChange);
+
+            s.Pattern = "X";
+            Assert.AreEqual("X", s.Pattern);
         }
 
         [Test]
@@ -214,6 +217,27 @@ namespace IndiaTango.Tests
 
             Assert.IsFalse(A.Equals(null));
             Assert.IsFalse(A.Equals(C));
+        }
+
+        [Test]
+        public void ToStringTest()
+        {
+            var A = new SensorTemplate("C", 100, 0, 1, SensorTemplate.MatchStyle.Contains, "Test");
+            var B = new SensorTemplate("C", 100, 0, 1, SensorTemplate.MatchStyle.EndsWith, "Test");
+            var C = new SensorTemplate("Q", 100, 0, 1, SensorTemplate.MatchStyle.StartsWith, "Test");
+
+            Assert.AreEqual("Match if contains 'Test'", A.ToString());
+            Assert.AreEqual("Match if ends with 'Test'", B.ToString());
+            Assert.AreEqual("Match if starts with 'Test'", C.ToString());
+
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentException))]
+        public void EmptyPatternTest()
+        {
+            var A = new SensorTemplate("C", 100, 0, 1, SensorTemplate.MatchStyle.Contains, "Test");
+            A.Pattern = null;
         }
     }
 }

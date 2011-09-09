@@ -1,8 +1,7 @@
 ﻿<Window x:Class="IndiaTango.Views.SensorTemplateManagerView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:cal="http://www.caliburnproject.org"
-        Title="{Binding Title}" Height="413" Width="600">
+        Title="{Binding Title}" Icon="{Binding Icon}" Height="413" Width="666">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200" />
@@ -10,7 +9,7 @@
         </Grid.ColumnDefinitions>
         
         <GroupBox BorderBrush="OrangeRed" BorderThickness="1" Header="Select a Preset to Edit" Margin="5">
-            <ListBox ItemsSource="{Binding AllPresets}" SelectedItem="{Binding SelectedPreset, Mode=TwoWay}" SelectionMode="Single" Margin="5" />
+            <ListBox ItemsSource="{Binding AllTemplates}" SelectedItem="{Binding SelectedTemplate, Mode=TwoWay}" IsEnabled="{Binding ListEnabled}" SelectionMode="Single" Margin="5" />
         </GroupBox>
         
         <GroupBox BorderBrush="OrangeRed" BorderThickness="1" Header="Manage Preset Properties" Grid.Column="1" Grid.Row="0" Margin="5" >
@@ -26,6 +25,8 @@
                     <RowDefinition Height="45" />
                     <RowDefinition Height="45" />
                     <RowDefinition Height="32" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="50" />
                 </Grid.RowDefinitions>
                 
                 <TextBlock FontWeight="Bold" TextAlignment="Right" Margin="5" Grid.Row="0" Grid.Column="0" Text="Unit:" />
@@ -36,13 +37,57 @@
                 <TextBlock FontWeight="Bold" TextAlignment="Right" Margin="5" Grid.Row="4" Grid.Column="0" Text="Match Sensor Names:" TextWrapping="Wrap" />
                 <TextBlock FontWeight="Bold" TextAlignment="Right" Margin="5" Grid.Row="5" Grid.Column="0" Text="Text to Match:" TextWrapping="Wrap" />
                 
-                <ComboBox ItemsSource="{Binding SensorMatchStyles}" SelectedIndex="{Binding MatchMode, Mode=TwoWay}" Grid.Column="1" Grid.Row="4" Margin="5 10" />
-                
-                <TextBox Text="{Binding Unit, Mode=TwoWay}" Grid.Column="1" Grid.Row="0" Margin="5"/>
-                <TextBox Text="{Binding UpperLimit, Mode=TwoWay}" Grid.Column="1" Grid.Row="1" Margin="5"/>
-                <TextBox Text="{Binding LowerLimit, Mode=TwoWay}" Grid.Column="1" Grid.Row="2" Margin="5"/>
-                <TextBox Text="{Binding MaximumRateOfChange, Mode=TwoWay}" Grid.Column="1" Grid.Row="3" Margin="5" Height="22" Width="100" VerticalAlignment="Top" HorizontalAlignment="Left" />
-                <TextBox Text="{Binding TextToMatch, Mode=TwoWay}" Grid.Column="1" Grid.Row="5" Margin="5"/>
+                <ComboBox ItemsSource="{Binding SensorMatchStyles}" SelectedIndex="{Binding MatchMode, Mode=TwoWay}" Grid.Column="1" Grid.Row="4" Margin="5 10" IsEnabled="{Binding Editing}" />
+
+                <TextBox Text="{Binding Unit, Mode=TwoWay}" Grid.Column="1" Grid.Row="0" Margin="5" IsEnabled="{Binding Editing}" />
+                <TextBox Text="{Binding UpperLimit, Mode=TwoWay}" Grid.Column="1" Grid.Row="1" Margin="5" IsEnabled="{Binding Editing}" />
+                <TextBox Text="{Binding LowerLimit, Mode=TwoWay}" Grid.Column="1" Grid.Row="2" Margin="5" IsEnabled="{Binding Editing}" />
+                <TextBox Text="{Binding MaximumRateOfChange, Mode=TwoWay}" Grid.Column="1" Grid.Row="3" Margin="5" Height="22" Width="100" VerticalAlignment="Top" HorizontalAlignment="Left" IsEnabled="{Binding Editing}" />
+                <TextBox Text="{Binding TextToMatch, Mode=TwoWay}" Grid.Column="1" Grid.Row="5" Margin="5" IsEnabled="{Binding Editing}"/>
+
+                <StackPanel Grid.Column="0" Grid.Row="7" Grid.ColumnSpan="2" HorizontalAlignment="Right" Orientation="Horizontal">
+                    <Button Name="btnNew" FontSize="15" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Left">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/IndiaTango;component/Images/new.png" Width="32" Height="32" VerticalAlignment="Center" />
+                            <TextBlock Text="New" VerticalAlignment="Center" Margin="5" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Name="btnDelete" FontSize="15" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Left" IsEnabled="{Binding HasSelectedTemplate}">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/IndiaTango;component/Images/delete_32.png" Width="32" Height="32" VerticalAlignment="Center" />
+                            <TextBlock Text="Delete" VerticalAlignment="Center" Margin="5" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Name="btnSave" FontSize="15" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" Visibility="{Binding SaveCancelVisible}" HorizontalAlignment="Left">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/IndiaTango;component/Images/save_32.png" Width="32" Height="32" VerticalAlignment="Center" />
+                            <TextBlock Text="Save" VerticalAlignment="Center" Margin="5" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Name="btnCancel" FontSize="15" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" Visibility="{Binding SaveCancelVisible}">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/IndiaTango;component/Images/cancel_32.png" Width="32" Height="32" VerticalAlignment="Center" />
+                            <TextBlock Text="Cancel" VerticalAlignment="Center" Margin="5" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Name="btnEdit" FontSize="15" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Visibility="{Binding EditDoneVisible}" VerticalAlignment="Bottom" IsEnabled="{Binding HasSelectedTemplate}">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/IndiaTango;component/Images/edit_32.png" Width="32" Height="32" VerticalAlignment="Center"  />
+                            <TextBlock Text="Edit" VerticalAlignment="Center" Margin="5" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Name="btnDone" FontSize="15" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Left" Visibility="{Binding EditDoneVisible}">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/IndiaTango;component/Images/done_32.png" Width="32" Height="32" VerticalAlignment="Center" />
+                            <TextBlock Text="Done" VerticalAlignment="Center" Margin="5" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
             </Grid>
         </GroupBox>
     </Grid>

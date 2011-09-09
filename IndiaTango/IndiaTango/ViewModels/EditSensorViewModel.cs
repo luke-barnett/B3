@@ -15,11 +15,14 @@ namespace IndiaTango.ViewModels
 		private bool _tipVisible = false;
 		private List<Sensor> _sensors;
     	private bool _editing = false;
+        private List<SensorTemplate> Templates = new List<SensorTemplate>(); 
 
         public EditSensorViewModel(IWindowManager windowManager, SimpleContainer container)
         {
             _windowManager = windowManager;
             _container = container;
+
+            Templates = SensorTemplate.ImportAll();
         }
 
 		#region View Properties
@@ -93,20 +96,20 @@ namespace IndiaTango.ViewModels
 
                 if(NeedsTip)
                 {
-                    // Provide defaults based on name
-                    if(Name.Contains("Temp"))
-                    {
-                        // TODO: load these from presets on disk
-                        Unit = "°C";
-                        LowerLimit = "-15";
-                        UpperLimit = "38";
-                        MaximumRateOfChange = "9";
-                        TipVisible = true;
-                    }
-                    else
-                    {
-                        TipVisible = false;
-                    }
+                    var gotMatch = false;
+
+                    if(value != null)
+                        foreach(SensorTemplate st in Templates)
+                            if(st.Matches(value))
+                            {
+                                Unit = st.Unit;
+                                LowerLimit = st.LowerLimit.ToString();
+                                UpperLimit = st.UpperLimit.ToString();
+                                MaximumRateOfChange = st.MaximumRateOfChange.ToString();
+                                gotMatch = true;
+                            }
+
+                    TipVisible = gotMatch;
                 }
                 else
                 {
@@ -252,7 +255,8 @@ namespace IndiaTango.ViewModels
 
         public void btnPresets()
         {
-            var v = _container.GetInstance(typeof (SensorTemplateManagerViewModel), "SensorTemplateManagerViewModel");
+            var v = (SensorTemplateManagerViewModel)_container.GetInstance(typeof (SensorTemplateManagerViewModel), "SensorTemplateManagerViewModel");
+            v.Deactivated += (o, e) => { Templates = SensorTemplate.ImportAll(); /* Update sensor templates after potential change */ };
             _windowManager.ShowDialog(v);
         }
 

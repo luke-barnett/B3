@@ -30,13 +30,13 @@ namespace IndiaTango.Models
         public SensorTemplate(string unit, float upperLimit, float lowerLimit, float maxRateOfChange, MatchStyle matchStyle, string pattern)
         {
             if(String.IsNullOrWhiteSpace(unit))
-                throw new ArgumentException("You must a non-null, non-empty default unit.");
+                throw new ArgumentException("You must a non-blank default unit.");
 
             if(pattern == null)
-                throw new ArgumentException("The pattern to match this sensor on cannot be null.");
+                throw new ArgumentException("The pattern to match a sensor on cannot be blank.");
 
             if(lowerLimit > upperLimit)
-                throw new ArgumentOutOfRangeException("The lower limit must be less than the upper limit for this sensor template.");
+                throw new ArgumentOutOfRangeException("The lower limit must be less than the upper limit for this preset.");
 
             _unit = unit;
             _upperLimit = upperLimit;
@@ -94,14 +94,20 @@ namespace IndiaTango.Models
 
         // Properties used for serialisation only
         [DataMember]
-        private string Pattern
+        public string Pattern
         {
             get { return _pattern; }
-            set { _pattern = value; }
+            set
+            {
+                if (value == null)
+                    throw new ArgumentException("The pattern to match a sensor on cannot be blank.");
+                
+                _pattern = value;
+            }
         }
 
         [DataMember]
-        private MatchStyle MatchingStyle
+        public MatchStyle MatchingStyle
         {
             get { return _matchStyle; }
             set { _matchStyle = value; }
@@ -159,6 +165,28 @@ namespace IndiaTango.Models
             }
             else
                 return false;
+        }
+
+        public override string ToString()
+        {
+            var ret = "Match if ";
+
+            switch(MatchingStyle)
+            {
+                case MatchStyle.Contains:
+                    ret += "contains";
+                    break;
+                case MatchStyle.StartsWith:
+                    ret += "starts with";
+                    break;
+                case MatchStyle.EndsWith:
+                    ret += "ends with";
+                    break;
+            }
+
+            ret += " '" + Pattern + "'";
+
+            return ret;
         }
     }
 }
