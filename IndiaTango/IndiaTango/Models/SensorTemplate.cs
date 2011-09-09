@@ -54,7 +54,12 @@ namespace IndiaTango.Models
             set { _unit = value; }
         }
 
-        [DataMember]
+        /*
+         * This is a side-effect of serialisation.
+         * Serialisation alphabetises members. Unfortunately, LowerLimit comes before UpperLimit, so when we de-serialise,
+         * we set LowerLimit before UpperLimit, which throws an ArgumentOutOfRangeException.
+         */
+        [DataMember(Name="AUpperLimit")]
         public float UpperLimit
         {
             get { return _upperLimit; }
@@ -101,6 +106,7 @@ namespace IndiaTango.Models
             get { return _matchStyle; }
             set { _matchStyle = value; }
         }
+
         public bool Matches(Sensor testSensor)
         {
             if (_matchStyle == MatchStyle.Contains)
@@ -129,6 +135,30 @@ namespace IndiaTango.Models
             var fs = new FileStream(ExportPath, FileMode.Create, FileAccess.ReadWrite);
             dcs.WriteObject(fs, templates);
             fs.Close();
+        }
+
+        public static List<SensorTemplate> ImportAll()
+        {
+            if(!File.Exists(ExportPath))
+                return new List<SensorTemplate>(); // File may not exist yet because there are no serialised presets.
+
+            var dcs = new DataContractSerializer(typeof (List<SensorTemplate>));
+            var fs = new FileStream(ExportPath, FileMode.Open, FileAccess.Read);
+            var result = (List<SensorTemplate>)dcs.ReadObject(fs);
+            fs.Close();
+            return result;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj != null && obj is SensorTemplate)
+            {
+                var o = obj as SensorTemplate;
+                return o.LowerLimit == LowerLimit && o.UpperLimit == UpperLimit && o.MatchingStyle == MatchingStyle &&
+                       o.MaximumRateOfChange == MaximumRateOfChange && o.Pattern == Pattern;
+            }
+            else
+                return false;
         }
     }
 }
