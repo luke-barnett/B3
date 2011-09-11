@@ -85,6 +85,25 @@ namespace IndiaTango.Tests
 			_exporter = new DatasetExporter(null);
 		}
 
+        [Test]
+        public void ExportCSVWithIndividualDateColumns()
+        {
+            var dateTime = new DateTime(2011, 8, 4, 0, 0, 0);
+            var givenDataSet = new Dataset(new Site(1, "Steven", "Kerry", Contact, Contact, Contact, new GPSCoords(0, 0)));
+            var sampleData = new Dictionary<DateTime, float> { { dateTime.AddMinutes(15), 100 }, { dateTime.AddMinutes(30), 100 }, { dateTime.AddMinutes(45), 100 }, { dateTime.AddMinutes(60), 100 } };
+            var s = new Sensor("Awesome Sensor", "Awesome");
+            var ss = new SensorState(DateTime.Now, sampleData);
+            s.AddState(ss);
+            givenDataSet.AddSensor(s);
+
+            var exporter = new DatasetExporter(givenDataSet);
+            exporter.Export(_outputFilePath, ExportFormat.CSVWithDateColumns, true, false);
+
+            var _expected = "dd,mm,yyyy,hh,nn,Awesome Sensor\r\n04,08,2011,00,15,100\r\n04,08,2011,00,30,100\r\n04,08,2011,00,45,100\r\n04,08,2011,01,00,100\r\n";
+
+            Assert.AreEqual(_expected, File.ReadAllText(_outputFilePath));
+
+        }
 		#endregion
 
     }
