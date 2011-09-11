@@ -13,6 +13,13 @@ namespace IndiaTango.Models
         private DateTime _editTimestamp;
         private Dictionary<DateTime, float> _valueList;
 
+        public SensorState Clone()
+        {
+            var d = _valueList.ToDictionary(v => v.Key, v => v.Value);
+            var s = new SensorState(DateTime.Now,d);
+            return s;
+        }
+
         /// <summary>
         /// Creates a new sensor state with the specified timestamp representing the date it was last edited.
         /// </summary>
