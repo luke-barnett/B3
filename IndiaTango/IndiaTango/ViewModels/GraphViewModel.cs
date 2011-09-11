@@ -12,7 +12,6 @@ using Microsoft.Samples.CustomControls;
 using Visiblox.Charts;
 using System.Windows.Forms;
 using CheckBox = System.Windows.Controls.CheckBox;
-using MessageBox = System.Windows.Forms.MessageBox;
 
 namespace IndiaTango.ViewModels
 {
