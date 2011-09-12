@@ -170,5 +170,29 @@ namespace IndiaTango.Tests
             s.Reason = _reason;
             Assert.AreEqual("Updated because values were wrong", s.Reason);
         }
+
+        [Test]
+        public void EqualityTest()
+        {
+            var baseDate = new DateTime(2011, 5, 7, 12, 15, 0);
+            var A = new SensorState(baseDate,
+                                    new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 200 }, { baseDate.AddMinutes(30), 200 }, { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 200 } });
+            var B = new SensorState(baseDate,
+                                    new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 200 }, { baseDate.AddMinutes(30), 200 }, { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 200 } });
+            var C = new SensorState(baseDate,
+                                    new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 200 }, { baseDate.AddMinutes(30), 10 }, { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 50 } });
+            var D = new SensorState(baseDate,
+                                    new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 200 }, { baseDate.AddMinutes(30), 200 }, { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 200 } });
+            var E = new SensorState(baseDate.AddHours(50),
+                                    new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 200 }, { baseDate.AddMinutes(30), 200 }, { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 200 } });
+            var F = new SensorState(baseDate,
+                                    new Dictionary<DateTime, float> { { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 200 }, { baseDate.AddMinutes(75), 200 }, { baseDate.AddMinutes(90), 200 } });
+
+            Assert.AreEqual(A, B);
+            Assert.AreNotEqual(B, C);
+            Assert.AreNotEqual(C, D);
+            Assert.AreNotEqual(D, E);
+            Assert.AreNotEqual(E, F);
+        }
     }
 }
