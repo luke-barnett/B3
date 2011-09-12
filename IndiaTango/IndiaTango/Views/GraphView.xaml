@@ -5,7 +5,7 @@
         xmlns:multiseries="clr-namespace:IndiaTango.MultiSeriesBinding"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:cal="http://www.caliburnproject.org"
         xmlns:toolkit="clr-namespace:Microsoft.Windows.Controls;assembly=WPFToolkit.Extended"
-        Title="{Binding ChartTitle}" Height="570" Width="950" Icon="{Binding Icon}" WindowStartupLocation="CenterScreen">
+        Title="{Binding ChartTitle}" Height="570" Width="1100" Icon="{Binding Icon}" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="{Binding ColumnWidth}" />
@@ -102,13 +102,7 @@
                     <TextBlock Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedSensorName}" Margin="10,0,0,0" />
 
                     <TextBlock Text="Color:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" />
-                    <Rectangle  Grid.Row="1" Grid.Column="1" Width="20" Height="20" HorizontalAlignment="Left" VerticalAlignment="Center" Fill="{Binding SelectedSensorColour}" Stroke="Black" StrokeEndLineCap="Flat" StrokeThickness="1" RadiusX="5" RadiusY="5" Margin="10 5 0 0">
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="MouseLeftButtonDown">
-                                <cal:ActionMessage MethodName="ShowColourDialog" />
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </Rectangle>
+                    <toolkit:ColorPicker Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Margin="10 5 0 0" DisplayColorAndName="False" SelectedColor="{Binding SelectedSensorColour, Mode=TwoWay}" ShowStandardColors="False" />
 
                 </Grid>
             </GroupBox>
