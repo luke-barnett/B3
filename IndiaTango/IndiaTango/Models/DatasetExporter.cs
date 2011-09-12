@@ -40,12 +40,12 @@ namespace IndiaTango.Models
             filePath = Path.ChangeExtension(filePath,format.Extension);
             string metaDataPath = filePath + " Site Meta Data.txt";
 
-            if (format.Equals(ExportFormat.CSV) || format.Equals(ExportFormat.TXT))
+            if (format.Equals(ExportFormat.CSV) || format.Equals(ExportFormat.TXT) || format.Equals(ExportFormat.CSVWithDateColumns))
 			{
 				using(StreamWriter writer = File.CreateText(filePath))
 				{
 					char del = ',';
-					string columnHeadings = "dd/mm/yyyy" + del + "hhnn";  //Not a typo
+                    string columnHeadings = (format.Equals(ExportFormat.CSVWithDateColumns)) ? "dd" + del + "mm" + del + "yyyy" + del + "hh" + del + "nn" : "dd/mm/yyyy" + del + "hhnn";  //Not a typo
 				    int currentSensorIndex = 0;
 				    var outputData = new string[Data.Sensors.Count, Data.DataPointCount];
 				    DateTime rowDate = Data.StartTimeStamp;
@@ -75,7 +75,7 @@ namespace IndiaTango.Models
 
                         if(includeEmptyLines || line.Length != Data.Sensors.Count)
                         {
-                            line = rowDate.ToString("dd/MM/yyyy") + del + rowDate.ToString("HH:mm") + line;
+                            line = (format.Equals(ExportFormat.CSVWithDateColumns)) ? rowDate.ToString("dd") + del + rowDate.ToString("MM") + del + rowDate.ToString("yyyy") + del + rowDate.ToString("HH") + del + rowDate.ToString("mm") + line : rowDate.ToString("dd/MM/yyyy") + del + rowDate.ToString("HH:mm") + line;
                             writer.WriteLine(line);
                         }
 
@@ -183,6 +183,8 @@ namespace IndiaTango.Models
 		public static ExportFormat TXT { get { return new ExportFormat(".txt", "Tab Deliminated Text File"); } }
 
 		public static ExportFormat XLSX { get { return new ExportFormat(".xlsx", "Excel Workbook"); } }
+
+        public static ExportFormat CSVWithDateColumns { get { return new ExportFormat(".csv", "Comma Seperated Value File with individual columns for date/time components"); } }
 		
 		#endregion
 

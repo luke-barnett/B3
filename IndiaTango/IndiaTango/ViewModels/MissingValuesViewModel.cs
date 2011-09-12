@@ -124,14 +124,15 @@ namespace IndiaTango.ViewModels
 
 		public void btnUndo()
 		{
-			//TODO actual code
-			Common.ShowFeatureNotImplementedMessageBox();
+            _sensor.Undo();
+            MissingValues = _sensor.CurrentState.GetMissingTimes(15, _ds.StartTimeStamp, _ds.EndTimeStamp);
+            
 		}
 
 		public void btnRedo()
 		{
-			//TODO actual code
-			Common.ShowFeatureNotImplementedMessageBox();
+            _sensor.Redo();
+            MissingValues = _sensor.CurrentState.GetMissingTimes(15, _ds.StartTimeStamp, _ds.EndTimeStamp);
 		}
 
 		public void btnDone()
@@ -146,6 +147,8 @@ namespace IndiaTango.ViewModels
 
             if(_selectedValues.Count == 0)
                 return;
+
+            _sensor.AddState(_sensor.CurrentState.Clone());
 
 			foreach (var time in SelectedValues)
         	{
@@ -201,6 +204,8 @@ namespace IndiaTango.ViewModels
                 }
             }
 
+            _sensor.AddState(_sensor.CurrentState.Clone());
+
 			foreach (var time in SelectedValues)
 			{
                 _sensor.CurrentState.Values.Add(time,value);
@@ -245,6 +250,9 @@ namespace IndiaTango.ViewModels
 		    var valDiff = _sensor.CurrentState.Values[endValue] - _sensor.CurrentState.Values[startValue];
 		    var step = valDiff/(timeDiff/15);
 		    var value = _sensor.CurrentState.Values[startValue] + step;
+
+            _sensor.AddState(_sensor.CurrentState.Clone());
+
             for(var i = 15;i<timeDiff;i+=15)
             {
                 _sensor.CurrentState.Values.Add(startValue.AddMinutes(i),(float)Math.Round(value,2));

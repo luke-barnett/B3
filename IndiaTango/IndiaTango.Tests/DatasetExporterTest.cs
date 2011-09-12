@@ -15,6 +15,7 @@ namespace IndiaTango.Tests
     	private readonly string _outputFilePath = Path.Combine(Common.TestDataPath, "dataSetExporterTest.csv");
 		private readonly string _inputFilePath = Path.Combine(Common.TestDataPath, "lakeTutira120120110648.csv");
     	private DatasetExporter _exporter;
+        public static string DatasetOutputWithIndividualColumns = "dd,mm,yyyy,hh,nn,Awesome Sensor\r\n04,08,2011,00,15,100\r\n04,08,2011,00,30,100\r\n04,08,2011,00,45,100\r\n04,08,2011,01,00,100\r\n";
 
 		//Secondary contact cannot be null? Argh...
 		//Also need a setter on the Dataset class for the sensor list
@@ -85,6 +86,23 @@ namespace IndiaTango.Tests
 			_exporter = new DatasetExporter(null);
 		}
 
+        [Test]
+        public void ExportCSVWithIndividualDateColumns()
+        {
+            var dateTime = new DateTime(2011, 8, 4, 0, 0, 0);
+            var givenDataSet = new Dataset(new Site(1, "Steven", "Kerry", Contact, Contact, Contact, new GPSCoords(0, 0)));
+            var sampleData = new Dictionary<DateTime, float> { { dateTime.AddMinutes(15), 100 }, { dateTime.AddMinutes(30), 100 }, { dateTime.AddMinutes(45), 100 }, { dateTime.AddMinutes(60), 100 } };
+            var s = new Sensor("Awesome Sensor", "Awesome");
+            var ss = new SensorState(DateTime.Now, sampleData);
+            s.AddState(ss);
+            givenDataSet.AddSensor(s);
+
+            var exporter = new DatasetExporter(givenDataSet);
+            exporter.Export(_outputFilePath, ExportFormat.CSVWithDateColumns, true, false);
+
+            Assert.AreEqual(DatasetOutputWithIndividualColumns, File.ReadAllText(_outputFilePath));
+
+        }
 		#endregion
 
     }
