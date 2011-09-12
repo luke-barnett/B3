@@ -53,8 +53,6 @@ namespace IndiaTango.ViewModels
 			//Hack used to force the damn buttons to update
         	DoneCancelVisible = Visibility.Visible;
 			DoneCancelVisible = Visibility.Collapsed;
-
-            
         }
 
 		#region View Properties
@@ -469,13 +467,11 @@ namespace IndiaTango.ViewModels
 				CreateEditDeleteVisible = Visibility.Visible;
 				DoneCancelVisible = Visibility.Collapsed;
 				SiteControlsEnabled = false;
-
-				//TODO: List box of bouys does not update properly
 			}
 			catch (Exception e)
 			{
-				//TODO: Be more informative
-				Common.ShowMessageBox("Site Details Error", e.Message, false, true);
+				Common.ShowMessageBox("Error", e.Message, false, true);
+			    EventLogger.LogError(GetType().ToString(), "Tried to create site but failed. Details: " + e.Message);
 			}
 		}
 
@@ -509,7 +505,8 @@ namespace IndiaTango.ViewModels
 				}
 				catch (InvalidOperationException ex)
 				{
-					// TODO: meaningful error here
+				    Common.ShowMessageBox("Error", "You cannot cancel the loading of this data set at this time. Try again later.",
+				                          false, true);
 					System.Diagnostics.Debug.WriteLine("Cannot cancel data loading thread - " + ex);
                     EventLogger.LogError(GetType().ToString(), "Data import could not be canceled.");
 				}

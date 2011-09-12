@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using System;
 using NUnit.Framework;
 using IndiaTango.Models;
@@ -57,6 +58,23 @@ namespace IndiaTango.Tests
         public void BadFileName()
         {
             _reader = new CSVReader("CannotTellIfIAmCSV");
+        }
+
+        [Test]
+        public void ReadsCSVWithIndividualDatesCorrectly()
+        {
+            var testData = "mm,yyyy,dd,nn,hh,Awesome Sensor\r\n08,04,2011,15,00,100\r\n";
+
+            var path = Path.Combine(Common.TestDataPath, "datasetIndividualColumnsTest.csv");
+            File.WriteAllText(path, testData);
+
+            var r = new CSVReader(path);
+            var list = r.ReadSensors();
+
+            var sensorValue = list[0].CurrentState.Values;
+
+            Assert.AreEqual(sensorValue[new DateTime(2011, 8, 4, 0, 15, 0)], 100);
+            Assert.AreEqual(1, sensorValue.Count);
         }
     }
 }
