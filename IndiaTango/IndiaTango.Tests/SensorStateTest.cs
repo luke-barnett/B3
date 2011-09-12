@@ -15,6 +15,7 @@ namespace IndiaTango.Tests
         private DateTime modifiedDate = new DateTime(2011, 11, 17, 5, 0, 0);
         private Dictionary<DateTime,float> valueList ;
         private Dictionary<DateTime,float> secondValueList;
+        private string _reason = "Updated because values were wrong";
 
         [SetUp]
         public void Setup()
@@ -148,6 +149,26 @@ namespace IndiaTango.Tests
                                          {new DateTime(2011, 8, 20, 2, 0, 0), 50}
                                      };
             Assert.AreEqual(missingDates, sensorState.GetMissingTimes(15,new DateTime(2011, 8, 20, 0, 0, 0),new DateTime(2011, 8, 20, 2, 0, 0)));
+        }
+
+        [Test]
+        public void GetsChangeReasonCorrectly()
+        {
+            
+            var s = new SensorState(DateTime.Now,
+                                    new Dictionary<DateTime, float> { { new DateTime(2011, 5, 7, 12, 20, 0), 200} }, _reason);
+            Assert.AreEqual(_reason, s.Reason);
+        }
+
+        [Test]
+        public void SetsChangeReasonCorrectly()
+        {
+            var s = new SensorState(DateTime.Now,
+                                    new Dictionary<DateTime, float> { { new DateTime(2011, 5, 7, 12, 20, 0), 200 } });
+            Assert.AreEqual("", s.Reason);
+
+            s.Reason = _reason;
+            Assert.AreEqual("Updated because values were wrong", s.Reason);
         }
     }
 }
