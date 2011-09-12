@@ -75,6 +75,9 @@
     <Reference Include="WindowsFormsAero">
       <HintPath>..\..\Externals\VistaControls\WindowsFormsAero.dll</HintPath>
     </Reference>
+    <Reference Include="WPFToolkit.Extended">
+      <HintPath>..\..\Externals\Extended WPF Toolkit\WPFToolkit.Extended.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
