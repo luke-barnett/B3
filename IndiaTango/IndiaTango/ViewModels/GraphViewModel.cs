@@ -8,7 +8,6 @@ using System.Windows.Media.Imaging;
 using Caliburn.Micro;
 using IndiaTango.Models;
 using System.Linq;
-using Microsoft.Samples.CustomControls;
 using Visiblox.Charts;
 using System.Windows.Forms;
 using CheckBox = System.Windows.Controls.CheckBox;
@@ -138,7 +137,7 @@ namespace IndiaTango.ViewModels
 
         public GraphableSensor SelectedSensor { get { return _selectedSensor; } set { _selectedSensor = value; NotifyOfPropertyChange(() => SelectedSensorColour); NotifyOfPropertyChange(() => SelectedSensorName); NotifyOfPropertyChange(() => SelectedSensor); NotifyOfPropertyChange(() => SelectedSensorVisibility); } }
 
-        public Brush SelectedSensorColour { get { return (_selectedSensor == null) ? Brushes.Black : new SolidColorBrush(_selectedSensor.Colour); } }
+        public Color SelectedSensorColour { get { return (_selectedSensor == null) ? Colors.Black : _selectedSensor.Colour; } set { if(_selectedSensors != null) _selectedSensor.Colour = value; NotifyOfPropertyChange(() => SelectedSensorColour); if(_selectedSensors.Contains(_selectedSensor)) RedrawGraph();} }
 
         public string SelectedSensorName { get { return (_selectedSensor == null) ? string.Empty : _selectedSensor.Sensor.Name; } }
 
@@ -331,21 +330,6 @@ namespace IndiaTango.ViewModels
             }
             else
                 EventLogger.LogInfo(GetType().ToString(), "Graph export complete. File wasn't saved");
-        }
-
-        public void ShowColourDialog()
-        {
-            if (_selectedSensor == null)
-                return;
-            var colourPickerDialog = new ColorPickerDialog {StartingColor = SelectedSensor.Colour};
-            var result = colourPickerDialog.ShowDialog();
-            if(result == true)
-            {
-                _selectedSensor.Colour = colourPickerDialog.SelectedColor;
-                NotifyOfPropertyChange(() => SelectedSensorColour);
-                if(_selectedSensors.Contains(_selectedSensor))
-                    RedrawGraph();
-            }
         }
 
         public void StartTimeChanged(RoutedPropertyChangedEventArgs<object> e)
