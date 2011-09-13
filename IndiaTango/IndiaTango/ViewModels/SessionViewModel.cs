@@ -376,12 +376,7 @@ namespace IndiaTango.ViewModels
                     _container.GetInstance(typeof(ExportViewModel), "ExportViewModel") as ExportViewModel;
             exportWindow.Dataset = _ds;
 
-            if (dialog.ShowDialog() == DialogResult.OK)
-            {
-                Dataset dataSet = new Dataset(SelectedSite, SensorList);
-                DatasetExporter exporter = new DatasetExporter(dataSet);
-                exporter.Export(dialog.FileName, ExportFormat.CSV, true, dialog.FilterIndex == 2,1);
-            }
+            _windowManager.ShowDialog(exportWindow);
 		}
 
 		public void btnOutOfRangeValues()
