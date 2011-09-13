@@ -159,6 +159,8 @@ namespace IndiaTango.ViewModels
 
 			Common.ShowMessageBox("Values Updated", "The selected values have been set to 0.", false, false);
             EventLogger.LogInfo(GetType().ToString(), "Value updation complete. Sensor: " + SelectedSensor.Name + ". Value: 0.");
+
+            provideReason();
         }
 
         private DateTime FindPrevValue(DateTime dataValue)
@@ -173,6 +175,7 @@ namespace IndiaTango.ViewModels
                                  : DateTime.MinValue);
                 time -= 15;
             }
+
             return prevValue;
         }
 
@@ -216,6 +219,7 @@ namespace IndiaTango.ViewModels
             Common.ShowMessageBox("Values Updated", "The selected values have been set to " + value + ".", false, false);
             EventLogger.LogInfo(GetType().ToString(),"Value updation complete. Sensor: " + SelectedSensor.Name + ". Value: " + value + ".");
 
+            provideReason();
         }
 
         private void Cleanup()
@@ -260,11 +264,29 @@ namespace IndiaTango.ViewModels
             }
             Cleanup();
 
-            Common.ShowMessageBox("Values Updated", "The vaues have been extrapolated", false, false);
+            Common.ShowMessageBox("Values Updated", "The values have been extrapolated", false, false);
             EventLogger.LogInfo(GetType().ToString(),
                                 "Value extrapolation complete. Sensor: " + SelectedSensor.Name + ". Range: " +
                                 startValue + " to " + endValue);
-		}
+
+            provideReason();
+        }
+
+        public void provideReason()
+        {
+            if(_sensor != null && _sensor.CurrentState != null)
+            {
+                var specify = (SpecifyValueViewModel)_container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel");
+                specify.Title = "Log Reason";
+                specify.Message = "Please specify a reason for this change:";
+                specify.Deactivated += (o, e) =>
+                                           {
+                                               // Specify reason
+                                               _sensor.CurrentState.Reason = specify.Text;
+                                           };
+                _windowManager.ShowDialog(specify);
+            }
+        }
 
 		public void btnZoomIn()
 		{

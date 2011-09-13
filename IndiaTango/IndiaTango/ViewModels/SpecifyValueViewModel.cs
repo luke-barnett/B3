@@ -24,6 +24,9 @@ namespace IndiaTango.ViewModels
         private string _text = null;
         public string Text { get { return _text; } set { _text = value; NotifyOfPropertyChange(()=>Text); } }
 
+        private string _msg = "Please specify a value:";
+        public string Message { get { return _msg; } set { _msg = value; NotifyOfPropertyChange(() => Message); } }
+
         public void btnOK()
         {
             this.TryClose();
