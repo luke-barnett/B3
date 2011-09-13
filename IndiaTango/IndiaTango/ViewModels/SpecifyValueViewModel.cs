@@ -11,7 +11,7 @@ namespace IndiaTango.ViewModels
     {
         private readonly SimpleContainer _container;
         private readonly IWindowManager _windowManager;
-        
+        private string _title = "Specify value";
 
         public SpecifyValueViewModel(IWindowManager windowManager, SimpleContainer container)
         {
@@ -19,11 +19,10 @@ namespace IndiaTango.ViewModels
             _windowManager = windowManager;
         }
 
-        public string Title { get { return "Specify value"; } }
+        public string Title { get { return _title; } set { _title = value; } }
 
         private string _text = null;
         public string Text { get { return _text; } set { _text = value; NotifyOfPropertyChange(()=>Text); } }
-
 
         public void btnOK()
         {
