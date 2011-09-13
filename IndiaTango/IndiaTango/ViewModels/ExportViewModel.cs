@@ -52,13 +52,13 @@ namespace IndiaTango.ViewModels
         public DateColumnFormat DateColumnFormat
         {
             get { return _dateColumnFormat; }
-            set { _dateColumnFormat = value; NotifyOfPropertyChange(() => DateColumnFormat); Debug.WriteLine("column format changed: " + value.Name); }
+            set { _dateColumnFormat = value; NotifyOfPropertyChange(() => DateColumnFormat); }
         }
 
         public ExportedPoints ExportedPoints
         {
             get { return _exportedPoints; }
-            set { _exportedPoints = value; NotifyOfPropertyChange(() => ExportedPoints); Debug.WriteLine("export format changed: " + value.Name); }
+            set { _exportedPoints = value; NotifyOfPropertyChange(() => ExportedPoints); }
         }
 
         public bool IncludeEmptyLines

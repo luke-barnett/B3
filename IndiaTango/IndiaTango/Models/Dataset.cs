@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 
 namespace IndiaTango.Models
 {
@@ -10,6 +11,8 @@ namespace IndiaTango.Models
         private DateTime _startTimeStamp;
         private DateTime _endTimeStamp;
         private List<Sensor> _sensors;
+        private int _dataPointCount = 0;
+        private int _dataInterval;
 
         /// <summary>
         /// Creates a new dataset with a specified start and end timestamp
@@ -63,6 +66,7 @@ namespace IndiaTango.Models
             get { return _endTimeStamp; }
         }
 
+
         /// <summary>
         /// Returns the list of sensors for this dataset
         /// </summary>
@@ -76,9 +80,40 @@ namespace IndiaTango.Models
 
         	    _sensors = value;
 
-                //Set the start and end time dynamically
+
+                if(Sensors[0] != null && Sensors[0].CurrentState != null)
+                {
+                    var intervalMap = new Dictionary<int, int>();
+                    var prevDate = DateTime.MinValue;
+                    var currentHighest = new KeyValuePair<int, int>();
+
+
+                    foreach (var date in Sensors[0].CurrentState.Values.Keys)
+                    {
+                        var interval = (int)(date - prevDate).TotalMinutes;
+                        
+                        if (intervalMap.ContainsKey(interval))
+                            intervalMap[interval]++;
+                        else
+                            intervalMap.Add(interval,1);
+
+                        prevDate = date;
+                    }
+
+                    foreach (var pair in intervalMap)
+                        if (pair.Value > currentHighest.Value)
+                            currentHighest = pair;
+
+                    _dataInterval = currentHighest.Key;
+                }
+
                 foreach (Sensor sensor in _sensors)
                 {
+                    //Update the datapointcount
+                    if(sensor.CurrentState != null)
+                        _dataPointCount = Math.Max(sensor.CurrentState.Values.Count, _dataPointCount);
+
+                    //Set the start and end time dynamically
                     if (sensor.CurrentState != null && sensor.CurrentState.Values.Count > 0)
                     {
                         var timesArray = new DateTime[sensor.CurrentState.Values.Count];
@@ -115,12 +150,21 @@ namespace IndiaTango.Models
     	    Sensors = sensorList;
         }
 
+        /// <summary>
+        /// Returns the time interval in minutes the data points are placed at
+        /// </summary>
+        public int DataInterval
+        {
+            get { return _dataInterval; }
+        }
+
         public int DataPointCount
         {
             get
             {
                 //An additional +1 is added to the return value to account for the initial data point
-                return (int)Math.Floor(EndTimeStamp.Subtract(StartTimeStamp).TotalMinutes/15) + 1;
+                //return (int)Math.Floor(EndTimeStamp.Subtract(StartTimeStamp).TotalMinutes/15) + 1;
+                return _dataPointCount;
             }
         }
     }

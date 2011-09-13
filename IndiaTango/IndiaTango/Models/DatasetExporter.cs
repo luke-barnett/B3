@@ -79,6 +79,7 @@ namespace IndiaTango.Models
                     string columnHeadings = dateColumnFormat.Equals(DateColumnFormat.SplitDateColumn) ? "dd" + del + "mm" + del + "yyyy" + del + "hh" + del + "nn" : "dd/mm/yyyy" + del + "hhnn";  //Not a typo
 				    int currentSensorIndex = 0;
 				    var outputData = new string[Data.Sensors.Count, Data.DataPointCount];
+                    Debug.WriteLine(Data.DataPointCount);
 				    DateTime rowDate = Data.StartTimeStamp;
 
                     foreach (Sensor sensor in Data.Sensors)
@@ -88,7 +89,12 @@ namespace IndiaTango.Models
                        
                         //Fill the array with the data
                         foreach (var value in sensor.CurrentState.Values)
-                            outputData[currentSensorIndex, GetArrayRowFromTime(Data.StartTimeStamp, value.Key)] = value.Value.ToString();
+                        {
+                            int index = GetArrayRowFromTime(Data.StartTimeStamp, value.Key);
+                            //Debug.WriteLine(index);
+                            outputData[currentSensorIndex, index] =
+                                value.Value.ToString();
+                        }
 
                         currentSensorIndex++;
                     }
@@ -186,8 +192,13 @@ namespace IndiaTango.Models
         {
             if (currentDate < startDate)
                 throw new ArgumentException("currentDate must be larger than or equal to startDate\nYou supplied startDate=" + startDate.ToString() + " currentDate=" + currentDate.ToString());
-
-            return (int)Math.Floor(currentDate.Subtract(startDate).TotalMinutes/15);
+           
+            int index = (int)((currentDate - startDate).TotalMinutes/Data.DataInterval);
+            
+            if(index > 53360)
+                Debug.WriteLine(index + " start " + startDate + " current " + currentDate);
+	        
+            return index;
         }
 	}
 

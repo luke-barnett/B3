@@ -317,10 +317,6 @@ namespace IndiaTango.ViewModels
 					ProgressBarVisible = Visibility.Visible;
 
 					var reader = new CSVReader(fileDialog.FileName);
-					//reader.ProgressChanged += delegate(object o, ReaderProgressChangedArgs e)
-					// {
-					//     ProgressBarPercent = e.Progress;
-					// };
 
 					reader.ProgressChanged += ImportProgressChanged;
 
