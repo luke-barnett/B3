@@ -18,15 +18,16 @@ namespace IndiaTango.Models
 			Data = data;
 		}
 
-        /// <summary>
-        /// Exports a data set to a CSV file.
-        /// The file is saved in the same format as the original CSV files.
-        /// </summary>
-        /// <param name="filePath">The desired path and file name of the file to be saved. No not include an extension.</param>
-        /// <param name="format">The format to save the file in.</param>
-        /// <param name="includeEmptyLines">Wether to export the file with empty lines or not.</param>
-        /// <param name="embedMetaData">Wether to export the file with embedded site meta data.</param>
-		public void Export(string filePath, ExportFormat format,bool includeEmptyLines, bool addMetaData)
+	    /// <summary>
+	    /// Exports a data set to a CSV file.
+	    /// The file is saved in the same format as the original CSV files.
+	    /// </summary>
+	    /// <param name="filePath">The desired path and file name of the file to be saved. No not include an extension.</param>
+	    /// <param name="format">The format to save the file in.</param>
+	    /// <param name="includeEmptyLines">Wether to export the file with empty lines or not.</param>
+	    /// <param name="addMetaData">Wether to export the file with embedded site meta data.</param>
+	    /// <param name="numOfPointsToAverage">The number of points to be averaged together</param>
+	    public void Export(string filePath, ExportFormat format,bool includeEmptyLines, bool addMetaData, int numOfPointsToAverage)
 		{
             EventLogger.LogInfo(GetType().ToString(), "Data export started.");
 
@@ -47,18 +48,38 @@ namespace IndiaTango.Models
 					char del = ',';
 					string columnHeadings = "dd/mm/yyyy" + del + "hhnn";  //Not a typo
 				    int currentSensorIndex = 0;
-				    var outputData = new string[Data.Sensors.Count, Data.DataPointCount];
+				    var outputData = new string[Data.Sensors.Count, (Data.DataPointCount / numOfPointsToAverage)+1];
 				    DateTime rowDate = Data.StartTimeStamp;
+
+                    //Debug.WriteLine(GetArrayRowFromTime(Data.StartTimeStamp,Data.EndTimeStamp,numOfPointsToAverage));
 
                     foreach (Sensor sensor in Data.Sensors)
                     {
                         //Construct the column headings (Sensor names)
                         columnHeadings += del + sensor.Name;
-                       
-                        //Fill the array with the data
-                        foreach (var value in sensor.CurrentState.Values)
-                            outputData[currentSensorIndex, GetArrayRowFromTime(Data.StartTimeStamp, value.Key)] = value.Value.ToString();
-
+                        var i = Data.StartTimeStamp;
+                        while( i <= Data.EndTimeStamp )
+                        {
+                            var sum = float.MinValue;
+                            for (var j = 0; j < numOfPointsToAverage; j++,i = i.AddMinutes(15))
+                            {
+                                float value;
+                                if (sensor.CurrentState.Values.TryGetValue(i, out value))
+                                    if (sum.Equals(float.MinValue))
+                                        sum = value;
+                                    else
+                                        sum += value;
+                            }
+                            //Debug.WriteLine(outputData.GetUpperBound(1));
+                            //Debug.WriteLine(GetArrayRowFromTime(Data.StartTimeStamp, i.AddMinutes((-15) * numOfPointsToAverage), numOfPointsToAverage));
+                            if (!sum.Equals(float.MinValue))
+                            {
+                                outputData[
+                                    currentSensorIndex,
+                                    GetArrayRowFromTime(Data.StartTimeStamp, i.AddMinutes((-15)*numOfPointsToAverage), numOfPointsToAverage)] =
+                                    Math.Round((sum/numOfPointsToAverage), 2).ToString();
+                            }
+                        }
                         currentSensorIndex++;
                     }
 
@@ -66,7 +87,7 @@ namespace IndiaTango.Models
 					writer.WriteLine(columnHeadings);
 
                     //write the data here...
-                    for (int row = 0; row < Data.DataPointCount; row++)
+                    for (int row = 0; row < Data.DataPointCount/numOfPointsToAverage; row++)
                     {
                         string line = "";
 
@@ -79,7 +100,7 @@ namespace IndiaTango.Models
                             writer.WriteLine(line);
                         }
 
-                        rowDate = rowDate.AddMinutes(15);
+                        rowDate = rowDate.AddMinutes(15*numOfPointsToAverage);
                     }
 
                     Debug.WriteLine(filePath);
@@ -144,12 +165,12 @@ namespace IndiaTango.Models
 
 		}
 
-        private int GetArrayRowFromTime(DateTime startDate, DateTime currentDate)
+        private int GetArrayRowFromTime(DateTime startDate, DateTime currentDate, int numOfPointsToAverage)
         {
             if (currentDate < startDate)
                 throw new ArgumentException("currentDate must be larger than or equal to startDate\nYou supplied startDate=" + startDate.ToString() + " currentDate=" + currentDate.ToString());
 
-            return (int)Math.Floor(currentDate.Subtract(startDate).TotalMinutes/15);
+            return (int)Math.Floor(currentDate.Subtract(startDate).TotalMinutes/15/numOfPointsToAverage);
         }
 	}
 

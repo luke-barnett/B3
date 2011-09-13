@@ -382,7 +382,7 @@ namespace IndiaTango.ViewModels
             {
                 Dataset dataSet = new Dataset(SelectedSite, SensorList);
                 DatasetExporter exporter = new DatasetExporter(dataSet);
-                exporter.Export(dialog.FileName, ExportFormat.CSV, true, dialog.FilterIndex == 2);
+                exporter.Export(dialog.FileName, ExportFormat.CSV, true, dialog.FilterIndex == 2,1);
             }
 		}
 
