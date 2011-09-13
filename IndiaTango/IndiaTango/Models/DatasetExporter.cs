@@ -30,7 +30,7 @@ namespace IndiaTango.Models
         /// <param name="includeChangeLog">Wether to include a seperate log file that details the changes made to the data.</param>
         /// <param name="exportedPoints">What points to export.</param>
         /// <param name="dateColumnFormat">Wether to split the two date/time columns into five seperate columns</param>
-		public void Export(string filePath, ExportFormat format,bool includeEmptyLines, bool addMetaDataFile, bool includeChangeLog, ExportedPoints exportedPoints, DateColumnFormat dateColumnFormat, int numOfPointsToAverage)
+		public void Export(string filePath, ExportFormat format,bool includeEmptyLines, bool addMetaDataFile, bool includeChangeLog, ExportedPoints exportedPoints, DateColumnFormat dateColumnFormat)
 		{
             EventLogger.LogInfo(GetType().ToString(), "Data export started.");
 
@@ -44,7 +44,11 @@ namespace IndiaTango.Models
             filePath = Path.ChangeExtension(filePath,format.Extension);
             string metaDataFilePath = filePath + " Site Meta Data.txt";
             string changeLogFilePath = filePath + " Change Log.txt";
-
+	        var numOfPointsToAverage = 1;
+            if(exportedPoints.NumberOfMinutes!=0)
+            {
+                numOfPointsToAverage = exportedPoints.NumberOfMinutes/15;
+            }
             if (format.Equals(ExportFormat.CSV))
 			{
 				using(StreamWriter writer = File.CreateText(filePath))
@@ -283,10 +287,11 @@ namespace IndiaTango.Models
 
         #region PrivateConstructor
 
-        private ExportedPoints(string name, string description)
+        private ExportedPoints(string name, string description, int mins)
         {
             _description = description;
             _name = name;
+            NumberOfMinutes = mins;
         }
 
         #endregion
@@ -297,13 +302,15 @@ namespace IndiaTango.Models
 
         public string Name { get { return _name; } }
 
-        public static ExportedPoints AllPoints { get { return new ExportedPoints("All Points", "All data points"); } }
+        public static ExportedPoints AllPoints { get { return new ExportedPoints("All Points", "All data points",0); } }
 
-        public static ExportedPoints HourlyPoints { get { return new ExportedPoints("Hourly Points", "Hourly readings"); } }
+        public static ExportedPoints HourlyPoints { get { return new ExportedPoints("Hourly Points", "Hourly readings",60); } }
 
-        public static ExportedPoints DailyPoints { get { return new ExportedPoints("Daily Points", "Daily readings"); } }
+        public static ExportedPoints DailyPoints { get { return new ExportedPoints("Daily Points", "Daily readings",60*24); } }
 
-        public static ExportedPoints WeeklyPoints { get { return new ExportedPoints("Weekly Points", "Weekly readings"); } }
+        public static ExportedPoints WeeklyPoints { get { return new ExportedPoints("Weekly Points", "Weekly readings",60*24*7); } }
+
+        public int NumberOfMinutes { get; private set; }
 
         #endregion
 

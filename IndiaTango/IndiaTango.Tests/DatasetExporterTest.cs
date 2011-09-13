@@ -30,7 +30,7 @@ namespace IndiaTango.Tests
     		CSVReader reader = new CSVReader(Path.Combine(_inputFilePath));
     		_data.Sensors = reader.ReadSensors();
 			_exporter = new DatasetExporter(_data);
-            _exporter.Export(_outputFilePath, ExportFormat.CSV, false, false, false, ExportedPoints.AllPoints, DateColumnFormat.TwoDateColumn, 1);
+            _exporter.Export(_outputFilePath, ExportFormat.CSV, false, false, false, ExportedPoints.AllPoints, DateColumnFormat.TwoDateColumn);
 			Assert.AreEqual(Tools.GenerateMD5HashFromFile(_outputFilePath), Tools.GenerateMD5HashFromFile(_inputFilePath));
         }
 
@@ -40,7 +40,7 @@ namespace IndiaTango.Tests
             CSVReader reader = new CSVReader(Path.Combine(_inputFilePath));
             _data.Sensors = reader.ReadSensors();
             _exporter = new DatasetExporter(_data);
-            _exporter.Export(_outputFilePath, ExportFormat.CSV, true, false, false, ExportedPoints.AllPoints, DateColumnFormat.TwoDateColumn, 1);
+            _exporter.Export(_outputFilePath, ExportFormat.CSV, true, false, false, ExportedPoints.AllPoints, DateColumnFormat.TwoDateColumn);
             Assert.AreEqual(File.ReadLines(_outputFilePath).Count(), _data.DataPointCount + 1);
         }
 
@@ -50,7 +50,7 @@ namespace IndiaTango.Tests
             CSVReader reader = new CSVReader(Path.Combine(_inputFilePath));
             _data.Sensors = reader.ReadSensors();
             _exporter = new DatasetExporter(_data);
-            _exporter.Export(_outputFilePath, ExportFormat.CSV, true, false, false, ExportedPoints.AllPoints, DateColumnFormat.TwoDateColumn, 4);
+            _exporter.Export(_outputFilePath, ExportFormat.CSV, true, false, false, ExportedPoints.HourlyPoints, DateColumnFormat.TwoDateColumn);
             Assert.AreEqual(File.ReadLines(_outputFilePath).Count(), ((_data.DataPointCount)/4)+1);
         }
 
@@ -60,7 +60,7 @@ namespace IndiaTango.Tests
             CSVReader reader = new CSVReader(Path.Combine(_inputFilePath));
             _data.Sensors = reader.ReadSensors();
             _exporter = new DatasetExporter(_data);
-            _exporter.Export(_outputFilePath, ExportFormat.CSV, false, true, false, ExportedPoints.AllPoints, DateColumnFormat.TwoDateColumn, 1);
+            _exporter.Export(_outputFilePath, ExportFormat.CSV, false, true, false, ExportedPoints.AllPoints, DateColumnFormat.TwoDateColumn);
             Assert.AreEqual(Tools.GenerateMD5HashFromFile(_outputFilePath), Tools.GenerateMD5HashFromFile(_inputFilePath));
         }
 
@@ -108,7 +108,7 @@ namespace IndiaTango.Tests
             givenDataSet.AddSensor(s);
 
             var exporter = new DatasetExporter(givenDataSet);
-            exporter.Export(_outputFilePath, ExportFormat.CSV, true, false,false,ExportedPoints.AllPoints,DateColumnFormat.SplitDateColumn,1);
+            exporter.Export(_outputFilePath, ExportFormat.CSV, true, false,false,ExportedPoints.AllPoints,DateColumnFormat.SplitDateColumn);
 
             Assert.AreEqual(DatasetOutputWithIndividualColumns, File.ReadAllText(_outputFilePath));
 

@@ -97,7 +97,7 @@ namespace IndiaTango.ViewModels
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 DatasetExporter exporter = new DatasetExporter(Dataset);
-                exporter.Export(dialog.FileName, ExportFormat.CSV, IncludeEmptyLines, IncludeMetaData, IncludeChangeLog, ExportedPoints, DateColumnFormat,1);
+                exporter.Export(dialog.FileName, ExportFormat.CSV, IncludeEmptyLines, IncludeMetaData, IncludeChangeLog, ExportedPoints, DateColumnFormat);
                 this.TryClose();
             }
         }
