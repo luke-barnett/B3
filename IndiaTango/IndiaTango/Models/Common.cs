@@ -99,16 +99,15 @@ namespace IndiaTango.Models
 
 		public static bool ShowMessageBox(string title, string text, bool showCancel, bool isError)
 		{
-			//Does not work. GAY.
-
-            //if (CanUseGlass)
-            //{
-            //    TaskDialog dialog = new TaskDialog(title, title, text,
-            //                                       (showCancel ? (TaskDialogButton.OK | TaskDialogButton.Cancel) : TaskDialogButton.OK),
-            //                                       isError ? TaskDialogIcon.Stop : TaskDialogIcon.Information);
-            //    return dialog.Show().Equals(WindowsFormsAero.TaskDialog.Result.OK);
-            //}
-            //else
+            if (CanUseGlass)
+            {
+                TaskDialog dialog = new TaskDialog(title, title, text,
+                                                   (showCancel ? (TaskDialogButton.OK | TaskDialogButton.Cancel) : TaskDialogButton.OK),
+                                                   isError ? TaskDialogIcon.Stop : TaskDialogIcon.Information);
+                var result = dialog.Show();
+                return result.CommonButton == WindowsFormsAero.TaskDialog.Result.OK;
+            }
+            else
 			{
 				return System.Windows.Forms.MessageBox.Show(text, title,
 				                                            showCancel ? MessageBoxButtons.OKCancel : MessageBoxButtons.OK,
@@ -125,8 +124,19 @@ namespace IndiaTango.Models
 
         public static bool Confirm(string title, string message)
         {
-            return System.Windows.Forms.MessageBox.Show(message, title, MessageBoxButtons.YesNo,
-                                                        MessageBoxIcon.Warning) == DialogResult.Yes;
+            if(CanUseGlass)
+            {
+                TaskDialog dialog = new TaskDialog(title, title, message,
+                                                   TaskDialogButton.Yes | TaskDialogButton.No,
+                                                   TaskDialogIcon.Warning);
+                var result = dialog.Show();
+                return result.CommonButton == WindowsFormsAero.TaskDialog.Result.Yes;
+            }
+            else
+            {
+                return System.Windows.Forms.MessageBox.Show(message, title, MessageBoxButtons.YesNo,
+                                            MessageBoxIcon.Warning) == DialogResult.Yes;
+            }
         }
 
         public static void RenderImage(UIElement elementToRender, string filename)

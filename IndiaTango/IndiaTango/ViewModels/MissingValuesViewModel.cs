@@ -235,7 +235,7 @@ namespace IndiaTango.ViewModels
 			//TODO: Refactor
             if (SelectedValues.Count == 0)
                 return;
-            if (!Common.ShowMessageBox("Extrapolate", "Will find first and last value in current range and extrapolate between them.\nPlease confirm:",true,false))
+            if (!Common.ShowMessageBox("Extrapolate", "This will find the first and last value in the current range and extrapolate between them.\r\n\r\nAre you sure you want to do this?",true,false))
             {
                 return;
             }
