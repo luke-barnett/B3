@@ -192,6 +192,8 @@ namespace IndiaTango.Models
 
         private IDataPoint FindClosestPoint(Point position)
         {
+            if (Chart.Series.Count == 0)
+                return null;
             IDataPoint closestX = null;
             foreach (IDataPoint point in Chart.Series[0].DataSeries)
             {
