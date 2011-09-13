@@ -291,7 +291,7 @@ namespace IndiaTango.ViewModels
 
         #region Event Handlers
 
-        public void btnColumnToggle()
+        public void ToggleColumn()
         {
             ColumnVisible = !ColumnVisible;
         }

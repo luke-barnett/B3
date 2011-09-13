@@ -109,12 +109,21 @@
         </Grid>
 
         <Rectangle Grid.Column="1" Width="3" Fill="OrangeRed" Margin="10,0"  SnapsToDevicePixels="True" Stroke="White" />
-        <Image Grid.Column="1" Source="{Binding ToggleButtonImage}" Width="16" Height="16" VerticalAlignment="Center" HorizontalAlignment="Center" >
+        <Image Name="ToggleButton" Grid.Column="1" Source="{Binding ToggleButtonImage}" Width="16" Height="16" VerticalAlignment="Center" HorizontalAlignment="Center" >
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="MouseUp">
-                    <cal:ActionMessage MethodName="btnColumnToggle" />
+                    <cal:ActionMessage MethodName="ToggleColumn" />
                 </i:EventTrigger>
             </i:Interaction.Triggers>
+            <Image.Triggers>
+                <EventTrigger RoutedEvent="Image.MouseEnter">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <ThicknessAnimation Storyboard.TargetName="ToggleButton" Storyboard.TargetProperty="Margin" From="0" To="5" AutoReverse="True" Duration="0:0:1" />
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Image.Triggers>
         </Image>
 
         <Grid Grid.Column="2">
