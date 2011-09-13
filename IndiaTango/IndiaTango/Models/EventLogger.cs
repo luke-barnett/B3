@@ -14,7 +14,7 @@ namespace IndiaTango.Models
         private const string Info = "INFO";
         private const string Warning = "WARNING";
         private const string Error = "ERROR";
-        private const string _timeFormatString = "dd/MM/yyyy HH:MM:ss.fff";
+        private const string _timeFormatString = "dd/MM/yyyy HH:MM:ss.ff";
         private static StreamWriter _writer;
         private readonly static object Mutex = new object();
         #endregion
@@ -59,6 +59,9 @@ namespace IndiaTango.Models
 
             if (String.IsNullOrWhiteSpace(eventDetails))
                 throw new ArgumentNullException("Parameter 'eventDetails' cannot be null or empty");
+
+            if (threadName.Contains("IndiaTango."))
+                threadName = threadName.Substring("IndiaTango.".Length);
 
             string logString = DateTime.Now.ToString(TimeFormatString) + "    " + logType.PadRight(10).Substring(0, 10) + " " + threadName.PadRight(25).Substring(0, 25) + " " + eventDetails;
             
