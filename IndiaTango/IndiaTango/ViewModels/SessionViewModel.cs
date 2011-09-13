@@ -372,16 +372,11 @@ namespace IndiaTango.ViewModels
 
 		public void btnExport()
 		{
-            //TODO add custom export format that allows user to embed Site data in the csv
-			var dialog = new SaveFileDialog();
-		    dialog.Filter = ExportFormat.CSV.FilterText + "|" + ExportFormat.CSVWithMetaData.FilterText + "|" + ExportFormat.CSVWithDateColumns.FilterText;
+            var exportWindow =
+                    _container.GetInstance(typeof(ExportViewModel), "ExportViewModel") as ExportViewModel;
+            exportWindow.Dataset = _ds;
 
-            if (dialog.ShowDialog() == DialogResult.OK)
-            {
-                Dataset dataSet = new Dataset(SelectedSite, SensorList);
-                DatasetExporter exporter = new DatasetExporter(dataSet);
-                exporter.Export(dialog.FileName, (dialog.FilterIndex == 3) ? ExportFormat.CSVWithDateColumns : ExportFormat.CSV, true, dialog.FilterIndex == 2);
-            }
+            _windowManager.ShowDialog(exportWindow);
 		}
 
 		public void btnOutOfRangeValues()

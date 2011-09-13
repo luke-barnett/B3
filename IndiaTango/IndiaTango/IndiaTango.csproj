@@ -46,9 +46,6 @@
     <Reference Include="Caliburn.Micro">
       <HintPath>..\..\Externals\Caliburn Micro\Caliburn.Micro.dll</HintPath>
     </Reference>
-    <Reference Include="ColorPicker">
-      <HintPath>..\..\Externals\Colour Picker\ColorPicker.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -101,6 +98,7 @@
     <Compile Include="ViewModels\BuoyDetailsViewModel.cs" />
     <Compile Include="ViewModels\ContactEditorViewModel.cs" />
     <Compile Include="ViewModels\EditSensorViewModel.cs" />
+    <Compile Include="ViewModels\ExportViewModel.cs" />
     <Compile Include="ViewModels\GraphViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\MissingValuesViewModel.cs" />
@@ -112,6 +110,9 @@
     </Compile>
     <Compile Include="Views\ContactEditorView.xaml.cs">
       <DependentUpon>ContactEditorView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ExportView.xaml.cs">
+      <DependentUpon>ExportView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\EditSensorView.xaml.cs">
       <DependentUpon>EditSensorView.xaml</DependentUpon>
@@ -180,6 +181,10 @@
     <Page Include="Views\ContactEditorView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ExportView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\EditSensorView.xaml">
       <SubType>Designer</SubType>

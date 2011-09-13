@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using IndiaTango.ViewModels;
 
 namespace IndiaTango.Models
 {
@@ -25,8 +26,37 @@ namespace IndiaTango.Models
         /// <param name="filePath">The desired path and file name of the file to be saved. No not include an extension.</param>
         /// <param name="format">The format to save the file in.</param>
         /// <param name="includeEmptyLines">Wether to export the file with empty lines or not.</param>
-        /// <param name="embedMetaData">Wether to export the file with embedded site meta data.</param>
-		public void Export(string filePath, ExportFormat format,bool includeEmptyLines, bool addMetaData)
+        public void Export(string filePath, ExportFormat format, bool includeEmptyLines)
+        {
+            Export(filePath, format, includeEmptyLines, false, false, ExportedPoints.AllPoints, DateColumnFormat.TwoDateColumn);
+        }
+
+        /// <summary>
+        /// Exports a data set to a CSV file.
+        /// The file is saved in the same format as the original CSV files.
+        /// </summary>
+        /// <param name="filePath">The desired path and file name of the file to be saved. No not include an extension.</param>
+        /// <param name="format">The format to save the file in.</param>
+        /// <param name="includeEmptyLines">Wether to export the file with empty lines or not.</param>
+        /// <param name="addMetaDataFile">Wether to export the file with embedded site meta data.</param>
+        /// <param name="includeChangeLog">Wether to include a seperate log file that details the changes made to the data.</param>
+        public void Export(string filePath, ExportFormat format, bool includeEmptyLines, bool addMetaDataFile, bool includeChangeLog)
+        {
+            Export(filePath,format,includeEmptyLines,addMetaDataFile,includeChangeLog,ExportedPoints.AllPoints,DateColumnFormat.TwoDateColumn);
+        }
+
+	    /// <summary>
+        /// Exports a data set to a CSV file.
+        /// The file is saved in the same format as the original CSV files.
+        /// </summary>
+        /// <param name="filePath">The desired path and file name of the file to be saved. No not include an extension.</param>
+        /// <param name="format">The format to save the file in.</param>
+        /// <param name="includeEmptyLines">Wether to export the file with empty lines or not.</param>
+        /// <param name="addMetaDataFile">Wether to export the file with embedded site meta data.</param>
+        /// <param name="includeChangeLog">Wether to include a seperate log file that details the changes made to the data.</param>
+        /// <param name="exportedPoints">What points to export.</param>
+        /// <param name="dateColumnFormat">Wether to split the two date/time columns into five seperate columns</param>
+		public void Export(string filePath, ExportFormat format,bool includeEmptyLines, bool addMetaDataFile, bool includeChangeLog, ExportedPoints exportedPoints, DateColumnFormat dateColumnFormat)
 		{
             EventLogger.LogInfo(GetType().ToString(), "Data export started.");
 
@@ -38,14 +68,15 @@ namespace IndiaTango.Models
 
             //Strip the existing extension and add the one specified in the method args
             filePath = Path.ChangeExtension(filePath,format.Extension);
-            string metaDataPath = filePath + " Site Meta Data.txt";
+            string metaDataFilePath = filePath + " Site Meta Data.txt";
+            string changeLogFilePath = filePath + " Change Log.txt";
 
-            if (format.Equals(ExportFormat.CSV) || format.Equals(ExportFormat.TXT) || format.Equals(ExportFormat.CSVWithDateColumns))
+            if (format.Equals(ExportFormat.CSV))
 			{
 				using(StreamWriter writer = File.CreateText(filePath))
 				{
 					char del = ',';
-                    string columnHeadings = (format.Equals(ExportFormat.CSVWithDateColumns)) ? "dd" + del + "mm" + del + "yyyy" + del + "hh" + del + "nn" : "dd/mm/yyyy" + del + "hhnn";  //Not a typo
+                    string columnHeadings = dateColumnFormat.Equals(DateColumnFormat.SplitDateColumn) ? "dd" + del + "mm" + del + "yyyy" + del + "hh" + del + "nn" : "dd/mm/yyyy" + del + "hhnn";  //Not a typo
 				    int currentSensorIndex = 0;
 				    var outputData = new string[Data.Sensors.Count, Data.DataPointCount];
 				    DateTime rowDate = Data.StartTimeStamp;
@@ -75,7 +106,7 @@ namespace IndiaTango.Models
 
                         if(includeEmptyLines || line.Length != Data.Sensors.Count)
                         {
-                            line = (format.Equals(ExportFormat.CSVWithDateColumns)) ? rowDate.ToString("dd") + del + rowDate.ToString("MM") + del + rowDate.ToString("yyyy") + del + rowDate.ToString("HH") + del + rowDate.ToString("mm") + line : rowDate.ToString("dd/MM/yyyy") + del + rowDate.ToString("HH:mm") + line;
+                            line = dateColumnFormat.Equals(DateColumnFormat.SplitDateColumn) ? rowDate.ToString("dd") + del + rowDate.ToString("MM") + del + rowDate.ToString("yyyy") + del + rowDate.ToString("HH") + del + rowDate.ToString("mm") + line : rowDate.ToString("dd/MM/yyyy") + del + rowDate.ToString("HH:mm") + line;
                             writer.WriteLine(line);
                         }
 
@@ -86,65 +117,72 @@ namespace IndiaTango.Models
 				    writer.Close();
                     
 				}
+                
+                if (addMetaDataFile && Data.Site != null)
+                    ExportMetaData(filePath, metaDataFilePath);
 
-                //add site meta data
-                if (addMetaData && Data.Site != null)
-                {
-                    using (StreamWriter writer = File.CreateText(metaDataPath))
-                    {
-                        writer.WriteLine("Site details for file: " + Path.GetFileName(filePath));
-                        writer.WriteLine("ID: " + Data.Site.Id);
-                        writer.WriteLine("Name: " + Data.Site.Name);
-                        writer.WriteLine("Owner: " + Data.Site.Owner);
-
-                        //TODO: clean up
-                        if(Data.Site.PrimaryContact != null)
-                        {
-                            writer.WriteLine("Primary Contact:");
-                            writer.WriteLine("\tName: " + Data.Site.PrimaryContact.FirstName + " " +
-                                             Data.Site.PrimaryContact.LastName);
-                            writer.WriteLine("\tBusiness: " + Data.Site.PrimaryContact.Business);
-                            writer.WriteLine("\tPhone: " + Data.Site.PrimaryContact.Phone);
-                            writer.WriteLine("\tEmail: " + Data.Site.PrimaryContact.Email);
-                        }
-
-                        if(Data.Site.SecondaryContact != null)
-                        {
-                            writer.WriteLine("Secondary Contact:");
-                            writer.WriteLine("\tName: " + Data.Site.SecondaryContact.FirstName + " " +
-                                             Data.Site.PrimaryContact.LastName);
-                            writer.WriteLine("\tBusiness: " + Data.Site.SecondaryContact.Business);
-                            writer.WriteLine("\tPhone: " + Data.Site.SecondaryContact.Phone);
-                            writer.WriteLine("\tEmail: " + Data.Site.SecondaryContact.Email);
-                        }
-
-                        if(Data.Site.UniversityContact != null)
-                        {
-                            writer.WriteLine("University Contact:");
-                            writer.WriteLine("\tName: " + Data.Site.UniversityContact.FirstName + " " +
-                                             Data.Site.PrimaryContact.LastName);
-                            writer.WriteLine("\tBusiness: " + Data.Site.UniversityContact.Business);
-                            writer.WriteLine("\tPhone: " + Data.Site.UniversityContact.Phone);
-                            writer.WriteLine("\tEmail: " + Data.Site.UniversityContact.Email);
-                        }
-
-                        Debug.WriteLine(metaDataPath);
-                        writer.Close();
-                    }
-                }
+                if (includeChangeLog)
+                    ExportChangesFile(filePath, changeLogFilePath);
 
                 EventLogger.LogInfo(GetType().ToString(), "Data export complete. File saved to: " + filePath);
 			}
 			else if (format.Equals(ExportFormat.XLSX))
 			{
-				//Do stuff
+				throw new NotImplementedException("Cannot export as XLSX yet.");
 			}
-
-			//No more stuff! maybe.
-
 		}
 
-        private int GetArrayRowFromTime(DateTime startDate, DateTime currentDate)
+	    private void ExportChangesFile(string filePath, string changeLogFilePath)
+	    {
+	        
+	    }
+
+	    private void ExportMetaData(string filePath, string metaDataFilePath)
+	    {
+	        using (StreamWriter writer = File.CreateText(metaDataFilePath))
+	        {
+	            writer.WriteLine("Site details for file: " + Path.GetFileName(filePath));
+	            writer.WriteLine("ID: " + Data.Site.Id);
+	            writer.WriteLine("Name: " + Data.Site.Name);
+	            writer.WriteLine("Owner: " + Data.Site.Owner);
+
+	            //TODO: clean up
+	            if (Data.Site.PrimaryContact != null)
+	            {
+	                writer.WriteLine("Primary Contact:");
+	                writer.WriteLine("\tName: " + Data.Site.PrimaryContact.FirstName + " " +
+	                                 Data.Site.PrimaryContact.LastName);
+	                writer.WriteLine("\tBusiness: " + Data.Site.PrimaryContact.Business);
+	                writer.WriteLine("\tPhone: " + Data.Site.PrimaryContact.Phone);
+	                writer.WriteLine("\tEmail: " + Data.Site.PrimaryContact.Email);
+	            }
+
+	            if (Data.Site.SecondaryContact != null)
+	            {
+	                writer.WriteLine("Secondary Contact:");
+	                writer.WriteLine("\tName: " + Data.Site.SecondaryContact.FirstName + " " +
+	                                 Data.Site.PrimaryContact.LastName);
+	                writer.WriteLine("\tBusiness: " + Data.Site.SecondaryContact.Business);
+	                writer.WriteLine("\tPhone: " + Data.Site.SecondaryContact.Phone);
+	                writer.WriteLine("\tEmail: " + Data.Site.SecondaryContact.Email);
+	            }
+
+	            if (Data.Site.UniversityContact != null)
+	            {
+	                writer.WriteLine("University Contact:");
+	                writer.WriteLine("\tName: " + Data.Site.UniversityContact.FirstName + " " +
+	                                 Data.Site.PrimaryContact.LastName);
+	                writer.WriteLine("\tBusiness: " + Data.Site.UniversityContact.Business);
+	                writer.WriteLine("\tPhone: " + Data.Site.UniversityContact.Phone);
+	                writer.WriteLine("\tEmail: " + Data.Site.UniversityContact.Email);
+	            }
+
+	            Debug.WriteLine(metaDataFilePath);
+	            writer.Close();
+	        }
+	    }
+
+	    private int GetArrayRowFromTime(DateTime startDate, DateTime currentDate)
         {
             if (currentDate < startDate)
                 throw new ArgumentException("currentDate must be larger than or equal to startDate\nYou supplied startDate=" + startDate.ToString() + " currentDate=" + currentDate.ToString());
@@ -178,13 +216,9 @@ namespace IndiaTango.Models
 
 		public static ExportFormat CSV { get { return new ExportFormat(".csv", "Comma Seperated Value File"); } }
 
-        public static ExportFormat CSVWithMetaData { get { return new ExportFormat(".csv", "Comma Seperated Value File with accompanying Site Meta Data"); } }
-
 		public static ExportFormat TXT { get { return new ExportFormat(".txt", "Tab Deliminated Text File"); } }
 
 		public static ExportFormat XLSX { get { return new ExportFormat(".xlsx", "Excel Workbook"); } }
-
-        public static ExportFormat CSVWithDateColumns { get { return new ExportFormat(".csv", "Comma Seperated Value File with individual columns for date/time components"); } }
 		
 		#endregion
 
@@ -204,4 +238,96 @@ namespace IndiaTango.Models
 		#endregion
 
 	}
+
+    public class DateColumnFormat
+    {
+        readonly string _description;
+        readonly string _name;
+
+        #region PrivateConstructor
+
+        private DateColumnFormat(string name, string description)
+        {
+            _description = description;
+            _name = name;
+        }
+
+        #endregion
+
+        #region PublicProperties
+
+        public string Description { get { return _description; } }
+
+        public string Name { get { return _name; } }
+
+        public static DateColumnFormat TwoDateColumn { get { return new DateColumnFormat("Two Column", "Two date and time columns (dd/mm/yy | hh/mm)"); } }
+
+        public static DateColumnFormat SplitDateColumn { get { return new DateColumnFormat("Split Column", "Split date and time columns (dd | mm | yy | hh | mm)"); } }
+
+        #endregion
+
+        #region PublicMethods
+
+        public override string ToString()
+        {
+            return _description;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return (obj is DateColumnFormat) && (obj as DateColumnFormat).Description.CompareTo(Description) == 0 &&
+                   (obj as DateColumnFormat).Name.CompareTo(Name) == 0;
+        }
+
+        #endregion
+
+    }
+
+    public class ExportedPoints
+    {
+        readonly string _description;
+        readonly string _name;
+
+        #region PrivateConstructor
+
+        private ExportedPoints(string name, string description)
+        {
+            _description = description;
+            _name = name;
+        }
+
+        #endregion
+
+        #region PublicProperties
+
+        public string Description { get { return _description; } }
+
+        public string Name { get { return _name; } }
+
+        public static ExportedPoints AllPoints { get { return new ExportedPoints("All Points", "All data points"); } }
+
+        public static ExportedPoints HourlyPoints { get { return new ExportedPoints("Hourly Points", "Hourly readings"); } }
+
+        public static ExportedPoints DailyPoints { get { return new ExportedPoints("Daily Points", "Daily readings"); } }
+
+        public static ExportedPoints WeeklyPoints { get { return new ExportedPoints("Weekly Points", "Weekly readings"); } }
+
+        #endregion
+
+        #region PublicMethods
+
+        public override string ToString()
+        {
+            return _description;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return (obj is ExportedPoints) && (obj as ExportedPoints).Description.CompareTo(Description) == 0 &&
+                   (obj as ExportedPoints).Name.CompareTo(Name) == 0;
+        }
+
+        #endregion
+
+    }
 }
