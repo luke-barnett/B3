@@ -92,8 +92,7 @@ namespace IndiaTango.Models
                         {
                             int index = GetArrayRowFromTime(Data.StartTimeStamp, value.Key);
                             //Debug.WriteLine(index);
-                            outputData[currentSensorIndex, index] =
-                                value.Value.ToString();
+                            outputData[currentSensorIndex, index] = value.Value.ToString();
                         }
 
                         currentSensorIndex++;
