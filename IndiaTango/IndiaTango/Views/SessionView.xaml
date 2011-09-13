@@ -125,6 +125,8 @@
                             <TextBlock Text="Sensors" HorizontalAlignment="Center" />
                         </StackPanel>
                     </Button>
+                    
+                    <TextBlock Visibility="{Binding SensorWarningVisible}" Margin="20 10 10 10" Height="70" Width="250" Padding="10" Background="LightCoral" TextWrapping="Wrap" TextAlignment="Left" Text="One or more of the sensors you imported shows signs of failure. Click 'Sensors' to identify them" />
                 </StackPanel>
                 
                 <Rectangle Height="3" Fill="OrangeRed" Margin="0,5" Grid.Row="10" Grid.ColumnSpan="5" SnapsToDevicePixels="True" Stroke="White" />

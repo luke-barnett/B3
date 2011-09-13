@@ -57,6 +57,13 @@ namespace IndiaTango.ViewModels
 
 		#region View Properties
 		//TODO: Make a gloabl 'editing/creating/viewing site' state that the properties reference
+        private Visibility _sensorWarningVis = Visibility.Collapsed;
+
+        public Visibility SensorWarningVisible
+        {
+            get { return _sensorWarningVis; }
+            set { _sensorWarningVis = value; NotifyOfPropertyChange(() => SensorWarningVisible); }
+        }
 
 		public string Title
 		{
@@ -331,9 +338,17 @@ namespace IndiaTango.ViewModels
 					}
 					else
 					{
+                        // Loaded successfully
                         ActionButtonsEnabled = true;
                         StatusLabelText = "";
 					    SensorList = readSensors;
+
+                        foreach(var s in readSensors)
+                            if(s.IsFailing)
+                            {
+                                SensorWarningVisible = Visibility.Visible;
+                                break;
+                            }
 					}
 
                     ImportEnabled = true;

@@ -70,7 +70,11 @@ namespace IndiaTango.Models
             filePath = Path.ChangeExtension(filePath,format.Extension);
             string metaDataFilePath = filePath + " Site Meta Data.txt";
             string changeLogFilePath = filePath + " Change Log.txt";
-
+	        var numOfPointsToAverage = 1;
+            if(exportedPoints.NumberOfMinutes!=0)
+            {
+                numOfPointsToAverage = exportedPoints.NumberOfMinutes/15;
+            }
             if (format.Equals(ExportFormat.CSV))
 			{
 				using(StreamWriter writer = File.CreateText(filePath))
@@ -78,23 +82,39 @@ namespace IndiaTango.Models
 					char del = ',';
                     string columnHeadings = dateColumnFormat.Equals(DateColumnFormat.SplitDateColumn) ? "dd" + del + "mm" + del + "yyyy" + del + "hh" + del + "nn" : "dd/mm/yyyy" + del + "hhnn";  //Not a typo
 				    int currentSensorIndex = 0;
-				    var outputData = new string[Data.Sensors.Count, Data.DataPointCount];
+				    var outputData = new string[Data.Sensors.Count, (Data.DataPointCount / numOfPointsToAverage)+1];
                     Debug.WriteLine(Data.DataPointCount);
 				    DateTime rowDate = Data.StartTimeStamp;
+
+                    //Debug.WriteLine(GetArrayRowFromTime(Data.StartTimeStamp,Data.EndTimeStamp,numOfPointsToAverage));
 
                     foreach (Sensor sensor in Data.Sensors)
                     {
                         //Construct the column headings (Sensor names)
                         columnHeadings += del + sensor.Name;
-                       
-                        //Fill the array with the data
-                        foreach (var value in sensor.CurrentState.Values)
+                        var i = Data.StartTimeStamp;
+                        while( i <= Data.EndTimeStamp )
                         {
-                            int index = GetArrayRowFromTime(Data.StartTimeStamp, value.Key);
-                            //Debug.WriteLine(index);
-                            outputData[currentSensorIndex, index] = value.Value.ToString();
+                            var sum = float.MinValue;
+                            for (var j = 0; j < numOfPointsToAverage; j++,i = i.AddMinutes(15))
+                            {
+                                float value;
+                                if (sensor.CurrentState.Values.TryGetValue(i, out value))
+                                    if (sum.Equals(float.MinValue))
+                                        sum = value;
+                                    else
+                                        sum += value;
+                            }
+                            //Debug.WriteLine(outputData.GetUpperBound(1));
+                            //Debug.WriteLine(GetArrayRowFromTime(Data.StartTimeStamp, i.AddMinutes((-15) * numOfPointsToAverage), numOfPointsToAverage));
+                            if (!sum.Equals(float.MinValue))
+                            {
+                                outputData[
+                                    currentSensorIndex,
+                                    GetArrayRowFromTime(Data.StartTimeStamp, i.AddMinutes((-15)*numOfPointsToAverage), numOfPointsToAverage)] =
+                                    Math.Round((sum/numOfPointsToAverage), 2).ToString();
+                            }
                         }
-
                         currentSensorIndex++;
                     }
 
@@ -102,7 +122,7 @@ namespace IndiaTango.Models
 					writer.WriteLine(columnHeadings);
 
                     //write the data here...
-                    for (int row = 0; row < Data.DataPointCount; row++)
+                    for (int row = 0; row < Data.DataPointCount/numOfPointsToAverage; row++)
                     {
                         string line = "";
 
@@ -115,7 +135,7 @@ namespace IndiaTango.Models
                             writer.WriteLine(line);
                         }
 
-                        rowDate = rowDate.AddMinutes(15);
+                        rowDate = rowDate.AddMinutes(15*numOfPointsToAverage);
                     }
 
                     Debug.WriteLine(filePath);
@@ -136,7 +156,6 @@ namespace IndiaTango.Models
 				throw new NotImplementedException("Cannot export as XLSX yet.");
 			}
 		}
-
 	    private void ExportChangesFile(string filePath, string changeLogFilePath)
 	    {
 	        
@@ -187,12 +206,12 @@ namespace IndiaTango.Models
 	        }
 	    }
 
-	    private int GetArrayRowFromTime(DateTime startDate, DateTime currentDate)
+	    private int GetArrayRowFromTime(DateTime startDate, DateTime currentDate, int numOfPointsToAverage)
         {
             if (currentDate < startDate)
                 throw new ArgumentException("currentDate must be larger than or equal to startDate\nYou supplied startDate=" + startDate.ToString() + " currentDate=" + currentDate.ToString());
-           
-            int index = (int)((currentDate - startDate).TotalMinutes/Data.DataInterval);
+
+            return (int)Math.Floor(currentDate.Subtract(startDate).TotalMinutes/15/numOfPointsToAverage);
             
             if(index > 53360)
                 Debug.WriteLine(index + " start " + startDate + " current " + currentDate);
@@ -300,10 +319,11 @@ namespace IndiaTango.Models
 
         #region PrivateConstructor
 
-        private ExportedPoints(string name, string description)
+        private ExportedPoints(string name, string description, int mins)
         {
             _description = description;
             _name = name;
+            NumberOfMinutes = mins;
         }
 
         #endregion
@@ -314,13 +334,15 @@ namespace IndiaTango.Models
 
         public string Name { get { return _name; } }
 
-        public static ExportedPoints AllPoints { get { return new ExportedPoints("All Points", "All data points"); } }
+        public static ExportedPoints AllPoints { get { return new ExportedPoints("All Points", "All data points",0); } }
 
-        public static ExportedPoints HourlyPoints { get { return new ExportedPoints("Hourly Points", "Hourly readings"); } }
+        public static ExportedPoints HourlyPoints { get { return new ExportedPoints("Hourly Points", "Hourly readings",60); } }
 
-        public static ExportedPoints DailyPoints { get { return new ExportedPoints("Daily Points", "Daily readings"); } }
+        public static ExportedPoints DailyPoints { get { return new ExportedPoints("Daily Points", "Daily readings",60*24); } }
 
-        public static ExportedPoints WeeklyPoints { get { return new ExportedPoints("Weekly Points", "Weekly readings"); } }
+        public static ExportedPoints WeeklyPoints { get { return new ExportedPoints("Weekly Points", "Weekly readings",60*24*7); } }
+
+        public int NumberOfMinutes { get; private set; }
 
         #endregion
 
