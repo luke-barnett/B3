@@ -15,6 +15,7 @@ namespace IndiaTango.Tests
         private DateTime modifiedDate = new DateTime(2011, 11, 17, 5, 0, 0);
         private Dictionary<DateTime,float> valueList ;
         private Dictionary<DateTime,float> secondValueList;
+        private string _reason = "Updated because values were wrong";
 
         [SetUp]
         public void Setup()
@@ -148,6 +149,50 @@ namespace IndiaTango.Tests
                                          {new DateTime(2011, 8, 20, 2, 0, 0), 50}
                                      };
             Assert.AreEqual(missingDates, sensorState.GetMissingTimes(15,new DateTime(2011, 8, 20, 0, 0, 0),new DateTime(2011, 8, 20, 2, 0, 0)));
+        }
+
+        [Test]
+        public void GetsChangeReasonCorrectly()
+        {
+            
+            var s = new SensorState(DateTime.Now,
+                                    new Dictionary<DateTime, float> { { new DateTime(2011, 5, 7, 12, 20, 0), 200} }, _reason);
+            Assert.AreEqual(_reason, s.Reason);
+        }
+
+        [Test]
+        public void SetsChangeReasonCorrectly()
+        {
+            var s = new SensorState(DateTime.Now,
+                                    new Dictionary<DateTime, float> { { new DateTime(2011, 5, 7, 12, 20, 0), 200 } });
+            Assert.AreEqual("", s.Reason);
+
+            s.Reason = _reason;
+            Assert.AreEqual("Updated because values were wrong", s.Reason);
+        }
+
+        [Test]
+        public void EqualityTest()
+        {
+            var baseDate = new DateTime(2011, 5, 7, 12, 15, 0);
+            var A = new SensorState(baseDate,
+                                    new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 200 }, { baseDate.AddMinutes(30), 200 }, { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 200 } });
+            var B = new SensorState(baseDate,
+                                    new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 200 }, { baseDate.AddMinutes(30), 200 }, { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 200 } });
+            var C = new SensorState(baseDate,
+                                    new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 200 }, { baseDate.AddMinutes(30), 10 }, { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 50 } });
+            var D = new SensorState(baseDate,
+                                    new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 200 }, { baseDate.AddMinutes(30), 200 }, { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 200 } });
+            var E = new SensorState(baseDate.AddHours(50),
+                                    new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 200 }, { baseDate.AddMinutes(30), 200 }, { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 200 } });
+            var F = new SensorState(baseDate,
+                                    new Dictionary<DateTime, float> { { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 200 }, { baseDate.AddMinutes(75), 200 }, { baseDate.AddMinutes(90), 200 } });
+
+            Assert.AreEqual(A, B);
+            Assert.AreNotEqual(B, C);
+            Assert.AreNotEqual(C, D);
+            Assert.AreNotEqual(D, E);
+            Assert.AreNotEqual(E, F);
         }
     }
 }

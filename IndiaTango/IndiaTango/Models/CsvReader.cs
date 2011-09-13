@@ -54,16 +54,22 @@ namespace IndiaTango.Models
                     else
                         throw new FormatException("Couldn't get the sensor names from the csv");
 
-                    //First two are the time stamp
-                    sensors = new Sensor[sensorNames.Length - 2];
+                    // First cell of column headings is a valid date/time component
+                    var isIndividualDateComponents = (sensorNames.Length >= 5 &&
+                                                      (sensorNames[0] == "dd" || sensorNames[0] == "yyyy" ||
+                                                       sensorNames[0] == "mm"));
+                    int startOffset = isIndividualDateComponents ? 5 : 2;
 
-                    for (int i = 2; i < sensorNames.Length; i++)
+                    //First two are the time stamp
+                    sensors = new Sensor[sensorNames.Length - startOffset];
+
+                    for (int i = startOffset; i < sensorNames.Length; i++)
                     {
                         if (asyncWorker != null && asyncWorker.CancellationPending)
                             return null;
 
-                        sensors[i - 2] = new Sensor(sensorNames[i], null);
-                        sensors[i - 2].AddState(new SensorState(DateTime.Now));
+                        sensors[i - startOffset] = new Sensor(sensorNames[i], null);
+                        sensors[i - startOffset].AddState(new SensorState(DateTime.Now));
                     }
 
 
@@ -89,15 +95,44 @@ namespace IndiaTango.Models
 						var values = readLine.Split(',');
 						if (values.Length != sensorNames.Length)
 							throw new FormatException("Number of values mismatch from the number of sensors");
-						var timeStamp = DateTime.Parse(values[0] + " " + values[1]);
 
-						for (int i = 2; i < values.Length; i++)
+                        var components = new string[5];
+
+                        if(isIndividualDateComponents)
+                        {
+                            // Normalise to form dd/mm/yyy hh:mm
+                            for (int i = 0; i < 5; i++)
+                            {
+                                switch(sensorNames[i])
+                                {
+                                    case "dd":
+                                        components[0] = values[i];
+                                        break;
+                                    case "mm":
+                                        components[1] = values[i];
+                                        break;
+                                    case "yyyy":
+                                        components[2] = values[i];
+                                        break;
+                                    case "hh":
+                                        components[3] = values[i];
+                                        break;
+                                    case "nn":
+                                        components[4] = values[i];
+                                        break;
+                                }
+                            }
+                        }
+
+                        var timeStamp = DateTime.Parse((isIndividualDateComponents) ? components[0] + "/" + components[1] + "/" + components[2] + " " + components[3] + ":" + components[4] : values[0] + " " + values[1]);
+
+						for (int i = startOffset; i < values.Length; i++)
 						{
 							if (!String.IsNullOrWhiteSpace(values[i]))
 							{
 								try
 								{
-									sensors[i - 2].CurrentState.Values.Add(timeStamp, float.Parse(values[i]));
+									sensors[i - startOffset].CurrentState.Values.Add(timeStamp, float.Parse(values[i]));
 								}
 								catch (Exception e)
 								{

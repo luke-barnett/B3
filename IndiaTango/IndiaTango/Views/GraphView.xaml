@@ -4,7 +4,8 @@
         xmlns:charts="clr-namespace:Visiblox.Charts;assembly=Visiblox.Charts"
         xmlns:multiseries="clr-namespace:IndiaTango.MultiSeriesBinding"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:cal="http://www.caliburnproject.org"
-        Title="{Binding ChartTitle}" Height="570" Width="950" Icon="{Binding Icon}" WindowStartupLocation="CenterScreen">
+        xmlns:toolkit="clr-namespace:Microsoft.Windows.Controls;assembly=WPFToolkit.Extended"
+        Title="{Binding ChartTitle}" Height="570" Width="1100" Icon="{Binding Icon}" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="{Binding ColumnWidth}" />
@@ -32,10 +33,26 @@
                     </Grid.ColumnDefinitions>
                     
                     <TextBlock Text="Range:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" />
-                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" Margin="10 0 0 0">
-                        <DatePicker Width="32" IsEnabled="False" />
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" Margin="5 0 0 0">
+                        <toolkit:DateTimePicker Width="125" Value="{Binding StartTime}" Format="Custom" FormatString="dd/MM/yy HH:mm" IsEnabled="{Binding CanEditDates}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="ValueChanged">
+                                    <cal:ActionMessage MethodName="StartTimeChanged">
+                                        <cal:Parameter Value="$eventArgs" />
+                                    </cal:ActionMessage>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </toolkit:DateTimePicker>
                         <TextBlock Text=" - to - " VerticalAlignment="Center" />
-                        <DatePicker Width="32" IsEnabled="True" />
+                        <toolkit:DateTimePicker Width="125" Value="{Binding EndTime}" Format="Custom" FormatString="dd/MM/yy HH:mm" IsEnabled="{Binding CanEditDates}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="ValueChanged">
+                                    <cal:ActionMessage MethodName="EndTimeChanged">
+                                        <cal:Parameter Value="$eventArgs" />
+                                    </cal:ActionMessage>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </toolkit:DateTimePicker>
                     </StackPanel>
                     
                     <TextBlock Text="Render Method:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" />
@@ -85,25 +102,28 @@
                     <TextBlock Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedSensorName}" Margin="10,0,0,0" />
 
                     <TextBlock Text="Color:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" />
-                    <Rectangle  Grid.Row="1" Grid.Column="1" Width="20" Height="20" HorizontalAlignment="Left" VerticalAlignment="Center" Fill="{Binding SelectedSensorColour}" Stroke="Black" StrokeEndLineCap="Flat" StrokeThickness="1" RadiusX="5" RadiusY="5" Margin="10 5 0 0">
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="MouseLeftButtonDown">
-                                <cal:ActionMessage MethodName="ShowColourDialog" />
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </Rectangle>
+                    <toolkit:ColorPicker Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Margin="10 5 0 0" DisplayColorAndName="False" SelectedColor="{Binding SelectedSensorColour, Mode=TwoWay}" ShowStandardColors="False" />
 
                 </Grid>
             </GroupBox>
         </Grid>
 
         <Rectangle Grid.Column="1" Width="3" Fill="OrangeRed" Margin="10,0"  SnapsToDevicePixels="True" Stroke="White" />
-        <Image Grid.Column="1" Source="{Binding ToggleButtonImage}" Width="16" Height="16" VerticalAlignment="Center" HorizontalAlignment="Center" >
+        <Image Name="ToggleButton" Grid.Column="1" Source="{Binding ToggleButtonImage}" Width="16" Height="16" VerticalAlignment="Center" HorizontalAlignment="Center" >
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="MouseUp">
-                    <cal:ActionMessage MethodName="btnColumnToggle" />
+                    <cal:ActionMessage MethodName="ToggleColumn" />
                 </i:EventTrigger>
             </i:Interaction.Triggers>
+            <Image.Triggers>
+                <EventTrigger RoutedEvent="Image.MouseEnter">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <ThicknessAnimation Storyboard.TargetName="ToggleButton" Storyboard.TargetProperty="Margin" From="0" To="5" AutoReverse="True" Duration="0:0:1" />
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Image.Triggers>
         </Image>
 
         <Grid Grid.Column="2">
