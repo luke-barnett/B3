@@ -13,6 +13,7 @@ namespace IndiaTango.ViewModels
         private SimpleContainer _container;
         private Sensor _selectedSensor = null;
 		private bool _tipVisible = false;
+        private bool _errorVisible = false;
 		private List<Sensor> _sensors;
     	private bool _editing = false;
         private List<SensorTemplate> Templates = new List<SensorTemplate>(); 
@@ -33,6 +34,23 @@ namespace IndiaTango.ViewModels
         public int TipRowHeight
         {
             get { return (TipVisible) ? 45 : 0; }
+        }
+
+        public int ErrorRowHeight
+        {
+            get { return (FailingErrorVisible) ? 60 : 0; }
+        }
+
+        public bool FailingErrorVisible
+        {
+            get { return _errorVisible; }
+            set
+            {
+                _errorVisible = value;
+
+                NotifyOfPropertyChange(() => FailingErrorVisible);
+                NotifyOfPropertyChange(() => ErrorRowHeight);
+            }
         }
 
         public bool TipVisible
@@ -58,6 +76,7 @@ namespace IndiaTango.ViewModels
 			set
 			{
 				_sensors = value;
+
 				NotifyOfPropertyChange(() => Sensors);
 			}
     	}
@@ -91,6 +110,8 @@ namespace IndiaTango.ViewModels
                     Manufacturer = "";
                     SerialNumber = "";
                 }
+
+                FailingErrorVisible = (_selectedSensor != null && _selectedSensor.IsFailing);
 
 				NotifyOfPropertyChange(() => NeedsTip);
 
