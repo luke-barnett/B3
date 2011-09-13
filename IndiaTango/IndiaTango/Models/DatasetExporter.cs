@@ -82,11 +82,9 @@ namespace IndiaTango.Models
 					char del = ',';
                     string columnHeadings = dateColumnFormat.Equals(DateColumnFormat.SplitDateColumn) ? "dd" + del + "mm" + del + "yyyy" + del + "hh" + del + "nn" : "dd/mm/yyyy" + del + "hhnn";  //Not a typo
 				    int currentSensorIndex = 0;
-				    var outputData = new string[Data.Sensors.Count, (Data.DataPointCount / numOfPointsToAverage)+1];
-                    Debug.WriteLine(Data.DataPointCount);
+				    var outputData = new string[Data.Sensors.Count, (Data.ExpectedDataPointCount / numOfPointsToAverage)+1];
 				    DateTime rowDate = Data.StartTimeStamp;
 
-                    //Debug.WriteLine(GetArrayRowFromTime(Data.StartTimeStamp,Data.EndTimeStamp,numOfPointsToAverage));
 
                     foreach (Sensor sensor in Data.Sensors)
                     {
@@ -105,8 +103,7 @@ namespace IndiaTango.Models
                                     else
                                         sum += value;
                             }
-                            //Debug.WriteLine(outputData.GetUpperBound(1));
-                            //Debug.WriteLine(GetArrayRowFromTime(Data.StartTimeStamp, i.AddMinutes((-15) * numOfPointsToAverage), numOfPointsToAverage));
+                            
                             if (!sum.Equals(float.MinValue))
                             {
                                 outputData[
@@ -122,7 +119,7 @@ namespace IndiaTango.Models
 					writer.WriteLine(columnHeadings);
 
                     //write the data here...
-                    for (int row = 0; row < Data.DataPointCount/numOfPointsToAverage; row++)
+                    for (int row = 0; row < Data.ExpectedDataPointCount/numOfPointsToAverage; row++)
                     {
                         string line = "";
 
@@ -138,9 +135,7 @@ namespace IndiaTango.Models
                         rowDate = rowDate.AddMinutes(15*numOfPointsToAverage);
                     }
 
-                    Debug.WriteLine(filePath);
 				    writer.Close();
-                    
 				}
                 
                 if (addMetaDataFile && Data.Site != null)
@@ -211,12 +206,7 @@ namespace IndiaTango.Models
             if (currentDate < startDate)
                 throw new ArgumentException("currentDate must be larger than or equal to startDate\nYou supplied startDate=" + startDate.ToString() + " currentDate=" + currentDate.ToString());
 
-            return (int)Math.Floor(currentDate.Subtract(startDate).TotalMinutes/15/numOfPointsToAverage);
-            
-            if(index > 53360)
-                Debug.WriteLine(index + " start " + startDate + " current " + currentDate);
-	        
-            return index;
+            return (int)Math.Floor(currentDate.Subtract(startDate).TotalMinutes/Data.DataInterval/numOfPointsToAverage);
         }
 	}
 

@@ -11,7 +11,8 @@ namespace IndiaTango.Models
         private DateTime _startTimeStamp;
         private DateTime _endTimeStamp;
         private List<Sensor> _sensors;
-        private int _dataPointCount = 0;
+        private int _expectedDataPointCount = 0;
+        private int _actualDataPointCount = 0;
         private int _dataInterval;
 
         /// <summary>
@@ -109,9 +110,9 @@ namespace IndiaTango.Models
 
                 foreach (Sensor sensor in _sensors)
                 {
-                    //Update the datapointcount
-                    if(sensor.CurrentState != null)
-                        _dataPointCount = Math.Max(sensor.CurrentState.Values.Count, _dataPointCount);
+                    //Update the actual data point count.
+                    if (sensor.CurrentState != null)
+                        _actualDataPointCount = Math.Max(sensor.CurrentState.Values.Count, _actualDataPointCount);
 
                     //Set the start and end time dynamically
                     if (sensor.CurrentState != null && sensor.CurrentState.Values.Count > 0)
@@ -132,6 +133,8 @@ namespace IndiaTango.Models
                                 timesList[timesList.Count - 1];
                     }
                 }
+
+                _expectedDataPointCount = (int)Math.Floor(EndTimeStamp.Subtract(StartTimeStamp).TotalMinutes / DataInterval) + 1;
         	}
         }
 
@@ -158,14 +161,20 @@ namespace IndiaTango.Models
             get { return _dataInterval; }
         }
 
-        public int DataPointCount
+        /// <summary>
+        /// Returns the actual number of data rows in this data set
+        /// </summary>
+        public int ActualDataPointCount
         {
-            get
-            {
-                //An additional +1 is added to the return value to account for the initial data point
-                //return (int)Math.Floor(EndTimeStamp.Subtract(StartTimeStamp).TotalMinutes/15) + 1;
-                return _dataPointCount;
-            }
+            get { return _actualDataPointCount; }
+        }
+
+        /// <summary>
+        /// Returns the expected number of data rows in this data set, if empty rows were included
+        /// </summary>
+        public int ExpectedDataPointCount
+        {
+            get { return _expectedDataPointCount; }
         }
     }
 }

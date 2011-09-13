@@ -73,17 +73,17 @@ namespace IndiaTango.Tests
         }
 
         [Test]
-        public void CorrectDataPointCount1()
+        public void CorrectExpectedDataPointCount()
         {
-            Assert.AreEqual(499,_ds2.DataPointCount);    
+            Assert.AreEqual(499, _ds2.ExpectedDataPointCount);    
         }
 
         [Test]
-        public void CorrectDataPointCount2()
+        public void CorrectActualDataPointCount()
         {
             _reader = new CSVReader(Path.Combine(Common.TestDataPath, "lakeTutira120120110648.csv"));
             Dataset ds = new Dataset(_b, _reader.ReadSensors());
-            Assert.AreEqual(53873, ds.DataPointCount);
+            Assert.AreEqual(53873, ds.ActualDataPointCount);
         }
 
         [Test]

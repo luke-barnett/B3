@@ -41,7 +41,7 @@ namespace IndiaTango.Tests
             _data.Sensors = reader.ReadSensors();
             _exporter = new DatasetExporter(_data);
             _exporter.Export(_outputFilePath, ExportFormat.CSV, true, false, false, ExportedPoints.AllPoints, DateColumnFormat.TwoDateColumn);
-            Assert.AreEqual(File.ReadLines(_outputFilePath).Count(), _data.DataPointCount + 1);
+            Assert.AreEqual(File.ReadLines(_outputFilePath).Count(), _data.ExpectedDataPointCount + 1);
         }
 
         [Test]
@@ -51,7 +51,7 @@ namespace IndiaTango.Tests
             _data.Sensors = reader.ReadSensors();
             _exporter = new DatasetExporter(_data);
             _exporter.Export(_outputFilePath, ExportFormat.CSV, true, false, false, ExportedPoints.HourlyPoints, DateColumnFormat.TwoDateColumn);
-            Assert.AreEqual(File.ReadLines(_outputFilePath).Count(), ((_data.DataPointCount)/4)+1);
+            Assert.AreEqual(File.ReadLines(_outputFilePath).Count(), ((_data.ExpectedDataPointCount) / 4) + 1);
         }
 
         [Test]
@@ -75,7 +75,7 @@ namespace IndiaTango.Tests
             s.AddState(ss);
             givenDataSet.AddSensor(s);
 
-            Assert.AreEqual(4, givenDataSet.DataPointCount);
+            Assert.AreEqual(4, givenDataSet.ExpectedDataPointCount);
 
             dateTime = new DateTime(2011, 8, 4, 0, 0, 0);
             givenDataSet = new Dataset(new Site(1, "Steven", "Kerry", Contact, Contact, Contact, new GPSCoords(0, 0)));
@@ -86,7 +86,7 @@ namespace IndiaTango.Tests
             s.AddState(ss);
             givenDataSet.AddSensor(s);
 
-            Assert.AreEqual(4, givenDataSet.DataPointCount);
+            Assert.AreEqual(4, givenDataSet.ExpectedDataPointCount);
         }
 
 		[Test]
