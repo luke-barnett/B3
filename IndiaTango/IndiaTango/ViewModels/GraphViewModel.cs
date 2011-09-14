@@ -20,7 +20,6 @@ namespace IndiaTango.ViewModels
 
         private const int MaxPointCount = 15000;
 
-        private readonly GraphBehaviour _graphBehaviour;
         private readonly Canvas _graphBackground;
         private readonly List<GraphableSensor> _selectedSensors = new List<GraphableSensor>();
 
@@ -41,10 +40,10 @@ namespace IndiaTango.ViewModels
         #region YAxisControls
 
         private DoubleRange _range = new DoubleRange(0,0);
-        private double _minimum = 0;
+        private double _minimum;
         private double _minimumMinimum;
         private double _maximumMinimum;
-        private double _maximum = 0;
+        private double _maximum;
         private double _minimumMaximum;
         private double _maximumMaximum;
 
@@ -68,8 +67,8 @@ namespace IndiaTango.ViewModels
 
             var behaviourManager = new BehaviourManager {AllowMultipleEnabled = true};
 
-            _graphBehaviour = new GraphBehaviour(_graphBackground) {IsEnabled = true};
-            _graphBehaviour.ZoomRequested += (o, e) =>
+            var zoomBehaviour = new CustomZoomBehaviour() {IsEnabled = true};
+            zoomBehaviour.ZoomRequested += (o, e) =>
                                                  {
                                                      StartTime = (DateTime) e.FirstPoint.X;
                                                      EndTime = (DateTime) e.SecondPoint.X;
@@ -79,7 +78,7 @@ namespace IndiaTango.ViewModels
                                                      }
                                                      SampleValues(MaxPointCount, _selectedSensors);
                                                  };
-            _graphBehaviour.ZoomResetRequested += o =>
+            zoomBehaviour.ZoomResetRequested += o =>
                                                       {
                                                           foreach (var sensor in _selectedSensors)
                                                           {
@@ -89,7 +88,12 @@ namespace IndiaTango.ViewModels
                                                           CalculateDateTimeEndPoints();
                                                       };
             
-            behaviourManager.Behaviours.Add(_graphBehaviour);
+            behaviourManager.Behaviours.Add(zoomBehaviour);
+
+            var backgroundBehaviour = new GraphBackgroundBehaviour(_graphBackground){IsEnabled = true};
+
+            behaviourManager.Behaviours.Add(backgroundBehaviour);
+
             Behaviour = behaviourManager;
         }
 
@@ -319,7 +323,6 @@ namespace IndiaTango.ViewModels
             }
 
             ChartSeries = generatedSeries;
-            _graphBehaviour.RefreshVisual();
         }
 
         /// <summary>

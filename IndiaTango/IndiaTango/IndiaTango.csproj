@@ -69,7 +69,8 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <Reference Include="WindowsFormsAero">
+    <Reference Include="WindowsFormsAero, Version=1.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Externals\VistaControls\WindowsFormsAero.dll</HintPath>
     </Reference>
     <Reference Include="WPFToolkit.Extended">
@@ -85,11 +86,13 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Models\CustomSelectionBehaviour.cs" />
     <Compile Include="Models\DatasetExporter.cs" />
     <Compile Include="Models\Common.cs" />
     <Compile Include="Models\CSVReader.cs" />
     <Compile Include="Models\GraphableSensor.cs" />
-    <Compile Include="Models\GraphBehaviour.cs" />
+    <Compile Include="Models\CustomZoomBehaviour.cs" />
+    <Compile Include="Models\GraphBackgroundBehaviour.cs" />
     <Compile Include="Models\SensorTemplate.cs" />
     <Compile Include="Models\Tools.cs" />
     <Compile Include="MultiSeriesBinding\MultiSeries.cs" />
@@ -266,6 +269,12 @@
   <ItemGroup>
     <Resource Include="Images\save_32.png" />
     <Resource Include="Images\save_64.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\tip_32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\warning_32.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
