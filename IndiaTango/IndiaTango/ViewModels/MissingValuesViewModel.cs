@@ -160,24 +160,10 @@ namespace IndiaTango.ViewModels
 			Common.ShowMessageBox("Values Updated", "The selected values have been set to 0.", false, false);
             EventLogger.LogInfo(GetType().ToString(), "Value updation complete. Sensor: " + SelectedSensor.Name + ". Value: 0.");
 
-            provideReason();
+            requestReason();
         }
 
-        private DateTime FindPrevValue(DateTime dataValue)
-        {
-            var prevValue = DateTime.MinValue;
-            var time = 0;
-
-            while (prevValue == DateTime.MinValue)
-            {
-                prevValue = (_sensor.CurrentState.Values.ContainsKey(dataValue.AddMinutes(time))
-                                 ? dataValue.AddMinutes(time)
-                                 : DateTime.MinValue);
-                time -= 15;
-            }
-
-            return prevValue;
-        }
+        
 
         public void btnSpecify()
         {
@@ -219,7 +205,7 @@ namespace IndiaTango.ViewModels
             Common.ShowMessageBox("Values Updated", "The selected values have been set to " + value + ".", false, false);
             EventLogger.LogInfo(GetType().ToString(),"Value updation complete. Sensor: " + SelectedSensor.Name + ". Value: " + value + ".");
 
-            provideReason();
+            requestReason();
         }
 
         private void Cleanup()
@@ -232,47 +218,43 @@ namespace IndiaTango.ViewModels
         public void btnExtrapolate()
         {
             EventLogger.LogInfo(GetType().ToString(), "Value Extrapolation started.");
-			//TODO: Refactor
-            if (SelectedValues.Count == 0)
+
+            if (SelectedSensor == null)
+            {
+                Common.ShowMessageBox("No sensor selected", "Please choose a sensor before performing extrapolation.",
+                                      false, true);
                 return;
-            if (!Common.ShowMessageBox("Extrapolate", "This will find the first and last value in the current range and extrapolate between them.\r\n\r\nAre you sure you want to do this?",true,false))
+            }
+
+            if(SelectedValues.Count == 0)
             {
+                Common.ShowMessageBox("No values selected", "Please select one or more data points before performing extrapolation.",
+                                      false, true);
                 return;
             }
-		    var first = SelectedValues[0];
-            var startValue = FindPrevValue(first);
-            var endValue = DateTime.MinValue;
-            var time = 0;
-            while (endValue == DateTime.MinValue)
+
+            if (!Common.ShowMessageBox("Extrapolate", "This will find the first and last value in the current range and extrapolate between them.\r\n\r\nAre you sure you want to do this?", true, false))
+                return;
+
+            try
             {
-                endValue = (_sensor.CurrentState.Values.ContainsKey(first.AddMinutes(time))
-                                 ? first.AddMinutes(time)
-                                 : DateTime.MinValue);
-                time += 15;
+                SelectedSensor.Extrapolate(SelectedValues, Dataset);
+
+                Cleanup();
+
+                requestReason();
+
+                Common.ShowMessageBox("Values updated", "The values have been extrapolated successfully.", false, false);
+                EventLogger.LogInfo(GetType().ToString(), "Value extrapolation complete. Sensor: " + SelectedSensor.Name);
             }
-		    var timeDiff = endValue.Subtract(startValue).TotalMinutes;
-		    var valDiff = _sensor.CurrentState.Values[endValue] - _sensor.CurrentState.Values[startValue];
-		    var step = valDiff/(timeDiff/15);
-		    var value = _sensor.CurrentState.Values[startValue] + step;
-
-            _sensor.AddState(_sensor.CurrentState.Clone());
-
-            for(var i = 15;i<timeDiff;i+=15)
+            catch (Exception e)
             {
-                _sensor.CurrentState.Values.Add(startValue.AddMinutes(i),(float)Math.Round(value,2));
-                value += step;
+                Common.ShowMessageBoxWithException("Error", "An error occured during extrapolation. Ensure you have selected a sensor and one or more data points, and try again.",
+                                      false, true, e);
             }
-            Cleanup();
-
-            Common.ShowMessageBox("Values Updated", "The values have been extrapolated", false, false);
-            EventLogger.LogInfo(GetType().ToString(),
-                                "Value extrapolation complete. Sensor: " + SelectedSensor.Name + ". Range: " +
-                                startValue + " to " + endValue);
-
-            provideReason();
         }
 
-        public void provideReason()
+        public void requestReason()
         {
             if(_sensor != null && _sensor.CurrentState != null)
             {

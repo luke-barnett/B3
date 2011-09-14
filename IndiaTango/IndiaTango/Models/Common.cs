@@ -115,6 +115,27 @@ namespace IndiaTango.Models
 			}
 		}
 
+        public static bool ShowMessageBoxWithException(string title, string text, bool showCancel, bool isError, Exception ex)
+        {
+            EventLogger.LogError("MessageBoxWithException", "An exception was thrown. " + ex.Message);
+
+            if (CanUseGlass)
+            {
+                TaskDialog dialog = new TaskDialog(title, title, text,
+                                                   (showCancel ? (TaskDialogButton.OK | TaskDialogButton.Cancel) : TaskDialogButton.OK),
+                                                   isError ? TaskDialogIcon.Stop : TaskDialogIcon.Information);
+                dialog.ShowExpandedInfoInFooter = true;
+                dialog.ExpandedInformation = ex.Message;
+
+                var result = dialog.Show();
+                return result.CommonButton == WindowsFormsAero.TaskDialog.Result.OK;
+            }
+            else
+            {
+                return ShowMessageBox(title, text, showCancel, isError);
+            }
+        }
+
 		public static void ShowFeatureNotImplementedMessageBox()
 		{
 			ShowMessageBox("Feature Not Implemented", "Sorry, this feature has not been created yet.", false, false);

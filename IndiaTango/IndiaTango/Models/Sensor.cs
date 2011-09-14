@@ -331,11 +331,62 @@ namespace IndiaTango.Models
                 return false;
             }
         }
-        #endregion
+
+        public void Extrapolate(List<DateTime> keys, Dataset ds)
+        {
+            if (keys.Count == 0)
+                throw new ArgumentException("You must specify at least one value to extrapolate.");
+
+            if(ds == null)
+                throw new ArgumentNullException("You must specify the containing data set for this sensor.");
+
+            var first = keys[0];
+            var startValue = FindPrevValue(first, ds);
+            var endValue = DateTime.MinValue;
+            var time = 0;
+
+            while (endValue == DateTime.MinValue)
+            {
+                endValue = (CurrentState.Values.ContainsKey(first.AddMinutes(time))
+                                ? first.AddMinutes(time)
+                                : DateTime.MinValue);
+                time += ds.DataInterval;
+            }
+
+            var timeDiff = endValue.Subtract(startValue).TotalMinutes;
+            var valDiff = CurrentState.Values[endValue] - CurrentState.Values[startValue];
+            var step = valDiff / (timeDiff / ds.DataInterval);
+            var value = CurrentState.Values[startValue] + step;
+
+            AddState(CurrentState.Clone());
+
+            for (var i = ds.DataInterval; i < timeDiff; i += ds.DataInterval)
+            {
+                CurrentState.Values.Add(startValue.AddMinutes(i), (float)Math.Round(value, 2));
+                value += step;
+            }
+        }
+
+        public DateTime FindPrevValue(DateTime dataValue, Dataset ds)
+        {
+            var prevValue = DateTime.MinValue;
+            var time = 0;
+
+            while (prevValue == DateTime.MinValue)
+            {
+                prevValue = (this.CurrentState.Values.ContainsKey(dataValue.AddMinutes(time))
+                                 ? dataValue.AddMinutes(time)
+                                 : DateTime.MinValue);
+                time -= ds.DataInterval;
+            }
+
+            return prevValue;
+        }
 
         public override string ToString()
         {
             return this.Name;
         }
+        #endregion
     }
 }

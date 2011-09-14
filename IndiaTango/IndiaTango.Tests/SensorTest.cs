@@ -681,5 +681,9 @@ namespace IndiaTango.Tests
             var s = new Sensor("Awesome Sensor", "An awesome sensor", 10, 100, "A", 2, "Awesome Co", "XX323929");
         }
         #endregion
+
+        #region Extrapolation Test
+        // TODO: test
+        #endregion
     }
 }
