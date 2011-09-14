@@ -27,7 +27,15 @@ namespace IndiaTango.ViewModels
 
 		#region View Properties
 
-		
+        public bool RedoButtonEnabled
+        {
+            get { return SelectedSensor != null && SelectedSensor.RedoStack.Count > 0; }
+        }
+
+        public bool UndoButtonEnabled
+        {
+            get { return SelectedSensor != null && SelectedSensor.UndoStack.Count > 1; }
+        }
 
 		public int ZoomLevel
 		{

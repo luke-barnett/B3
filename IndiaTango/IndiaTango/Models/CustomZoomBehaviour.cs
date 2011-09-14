@@ -9,128 +9,101 @@ namespace IndiaTango.Models
 {
     class CustomZoomBehaviour : BehaviourBase
     {
-        private const double PATH_MAX_SIZE = 200000;
-
         private readonly ZoomRectangle _zoomRectangle = new ZoomRectangle();
-        private readonly Canvas _background;
         private bool _leftMouseDown;
-        private Point _leftMouseDownPosition;
+        private Point _firstPosition;
 
-        public event ZoomRequested ZoomRequested;
-        public event ZoomResetRequested ZoomResetRequested;
-
-        public CustomZoomBehaviour(Canvas background) : base("Custom Graph Behaviour")
+        public CustomZoomBehaviour() : base("Zoom Behaviour")
         {
-            _background = background;
         }
 
         protected override void Init()
         {
+            //Set up the zoom rectangle for use
             _zoomRectangle.Visibility = Visibility.Collapsed;
+            //Add it to the container
             BehaviourContainer.Children.Add(_zoomRectangle);
-
-            _background.Background = Brushes.Red;
-            _background.Opacity = 0.15;
-            _background.SetValue(Canvas.LeftProperty, 0.0);
-            _background.SetValue(Canvas.TopProperty, 0.0);
-            _background.Width = Double.IsNaN(Chart.ActualWidth) ? 400 : Chart.ActualWidth;
-            _background.Height = Double.IsNaN(Chart.ActualHeight) ? 400 : Chart.ActualHeight;
-            BehaviourContainer.Children.Add(_background);
-            BehaviourContainer.SizeChanged += (o, e) =>
-            {
-                _background.Width = Double.IsNaN(Chart.ActualWidth) ? 400 : Chart.ActualWidth;
-                _background.Height = Double.IsNaN(Chart.ActualHeight) ? 400 : Chart.ActualHeight;
-            };
         }
 
         public override void DeInit()
         {
-            if (BehaviourContainer != null && BehaviourContainer.Children.Contains(_zoomRectangle))
+            //Ensure that we remove the items we have added
+            if(BehaviourContainer != null && BehaviourContainer.Children.Contains(_zoomRectangle))
                 BehaviourContainer.Children.Remove(_zoomRectangle);
-
-            if (BehaviourContainer != null && BehaviourContainer.Children.Contains(_background))
-                BehaviourContainer.Children.Remove(_background);
         }
+
+        #region Events
+
+        /// <summary>
+        /// Fired when a zoom has been requested by the user
+        /// </summary>
+        public event ZoomRequested ZoomRequested;
+
+        /// <summary>
+        /// Fired when the zoom has been requested to be reset
+        /// </summary>
+        public event ZoomResetRequested ZoomResetRequested;
+
+        #endregion
 
         public override void MouseLeftButtonDown(Point position)
         {
-            #region pointFinding
-
-            var closestX = FindClosestPoint(position);
-            if(closestX != null)
-                Debug.Print("X:{0} Y:{1} [{2}]", closestX.X, closestX.Y, position);
-
-            #endregion
-
             if(BehaviourContainer.CaptureMouse())
             {
                 _leftMouseDown = true;
-                _leftMouseDownPosition = position;
+                _firstPosition = position;
+
+                //Set the up the zoom rectangle
                 _zoomRectangle.SetValue(Canvas.LeftProperty, position.X);
                 _zoomRectangle.SetValue(Canvas.TopProperty, 0.0);
                 _zoomRectangle.Width = 0;
-                _zoomRectangle.Height = Double.IsNaN(Chart.ActualHeight) ? 400 : Chart.ActualHeight;
+                _zoomRectangle.Height = Double.IsNaN(Chart.ActualWidth) ? 400 : Chart.ActualWidth;
+                if (_zoomRectangle.Border != null)
+                {
+                    _zoomRectangle.Border.Background = _zoomRectangle.Background;
+                    _zoomRectangle.Border.BorderBrush = _zoomRectangle.Foreground;
+                }
+
+                //Make it visible
                 _zoomRectangle.Visibility = Visibility.Visible;
             }
         }
 
         public override void MouseMove(Point position)
         {
+            if(!_leftMouseDown)
+                return;
             position = EnsurePointIsOnChart(position);
-            if (_leftMouseDown)
-            {
-                ChangeZoomRectangle(position);
-                double xPosOne = (position.X);
-                double xPosTwo = (_leftMouseDownPosition.X);
 
-                if (CheckZoomIsPossible(xPosOne, xPosTwo))
-                {
-                    if (_zoomRectangle.Border != null)
-                    {
-                        _zoomRectangle.Border.Background = _zoomRectangle.Background;
-                        _zoomRectangle.Border.BorderBrush = _zoomRectangle.Foreground;
-                    }
-                }
-                else
-                {
-                    if (_zoomRectangle.Border != null)
-                    {
-                        _zoomRectangle.Border.Background = _zoomRectangle.NotZoomableBackground;
-                        _zoomRectangle.Border.BorderBrush = _zoomRectangle.NotZoomableForeground;
-                    }
-                }
-            }
+            ChangeZoomRectangle(position);
         }
 
         public override void MouseLeftButtonUp(Point position)
         {
+            if(!_leftMouseDown)
+                return;
+
             position = EnsurePointIsOnChart(position);
-            if (!_leftMouseDown)
-                return;
 
+            //Mouse button is no longer down
             _leftMouseDown = false;
+            //Reset the zoom rectangle to hidden
+            _zoomRectangle.Visibility = Visibility.Collapsed;
+
             BehaviourContainer.ReleaseMouseCapture();
-            _zoomRectangle.Visibility = Visibility.Collapsed;
 
-            if (Math.Abs(position.X - _leftMouseDownPosition.X) < 2)
+            //If we haven't really gone far enough to bother stop now
+            if (Math.Abs(position.X - _firstPosition.X) < 2)
                 return;
 
-            var positionOne = FindClosestPoint(_leftMouseDownPosition);
-            var positionTwo = FindClosestPoint(position);
+            var firstPoint = FindClosestPoint(_firstPosition);
+            var secondPoint = FindClosestPoint(position);
 
-            if (CheckZoomIsPossible(position.X, _leftMouseDownPosition.X) && positionOne != positionTwo)
+            //As long as they aren't the same point request a zoom
+            if(firstPoint != secondPoint && firstPoint != null && secondPoint != null)
             {
-                Debug.Print("{0} {1}", positionOne, positionTwo);
-                RequestZoom(positionOne, positionTwo);
+                RequestZoom(firstPoint, secondPoint);
             }
-        }
-
-        public override void LostMouseCapture()
-        {
-            _leftMouseDown = false;
-            _zoomRectangle.Width = 0;
-            _zoomRectangle.Height = 0;
-            _zoomRectangle.Visibility = Visibility.Collapsed;
         }
 
         public override void MouseLeftButtonDoubleClick(Point position)
@@ -139,41 +112,13 @@ namespace IndiaTango.Models
                 ZoomResetRequested(this);
         }
 
-        public void RefreshVisual()
+        public override void LostMouseCapture()
         {
-            if(BehaviourContainer != null)
-                BehaviourContainer.InvalidateVisual();
-        }
-
-        #region private methods
-
-        private bool CheckZoomIsPossible(double xPosOne, double xPosTwo)
-        {
-            if (xPosOne == xPosTwo)
-            {
-                xPosTwo = xPosTwo + 0.1;
-            }
-
-            Zoom zoom = Chart.XAxis.GetZoom(xPosTwo, xPosOne);
-            if (1 / zoom.Scale < FindMaximumScaleForZoom())
-            {
-                return true;
-            }
-            return false;
-        }
-
-        private void ChangeZoomRectangle(Point position)
-        {
-            if (position.X > _leftMouseDownPosition.X)
-            {
-                _zoomRectangle.Width = position.X - _leftMouseDownPosition.X;
-                _zoomRectangle.SetValue(Canvas.LeftProperty, _leftMouseDownPosition.X);
-            }
-            else
-            {
-                _zoomRectangle.Width = _leftMouseDownPosition.X - position.X;
-                _zoomRectangle.SetValue(Canvas.LeftProperty, position.X);
-            }
+            //Lost capture hide!!
+            _leftMouseDown = false;
+            _zoomRectangle.Width = 0;
+            _zoomRectangle.Height = 0;
+            _zoomRectangle.Visibility = Visibility.Collapsed;
         }
 
         private Point EnsurePointIsOnChart(Point position)
@@ -183,17 +128,26 @@ namespace IndiaTango.Models
             return new Point(xPos, yPos);
         }
 
-        private double FindMaximumScaleForZoom()
+        private void ChangeZoomRectangle(Point position)
         {
-            double chartWidth = Double.IsNaN(Chart.ActualWidth) ? 400 : Chart.ActualWidth;
-            double maximumWidthScale = PATH_MAX_SIZE / chartWidth;
-            return maximumWidthScale;
+            if (position.X > _firstPosition.X)
+            {
+                _zoomRectangle.Width = position.X - _firstPosition.X;
+                _zoomRectangle.SetValue(Canvas.LeftProperty, _firstPosition.X);
+            }
+            else
+            {
+                _zoomRectangle.Width = _firstPosition.X - position.X;
+                _zoomRectangle.SetValue(Canvas.LeftProperty, position.X);
+            }
         }
 
         private IDataPoint FindClosestPoint(Point position)
         {
+            //If we have nothing to count from then we can't do anything
             if (Chart.Series.Count == 0)
                 return null;
+
             IDataPoint closestX = null;
             foreach (IDataPoint point in Chart.Series[0].DataSeries)
             {
@@ -207,6 +161,7 @@ namespace IndiaTango.Models
 
         private void RequestZoom(IDataPoint firstPoint, IDataPoint secondPoint)
         {
+            Debug.Print("Requesting a zoom between {0} and {1}", firstPoint, secondPoint);
             OnZoomRequested(this, new ZoomRequestedArgs(firstPoint, secondPoint));
         }
 
@@ -215,8 +170,6 @@ namespace IndiaTango.Models
             if (ZoomRequested != null)
                 ZoomRequested(o, e);
         }
-
-        #endregion
     }
 
     public class ZoomRequestedArgs : EventArgs
