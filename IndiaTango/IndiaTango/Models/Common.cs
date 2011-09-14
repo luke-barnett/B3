@@ -20,7 +20,9 @@ namespace IndiaTango.Models
     	public static string ApplicationTitle { get { return "Codename B3"; } }
         public static string Version { get { return string.Format("alpha version {0}", Assembly.GetExecutingAssembly().GetName().Version.ToString()); } }
         public static string Creators { get { return "Developed by:\r\nSteven McTainsh\r\nLuke Barnett\r\nMichael Baumberger\r\nKerry Arts"; } }
-        
+
+        public static bool HasInitdTaskDlgs = false;
+
         public static string Icon { get { return "/IndiaTango;component/Images/icon.ico"; } }
 		public static string TestDataPath { get { return "../../Test Data/"; } }
         public static string AppDataPath
@@ -99,7 +101,7 @@ namespace IndiaTango.Models
 
 		public static bool ShowMessageBox(string title, string text, bool showCancel, bool isError)
 		{
-            if (CanUseGlass)
+            if (CanUseGlass && !System.Diagnostics.Debugger.IsAttached)
             {
                 TaskDialog dialog = new TaskDialog(title, title, text,
                                                    (showCancel ? (TaskDialogButton.OK | TaskDialogButton.Cancel) : TaskDialogButton.OK),
@@ -119,7 +121,7 @@ namespace IndiaTango.Models
         {
             EventLogger.LogError("MessageBoxWithException", "An exception was thrown. " + ex.Message);
 
-            if (CanUseGlass)
+            if (CanUseGlass && !System.Diagnostics.Debugger.IsAttached)
             {
                 TaskDialog dialog = new TaskDialog(title, title, text,
                                                    (showCancel ? (TaskDialogButton.OK | TaskDialogButton.Cancel) : TaskDialogButton.OK),
@@ -145,7 +147,7 @@ namespace IndiaTango.Models
 
         public static bool Confirm(string title, string message)
         {
-            if(CanUseGlass)
+            if (CanUseGlass && !System.Diagnostics.Debugger.IsAttached)
             {
                 TaskDialog dialog = new TaskDialog(title, title, message,
                                                    TaskDialogButton.Yes | TaskDialogButton.No,
