@@ -7,7 +7,7 @@ using Visiblox.Charts;
 
 namespace IndiaTango.Models
 {
-    class GraphBehaviour : BehaviourBase
+    class CustomZoomBehaviour : BehaviourBase
     {
         private const double PATH_MAX_SIZE = 200000;
 
@@ -19,7 +19,7 @@ namespace IndiaTango.Models
         public event ZoomRequested ZoomRequested;
         public event ZoomResetRequested ZoomResetRequested;
 
-        public GraphBehaviour(Canvas background) : base("Custom Graph Behaviour")
+        public CustomZoomBehaviour(Canvas background) : base("Custom Graph Behaviour")
         {
             _background = background;
         }

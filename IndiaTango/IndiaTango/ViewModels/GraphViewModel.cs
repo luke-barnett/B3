@@ -20,7 +20,7 @@ namespace IndiaTango.ViewModels
 
         private const int MaxPointCount = 15000;
 
-        private readonly GraphBehaviour _graphBehaviour;
+        private readonly CustomZoomBehaviour _zoomBehaviour;
         private readonly Canvas _graphBackground;
         private readonly List<GraphableSensor> _selectedSensors = new List<GraphableSensor>();
 
@@ -68,8 +68,8 @@ namespace IndiaTango.ViewModels
 
             var behaviourManager = new BehaviourManager {AllowMultipleEnabled = true};
 
-            _graphBehaviour = new GraphBehaviour(_graphBackground) {IsEnabled = true};
-            _graphBehaviour.ZoomRequested += (o, e) =>
+            _zoomBehaviour = new CustomZoomBehaviour(_graphBackground) {IsEnabled = true};
+            _zoomBehaviour.ZoomRequested += (o, e) =>
                                                  {
                                                      StartTime = (DateTime) e.FirstPoint.X;
                                                      EndTime = (DateTime) e.SecondPoint.X;
@@ -79,7 +79,7 @@ namespace IndiaTango.ViewModels
                                                      }
                                                      SampleValues(MaxPointCount, _selectedSensors);
                                                  };
-            _graphBehaviour.ZoomResetRequested += o =>
+            _zoomBehaviour.ZoomResetRequested += o =>
                                                       {
                                                           foreach (var sensor in _selectedSensors)
                                                           {
@@ -89,7 +89,7 @@ namespace IndiaTango.ViewModels
                                                           CalculateDateTimeEndPoints();
                                                       };
             
-            behaviourManager.Behaviours.Add(_graphBehaviour);
+            behaviourManager.Behaviours.Add(_zoomBehaviour);
             Behaviour = behaviourManager;
         }
 
@@ -319,7 +319,7 @@ namespace IndiaTango.ViewModels
             }
 
             ChartSeries = generatedSeries;
-            _graphBehaviour.RefreshVisual();
+            _zoomBehaviour.RefreshVisual();
         }
 
         /// <summary>
