@@ -63,7 +63,7 @@ namespace IndiaTango.ViewModels
                 var list = new List<String>();
                 foreach (var time in _outliers)
                 {
-                    list.Add(time.ToString().PadRight(25) + _sensor.CurrentState.Values[time]);
+                    list.Add(time.ToShortDateString()+" "+time.ToShortTimeString().PadRight(10) + _sensor.CurrentState.Values[time]);
                 }
                 return list;
             }
