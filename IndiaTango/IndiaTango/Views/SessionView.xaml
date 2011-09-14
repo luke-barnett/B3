@@ -126,7 +126,7 @@
                         </StackPanel>
                     </Button>
                     
-                    <TextBlock Visibility="{Binding SensorWarningVisible}" Margin="20 10 10 10" Height="70" Width="250" Padding="10" Background="LightCoral" TextWrapping="Wrap" TextAlignment="Left" Text="One or more of the sensors you imported shows signs of failure. Click 'Sensors' to identify them" />
+                    <TextBlock Visibility="{Binding SensorWarningVisible}" Margin="20 10 10 10" Height="70" Width="250" Padding="10" Background="Orange" TextWrapping="Wrap" HorizontalAlignment="Right" TextAlignment="Left" Text="One or more of the sensors you imported shows signs of failure. Click 'Sensors' to identify them" />
                 </StackPanel>
                 
                 <Rectangle Height="3" Fill="OrangeRed" Margin="0,5" Grid.Row="10" Grid.ColumnSpan="5" SnapsToDevicePixels="True" Stroke="White" />
@@ -234,6 +234,13 @@
                                 <Image Source="/IndiaTango;component/Images/edit_points.png" Width="64" Height="64" />
                             </Button>
                             <TextBlock Text="Edit Data Points" FontSize="15" VerticalAlignment="Center" Margin="5" />
+                        </WrapPanel>
+
+                        <WrapPanel>
+                            <Button Name="btnCalibrate" FontSize="15" Width="100" Height="100" Margin="5" IsEnabled="{Binding ActionButtonsEnabled}">
+                                <Image Source="/IndiaTango;component/Images/edit_points.png" Width="64" Height="64" />
+                            </Button>
+                            <TextBlock Text="Calibrate Sensors" FontSize="15" VerticalAlignment="Center" Margin="5" />
                         </WrapPanel>
                     </StackPanel>
                 </ScrollViewer>

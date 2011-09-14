@@ -20,7 +20,6 @@ namespace IndiaTango.ViewModels
 
         private const int MaxPointCount = 15000;
 
-        private readonly CustomZoomBehaviour _zoomBehaviour;
         private readonly Canvas _graphBackground;
         private readonly List<GraphableSensor> _selectedSensors = new List<GraphableSensor>();
 
@@ -37,14 +36,15 @@ namespace IndiaTango.ViewModels
         private GraphableSensor _selectedSensor;
         private DateTime _startDateTime;
         private DateTime _endDateTime;
+        private bool _selectionMode;
 
         #region YAxisControls
 
         private DoubleRange _range = new DoubleRange(0,0);
-        private double _minimum = 0;
+        private double _minimum;
         private double _minimumMinimum;
         private double _maximumMinimum;
-        private double _maximum = 0;
+        private double _maximum;
         private double _minimumMaximum;
         private double _maximumMaximum;
 
@@ -68,8 +68,8 @@ namespace IndiaTango.ViewModels
 
             var behaviourManager = new BehaviourManager {AllowMultipleEnabled = true};
 
-            _zoomBehaviour = new CustomZoomBehaviour(_graphBackground) {IsEnabled = true};
-            _zoomBehaviour.ZoomRequested += (o, e) =>
+            var zoomBehaviour = new CustomZoomBehaviour { IsEnabled = !_selectionMode };
+            zoomBehaviour.ZoomRequested += (o, e) =>
                                                  {
                                                      StartTime = (DateTime) e.FirstPoint.X;
                                                      EndTime = (DateTime) e.SecondPoint.X;
@@ -79,7 +79,7 @@ namespace IndiaTango.ViewModels
                                                      }
                                                      SampleValues(MaxPointCount, _selectedSensors);
                                                  };
-            _zoomBehaviour.ZoomResetRequested += o =>
+            zoomBehaviour.ZoomResetRequested += o =>
                                                       {
                                                           foreach (var sensor in _selectedSensors)
                                                           {
@@ -89,7 +89,25 @@ namespace IndiaTango.ViewModels
                                                           CalculateDateTimeEndPoints();
                                                       };
             
-            behaviourManager.Behaviours.Add(_zoomBehaviour);
+            behaviourManager.Behaviours.Add(zoomBehaviour);
+
+            var selectionBehaviour = new CustomSelectionBehaviour { IsEnabled = _selectionMode };
+            selectionBehaviour.SelectionMade += (o, e) =>
+                                                    {
+                                                        Debug.WriteLine("GraphView has recieved the selection over!");
+                                                        Debug.WriteLine("If you read this the code doesn't do anything");
+                                                    };
+            selectionBehaviour.SelectionReset += o =>
+                                                     {
+                                                         Debug.WriteLine("GraphViewModel has recieved the selection reset!");
+                                                         Debug.WriteLine("If you read this the code doesn't do anything");
+                                                     };
+            behaviourManager.Behaviours.Add(selectionBehaviour);
+
+            var backgroundBehaviour = new GraphBackgroundBehaviour(_graphBackground){ IsEnabled = true };
+
+            behaviourManager.Behaviours.Add(backgroundBehaviour);
+
             Behaviour = behaviourManager;
         }
 
@@ -319,7 +337,6 @@ namespace IndiaTango.ViewModels
             }
 
             ChartSeries = generatedSeries;
-            _zoomBehaviour.RefreshVisual();
         }
 
         /// <summary>

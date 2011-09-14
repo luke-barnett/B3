@@ -136,6 +136,67 @@ namespace IndiaTango.Models
             return outliers;
         }
 
+
+        public SensorState Extrapolate(List<DateTime> keys, Dataset ds)
+        {
+            EventLogger.LogInfo(GetType().ToString(), "Starting extrapolation process");
+
+            if(keys == null)
+                throw new ArgumentNullException("You must specify a list of keys.");
+
+            if (keys.Count == 0)
+                throw new ArgumentException("You must specify at least one value to use for extrapolation.");
+
+            if (ds == null)
+                throw new ArgumentNullException("You must specify the containing data set for this sensor.");
+
+            var first = keys[0];
+            var startValue = FindPrevValue(first, ds);
+            var endValue = DateTime.MinValue;
+            var time = 0;
+
+            while (endValue == DateTime.MinValue)
+            {
+                endValue = (Values.ContainsKey(first.AddMinutes(time))
+                                ? first.AddMinutes(time)
+                                : DateTime.MinValue);
+                time += ds.DataInterval;
+            }
+
+            var timeDiff = endValue.Subtract(startValue).TotalMinutes;
+            var valDiff = Values[endValue] - Values[startValue];
+            var step = valDiff / (timeDiff / ds.DataInterval);
+            var value = Values[startValue] + step;
+
+            var newState = Clone();
+
+            for (var i = ds.DataInterval; i < timeDiff; i += ds.DataInterval)
+            {
+                newState.Values.Add(startValue.AddMinutes(i), (float)Math.Round(value, 2));
+                value += step;
+            }
+
+            EventLogger.LogInfo(GetType().ToString(), "Completing extrapolation process");
+
+            return newState;
+        }
+
+        public DateTime FindPrevValue(DateTime dataValue, Dataset ds)
+        {
+            var prevValue = DateTime.MinValue;
+            var time = 0;
+
+            while (prevValue == DateTime.MinValue)
+            {
+                prevValue = (Values.ContainsKey(dataValue.AddMinutes(time))
+                                 ? dataValue.AddMinutes(time)
+                                 : DateTime.MinValue);
+                time -= ds.DataInterval;
+            }
+
+            return prevValue;
+        }
+
         public override string ToString()
         {
             return _editTimestamp.ToString() + " " + Values.First().Key + " " + Values.First().Value;

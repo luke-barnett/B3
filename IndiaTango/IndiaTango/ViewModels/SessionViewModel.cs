@@ -422,6 +422,13 @@ namespace IndiaTango.ViewModels
 			Common.ShowFeatureNotImplementedMessageBox();
 		}
 
+        public void btnCalibrate()
+        {
+            var calibrateView = (_container.GetInstance(typeof(CalibrateSensorsViewModel), "CalibrateSensorsViewModel") as CalibrateSensorsViewModel);
+            calibrateView.Dataset = _ds;
+            _windowManager.ShowDialog(calibrateView);
+        }
+
 		public void btnSiteCreate()
 		{
 			CreateEditDeleteVisible = Visibility.Collapsed;

@@ -159,6 +159,13 @@ namespace IndiaTango.Models
         public int DataInterval
         {
             get { return _dataInterval; }
+            set
+            {
+                if (value >= 0)
+                    _dataInterval = value;
+                else
+                    throw new ArgumentException("Data interval must be greater than 0.");
+            }
         }
 
         /// <summary>

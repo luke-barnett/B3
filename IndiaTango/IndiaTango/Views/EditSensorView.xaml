@@ -22,7 +22,7 @@
                     <Style TargetType="{x:Type ListBoxItem}">
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding Path=IsFailing}" Value="True">
-                                <Setter Property="Background" Value="LightCoral" />
+                                <Setter Property="Background" Value="Orange" />
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
@@ -54,8 +54,26 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <TextBlock Text="Based on the name of this sensor, some suggested values have been entered below. Feel free to change these as you see fit." Padding="12 5" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" TextWrapping="Wrap" Background="#FFD5AC" />
-                <TextBlock Text="This sensor indicates signs of failing, or at least being offline for a period of time. After cleaning up the data and accounting for these values, this warning will disappear." Padding="12 5" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" TextWrapping="Wrap" Background="LightCoral" />
+
+                <Grid Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Background="LightBlue">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    
+                    <Image Source="/IndiaTango;component/Images/tip_32.png" Width="32" Height="32" VerticalAlignment="Top" Grid.Column="0" Margin="5"/>
+                    <TextBlock Grid.Column="1" Text="Based on the name of this sensor, some suggested values have been entered below. Feel free to change these as you see fit." TextWrapping="Wrap" VerticalAlignment="Top" Margin="5" />
+                </Grid>
+
+                <Grid Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Background="Orange">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Image Source="/IndiaTango;component/Images/warning_32.png" Width="32" Height="32" VerticalAlignment="Top" Grid.Column="0" Margin="5"/>
+                    <TextBlock Grid.Column="1" Text="This sensor indicates signs of failing, or at least being offline for a period of time. After cleaning up the data and accounting for these values, this warning will disappear." TextWrapping="Wrap" VerticalAlignment="Top" Margin="5" />
+                </Grid>
                 
                 <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Name:" Grid.Column="0" Grid.Row="3" ToolTip="A name that identifies this sensor uniquely." />
                 <TextBox Margin="4" Grid.Column="1" Grid.Row="3" Text="{Binding Name, Mode=TwoWay}" IsEnabled="{Binding Editing}" />
