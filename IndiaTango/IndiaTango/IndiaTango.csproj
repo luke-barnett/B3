@@ -90,7 +90,7 @@
     <Compile Include="Models\Common.cs" />
     <Compile Include="Models\CSVReader.cs" />
     <Compile Include="Models\GraphableSensor.cs" />
-    <Compile Include="Models\GraphBehaviour.cs" />
+    <Compile Include="Models\CustomZoomBehaviour.cs" />
     <Compile Include="Models\SensorTemplate.cs" />
     <Compile Include="Models\Tools.cs" />
     <Compile Include="MultiSeriesBinding\MultiSeries.cs" />
