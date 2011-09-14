@@ -277,7 +277,11 @@ namespace IndiaTango.ViewModels
         public void btnPresets()
         {
             var v = (SensorTemplateManagerViewModel)_container.GetInstance(typeof (SensorTemplateManagerViewModel), "SensorTemplateManagerViewModel");
-            v.Deactivated += (o, e) => { Templates = SensorTemplate.ImportAll(); /* Update sensor templates after potential change */ };
+            v.Sensors = _sensors;
+            v.Deactivated += (o, e) => {
+                Templates = SensorTemplate.ImportAll(); /* Update sensor templates after potential change */ 
+
+            };
             _windowManager.ShowDialog(v);
         }
 

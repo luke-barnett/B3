@@ -343,12 +343,19 @@ namespace IndiaTango.ViewModels
                         StatusLabelText = "";
 					    SensorList = readSensors;
 
-                        foreach(var s in readSensors)
-                            if(s.IsFailing)
+                        var sensorTemplates = SensorTemplate.ImportAll();
+                        foreach (var s in readSensors)
+                        {
+                            if (s.IsFailing)
                             {
                                 SensorWarningVisible = Visibility.Visible;
                                 break;
                             }
+                            foreach (var sensorTemplate in sensorTemplates)
+                            {
+                                sensorTemplate.ProvideDefaultValues(s);
+                            }
+                        }
 					}
 
                     ImportEnabled = true;
@@ -359,6 +366,8 @@ namespace IndiaTango.ViewModels
                 ImportEnabled = false;
 			    
 				_bw.RunWorkerAsync();
+
+
 			}
 		}
 
@@ -392,7 +401,11 @@ namespace IndiaTango.ViewModels
 
 		public void btnOutOfRangeValues()
 		{
-			Common.ShowFeatureNotImplementedMessageBox();
+		    var outlierView =
+		        (_container.GetInstance(typeof (OutlierDetectionViewModel), "OutlierDetectionViewModel") as
+		         OutlierDetectionViewModel);
+		    outlierView.Dataset = _ds;
+		    _windowManager.ShowDialog(outlierView);
 		}
 
 		public void btnMissingValues()

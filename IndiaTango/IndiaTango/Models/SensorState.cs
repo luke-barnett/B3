@@ -119,6 +119,23 @@ namespace IndiaTango.Models
             return missing;
         }
 
+        public List<DateTime> GetOutliers(int timeGap,DateTime start, DateTime end,float upperLimit, float lowerLimit, float maxRateChange)
+        {
+            var outliers = new List<DateTime>();
+            var prev = 0f;
+            for(var time = start;time<=end;time = time.AddMinutes(timeGap))
+            {
+                var value = 0f;
+                if (!Values.TryGetValue(time, out value)) continue;
+                if (value < lowerLimit || value > upperLimit)
+                    outliers.Add(time);
+                else if (time != start && Math.Abs(value - prev) > maxRateChange)
+                    outliers.Add(time);
+                prev = value;
+            }
+            return outliers;
+        }
+
         public override string ToString()
         {
             return _editTimestamp.ToString() + " " + Values.First().Key + " " + Values.First().Value;

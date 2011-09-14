@@ -19,6 +19,7 @@ namespace IndiaTango.ViewModels
         private bool _editing = false;
         private bool _listEnabled = true;
         private List<SensorTemplate> _allTemplates = new List<SensorTemplate>();
+        private List<Sensor> _sensors; 
 
         private string _unit = "";
         private float _lowerLimit = 0;
@@ -53,28 +54,38 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        public List<Sensor> Sensors
+        {
+            get { return _sensors; }
+            set { _sensors = value; }
+        } 
+
         public string Unit
         {
             get { return _unit; }
-            set { _unit = value; NotifyOfPropertyChange(() => Unit); }
+            set { _unit = value; NotifyOfPropertyChange(() => Unit);
+            }
         }
 
         public float UpperLimit
         {
             get { return _upperLimit; }
-            set { _upperLimit = value; NotifyOfPropertyChange(() => UpperLimit); }
+            set { _upperLimit = value; NotifyOfPropertyChange(() => UpperLimit);
+            }
         }
 
         public float LowerLimit
         {
             get { return _lowerLimit; }
-            set { _lowerLimit = value; NotifyOfPropertyChange(() => LowerLimit); }
+            set { _lowerLimit = value; NotifyOfPropertyChange(() => LowerLimit);
+            }
         }
 
         public float MaximumRateOfChange
         {
             get { return _maxChange; }
-            set { _maxChange = value; NotifyOfPropertyChange(() => MaximumRateOfChange); }
+            set { _maxChange = value; NotifyOfPropertyChange(() => MaximumRateOfChange);
+            }
         }
 
         public string TextToMatch
@@ -199,6 +210,13 @@ namespace IndiaTango.ViewModels
                     // New
                     list.Add(template);
                     AllTemplates = list;
+                    foreach (var sensor in _sensors)
+                    {
+                        foreach (var sensorTemplate in list)
+                        {
+                            sensorTemplate.ProvideDefaultValues(sensor);
+                        }
+                    }
                     msg = "Sensor preset successfully created.";
                 }
                 else
@@ -207,6 +225,13 @@ namespace IndiaTango.ViewModels
                     list[list.IndexOf(SelectedTemplate)] = template;
                     SelectedTemplate = template;
                     AllTemplates = list;
+                    foreach (var sensor in _sensors)
+                    {
+                        foreach (var sensorTemplate in list)
+                        {
+                            sensorTemplate.ProvideDefaultValues(sensor);
+                        }
+                    }
                     msg = "Sensor preset successfully updated.";
                 }
 
