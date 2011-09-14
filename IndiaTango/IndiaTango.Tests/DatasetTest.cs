@@ -73,6 +73,23 @@ namespace IndiaTango.Tests
         }
 
         [Test]
+        public void SetsDataIntervalCorrectly()
+        {
+            _ds2.DataInterval = 50;
+            Assert.AreEqual(50, _ds2.DataInterval);
+
+            _ds1.DataInterval = 100;
+            Assert.AreEqual(100, _ds1.DataInterval);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentException))]
+        public void SetsNegativeDataIntervalCorrectly()
+        {
+            _ds2.DataInterval = -50;
+        }
+
+        [Test]
         public void CorrectExpectedDataPointCount()
         {
             Assert.AreEqual(499, _ds2.ExpectedDataPointCount);    

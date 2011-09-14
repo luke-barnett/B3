@@ -210,14 +210,14 @@ namespace IndiaTango.ViewModels
 
         private void Cleanup()
         {
-            _missingValues = _sensor.CurrentState.GetMissingTimes(15, _ds.StartTimeStamp, _ds.EndTimeStamp);
+            _missingValues = _sensor.CurrentState.GetMissingTimes(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp);
             NotifyOfPropertyChange(() => MissingValues);
             NotifyOfPropertyChange(() => MissingCount);
         }
 
         public void btnExtrapolate()
         {
-            EventLogger.LogInfo(GetType().ToString(), "Value Extrapolation started.");
+            EventLogger.LogInfo(GetType().ToString(), "Value extrapolation invoked.");
 
             if (SelectedSensor == null)
             {
@@ -238,7 +238,8 @@ namespace IndiaTango.ViewModels
 
             try
             {
-                SelectedSensor.Extrapolate(SelectedValues, Dataset);
+                var newState = SelectedSensor.CurrentState.Extrapolate(SelectedValues, Dataset);
+                SelectedSensor.AddState(newState);
 
                 Cleanup();
 
