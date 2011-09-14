@@ -16,6 +16,9 @@ namespace IndiaTango.Tests
         private Dictionary<DateTime,float> valueList ;
         private Dictionary<DateTime,float> secondValueList;
         private string _reason = "Updated because values were wrong";
+        private DateTime baseDate = new DateTime(2011, 5, 7, 12, 15, 0);
+        private Contact _sampleContact = new Contact("Steven", "McTainsh", "steven@mctainsh.com", "Awesome", "1212121");
+        private Sensor _testSensor;
 
         [SetUp]
         public void Setup()
@@ -27,6 +30,7 @@ namespace IndiaTango.Tests
             valueList.Add(modifiedDate, 63.77f);
             secondValueList.Add(new DateTime(2005, 11, 3, 14, 27, 12), 22.7f);
             secondValueList.Add(new DateTime(2005, 12, 4, 14, 27, 28), 22.3f);
+            _testSensor = new Sensor("Temperature1", "Temp at 100m", 100, 0, "C", 2, "Awesome", "AW3S0ME");
         }
 
         #region Timestamp Tests
@@ -174,7 +178,6 @@ namespace IndiaTango.Tests
         [Test]
         public void EqualityTest()
         {
-            var baseDate = new DateTime(2011, 5, 7, 12, 15, 0);
             var A = new SensorState(baseDate,
                                     new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 200 }, { baseDate.AddMinutes(30), 200 }, { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 200 } });
             var B = new SensorState(baseDate,
@@ -194,5 +197,65 @@ namespace IndiaTango.Tests
             Assert.AreNotEqual(D, E);
             Assert.AreNotEqual(E, F);
         }
+
+        #region Extrapolation Test
+        [Test]
+        [ExpectedException(typeof(ArgumentException))]
+        public void ExtrapolateWithNoKeys()
+        {
+            var ds =
+                new Dataset(new Site(10, "Lake Rotorua", "Steven McTainsh", _sampleContact, _sampleContact,
+                                     _sampleContact, new GPSCoords(50, 50)), new List<Sensor> { { _testSensor }});
+            
+            var A = new SensorState(baseDate,
+                                       new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 200 }, { baseDate.AddMinutes(30), 200 }, { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 200 } });
+            A.Extrapolate(new List<DateTime>(), ds);
+
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void ExtrapolateWithNullKeys()
+        {
+            var ds =
+                new Dataset(new Site(10, "Lake Rotorua", "Steven McTainsh", _sampleContact, _sampleContact,
+                                     _sampleContact, new GPSCoords(50, 50)), new List<Sensor> { { _testSensor } });
+
+            var A = new SensorState(baseDate,
+                                       new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 200 }, { baseDate.AddMinutes(30), 200 }, { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 200 } });
+            A.Extrapolate(null, ds);
+
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void ExtrapolateWithNullDataset()
+        {
+            var ds =
+                new Dataset(new Site(10, "Lake Rotorua", "Steven McTainsh", _sampleContact, _sampleContact,
+                                     _sampleContact, new GPSCoords(50, 50)), new List<Sensor> { { _testSensor } });
+
+            var A = new SensorState(baseDate,
+                                       new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 200 }, { baseDate.AddMinutes(30), 200 }, { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 200 } });
+            A.Extrapolate(new List<DateTime> { { baseDate.AddMinutes(60) } }, null);
+
+        }
+
+        [Test]
+        public void ExtrapolatesCorrectlyOneMissingPt()
+        {
+            var ds =
+                new Dataset(new Site(10, "Lake Rotorua", "Steven McTainsh", _sampleContact, _sampleContact,
+                                     _sampleContact, new GPSCoords(50, 50)), new List<Sensor> { { _testSensor } });
+            ds.DataInterval = 15;
+
+            var A = new SensorState(baseDate,
+                                       new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 50 }, { baseDate.AddMinutes(60), 200 } });
+
+            var state = A.Extrapolate(new List<DateTime> { baseDate.AddMinutes(30) }, ds);
+
+            Assert.AreEqual(150, state.Values[baseDate.AddMinutes(45)]);
+        }
+        #endregion
     }
 }
