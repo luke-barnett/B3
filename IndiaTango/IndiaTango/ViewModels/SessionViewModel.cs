@@ -338,6 +338,8 @@ namespace IndiaTango.ViewModels
 					}
 					else
 					{
+					    _ds.Sensors = readSensors;
+
                         // Loaded successfully
                         ActionButtonsEnabled = true;
                         StatusLabelText = "";
@@ -346,7 +348,7 @@ namespace IndiaTango.ViewModels
                         var sensorTemplates = SensorTemplate.ImportAll();
                         foreach (var s in readSensors)
                         {
-                            if (s.IsFailing)
+                            if (s.IsFailing(_ds))
                             {
                                 SensorWarningVisible = Visibility.Visible;
                                 break;
@@ -520,6 +522,7 @@ namespace IndiaTango.ViewModels
 			var editSensor =
 					_container.GetInstance(typeof(EditSensorViewModel), "EditSensorViewModel") as EditSensorViewModel;
 			editSensor.Sensors = SensorList;
+		    editSensor.Dataset = _ds;
 
 			_windowManager.ShowWindow(editSensor);
 		}

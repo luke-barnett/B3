@@ -11,11 +11,20 @@ namespace IndiaTango.Tests
     class SensorFailureDetectionTests
     {
         private Sensor _temperatureSensor;
+        private Contact _contact;
+        private Dataset _dataset;
+        private Sensor _sensor1;
+        private Site _site;
 
         [SetUp]
         public void SetUp()
         {
+            _sensor1 = new Sensor("Temperature", "C");
             _temperatureSensor = new Sensor("Temperature", "C");
+            _contact = new Contact("Bob", "Smith", "bob@smith.com", "Bob's Bakery", "1232222");
+            _site = new Site(50, "Lake Rotorua", "Bob Smith", _contact, _contact, _contact, new GPSCoords(50, 50));
+            _dataset =
+                new Dataset(_site, new List<Sensor> { { _sensor1 } });
         }
 
         #region Sensor Failure Detection Tests
@@ -23,72 +32,94 @@ namespace IndiaTango.Tests
         public void DetectNonFailingSensorBoundary()
         {
             var sensorState = new SensorState(DateTime.Now, new Dictionary<DateTime, float>());
+
             sensorState.Values.Add(DateTime.Now, 22.3f);
-            sensorState.Values.Add(DateTime.Now.AddDays(1), 0);
-            sensorState.Values.Add(DateTime.Now.AddDays(2), 0);
-            sensorState.Values.Add(DateTime.Now.AddDays(3), 0);
+            sensorState.Values.Add(DateTime.Now.AddDays(3), 5);
+
             _temperatureSensor.AddState(sensorState);
 
-            Assert.IsFalse(_temperatureSensor.IsFailing);
+            var ds = new Dataset(_site, new List<Sensor> { _temperatureSensor });
+
+            Assert.IsFalse(_temperatureSensor.IsFailing(ds));
         }
 
         [Test]
-        private void DetectNonFailingSensorNoFailedValues()
+        public void DetectNonFailingSensorNoFailedValues()
         {
             var sensorState = new SensorState(DateTime.Now, new Dictionary<DateTime, float>());
+
             sensorState.Values.Add(DateTime.Now, 22.3f);
-            sensorState.Values.Add(DateTime.Now.AddDays(1), 25.5f);
-            sensorState.Values.Add(DateTime.Now.AddDays(2), 21.3f);
-            sensorState.Values.Add(DateTime.Now.AddDays(3), 26.2f);
+            sensorState.Values.Add(DateTime.Now.AddDays(1), 0);
+            sensorState.Values.Add(DateTime.Now.AddDays(2), 2);
+            sensorState.Values.Add(DateTime.Now.AddDays(3), 4);
             sensorState.Values.Add(DateTime.Now.AddDays(4), 20f);
+
             _temperatureSensor.AddState(sensorState);
 
-            Assert.IsFalse(_temperatureSensor.IsFailing);
+            var ds = new Dataset(_site, new List<Sensor> { _temperatureSensor });
+
+            Assert.IsFalse(_temperatureSensor.IsFailing(ds));
         }
 
         [Test]
         public void DetectNonFailingSensorNonConsecutiveValues()
         {
             var sensorState = new SensorState(DateTime.Now, new Dictionary<DateTime, float>());
-            sensorState.Values.Add(DateTime.Now, 0f);
-            sensorState.Values.Add(DateTime.Now.AddDays(1), 0f);
-            sensorState.Values.Add(DateTime.Now.AddDays(2), 0f);
-            sensorState.Values.Add(DateTime.Now.AddDays(3), 26.2f);
-            sensorState.Values.Add(DateTime.Now.AddDays(4), 0f);
+
+            sensorState.Values.Add(DateTime.Now, 22.3f);
+            sensorState.Values.Add(DateTime.Now.AddDays(3), 4);
+
             _temperatureSensor.AddState(sensorState);
 
-            Assert.IsFalse(_temperatureSensor.IsFailing);
+            var ds = new Dataset(_site, new List<Sensor> { _temperatureSensor });
+
+            Assert.IsFalse(_temperatureSensor.IsFailing(ds));
         }
 
         [Test]
         public void DetectFailingSensorConsecutiveValuesBoundary()
         {
             var sensorState = new SensorState(DateTime.Now, new Dictionary<DateTime, float>());
+
             sensorState.Values.Add(DateTime.Now, 22.3f);
-            sensorState.Values.Add(DateTime.Now.AddDays(1), 0);
-            sensorState.Values.Add(DateTime.Now.AddDays(2), 0);
-            sensorState.Values.Add(DateTime.Now.AddDays(3), 0);
-            sensorState.Values.Add(DateTime.Now.AddDays(4), 0);
+            sensorState.Values.Add(DateTime.Now.AddDays(5), 4);
+            sensorState.Values.Add(DateTime.Now.AddDays(6), 4);
+            sensorState.Values.Add(DateTime.Now.AddDays(7), 4);
+
             _temperatureSensor.AddState(sensorState);
 
-            Assert.IsTrue(_temperatureSensor.IsFailing);
+            var ds = new Dataset(_site, new List<Sensor> { _temperatureSensor });
+
+            Assert.IsTrue(_temperatureSensor.IsFailing(ds));
         }
 
         [Test]
         public void DetectFailingSensorNonConsecutiveValues()
         {
             var sensorState = new SensorState(DateTime.Now, new Dictionary<DateTime, float>());
-            sensorState.Values.Add(DateTime.Now, 22.3f);
-            sensorState.Values.Add(DateTime.Now.AddDays(1), 0);
             sensorState.Values.Add(DateTime.Now.AddDays(2), 22.5f);
-            sensorState.Values.Add(DateTime.Now.AddDays(3), 0);
-            sensorState.Values.Add(DateTime.Now.AddDays(4), 0);
-            sensorState.Values.Add(DateTime.Now.AddDays(5), 0);
-            sensorState.Values.Add(DateTime.Now.AddDays(6), 0);
             sensorState.Values.Add(DateTime.Now.AddDays(7), 23.3f);
+            sensorState.Values.Add(DateTime.Now.AddDays(8), 4);
+            sensorState.Values.Add(DateTime.Now.AddDays(9), 4);
+
             _temperatureSensor.AddState(sensorState);
 
-            Assert.IsTrue(_temperatureSensor.IsFailing);
+            var ds = new Dataset(_site, new List<Sensor> { _temperatureSensor });
+
+            Assert.IsTrue(_temperatureSensor.IsFailing(ds));
+        }
+
+        [Test]
+        [ExpectedException(typeof(IndexOutOfRangeException))]
+        public void SensorStateWithNoValues()
+        {
+            var sensorState = new SensorState(DateTime.Now, new Dictionary<DateTime, float>());
+
+            _temperatureSensor.AddState(sensorState);
+
+            var ds = new Dataset(_site, new List<Sensor> { _temperatureSensor });
+
+            _temperatureSensor.IsFailing(ds);
         }
         #endregion
     }

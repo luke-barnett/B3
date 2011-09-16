@@ -39,7 +39,7 @@ namespace IndiaTango.Models
                 throw new ArgumentException("Sensor list must contain at least one sensor.");
 
             _site = site;
-            Sensors = sensors;//To trigger setter
+            Sensors = sensors; //To trigger setter
         }
 
         /// <summary>

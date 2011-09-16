@@ -27,6 +27,8 @@ namespace IndiaTango.ViewModels
         }
 
 		#region View Properties
+        public Dataset Dataset { get; set; }
+
 		public string Title { get { return "Edit Sensor"; } }
 
         public string Icon { get { return Common.Icon; } }
@@ -98,6 +100,7 @@ namespace IndiaTango.ViewModels
                     MaximumRateOfChange = _selectedSensor.MaxRateOfChange.ToString();
                     Manufacturer = _selectedSensor.Manufacturer;
                     SerialNumber = _selectedSensor.SerialNumber;
+                    ErrorThreshold = _selectedSensor.ErrorThreshold.ToString();
                 }
                 else
                 {
@@ -109,9 +112,12 @@ namespace IndiaTango.ViewModels
                     MaximumRateOfChange = "0";
                     Manufacturer = "";
                     SerialNumber = "";
+                    ErrorThreshold = IndiaTango.Properties.Settings.Default.DefaultErrorThreshold.ToString();
                 }
 
-                FailingErrorVisible = (_selectedSensor != null && _selectedSensor.IsFailing);
+                FailingErrorVisible = (_selectedSensor != null && _selectedSensor.IsFailing(Dataset));
+                //var val =
+                    //_selectedSensor.CurrentState.GetMissingTimes(Dataset.DataInterval, Dataset.StartTimeStamp, Dataset.EndTimeStamp).Count;
 
 				NotifyOfPropertyChange(() => NeedsTip);
 
@@ -145,6 +151,7 @@ namespace IndiaTango.ViewModels
 				NotifyOfPropertyChange(() => MaximumRateOfChange);
 				NotifyOfPropertyChange(() => Manufacturer);
 				NotifyOfPropertyChange(() => SerialNumber);
+                NotifyOfPropertyChange(() => ErrorThreshold);
                 NotifyOfPropertyChange(() => HasSelectedSensor);
             }
         }
@@ -184,7 +191,6 @@ namespace IndiaTango.ViewModels
 
 		#endregion
 
-		
 		#region Sensor Properties
         public string Name { get; set; }
         public string Description { get; set; }
@@ -194,8 +200,8 @@ namespace IndiaTango.ViewModels
         public string MaximumRateOfChange { get; set; }
         public string Manufacturer { get; set; }
         public string SerialNumber { get; set; }
+        public string ErrorThreshold { get; set; }
 		#endregion
-
 
 		#region Event Handlers
         
@@ -225,7 +231,7 @@ namespace IndiaTango.ViewModels
                 try
                 {
                     // TODO: more user-friendly conversion messages!
-                    Sensor s = new Sensor(Name, Description, float.Parse(UpperLimit), float.Parse(LowerLimit), Unit, float.Parse(MaximumRateOfChange), Manufacturer, SerialNumber);
+                    Sensor s = new Sensor(Name, Description, float.Parse(UpperLimit), float.Parse(LowerLimit), Unit, float.Parse(MaximumRateOfChange), Manufacturer, SerialNumber, new Stack<SensorState>(), new Stack<SensorState>(), new List<DateTime>(), int.Parse(ErrorThreshold));
                     SelectedSensor = s;
                     EventLogger.LogInfo(GetType().ToString(), "Created new sensor. Sensor name: " + s.Name);
                     this.TryClose();
@@ -249,6 +255,7 @@ namespace IndiaTango.ViewModels
                     SelectedSensor.MaxRateOfChange = float.Parse(MaximumRateOfChange);
                     SelectedSensor.Manufacturer = Manufacturer;
                     SelectedSensor.SerialNumber = SerialNumber;
+                    SelectedSensor.ErrorThreshold = int.Parse(ErrorThreshold);
                     EventLogger.LogInfo(GetType().ToString(), "Saved existing sensor. Sensor name: " + Name);
                 }
                 catch (Exception e)

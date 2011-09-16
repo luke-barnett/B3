@@ -50,6 +50,7 @@
                     <RowDefinition Height="50" />
                     <RowDefinition Height="30" />
                     <RowDefinition Height="30" />
+                    <RowDefinition Height="50" />
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
@@ -99,7 +100,10 @@
                 <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Serial Number:" Grid.Column="0" Grid.Row="10" ToolTip="A serial number associated with this sensor." />
                 <TextBox Margin="4" Grid.Column="1" Grid.Row="10" Text="{Binding SerialNumber, Mode=TwoWay}" IsEnabled="{Binding Editing}" />
 
-                <StackPanel Grid.Column="0" Grid.Row="11" Grid.ColumnSpan="2" HorizontalAlignment="Right" Orientation="Horizontal">
+                <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" TextWrapping="Wrap" Text="Failure Detection Threshold:" Grid.Column="0" Grid.Row="11" ToolTip="The number of readings a sensor can be offline for, after which, it is detected as failing." />
+                <TextBox Margin="4" Grid.Column="1" Grid.Row="11" Width="100" Height="22" VerticalAlignment="Top" HorizontalAlignment="Left" Text="{Binding ErrorThreshold, Mode=TwoWay}"  IsEnabled="{Binding Editing}" />
+
+                <StackPanel Grid.Column="0" Grid.Row="12" Grid.ColumnSpan="2" HorizontalAlignment="Right" Orientation="Horizontal">
                     <Button Name="btnPresets" FontSize="15" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Left">
                         <StackPanel Orientation="Horizontal">
                             <Image Source="/IndiaTango;component/Images/sensors.png" Width="32" Height="32" VerticalAlignment="Center" />

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
 
 namespace IndiaTango.Models
 {
@@ -24,8 +22,6 @@ namespace IndiaTango.Models
         #endregion
 
         #region Constructors
-        public Sensor() { } // TODO: Just put here to satisfy some tests, but it's not ideal - remove later
-
         /// <summary>
         /// Creates a new sensor, with the specified sensor name and measurement unit.
         /// </summary>
@@ -60,7 +56,7 @@ namespace IndiaTango.Models
         /// <param name="undoStack">A stack containing previous sensor states.</param>
         /// <param name="redoStack">A stack containing sensor states created after the modifications of the current state.</param>
         /// <param name="calibrationDates">A list of dates, on which calibration was performed.</param>
-        public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, string manufacturer, string serial, Stack<SensorState> undoStack, Stack<SensorState> redoStack, List<DateTime> calibrationDates) : this(name, description, upperLimit, lowerLimit, unit, maxRateOfChange, manufacturer, serial, undoStack, redoStack, calibrationDates, 4, 0) { }
+        public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, string manufacturer, string serial, Stack<SensorState> undoStack, Stack<SensorState> redoStack, List<DateTime> calibrationDates) : this(name, description, upperLimit, lowerLimit, unit, maxRateOfChange, manufacturer, serial, undoStack, redoStack, calibrationDates, IndiaTango.Properties.Settings.Default.DefaultErrorThreshold) { }
 
         /// <summary>
         /// Creates a new sensor.
@@ -78,7 +74,7 @@ namespace IndiaTango.Models
         /// <param name="calibrationDates">A list of dates, on which calibration was performed.</param>
         /// <param name="errorThreshold">The number of times a failure-indicating value can occur before this sensor is flagged as failing.</param>
         /// <param name="failureIndicator">A value indicating a sensor has, generally, failed.</param>
-        public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, string manufacturer, string serial, Stack<SensorState> undoStack, Stack<SensorState> redoStack, List<DateTime> calibrationDates, int errorThreshold, float failureIndicator)
+        public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, string manufacturer, string serial, Stack<SensorState> undoStack, Stack<SensorState> redoStack, List<DateTime> calibrationDates, int errorThreshold)
         {
             if (name == "")
                 throw new ArgumentNullException("Sensor name cannot be empty.");
@@ -114,8 +110,6 @@ namespace IndiaTango.Models
             SerialNumber = serial;
 
             ErrorThreshold = errorThreshold;
-            FailureIndicator = failureIndicator;
-
         }
         #endregion
 
@@ -268,7 +262,46 @@ namespace IndiaTango.Models
             }
         }
 
-        public float FailureIndicator { get; set; }
+        /// <summary>
+        /// Gets a value indicating whether or not this sensor shows signs of physical failure.
+        /// </summary>
+        /// <param name="dataset">The dataset, containing information about the data interval for this sensor.</param>
+        /// <returns>A value indicating whether or not this sensor is failing.</returns>
+        public bool IsFailing(Dataset dataset)
+        {
+            if (IndiaTango.Properties.Settings.Default.IgnoreSensorErrorDetection)
+                return false;
+
+            if(CurrentState == null)
+                throw new NullReferenceException("No active sensor state exists for this sensor, so you can't detect whether it is failing or not.");
+
+            if(CurrentState.Values.Count == 0)
+                throw new IndexOutOfRangeException("The current state must have at least one value in it.");
+
+            if(dataset == null)
+                throw new NullReferenceException("You must provide a non-null dataset.");
+
+            var baseTime = CurrentState.Values.ElementAt(0).Key;
+            var incidence = 0;
+            var time = 0;
+
+            for (int i = 0; i < dataset.ExpectedDataPointCount; i++)
+            {
+                var key = baseTime.AddMinutes(time);
+
+                if (CurrentState.Values.ContainsKey(key))
+                    incidence = 0;
+                else
+                    incidence++;
+
+                if (incidence == ErrorThreshold)
+                    return true;
+
+                time += dataset.DataInterval;
+            }
+
+            return false;
+        }
         #endregion
 
         #region Public Methods
@@ -302,34 +335,6 @@ namespace IndiaTango.Models
         {
             UndoStack.Push(newState);
             RedoStack.Clear();
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether or not this sensor shows signs of physical failure.
-        /// </summary>
-        public bool IsFailing
-        {
-            get
-            {
-                var incidence = 0;
-                var previousValue = FailureIndicator - 1;
-
-                foreach (var dataValue in CurrentState.Values)
-                {
-                    if (dataValue.Value == FailureIndicator) // Not within range of any reasonable data value
-                        incidence++;
-
-                    if (previousValue == FailureIndicator && dataValue.Value != FailureIndicator)
-                        incidence = 0; // If previous value was reported as 0, and this one isn't, we've broken continuous 0's that indicate failure
-
-                    previousValue = dataValue.Value;
-
-                    if (incidence == ErrorThreshold)
-                        return true;
-                }
-
-                return false;
-            }
         }
 
         public override string ToString()
