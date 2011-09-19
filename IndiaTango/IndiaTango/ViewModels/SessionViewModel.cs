@@ -521,7 +521,13 @@ namespace IndiaTango.ViewModels
 		{
 			var editSensor =
 					_container.GetInstance(typeof(EditSensorViewModel), "EditSensorViewModel") as EditSensorViewModel;
-			editSensor.Sensors = SensorList;
+
+            var newSensorList = new List<ListedSensor>();
+
+            foreach (var s in SensorList)
+                newSensorList.Add(new ListedSensor(s, _ds));
+
+            editSensor.AllSensors = newSensorList;
 		    editSensor.Dataset = _ds;
 
 			_windowManager.ShowWindow(editSensor);

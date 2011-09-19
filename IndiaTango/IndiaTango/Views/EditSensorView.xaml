@@ -10,7 +10,7 @@
         </Grid.ColumnDefinitions>
 
         <GroupBox Grid.Column="0" Header="Select A Sensor To Edit"  Margin="10 10 5 10" Padding="5" BorderBrush="OrangeRed">
-            <ListBox ItemsSource="{Binding Sensors}" SelectedItem="{Binding SelectedSensor, Mode=TwoWay}" SelectionMode="Single" IsEnabled="{Binding ListEnabled}">
+            <ListBox ItemsSource="{Binding AllSensors}" SelectedItem="{Binding SelectedItem, Mode=TwoWay}" SelectionMode="Single" IsEnabled="{Binding ListEnabled}">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="SelectionChanged">
                         <cal:ActionMessage MethodName="SelectionChanged">
@@ -19,9 +19,9 @@
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
                 <ListBox.Resources>
-                    <Style TargetType="{x:Type ListBoxItem}">
+                    <Style TargetType="{x:Type ListBoxItem}" >
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding Path=IsFailing}" Value="True">
+                            <DataTrigger Binding="{Binding IsFailing}" Value="True">
                                 <Setter Property="Background" Value="Orange" />
                             </DataTrigger>
                         </Style.Triggers>

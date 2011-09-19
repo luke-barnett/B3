@@ -21,6 +21,7 @@ namespace IndiaTango.Tests
         {
             _sensor1 = new Sensor("Temperature", "C");
             _temperatureSensor = new Sensor("Temperature", "C");
+            _temperatureSensor.ErrorThreshold = 4;
             _contact = new Contact("Bob", "Smith", "bob@smith.com", "Bob's Bakery", "1232222");
             _site = new Site(50, "Lake Rotorua", "Bob Smith", _contact, _contact, _contact, new GPSCoords(50, 50));
             _dataset =
@@ -89,6 +90,7 @@ namespace IndiaTango.Tests
             _temperatureSensor.AddState(sensorState);
 
             var ds = new Dataset(_site, new List<Sensor> { _temperatureSensor });
+            ds.DataInterval = 60*24;
 
             Assert.IsTrue(_temperatureSensor.IsFailing(ds));
         }

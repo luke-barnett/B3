@@ -25,6 +25,9 @@ namespace IndiaTango.Tests
         private Stack<SensorState> _blankStack = new Stack<SensorState>();
         private List<DateTime> _blankCalibrationDates = new List<DateTime>();
 
+        private Dataset _ds = null;
+        private Dataset _ds2 = null;
+
         private Contact contact = new Contact("Steven", "McTainsh", "smctainsh@gmail.com", "Test", "123213213");
 
         private Sensor _sensor1;
@@ -73,6 +76,9 @@ namespace IndiaTango.Tests
 
             _sensorEmpty = new Sensor("Temperature", "C");
             _sensorEmpty.UndoStack = new Stack<SensorState>();
+
+            _ds = new Dataset(new Site(10, "Lake", "Bob Smith", contact, contact, contact, new GPSCoords(50, 50)));
+            _ds2 = new Dataset(new Site(10, "Lake Awesome", "Andy Smith", contact, contact, contact, new GPSCoords(70, 30)));
         }
 
         #region Undo Stack Tests
@@ -665,6 +671,82 @@ namespace IndiaTango.Tests
         public void UpperLimitLessThanLowerLimit()
         {
             var s = new Sensor("Awesome Sensor", "An awesome sensor", 10, 100, "A", 2, "Awesome Co", "XX323929");
+        }
+        #endregion
+
+        #region Listed Sensor Tests
+        [Test]
+        public void GetSensorTest()
+        {
+            var ls = new ListedSensor(_sensor1, _ds);
+            Assert.AreEqual(ls.Sensor.Name, "Temperature");
+
+            var nls = new ListedSensor(_sensor2, _ds);
+            Assert.AreEqual(nls.Sensor.Name, "DO");
+        }
+
+        [Test]
+        public void SetSensorTest()
+        {
+            var ls = new ListedSensor(_sensor1, _ds);
+
+            ls.Sensor = _sensor2;
+            Assert.AreEqual(ls.Sensor.Name, "DO");
+
+            ls.Sensor = _sensor1;
+            Assert.AreEqual(ls.Sensor.Name, "Temperature");
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void NullConstructSensorTest()
+        {
+            var ls = new ListedSensor(null, _ds);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void NullSensorTest()
+        {
+            var ls = new ListedSensor(_sensor1, _ds);
+            ls.Sensor = null;
+        }
+
+        [Test]
+        public void GetDatasetTest()
+        {
+            var ls = new ListedSensor(_sensor1, _ds);
+            Assert.AreEqual(ls.Dataset, _ds);
+
+            var nls = new ListedSensor(_sensor1, _ds2);
+            Assert.AreEqual(nls.Dataset, _ds2);
+        }
+
+        [Test]
+        public void SetDatasetTest()
+        {
+            var ls = new ListedSensor(_sensor1, _ds);
+
+            ls.Dataset = _ds2;
+            Assert.AreEqual(ls.Dataset, _ds2);
+
+            ls.Dataset = _ds;
+            Assert.AreEqual(ls.Dataset, _ds);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void NullConstructDatasetTest()
+        {
+            var ls = new ListedSensor(_sensor1, null);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void NullDatasetTest()
+        {
+            var ls = new ListedSensor(_sensor1, _ds);
+            ls.Dataset = null;
         }
         #endregion
     }

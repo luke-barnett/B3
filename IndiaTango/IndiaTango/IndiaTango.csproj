@@ -93,6 +93,7 @@
     <Compile Include="Models\GraphableSensor.cs" />
     <Compile Include="Models\CustomZoomBehaviour.cs" />
     <Compile Include="Models\GraphBackgroundBehaviour.cs" />
+    <Compile Include="Models\ListedSensor.cs" />
     <Compile Include="Models\SensorTemplate.cs" />
     <Compile Include="Models\Tools.cs" />
     <Compile Include="MultiSeriesBinding\MultiSeries.cs" />

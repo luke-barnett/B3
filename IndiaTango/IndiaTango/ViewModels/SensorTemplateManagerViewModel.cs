@@ -19,7 +19,7 @@ namespace IndiaTango.ViewModels
         private bool _editing = false;
         private bool _listEnabled = true;
         private List<SensorTemplate> _allTemplates = new List<SensorTemplate>();
-        private List<Sensor> _sensors; 
+        private List<ListedSensor> _sensors; 
 
         private string _unit = "";
         private float _lowerLimit = 0;
@@ -54,7 +54,7 @@ namespace IndiaTango.ViewModels
             }
         }
 
-        public List<Sensor> Sensors
+        public List<ListedSensor> Sensors
         {
             get { return _sensors; }
             set { _sensors = value; }
@@ -210,13 +210,14 @@ namespace IndiaTango.ViewModels
                     // New
                     list.Add(template);
                     AllTemplates = list;
+
                     foreach (var sensor in _sensors)
                     {
                         foreach (var sensorTemplate in list)
-                        {
-                            sensorTemplate.ProvideDefaultValues(sensor);
-                        }
+                            if(sensorTemplate.Matches(sensor.Sensor))
+                                sensorTemplate.ProvideDefaultValues(sensor.Sensor);
                     }
+
                     msg = "Sensor preset successfully created.";
                 }
                 else
@@ -225,13 +226,14 @@ namespace IndiaTango.ViewModels
                     list[list.IndexOf(SelectedTemplate)] = template;
                     SelectedTemplate = template;
                     AllTemplates = list;
+
                     foreach (var sensor in _sensors)
                     {
                         foreach (var sensorTemplate in list)
-                        {
-                            sensorTemplate.ProvideDefaultValues(sensor);
-                        }
+                            if(sensorTemplate.Matches(sensor.Sensor))
+                                sensorTemplate.ProvideDefaultValues(sensor.Sensor);
                     }
+
                     msg = "Sensor preset successfully updated.";
                 }
 

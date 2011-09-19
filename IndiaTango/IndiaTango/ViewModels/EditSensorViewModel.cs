@@ -11,12 +11,14 @@ namespace IndiaTango.ViewModels
     {
         private IWindowManager _windowManager;
         private SimpleContainer _container;
-        private Sensor _selectedSensor = null;
+        private ListedSensor _selectedItem = null;
 		private bool _tipVisible = false;
         private bool _errorVisible = false;
-		private List<Sensor> _sensors;
+		//private List<Sensor> _sensors;
+        private List<ListedSensor> _allSensors = new List<ListedSensor>();
     	private bool _editing = false;
-        private List<SensorTemplate> Templates = new List<SensorTemplate>(); 
+        private List<SensorTemplate> Templates = new List<SensorTemplate>();
+        private Dataset _ds = null;
 
         public EditSensorViewModel(IWindowManager windowManager, SimpleContainer container)
         {
@@ -27,7 +29,11 @@ namespace IndiaTango.ViewModels
         }
 
 		#region View Properties
-        public Dataset Dataset { get; set; }
+        public Dataset Dataset
+        {
+            get { return _ds; }
+            set { _ds = value; }
+        }
 
 		public string Title { get { return "Edit Sensor"; } }
 
@@ -72,35 +78,40 @@ namespace IndiaTango.ViewModels
             get { return String.IsNullOrEmpty(Unit); }
         }
 
-		public List<Sensor> Sensors
+        /*public List<Sensor> Sensors
+        {
+            get { return _sensors; }
+            set { _sensors = value; }
+        }*/
+
+		public List<ListedSensor> AllSensors
     	{
-			get { return _sensors; }
+			get { return _allSensors; }
 			set
 			{
-				_sensors = value;
-
-				NotifyOfPropertyChange(() => Sensors);
+                _allSensors = value;
+                NotifyOfPropertyChange(() => AllSensors);
 			}
     	}
 
-        public Sensor SelectedSensor
+        public ListedSensor SelectedItem
         {
-            get { return _selectedSensor; }
+            get { return _selectedItem; }
             set
             {
-                _selectedSensor = value; 
+                _selectedItem = value; 
 
-                if(_selectedSensor != null)
+                if(_selectedItem != null)
                 {
-                    Name = _selectedSensor.Name;
-                    Description = _selectedSensor.Description;
-                    LowerLimit = _selectedSensor.LowerLimit.ToString();
-                    UpperLimit = _selectedSensor.UpperLimit.ToString();
-                    Unit = _selectedSensor.Unit;
-                    MaximumRateOfChange = _selectedSensor.MaxRateOfChange.ToString();
-                    Manufacturer = _selectedSensor.Manufacturer;
-                    SerialNumber = _selectedSensor.SerialNumber;
-                    ErrorThreshold = _selectedSensor.ErrorThreshold.ToString();
+                    Name = _selectedItem.Sensor.Name;
+                    Description = _selectedItem.Sensor.Description;
+                    LowerLimit = _selectedItem.Sensor.LowerLimit.ToString();
+                    UpperLimit = _selectedItem.Sensor.UpperLimit.ToString();
+                    Unit = _selectedItem.Sensor.Unit;
+                    MaximumRateOfChange = _selectedItem.Sensor.MaxRateOfChange.ToString();
+                    Manufacturer = _selectedItem.Sensor.Manufacturer;
+                    SerialNumber = _selectedItem.Sensor.SerialNumber;
+                    ErrorThreshold = _selectedItem.Sensor.ErrorThreshold.ToString();
                 }
                 else
                 {
@@ -115,7 +126,7 @@ namespace IndiaTango.ViewModels
                     ErrorThreshold = IndiaTango.Properties.Settings.Default.DefaultErrorThreshold.ToString();
                 }
 
-                FailingErrorVisible = (_selectedSensor != null && _selectedSensor.IsFailing(Dataset));
+                FailingErrorVisible = (_selectedItem != null && _selectedItem.IsFailing);
                 //var val =
                     //_selectedSensor.CurrentState.GetMissingTimes(Dataset.DataInterval, Dataset.StartTimeStamp, Dataset.EndTimeStamp).Count;
 
@@ -127,7 +138,7 @@ namespace IndiaTango.ViewModels
 
                     if(value != null)
                         foreach(SensorTemplate st in Templates)
-                            if(st.Matches(value))
+                            if(st.Matches(value.Sensor))
                             {
                                 Unit = st.Unit;
                                 LowerLimit = st.LowerLimit.ToString();
@@ -158,7 +169,7 @@ namespace IndiaTango.ViewModels
 
         public bool HasSelectedSensor
         {
-            get { return SelectedSensor != null; }
+            get { return SelectedItem != null; }
         }
 
     	public bool Editing
@@ -225,14 +236,14 @@ namespace IndiaTango.ViewModels
 
         public void btnSave()
         {
-            if(SelectedSensor == null)
+            if(SelectedItem == null)
             {
                 // New sensor
                 try
                 {
                     // TODO: more user-friendly conversion messages!
                     Sensor s = new Sensor(Name, Description, float.Parse(UpperLimit), float.Parse(LowerLimit), Unit, float.Parse(MaximumRateOfChange), Manufacturer, SerialNumber, new Stack<SensorState>(), new Stack<SensorState>(), new List<DateTime>(), int.Parse(ErrorThreshold));
-                    SelectedSensor = s;
+                    SelectedItem = new ListedSensor(s, _ds);
                     EventLogger.LogInfo(GetType().ToString(), "Created new sensor. Sensor name: " + s.Name);
                     this.TryClose();
                 }
@@ -247,15 +258,15 @@ namespace IndiaTango.ViewModels
                 // Existing sensor
                 try
                 {
-                    SelectedSensor.Name = Name;
-                    SelectedSensor.Description = Description;
-                    SelectedSensor.UpperLimit = float.Parse(UpperLimit);
-                    SelectedSensor.LowerLimit = float.Parse(LowerLimit);
-                    SelectedSensor.Unit = Unit;
-                    SelectedSensor.MaxRateOfChange = float.Parse(MaximumRateOfChange);
-                    SelectedSensor.Manufacturer = Manufacturer;
-                    SelectedSensor.SerialNumber = SerialNumber;
-                    SelectedSensor.ErrorThreshold = int.Parse(ErrorThreshold);
+                    SelectedItem.Sensor.Name = Name;
+                    SelectedItem.Sensor.Description = Description;
+                    SelectedItem.Sensor.UpperLimit = float.Parse(UpperLimit);
+                    SelectedItem.Sensor.LowerLimit = float.Parse(LowerLimit);
+                    SelectedItem.Sensor.Unit = Unit;
+                    SelectedItem.Sensor.MaxRateOfChange = float.Parse(MaximumRateOfChange);
+                    SelectedItem.Sensor.Manufacturer = Manufacturer;
+                    SelectedItem.Sensor.SerialNumber = SerialNumber;
+                    SelectedItem.Sensor.ErrorThreshold = int.Parse(ErrorThreshold);
                     EventLogger.LogInfo(GetType().ToString(), "Saved existing sensor. Sensor name: " + Name);
                 }
                 catch (Exception e)
@@ -268,9 +279,9 @@ namespace IndiaTango.ViewModels
         	Editing = false;
 
 			//Force the damn list box to update the sensor names
-        	List<Sensor> old = Sensors;
-			Sensors = new List<Sensor>();
-        	Sensors = old;
+        	List<ListedSensor> old = AllSensors;
+            AllSensors = new List<ListedSensor>();
+            AllSensors = old;
         }
 
 		public void btnCancel()
@@ -278,16 +289,18 @@ namespace IndiaTango.ViewModels
 			Editing = false;
 
 			//Force the controls to update
-			SelectedSensor = SelectedSensor;
+			SelectedItem = SelectedItem;
 		}
 
         public void btnPresets()
         {
             var v = (SensorTemplateManagerViewModel)_container.GetInstance(typeof (SensorTemplateManagerViewModel), "SensorTemplateManagerViewModel");
-            v.Sensors = _sensors;
+            v.Sensors = AllSensors;
             v.Deactivated += (o, e) => {
-                Templates = SensorTemplate.ImportAll(); /* Update sensor templates after potential change */ 
+                Templates = SensorTemplate.ImportAll(); /* Update sensor templates after potential change */
 
+                AllSensors = new List<ListedSensor>(); // Refresh list of sensors to cope with change
+                AllSensors = v.Sensors;
             };
             _windowManager.ShowDialog(v);
         }
