@@ -48,7 +48,7 @@
                 <StackPanel Grid.Column="0" Grid.Row="7" Grid.ColumnSpan="2" HorizontalAlignment="Right" Orientation="Horizontal">
                     <Button Name="btnNew" FontSize="15" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Left">
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="/IndiaTango;component/Images/new.png" Width="32" Height="32" VerticalAlignment="Center" />
+                            <Image Source="/IndiaTango;component/Images/new_sensor.png" Width="32" Height="32" VerticalAlignment="Center" />
                             <TextBlock Text="New" VerticalAlignment="Center" Margin="5" />
                         </StackPanel>
                     </Button>

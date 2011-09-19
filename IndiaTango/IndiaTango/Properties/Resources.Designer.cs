@@ -59,5 +59,26 @@ namespace IndiaTango.Properties {
                 resourceCulture = value;
             }
         }
+        
+        internal static System.Drawing.Icon error_32 {
+            get {
+                object obj = ResourceManager.GetObject("error_32", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Icon info_32 {
+            get {
+                object obj = ResourceManager.GetObject("info_32", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Icon warning_32 {
+            get {
+                object obj = ResourceManager.GetObject("warning_32", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
     }
 }

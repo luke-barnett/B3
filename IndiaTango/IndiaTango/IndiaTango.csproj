@@ -50,6 +50,7 @@
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Windows.Interactivity">
@@ -284,7 +285,34 @@
     <Resource Include="Images\tip_32.png" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Images\calibrate_sensor.png" />
+    <Resource Include="Images\new_sensor.png" />
+    <Resource Include="Images\remove_point.png" />
+    <Resource Include="Images\sensor_preset.png" />
+    <Resource Include="Images\site_delete.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\error_32.png" />
+    <Resource Include="Images\help_32.png" />
+    <EmbeddedResource Include="Images\info_32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icon1.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\info_32.png" />
+  </ItemGroup>
+  <ItemGroup>
     <Resource Include="Images\warning_32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\error_32.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\warning_32.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\info_32.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

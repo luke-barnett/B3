@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Windows;
@@ -7,10 +8,13 @@ using System.Windows.Forms;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using WindowsFormsAero.Dwm;
 using WindowsFormsAero.TaskDialog;
+using Brushes = System.Windows.Media.Brushes;
+using Color = System.Windows.Media.Color;
 using Path = System.IO.Path;
+using Point = System.Windows.Point;
+using Rectangle = System.Windows.Shapes.Rectangle;
 
 namespace IndiaTango.Models
 {
@@ -103,17 +107,24 @@ namespace IndiaTango.Models
 		{
             if (CanUseGlass && !System.Diagnostics.Debugger.IsAttached)
             {
-                TaskDialog dialog = new TaskDialog(title, title, text,
-                                                   (showCancel ? (TaskDialogButton.OK | TaskDialogButton.Cancel) : TaskDialogButton.OK),
-                                                   isError ? TaskDialogIcon.Stop : TaskDialogIcon.Information);
-                var result = dialog.Show();
-                return result.CommonButton == WindowsFormsAero.TaskDialog.Result.OK;
+            	TaskDialog dialog = new TaskDialog(title, title, text,
+            	                                   (showCancel ? (TaskDialogButton.OK | TaskDialogButton.Cancel) : TaskDialogButton.OK));
+				try
+				{
+					dialog.CustomIcon = isError ? Properties.Resources.error_32 : Properties.Resources.info_32;
+					var result = dialog.Show();
+					return result.CommonButton == WindowsFormsAero.TaskDialog.Result.OK;
+				}
+				catch(Exception e)
+				{
+					System.Windows.Forms.MessageBox.Show(e.Message);
+				}
+            	return false;
             }
             else
 			{
 				return System.Windows.Forms.MessageBox.Show(text, title,
-				                                            showCancel ? MessageBoxButtons.OKCancel : MessageBoxButtons.OK,
-				                                            isError ? MessageBoxIcon.Error : MessageBoxIcon.Information) == System.Windows.Forms.DialogResult.OK;
+					showCancel ? MessageBoxButtons.OKCancel : MessageBoxButtons.OK, isError ? MessageBoxIcon.Error : MessageBoxIcon.Information) == System.Windows.Forms.DialogResult.OK;
 			}
 		}
 
@@ -123,14 +134,24 @@ namespace IndiaTango.Models
 
             if (CanUseGlass && !System.Diagnostics.Debugger.IsAttached)
             {
-                TaskDialog dialog = new TaskDialog(title, title, text,
-                                                   (showCancel ? (TaskDialogButton.OK | TaskDialogButton.Cancel) : TaskDialogButton.OK),
-                                                   isError ? TaskDialogIcon.Stop : TaskDialogIcon.Information);
-                dialog.ShowExpandedInfoInFooter = true;
-                dialog.ExpandedInformation = ex.Message;
+            	TaskDialog dialog = new TaskDialog(title, title, text,
+            	                                   (showCancel ? (TaskDialogButton.OK | TaskDialogButton.Cancel) : TaskDialogButton.OK));
+				try
+				{
+					dialog.CustomIcon = isError ? Properties.Resources.error_32 : Properties.Resources.info_32;
 
-                var result = dialog.Show();
-                return result.CommonButton == WindowsFormsAero.TaskDialog.Result.OK;
+					dialog.ShowExpandedInfoInFooter = true;
+					dialog.ExpandedInformation = ex.Message;
+
+					var result = dialog.Show();
+					return result.CommonButton == WindowsFormsAero.TaskDialog.Result.OK;
+				}
+				catch (Exception e)
+				{
+					System.Windows.Forms.MessageBox.Show(e.Message);
+				}
+
+            	return false;
             }
             else
             {
