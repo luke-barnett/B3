@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,11 +21,14 @@ namespace IndiaTango.ViewModels
         private string _formulaText = "";
         private bool _validFormula = true;
         private DateTime _startDateTime, _endDateTime;
+        private FormulaEvaluator _eval;
+        private CompilerResults _results;
 
         public CalibrateSensorsViewModel(IWindowManager windowManager, SimpleContainer container)
         {
             _container = container;
             _windowManager = windowManager;
+            _eval = new FormulaEvaluator();
         }
 
 		#region View Properties
@@ -39,11 +43,14 @@ namespace IndiaTango.ViewModels
             get { return _formulaText; }
             set
             {
-                _formulaText = value; 
+                _formulaText = value;
+
+                 _results = _eval.ParseFormula(value);
                 
-                //Check validity
+                _validFormula = _results != null && _results.CompiledAssembly != null;
 
                 NotifyOfPropertyChange(() => FormulaText);
+                NotifyOfPropertyChange(() => ValidFormula);
             }
         }
 		
@@ -179,7 +186,7 @@ namespace IndiaTango.ViewModels
         {
             //TODO: Help dialog
             //Common.ShowFeatureNotImplementedMessageBox();
-            ValidFormula = !ValidFormula;
+            FormulaText = FormulaText;
         }
 
         public void btnApply()

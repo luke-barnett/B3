@@ -25,6 +25,16 @@ namespace IndiaTango.Models
         StringBuilder _source = new StringBuilder();
         readonly ICodeCompiler _compiler;
         readonly CompilerParameters _parms;
+        private string loopStartCode =  "for(int i = 0; i < sensorState.Values.Keys.Count; i++)\n" +
+                                        "{\n" +
+                                        "   DateTime t = sensorState.Values.Keys.ElementAt(i);\n" +
+                                        "   if(t >= startTime && t <= endTime)\n" +
+                                        "   {\n" +
+                                        "       double x = sensorState.Values[t]\n";      //Colon should be missing
+                                                //User code goes here
+        private string loopEndCode =    "       sensorState.Values[t] = (float)x;\n" +
+                                        "   }\n" +
+                                        "}\n";
 
         #region PublicMethods
         public FormulaEvaluator()
@@ -43,10 +53,14 @@ namespace IndiaTango.Models
             _parms.ReferencedAssemblies.Add("mscorlib.dll");
             _parms.ReferencedAssemblies.Add("System.dll");
             _parms.ReferencedAssemblies.Add("System.Windows.Forms.dll");
-
+            _parms.ReferencedAssemblies.Add("System.Core.dll");
+            _parms.ReferencedAssemblies.Add(Assembly.GetExecutingAssembly().Location);
+            Debug.WriteLine(Assembly.GetExecutingAssembly().Location);
             //Add any aditional references needed
-            //            foreach (string refAssembly in code.References)
-            //              compilerParams.ReferencedAssemblies.Add(refAssembly);
+            //foreach (string refAssembly in IndiaTango )
+              //  _parms.ReferencedAssemblies.Add(refAssembly);
+
+            GetMathMemberNames();
         }
 
         public CompilerResults ParseFormula(string formula)
@@ -67,8 +81,12 @@ namespace IndiaTango.Models
             return results;
         }
 
-        public double EvaluateFormula(string formula)
+        public SensorState EvaluateFormula(string formula,SensorState sensorState, DateTime startTime, DateTime endTime)
         {
+            sensorState.Values.Keys.ElementAt(0);
+            if (startTime >= endTime)
+                throw new ArgumentException("End time must be greater than start time");
+
             CompilerResults results = ParseFormula(formula);
 
             // if the code compiled okay,
@@ -76,12 +94,12 @@ namespace IndiaTango.Models
             if (results != null && results.CompiledAssembly != null)
             {
                 // run the evaluation function
-                return RunCode(results);
+                return RunCode(results,sensorState, startTime, endTime);
             }
             else
             {
                 Debug.WriteLine("Could not evaluate formula");
-                return -1;
+                return null;
             }
         }
 
@@ -190,7 +208,7 @@ namespace IndiaTango.Models
         /// Runs the Calculate method in our on-the-fly assembly
         /// </summary>
         /// <param name="results"></param>
-        private double RunCode(CompilerResults results)
+        private SensorState RunCode(CompilerResults results, SensorState sensorState, DateTime startTime, DateTime endTime)
         {
             Assembly executingAssembly = results.CompiledAssembly;
             try
@@ -210,10 +228,10 @@ namespace IndiaTango.Models
                         MethodInfo[] mis = type.GetMethods();
                         foreach (MethodInfo mi in mis)
                         {
-                            if (mi.Name == "Calculate")
+                            if (mi.Name == "ApplyFormula")
                             {
-                                object result = mi.Invoke(assemblyInstance, null);
-                                return (double) result;
+                                object result = mi.Invoke(assemblyInstance, new object[]{sensorState, startTime, endTime});
+                                return (SensorState) result;
                             }
                         }
                     }
@@ -223,10 +241,9 @@ namespace IndiaTango.Models
             catch (Exception ex)
             {
                 Console.WriteLine("Error:  An exception occurred while executing the script: \n" + ex);
-               // return -2;
             }
 
-            return -3;
+            return null;
         }
 
         CodeMemberField FieldVariable(string fieldName, string typeName, MemberAttributes accessLevel)
@@ -246,7 +263,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Very simplistic getter/setter properties
         /// </summary>
-        /// <param name="propName"></param>
+        /// <param name="propertyName"></param>
         /// <param name="internalName"></param>
         /// <param name="type"></param>
         /// <returns></returns>
@@ -284,37 +301,42 @@ namespace IndiaTango.Models
             CSharpCodeProvider codeProvider = new CSharpCodeProvider();
             ICodeGenerator generator = codeProvider.CreateGenerator(sw);
             CodeGeneratorOptions codeOpts = new CodeGeneratorOptions();
+            
 
             //Setup the namespace and imports
             CodeNamespace myNamespace = new CodeNamespace("IndiaTango");
             myNamespace.Imports.Add(new CodeNamespaceImport("System"));
             myNamespace.Imports.Add(new CodeNamespaceImport("System.Windows.Forms"));
-
+            myNamespace.Imports.Add(new CodeNamespaceImport("System.Linq"));
+            //myNamespace.Imports.Add(new CodeNamespaceImport("System.Math"));
             //Build the class declaration and member variables			
             CodeTypeDeclaration classDeclaration = new CodeTypeDeclaration();
             classDeclaration.IsClass = true;
             classDeclaration.Name = "Calculator";
             classDeclaration.Attributes = MemberAttributes.Public;
-            classDeclaration.Members.Add(FieldVariable("answer", typeof(double), MemberAttributes.Private));
 
             //default constructor
             CodeConstructor defaultConstructor = new CodeConstructor();
             defaultConstructor.Attributes = MemberAttributes.Public;
             defaultConstructor.Comments.Add(new CodeCommentStatement("Default Constructor for class", true));
-            defaultConstructor.Statements.Add(new CodeSnippetStatement("//TODO: implement default constructor"));
             classDeclaration.Members.Add(defaultConstructor);
-
-            //property
-            classDeclaration.Members.Add(this.MakeProperty("Answer", "answer", typeof(double)));
 
             //Our Calculate Method
             CodeMemberMethod myMethod = new CodeMemberMethod();
-            myMethod.Name = "Calculate";
-            myMethod.ReturnType = new CodeTypeReference(typeof(double));
-            myMethod.Comments.Add(new CodeCommentStatement("Calculate an expression", true));
+            myMethod.Name = "ApplyFormula";
+            myMethod.ReturnType = new CodeTypeReference(typeof(SensorState));
+            myMethod.Comments.Add(new CodeCommentStatement("Apply a formula across a dataset", true));
+            myMethod.Parameters.Add(new CodeParameterDeclarationExpression(new CodeTypeReference(typeof(SensorState)), "sensorState"));
+            myMethod.Parameters.Add(new CodeParameterDeclarationExpression(new CodeTypeReference(typeof(DateTime)), "startTime"));
+            myMethod.Parameters.Add(new CodeParameterDeclarationExpression(new CodeTypeReference(typeof(DateTime)), "endTime"));
             myMethod.Attributes = MemberAttributes.Public;
-            myMethod.Statements.Add(new CodeAssignStatement(new CodeSnippetExpression("Answer"), new CodeSnippetExpression(expression)));
-            myMethod.Statements.Add(new CodeMethodReturnStatement(new CodeFieldReferenceExpression(new CodeThisReferenceExpression(), "Answer")));
+            myMethod.Statements.Add(new CodeSnippetExpression(loopStartCode));
+
+            //Add the user specified code
+            myMethod.Statements.Add(new CodeSnippetExpression(expression));
+
+            myMethod.Statements.Add(new CodeSnippetExpression(loopEndCode));
+            myMethod.Statements.Add(new CodeMethodReturnStatement(new CodeVariableReferenceExpression("sensorState")));
             classDeclaration.Members.Add(myMethod);
 
             //write code

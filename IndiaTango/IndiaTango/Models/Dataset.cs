@@ -104,6 +104,7 @@ namespace IndiaTango.Models
                     foreach (var pair in intervalMap)
                         if (pair.Value > currentHighest.Value)
                             currentHighest = pair;
+                    
 
                     _dataInterval = currentHighest.Key;
                 }
