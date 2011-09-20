@@ -25,6 +25,8 @@ namespace IndiaTango.Models
         public static string Version { get { return string.Format("alpha version {0}", Assembly.GetExecutingAssembly().GetName().Version.ToString()); } }
         public static string Creators { get { return "Developed by:\r\nSteven McTainsh\r\nLuke Barnett\r\nMichael Baumberger\r\nKerry Arts"; } }
 
+        public const int MaximumGraphablePoints = 15000;
+
         public static bool HasInitdTaskDlgs = false;
 
         public static string Icon { get { return "/IndiaTango;component/Images/icon.ico"; } }
