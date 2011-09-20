@@ -193,6 +193,41 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        public void btnSpecify()
+        {
+            //TODO refactor
+            EventLogger.LogInfo(GetType().ToString(), "Value updation started.");
+
+            if (_selectedValues.Count == 0)
+                return;
+
+            var value = float.MinValue;
+
+            while (value == float.MinValue)
+            {
+                try
+                {
+                    var specifyVal = _container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel") as SpecifyValueViewModel;
+                    _windowManager.ShowDialog(specifyVal);
+                    //cancel
+                    if (specifyVal.Text == null)
+                        return;
+                    value = float.Parse(specifyVal.Text);
+                }
+                catch (FormatException f)
+                {
+                    var exit = Common.ShowMessageBox("An Error Occured", "Please enter a valid number.", true, true);
+                    if (exit) return;
+                }
+            }
+
+            _sensor.AddState(_sensor.CurrentState.ChangeToValue(SelectedValues, value));
+
+            Finalise();
+
+            Common.ShowMessageBox("Values Updated", "The selected values have been set to " + value + ".", false, false);
+            EventLogger.LogInfo(GetType().ToString(), "Value updation complete. Sensor: " + SelectedSensor.Name + ". Value: " + value + ".");
+        }
         #endregion
 
     }

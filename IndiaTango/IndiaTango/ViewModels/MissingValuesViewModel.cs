@@ -225,9 +225,9 @@ namespace IndiaTango.ViewModels
 			if (_selectedValues.Count == 0)
 				return;
 
-            var value = Int32.MinValue;
+            var value = float.MinValue;
             
-			while (value == Int32.MinValue)
+			while (value.Equals(float.MinValue))
             {
                 try
                 {
@@ -236,7 +236,7 @@ namespace IndiaTango.ViewModels
                     //cancel
                     if (specifyVal.Text == null)
                         return;
-                    value = Int32.Parse(specifyVal.Text);
+                    value = float.Parse(specifyVal.Text);
                 }
                 catch (FormatException f)
                 {
