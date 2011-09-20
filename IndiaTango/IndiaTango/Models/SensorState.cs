@@ -248,6 +248,20 @@ namespace IndiaTango.Models
             return newState;
         }
 
+        public SensorState removeValues(List<DateTime> values )
+        {
+            if(values == null)
+                throw new ArgumentException("A non-null list to be removed must be specified");
+
+            var newState = Clone();
+            foreach (var time in values)
+            {
+                newState.Values.Remove(time);
+            }
+
+            return newState;
+        }
+
         public override string ToString()
         {
             return _editTimestamp.ToString() + " " + Values.First().Key + " " + Values.First().Value;

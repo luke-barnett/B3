@@ -17,7 +17,6 @@ namespace IndiaTango.ViewModels
         private Dataset _ds;
         private int _zoomLevel = 100;
         private Sensor _sensor;
-        private const int DateTimeStringLength = 10;
 
         public OutlierDetectionViewModel(IWindowManager manager, SimpleContainer container)
         {
@@ -143,7 +142,13 @@ namespace IndiaTango.ViewModels
         public void btnRemove()
         {
             EventLogger.LogInfo(GetType().ToString(), "Value removal started.");
-            
+            if (_selectedValues.Count == 0)
+                return;
+            _sensor.AddState(_sensor.CurrentState.removeValues(SelectedValues));
+
+            Finalise();
+            Common.ShowMessageBox("Values Updated", "The selected values have been removed from the data", false, false);
+            EventLogger.LogInfo(GetType().ToString(), "Value removal complete. Sensor: " + SelectedSensor.Name);
         }
 
         public void btnMakeZero()
