@@ -275,8 +275,8 @@ namespace IndiaTango.Models
             if(CurrentState == null)
                 throw new NullReferenceException("No active sensor state exists for this sensor, so you can't detect whether it is failing or not.");
 
-            if(CurrentState.Values.Count == 0)
-                throw new IndexOutOfRangeException("The current state must have at least one value in it.");
+            if (CurrentState.Values.Count == 0)
+                return false;
 
             if(dataset == null)
                 throw new NullReferenceException("You must provide a non-null dataset.");
