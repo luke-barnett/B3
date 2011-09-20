@@ -348,14 +348,14 @@ namespace IndiaTango.ViewModels
                         var sensorTemplates = SensorTemplate.ImportAll();
                         foreach (var s in readSensors)
                         {
+                            foreach (var sensorTemplate in sensorTemplates)
+                            {
+                                sensorTemplate.ProvideDefaultValues(s);
+                            }
                             if (s.IsFailing(_ds))
                             {
                                 SensorWarningVisible = Visibility.Visible;
                                 break;
-                            }
-                            foreach (var sensorTemplate in sensorTemplates)
-                            {
-                                sensorTemplate.ProvideDefaultValues(s);
                             }
                         }
 					}
