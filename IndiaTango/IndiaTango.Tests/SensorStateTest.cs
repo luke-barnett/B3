@@ -131,8 +131,6 @@ namespace IndiaTango.Tests
         }
         #endregion
 
-
-
         [Test]
         public void FindMissingValuesTest()
         {
@@ -250,11 +248,117 @@ namespace IndiaTango.Tests
             ds.DataInterval = 15;
 
             var A = new SensorState(baseDate,
+                                       new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 50 }, { baseDate.AddMinutes(30), 100 }, { baseDate.AddMinutes(60), 200 } });
+
+            var state = A.Extrapolate(new List<DateTime> { baseDate.AddMinutes(45) }, ds);
+
+            Assert.AreEqual(150, state.Values[baseDate.AddMinutes(45)]);
+        }
+
+        [Test]
+        public void ExtrapolatesCorrectlyTwoMissingPts()
+        {
+            var ds =
+                new Dataset(new Site(10, "Lake Rotorua", "Steven McTainsh", _sampleContact, _sampleContact,
+                                     _sampleContact, new GPSCoords(50, 50)), new List<Sensor> { { _testSensor } });
+            ds.DataInterval = 15;
+
+            var A = new SensorState(baseDate,
                                        new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 50 }, { baseDate.AddMinutes(60), 200 } });
 
             var state = A.Extrapolate(new List<DateTime> { baseDate.AddMinutes(30) }, ds);
 
+            Assert.AreEqual(100, state.Values[baseDate.AddMinutes(30)]);
             Assert.AreEqual(150, state.Values[baseDate.AddMinutes(45)]);
+        }
+        #endregion
+
+        #region Make Values Zero Test
+        [Test]
+        public void SingleValueMadeZero()
+        {
+            var date = new DateTime(2011, 7, 7, 12, 15, 0);
+
+            var list = new List<DateTime>();
+            list.Add(date);
+
+            var oldState = new SensorState(DateTime.Now, new Dictionary<DateTime, float>());
+            var newState = oldState.MakeZero(list);
+
+            Assert.AreEqual(0, newState.Values[date]);
+        }
+
+        [Test]
+        public void MultipleValuesMadeZero()
+        {
+            var date = new DateTime(2011, 7, 7, 12, 15, 0);
+
+            var list = new List<DateTime>();
+            list.Add(date.AddMinutes(15));
+            list.Add(date.AddMinutes(30));
+            list.Add(date.AddMinutes(45));
+
+            var oldState = new SensorState(DateTime.Now, new Dictionary<DateTime, float>());
+            oldState.Values.Add(date, 5000);
+
+            var newState = oldState.MakeZero(list);
+
+            Assert.AreNotEqual(0, newState.Values[date]);
+            Assert.AreEqual(0, newState.Values[list[0]]);
+            Assert.AreEqual(0, newState.Values[list[1]]);
+            Assert.AreEqual(0, newState.Values[list[2]]);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void NullZeroValueList()
+        {
+            var oldState = new SensorState(DateTime.Now, new Dictionary<DateTime, float>());
+            oldState.MakeZero(null);
+        }
+
+        [Test]
+        public void SingleValueMadeDifferentValue()
+        {
+            // TODO: could move these to SetUp
+            var date = new DateTime(2011, 7, 7, 12, 15, 0);
+
+            var list = new List<DateTime>();
+            list.Add(date);
+
+            var oldState = new SensorState(DateTime.Now, new Dictionary<DateTime, float>());
+            var newState = oldState.MakeValue(list, 5);
+
+            Assert.AreEqual(5, newState.Values[date]);
+        }
+
+        [Test]
+        public void MultipleValuesMadeDifferentValue()
+        {
+            var date = new DateTime(2011, 7, 7, 12, 15, 0);
+
+            var list = new List<DateTime>();
+            list.Add(date.AddMinutes(15));
+            list.Add(date.AddMinutes(30));
+            list.Add(date.AddMinutes(45));
+
+            var oldState = new SensorState(DateTime.Now, new Dictionary<DateTime, float>());
+            oldState.Values.Add(date, 5000);
+
+            var newState = oldState.MakeValue(list, 20);
+
+            Assert.AreNotEqual(20, newState.Values[date]);
+            Assert.AreEqual(20, newState.Values[list[0]]);
+            Assert.AreEqual(20, newState.Values[list[1]]);
+            Assert.AreEqual(20, newState.Values[list[2]]);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void NullMakeValueList()
+        {
+            var oldState = new SensorState(DateTime.Now, new Dictionary<DateTime, float>());
+            oldState.MakeValue(null, 5);
         }
         #endregion
     }

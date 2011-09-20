@@ -150,25 +150,17 @@ namespace IndiaTango.ViewModels
 
         public void btnMakeZero()
         {
-			//TODO refactor
             EventLogger.LogInfo(GetType().ToString(), "Value updation started.");
 
             if(_selectedValues.Count == 0)
                 return;
 
-            _sensor.AddState(_sensor.CurrentState.Clone());
+            _sensor.AddState(_sensor.CurrentState.MakeZero(SelectedValues));
 
-			foreach (var time in SelectedValues)
-        	{
-				_sensor.CurrentState.Values.Add(time,0);
-        	}
-            
-            Cleanup();
+            Finalise();
 
 			Common.ShowMessageBox("Values Updated", "The selected values have been set to 0.", false, false);
             EventLogger.LogInfo(GetType().ToString(), "Value updation complete. Sensor: " + SelectedSensor.Name + ". Value: 0.");
-
-            requestReason();
         }
 
         
@@ -201,26 +193,21 @@ namespace IndiaTango.ViewModels
                 }
             }
 
-            _sensor.AddState(_sensor.CurrentState.Clone());
+            _sensor.AddState(_sensor.CurrentState.MakeValue(SelectedValues, value));
 
-			foreach (var time in SelectedValues)
-			{
-                _sensor.CurrentState.Values.Add(time,value);
-			}
-
-        	Cleanup();
+            Finalise();
 
             Common.ShowMessageBox("Values Updated", "The selected values have been set to " + value + ".", false, false);
             EventLogger.LogInfo(GetType().ToString(),"Value updation complete. Sensor: " + SelectedSensor.Name + ". Value: " + value + ".");
-
-            requestReason();
         }
 
-        private void Cleanup()
+        private void Finalise()
         {
             _missingValues = _sensor.CurrentState.GetMissingTimes(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp);
             NotifyOfPropertyChange(() => MissingValues);
             NotifyOfPropertyChange(() => MissingCount);
+
+            requestReason();
         }
 
         public void btnExtrapolate()
@@ -249,9 +236,7 @@ namespace IndiaTango.ViewModels
                 var newState = SelectedSensor.CurrentState.Extrapolate(SelectedValues, Dataset);
                 SelectedSensor.AddState(newState);
 
-                Cleanup();
-
-                requestReason();
+                Finalise();
 
                 Common.ShowMessageBox("Values updated", "The values have been extrapolated successfully.", false, false);
                 EventLogger.LogInfo(GetType().ToString(), "Value extrapolation complete. Sensor: " + SelectedSensor.Name);

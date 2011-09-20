@@ -136,7 +136,12 @@ namespace IndiaTango.Models
             return outliers;
         }
 
-
+        /// <summary>
+        /// Given a timestamp which represents a missing value, extrapolates the dataset using the first known point before the given point, and the first known point after the given point in the list of keys.
+        /// </summary>
+        /// <param name="keys">A list of data point 'keys' where values are missing.</param>
+        /// <param name="ds">A dataset to use, which indicates the length of time that elapses between readings.</param>
+        /// <returns>A sensor state with the extrapolated data.</returns>
         public SensorState Extrapolate(List<DateTime> keys, Dataset ds)
         {
             EventLogger.LogInfo(GetType().ToString(), "Starting extrapolation process");
@@ -181,6 +186,12 @@ namespace IndiaTango.Models
             return newState;
         }
 
+        /// <summary>
+        /// Given a timestamp as a key, finds the first known data point before the point represented by this key.
+        /// </summary>
+        /// <param name="dataValue">The key, representing an unknown data point, to use.</param>
+        /// <param name="ds">A dataset to use, primarily to determine the time that elapses between data points.</param>
+        /// <returns>A key representing the first known data value before the value represented by dataValue.</returns>
         public DateTime FindPrevValue(DateTime dataValue, Dataset ds)
         {
             var prevValue = DateTime.MinValue;
@@ -195,6 +206,26 @@ namespace IndiaTango.Models
             }
 
             return prevValue;
+        }
+
+        public SensorState MakeZero(List<DateTime> values)
+        {
+            return MakeValue(values, 0);
+        }
+
+        public SensorState MakeValue(List<DateTime> values, float value)
+        {
+            if(values == null)
+                throw new ArgumentNullException("A non-null list of keys to set as " + value + " must be specified.");
+
+            var newState = Clone();
+
+            foreach (var time in values)
+            {
+                newState.Values.Add(time, value);
+            }
+
+            return newState;
         }
 
         public override string ToString()
