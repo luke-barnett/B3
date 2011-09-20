@@ -355,7 +355,6 @@ namespace IndiaTango.ViewModels
                             if (s.IsFailing(_ds))
                             {
                                 SensorWarningVisible = Visibility.Visible;
-                                break;
                             }
                         }
 					}
