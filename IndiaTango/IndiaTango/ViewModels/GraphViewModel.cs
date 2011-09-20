@@ -18,8 +18,6 @@ namespace IndiaTango.ViewModels
     {
         #region Private fields
 
-        private const int MaxPointCount = 15000;
-
         private readonly Canvas _graphBackground;
         private readonly List<GraphableSensor> _selectedSensors = new List<GraphableSensor>();
 
@@ -77,7 +75,7 @@ namespace IndiaTango.ViewModels
                                                      {
                                                          sensor.SetUpperAndLowerBounds(StartTime, EndTime);
                                                      }
-                                                     SampleValues(MaxPointCount, _selectedSensors);
+                                                     SampleValues(Common.MaximumGraphablePoints, _selectedSensors);
                                                  };
             zoomBehaviour.ZoomResetRequested += o =>
                                                       {
@@ -85,7 +83,7 @@ namespace IndiaTango.ViewModels
                                                           {
                                                               sensor.RemoveBounds();
                                                           }
-                                                          SampleValues(MaxPointCount, _selectedSensors);
+                                                          SampleValues(Common.MaximumGraphablePoints, _selectedSensors);
                                                           CalculateDateTimeEndPoints();
                                                       };
             
@@ -304,7 +302,7 @@ namespace IndiaTango.ViewModels
 
             YAxisTitle = ((from sensor in _selectedSensors select sensor.Sensor.Unit).Distinct().Count() == 1) ? _selectedSensors[0].Sensor.Unit : String.Empty;
 
-            SampleValues(MaxPointCount, _selectedSensors);
+            SampleValues(Common.MaximumGraphablePoints, _selectedSensors);
 
             MaximumMaximum = MaximumY().Y + 10;
             MinimumMinimum = MinimumY().Y - 10;
@@ -490,7 +488,7 @@ namespace IndiaTango.ViewModels
             {
                 sensor.SetUpperAndLowerBounds(StartTime, EndTime);
             }
-            SampleValues(MaxPointCount, _selectedSensors);
+            SampleValues(Common.MaximumGraphablePoints, _selectedSensors);
         }
 
         /// <summary>
@@ -511,7 +509,7 @@ namespace IndiaTango.ViewModels
             {
                 sensor.SetUpperAndLowerBounds(StartTime, EndTime);
             }
-            SampleValues(MaxPointCount, _selectedSensors);
+            SampleValues(Common.MaximumGraphablePoints, _selectedSensors);
         }
 
         #endregion

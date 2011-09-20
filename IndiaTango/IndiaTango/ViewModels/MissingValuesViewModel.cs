@@ -1,15 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using Caliburn.Micro;
 using IndiaTango.Models;
+using Visiblox.Charts;
 
 namespace IndiaTango.ViewModels
 {
-    internal class MissingValuesViewModel : BaseViewModel
+    public class MissingValuesViewModel : BaseViewModel
     {
         private readonly SimpleContainer _container;
         private readonly IWindowManager _windowManager;
@@ -19,10 +23,44 @@ namespace IndiaTango.ViewModels
 		private List<DateTime> _selectedValues = new List<DateTime>();
         private Dataset _ds;
 
+        private List<LineSeries> _chartSeries = new List<LineSeries>();
+        private BehaviourManager _behaviour;
+        private DoubleRange _range;
+        private int _sampleRate;
+        private GraphableSensor _graphableSensor;
+        private Canvas _backgroundCanvas;
+
         public MissingValuesViewModel(IWindowManager windowManager, SimpleContainer container)
         {
             _container = container;
             _windowManager = windowManager;
+
+            _backgroundCanvas = new Canvas { Visibility = Visibility.Collapsed };
+
+            _behaviour = new BehaviourManager{AllowMultipleEnabled = true};
+
+            var backgroundBehaviour = new GraphBackgroundBehaviour(_backgroundCanvas) { IsEnabled = true };
+
+            _behaviour.Behaviours.Add(backgroundBehaviour);
+
+            var zoomBehaviour = new CustomZoomBehaviour{ IsEnabled = true};
+            zoomBehaviour.ZoomRequested += (o, e) =>
+            {
+                var startTime = (DateTime)e.FirstPoint.X;
+                var endTime = (DateTime)e.SecondPoint.X;
+                _graphableSensor.SetUpperAndLowerBounds(startTime, endTime);
+                UpdateGraph();
+            };
+
+            zoomBehaviour.ZoomResetRequested += o =>
+                                                    {
+                                                        _graphableSensor.RemoveBounds();
+                                                        UpdateGraph();
+                                                    };
+
+            _behaviour.Behaviours.Add(zoomBehaviour);
+
+            Behaviour = _behaviour;
         }
 
 		#region View Properties
@@ -100,6 +138,8 @@ namespace IndiaTango.ViewModels
 				MissingValues = _sensor.CurrentState.GetMissingTimes(15,_ds.StartTimeStamp,_ds.EndTimeStamp);
 				NotifyOfPropertyChange(() => SensorName);
 				NotifyOfPropertyChange(() => MissingCount);
+			    _graphableSensor = _sensor != null ? new GraphableSensor(_sensor) : null;
+			    UpdateGraph();
 			}
 		}
 
@@ -112,6 +152,16 @@ namespace IndiaTango.ViewModels
 				NotifyOfPropertyChange(() => SelectedValues);
 			}
     	}
+
+        public List<LineSeries> ChartSeries { get { return _chartSeries; } set { _chartSeries = value; NotifyOfPropertyChange(() => ChartSeries); } }
+
+        public BehaviourManager Behaviour { get { return _behaviour; } set { _behaviour = value; NotifyOfPropertyChange(() => Behaviour); } }
+
+        public string ChartTitle { get { return (SelectedSensor == null) ? string.Empty : SelectedSensor.Name; } }
+
+        public string YAxisTitle { get { return (SelectedSensor == null) ? string.Empty : SelectedSensor.Unit; } }
+
+        public DoubleRange Range { get { return _range; } set { _range = value; NotifyOfPropertyChange(() => Range); } }
 
 		#endregion
 
@@ -134,13 +184,14 @@ namespace IndiaTango.ViewModels
 		{
             _sensor.Undo();
             MissingValues = _sensor.CurrentState.GetMissingTimes(15, _ds.StartTimeStamp, _ds.EndTimeStamp);
-            
+            RefreshGraph();
 		}
 
 		public void btnRedo()
 		{
             _sensor.Redo();
             MissingValues = _sensor.CurrentState.GetMissingTimes(15, _ds.StartTimeStamp, _ds.EndTimeStamp);
+            RefreshGraph();
 		}
 
 		public void btnDone()
@@ -150,25 +201,18 @@ namespace IndiaTango.ViewModels
 
         public void btnMakeZero()
         {
-			//TODO refactor
             EventLogger.LogInfo(GetType().ToString(), "Value updation started.");
 
             if(_selectedValues.Count == 0)
                 return;
 
-            _sensor.AddState(_sensor.CurrentState.Clone());
+            _sensor.AddState(_sensor.CurrentState.MakeZero(SelectedValues));
 
-			foreach (var time in SelectedValues)
-        	{
-				_sensor.CurrentState.Values.Add(time,0);
-        	}
-            
-            Cleanup();
+            Finalise();
 
 			Common.ShowMessageBox("Values Updated", "The selected values have been set to 0.", false, false);
             EventLogger.LogInfo(GetType().ToString(), "Value updation complete. Sensor: " + SelectedSensor.Name + ". Value: 0.");
-
-            requestReason();
+            RefreshGraph();
         }
 
         
@@ -201,26 +245,22 @@ namespace IndiaTango.ViewModels
                 }
             }
 
-            _sensor.AddState(_sensor.CurrentState.Clone());
+            _sensor.AddState(_sensor.CurrentState.MakeValue(SelectedValues, value));
 
-			foreach (var time in SelectedValues)
-			{
-                _sensor.CurrentState.Values.Add(time,value);
-			}
-
-        	Cleanup();
+            Finalise();
 
             Common.ShowMessageBox("Values Updated", "The selected values have been set to " + value + ".", false, false);
             EventLogger.LogInfo(GetType().ToString(),"Value updation complete. Sensor: " + SelectedSensor.Name + ". Value: " + value + ".");
-
-            requestReason();
+            RefreshGraph();
         }
 
-        private void Cleanup()
+        private void Finalise()
         {
             _missingValues = _sensor.CurrentState.GetMissingTimes(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp);
             NotifyOfPropertyChange(() => MissingValues);
             NotifyOfPropertyChange(() => MissingCount);
+
+            requestReason();
         }
 
         public void btnExtrapolate()
@@ -249,9 +289,7 @@ namespace IndiaTango.ViewModels
                 var newState = SelectedSensor.CurrentState.Extrapolate(SelectedValues, Dataset);
                 SelectedSensor.AddState(newState);
 
-                Cleanup();
-
-                requestReason();
+                Finalise();
 
                 Common.ShowMessageBox("Values updated", "The values have been extrapolated successfully.", false, false);
                 EventLogger.LogInfo(GetType().ToString(), "Value extrapolation complete. Sensor: " + SelectedSensor.Name);
@@ -261,6 +299,7 @@ namespace IndiaTango.ViewModels
                 Common.ShowMessageBoxWithException("Error", "An error occured during extrapolation. Ensure you have selected a sensor and one or more data points, and try again.",
                                       false, true, e);
             }
+            RefreshGraph();
         }
 
         public void requestReason()
@@ -295,5 +334,51 @@ namespace IndiaTango.ViewModels
 			ZoomLevel = (int)e.NewValue;
 		}
 		#endregion
+
+        private void RefreshGraph()
+        {
+            if (_graphableSensor != null && _graphableSensor.DataPoints != null)
+                _graphableSensor.RefreshDataPoints();
+            UpdateGraph();
+        }
+
+        private void UpdateGraph()
+        {
+            if(SelectedSensor != null)
+                SampleValues(Common.MaximumGraphablePoints, new Collection<GraphableSensor>{_graphableSensor});
+            else
+                ChartSeries =  new List<LineSeries>();
+            NotifyOfPropertyChange(() => ChartTitle);
+            NotifyOfPropertyChange(() => YAxisTitle);
+        }
+
+        private void SampleValues(int numberOfPoints, ICollection<GraphableSensor> sensors)
+        {
+            var generatedSeries = new List<LineSeries>();
+
+            HideBackground();
+
+            foreach (var sensor in sensors)
+            {
+                _sampleRate = sensor.DataPoints.Count() / (numberOfPoints / sensors.Count);
+                Debug.Print("Number of points: {0} Max Number {1} Sampling rate {2}", sensor.DataPoints.Count(), numberOfPoints, _sampleRate);
+
+                var series = (_sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints.Where((x, index) => index % _sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints);
+                generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour) });
+                if (_sampleRate > 1) ShowBackground();
+            }
+
+            ChartSeries = generatedSeries;
+        }
+
+        private void HideBackground()
+        {
+            _backgroundCanvas.Visibility = Visibility.Collapsed;
+        }
+
+        private void ShowBackground()
+        {
+            _backgroundCanvas.Visibility = Visibility.Visible;
+        }
     }
 }

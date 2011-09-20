@@ -130,7 +130,6 @@
                     <Slider Width="100" Maximum="1000" TickFrequency="100" TickPlacement="BottomRight" Value="{Binding ZoomLevel}" VerticalAlignment="Center" SmallChange="10" LargeChange="100" Margin="10" IsSnapToTickEnabled="True" IsSelectionRangeEnabled="False" Minimum="100" SelectionEnd="1000" />
                     <TextBlock Name="lblZoom" Text="{Binding ZoomText}" VerticalAlignment="Center" Margin="0" FontSize="15" />
                 </StackPanel>
-                <Label Content="Graphing Not Yet Implemented" Height="28" HorizontalAlignment="Center" Name="label1" VerticalAlignment="Center" Foreground="OrangeRed" />
             </Grid>
         </GroupBox>
     </Grid>

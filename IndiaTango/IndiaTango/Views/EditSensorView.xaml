@@ -62,7 +62,7 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     
-                    <Image Source="/IndiaTango;component/Images/tip_32.png" Width="32" Height="32" VerticalAlignment="Top" Grid.Column="0" Margin="5"/>
+                    <Image Source="/IndiaTango;component/Images/info_32.png" Width="32" Height="32" VerticalAlignment="Top" Grid.Column="0" Margin="5"/>
                     <TextBlock Grid.Column="1" Text="Based on the name of this sensor, some suggested values have been entered below. Feel free to change these as you see fit." TextWrapping="Wrap" VerticalAlignment="Top" Margin="5" />
                 </Grid>
 
@@ -106,7 +106,7 @@
                 <StackPanel Grid.Column="0" Grid.Row="12" Grid.ColumnSpan="2" HorizontalAlignment="Right" Orientation="Horizontal">
                     <Button Name="btnPresets" FontSize="15" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Left">
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="/IndiaTango;component/Images/sensors.png" Width="32" Height="32" VerticalAlignment="Center" />
+                            <Image Source="/IndiaTango;component/Images/sensor_preset.png" Width="32" Height="32" VerticalAlignment="Center" />
                             <TextBlock Text="Presets..." VerticalAlignment="Center" Margin="5" />
                         </StackPanel>
                     </Button>

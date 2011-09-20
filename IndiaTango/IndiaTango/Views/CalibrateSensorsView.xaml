@@ -80,7 +80,7 @@
                     <WrapPanel HorizontalAlignment="Right">
                         <Button Name="btnHelp" FontSize="15"  HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom">
                             <StackPanel Orientation="Horizontal">
-                                <Image Source="/IndiaTango;component/Images/delete_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
+                                <Image Source="/IndiaTango;component/Images/help_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
                                 <TextBlock Text="Help" VerticalAlignment="Center" Margin="5" />
                             </StackPanel>
                         </Button>

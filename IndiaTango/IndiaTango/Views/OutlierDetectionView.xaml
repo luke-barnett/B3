@@ -30,7 +30,7 @@
             </GroupBox>
 
             <GroupBox Grid.Row="1" Header="Readings Found" BorderBrush="OrangeRed" Margin="10 5 5 5">
-                <ListBox Margin="5" ItemsSource ="{Binding OutliersStrings}" SelectedItem="{Binding SelectedValue}" SelectionMode="Extended">
+                <ListBox Margin="5" ItemsSource ="{Binding OutliersStrings}" SelectedItem="{Binding SelectedValues}" SelectionMode="Extended">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="SelectionChanged">
                             <cal:ActionMessage MethodName="SelectionChanged">

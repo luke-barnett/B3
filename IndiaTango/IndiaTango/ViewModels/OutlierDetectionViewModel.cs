@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows.Controls;
 using Caliburn.Micro;
 using IndiaTango.Models;
 
@@ -16,6 +17,7 @@ namespace IndiaTango.ViewModels
         private Dataset _ds;
         private int _zoomLevel = 100;
         private Sensor _sensor;
+        private const int dateTimeStringLength = 10;
 
         public OutlierDetectionViewModel(IWindowManager manager, SimpleContainer container)
         {
@@ -56,14 +58,14 @@ namespace IndiaTango.ViewModels
             get { return SelectedSensor == null ? "" : SelectedSensor.Name; }
         }
 
-        public List<String> OutliersStrings
+        public List<string> OutliersStrings
         {
             get
             {
                 var list = new List<String>();
                 foreach (var time in _outliers)
                 {
-                    list.Add(time.ToShortDateString()+" "+time.ToShortTimeString().PadRight(10) + _sensor.CurrentState.Values[time]);
+                    list.Add(time.ToShortDateString()+" "+time.ToShortTimeString().PadRight(dateTimeStringLength) + _sensor.CurrentState.Values[time]);
                 }
                 return list;
             }
@@ -111,6 +113,19 @@ namespace IndiaTango.ViewModels
             {
                 _selectedValues = value;
                 NotifyOfPropertyChange(() => SelectedValues);
+            }
+        }
+
+        public void SelectionChanged(SelectionChangedEventArgs e)
+        {
+            foreach (string item in e.RemovedItems)
+            {
+                SelectedValues.Remove(DateTime.Parse(item.Substring(0,dateTimeStringLength)));
+            }
+
+            foreach (string item in e.AddedItems)
+            {
+                SelectedValues.Add(DateTime.Parse(item.Substring(0,dateTimeStringLength)));
             }
         }
 
