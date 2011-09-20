@@ -17,7 +17,7 @@ namespace IndiaTango.ViewModels
         private Dataset _ds;
         private int _zoomLevel = 100;
         private Sensor _sensor;
-        private const int dateTimeStringLength = 10;
+        private const int DateTimeStringLength = 10;
 
         public OutlierDetectionViewModel(IWindowManager manager, SimpleContainer container)
         {
@@ -65,7 +65,7 @@ namespace IndiaTango.ViewModels
                 var list = new List<String>();
                 foreach (var time in _outliers)
                 {
-                    list.Add(time.ToShortDateString()+" "+time.ToShortTimeString().PadRight(dateTimeStringLength) + _sensor.CurrentState.Values[time]);
+                    list.Add(time.ToShortDateString().PadRight(12)+time.ToShortTimeString().PadRight(15) + _sensor.CurrentState.Values[time]);
                 }
                 return list;
             }
@@ -111,24 +111,82 @@ namespace IndiaTango.ViewModels
             get { return _selectedValues; }
             set
             {
-                _selectedValues = value;
+                if(value!=null)
+                    _selectedValues = value;
+                else
+                    _selectedValues = new List<DateTime>();
                 NotifyOfPropertyChange(() => SelectedValues);
             }
         }
+
+
+
+
+        #endregion
+
+        #region button event handlers
 
         public void SelectionChanged(SelectionChangedEventArgs e)
         {
             foreach (string item in e.RemovedItems)
             {
-                SelectedValues.Remove(DateTime.Parse(item.Substring(0,dateTimeStringLength)));
+                SelectedValues.Remove(DateTime.Parse(item.Substring(0, 27)));
             }
 
             foreach (string item in e.AddedItems)
             {
-                SelectedValues.Add(DateTime.Parse(item.Substring(0,dateTimeStringLength)));
+                SelectedValues.Add(DateTime.Parse(item.Substring(0, 27)));
             }
         }
 
+
+        public void btnRemove()
+        {
+            EventLogger.LogInfo(GetType().ToString(), "Value removal started.");
+            
+        }
+
+        public void btnMakeZero()
+        {
+            EventLogger.LogInfo(GetType().ToString(), "Value updation started.");
+
+            if (_selectedValues.Count == 0)
+                return;
+
+            _sensor.AddState(_sensor.CurrentState.ChangeToZero(SelectedValues));
+
+            Finalise();
+
+            Common.ShowMessageBox("Values Updated", "The selected values have been set to 0.", false, false);
+            EventLogger.LogInfo(GetType().ToString(), "Value updation complete. Sensor: " + SelectedSensor.Name + ". Value: 0.");
+        }
+
+        private void Finalise()
+        {
+            _outliers = _sensor.CurrentState.GetOutliers(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp,
+                                                         _sensor.UpperLimit, _sensor.LowerLimit, _sensor.MaxRateOfChange);
+            NotifyOfPropertyChange(() => Outliers);
+            NotifyOfPropertyChange(() => OutliersStrings);
+
+            requestReason();
+        }
+
+
+        public void requestReason()
+        {
+            if (_sensor != null && _sensor.CurrentState != null)
+            {
+                var specify = (SpecifyValueViewModel)_container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel");
+                specify.Title = "Log Reason";
+                specify.Message = "Please specify a reason for this change:";
+                specify.Deactivated += (o, e) =>
+                {
+                    // Specify reason
+                    _sensor.CurrentState.Reason = specify.Text;
+                };
+                _windowManager.ShowDialog(specify);
+            }
+        }
 
         #endregion
 
