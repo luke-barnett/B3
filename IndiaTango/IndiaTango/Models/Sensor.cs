@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace IndiaTango.Models
 {
     /// <summary>
     /// Represents a Sensor, which resembles a sensor attached to a buoy, measuring a given water quality parameter.
     /// </summary>
+    [DataContract]
     public class Sensor
     {
         #region Private Members
@@ -67,7 +69,7 @@ namespace IndiaTango.Models
         /// <param name="redoStack">A stack containing sensor states created after the modifications of the current state.</param>
         /// <param name="calibrationDates">A list of dates, on which calibration was performed.</param>
         /// <param name="owner">The dataset owner of the sensor</param>
-        public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, string manufacturer, string serial, Stack<SensorState> undoStack, Stack<SensorState> redoStack, List<DateTime> calibrationDates, Dataset owner) : this(name, description, upperLimit, lowerLimit, unit, maxRateOfChange, manufacturer, serial, undoStack, redoStack, calibrationDates, IndiaTango.Properties.Settings.Default.DefaultErrorThreshold, owner) { }
+        public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, string manufacturer, string serial, Stack<SensorState> undoStack, Stack<SensorState> redoStack, List<DateTime> calibrationDates, Dataset owner) : this(name, description, upperLimit, lowerLimit, unit, maxRateOfChange, manufacturer, serial, undoStack, redoStack, calibrationDates, Properties.Settings.Default.DefaultErrorThreshold, owner) { }
 
         /// <summary>
         /// Creates a new sensor.
@@ -84,7 +86,6 @@ namespace IndiaTango.Models
         /// <param name="redoStack">A stack containing sensor states created after the modifications of the current state.</param>
         /// <param name="calibrationDates">A list of dates, on which calibration was performed.</param>
         /// <param name="errorThreshold">The number of times a failure-indicating value can occur before this sensor is flagged as failing.</param>
-        /// <param name="failureIndicator">A value indicating a sensor has, generally, failed.</param>
         /// <param name="owner">The dataset that owns the sensor</param>
         public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, string manufacturer, string serial, Stack<SensorState> undoStack, Stack<SensorState> redoStack, List<DateTime> calibrationDates, int errorThreshold, Dataset owner)
         {
@@ -131,6 +132,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the undo stack for this sensor. The undo stack contains a list of previous states this sensor was in before its current state. This stack cannot be null.
         /// </summary>
+        [DataMember]
         public Stack<SensorState> UndoStack
         {
             get { return _undoStack; }
@@ -146,6 +148,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the redo stack for this sensor. The redo stack contains a list of previous states this sensor can be in after the current state. This stack cannot be null.
         /// </summary>
+        [DataMember]
         public Stack<SensorState> RedoStack
         {
             get { return _redoStack; }
@@ -161,6 +164,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the list of dates this sensor was calibrated on. The list of calibration dates cannot be null.
         /// </summary>
+        [DataMember]
         public List<DateTime> CalibrationDates
         {
             get { return _calibrationDates; }
@@ -176,6 +180,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the name of this sensor. The sensor name cannot be null.
         /// </summary>
+        [DataMember]
         public string Name
         {
             get { return _name; }
@@ -191,11 +196,13 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the description of this sensor's purpose or function.
         /// </summary>
+        [DataMember]
         public string Description { get; set; }
 
         /// <summary>
         /// Gets or sets the lower limit for values reported by this sensor.
         /// </summary>
+        [DataMember]
         public float LowerLimit
         {
             get { return _lowerLimit; }
@@ -211,6 +218,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the upper limit for values reported by this sensor.
         /// </summary>
+        [DataMember]
         public float UpperLimit
         {
             get { return _upperLimit; }
@@ -226,6 +234,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the measurement unit reported with values collected by this sensor.
         /// </summary>
+        [DataMember]
         public string Unit
         {
             get { return _unit; }
@@ -239,13 +248,19 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the maximum rate of change allowed for values reported by this sensor.
         /// </summary>
+        [DataMember]
         public float MaxRateOfChange { get; set; }
 
         /// <summary>
         /// Gets or sets the name of the manufacturer of this sensor.
         /// </summary>
+        [DataMember]
         public string Manufacturer { get; set; }
 
+        /// <summary>
+        /// Gets or sets the serial number of this sensor
+        /// </summary>
+        [DataMember]
         public string SerialNumber
         {
             get { return _serialNumber; }
@@ -263,6 +278,7 @@ namespace IndiaTango.Models
             get { return (UndoStack.Count != 0) ? UndoStack.Peek() : null; }
         }
 
+        [DataMember]
         public int ErrorThreshold
         { 
             get { return _errorThreshold; }
@@ -275,6 +291,7 @@ namespace IndiaTango.Models
             }
         }
 
+        [DataMember]
         public Dataset Owner { get; private set; }
 
         /// <summary>

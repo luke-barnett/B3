@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
+using System.Runtime.Serialization;
 
 namespace IndiaTango.Models
 {
+    [DataContract]
     public class Dataset
     {
         private Site _site;
@@ -45,6 +45,8 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets and sets the Site that this dataset came from
         /// </summary>
+        ///
+        [DataMember]
         public Site Site
         {
             get { return _site; }
@@ -54,6 +56,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Returns the start time stamp for this dataset
         /// </summary>
+        [DataMember]
         public DateTime StartTimeStamp
         {
             get { return _startTimeStamp; }
@@ -62,6 +65,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Returns the end time stamp for this dataset
         /// </summary>
+        [DataMember]
         public DateTime EndTimeStamp
         {
             get { return _endTimeStamp; }
@@ -71,6 +75,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Returns the list of sensors for this dataset
         /// </summary>
+        [DataMember]
         public List<Sensor> Sensors
         {
         	get { return _sensors; }

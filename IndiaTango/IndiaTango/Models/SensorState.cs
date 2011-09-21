@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Runtime.Serialization;
 
 namespace IndiaTango.Models
 {
     /// <summary>
     /// A class representing a sensor state; that is, the values a sensor held at a given instance in time.
     /// </summary>
+    [DataContract]
     public class SensorState
     {
         private DateTime _editTimestamp;
@@ -56,6 +57,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the timestamp of the last edit to this sensor state.
         /// </summary>
+        [DataMember]
         public DateTime EditTimestamp
         {
             get { return _editTimestamp; }
@@ -65,6 +67,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the list of values this sensor state holds.
         /// </summary>
+        [DataMember]
         public Dictionary<DateTime, float> Values
         {
             get { return _valueList; }
