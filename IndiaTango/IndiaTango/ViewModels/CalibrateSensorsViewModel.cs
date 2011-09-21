@@ -1,6 +1,8 @@
 ﻿using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -9,31 +11,101 @@ using System.Windows.Forms;
 using System.Windows.Media;
 using Caliburn.Micro;
 using IndiaTango.Models;
+using Visiblox.Charts;
 
 namespace IndiaTango.ViewModels
 {
     internal class CalibrateSensorsViewModel : BaseViewModel
     {
+        #region Private Members
         private readonly SimpleContainer _container;
         private readonly IWindowManager _windowManager;
+
         private Sensor _sensor;
-    	private int _zoomLevel = 100;
         private Dataset _ds;
+
         private string _formulaText = "";
         private bool _validFormula = true;
-        private DateTime _startDateTime, _endDateTime;
+
         private FormulaEvaluator _eval;
         private CompilerResults _results;
+
+        private int _sampleRate;
+        private int _zoomLevel = 100;
+        private DateTime _startDateTime, _endDateTime;
         private Cursor _viewCursor = Cursors.Default;
+        private List<LineSeries> _lineSeries;
+        private DataSeries<DateTime, float> _dataSeries;
+        private GraphableSensor _sensorToGraph;
+
+        private Canvas _backgroundCanvas;
+        private BehaviourManager _behaviour;
+        private CustomZoomBehaviour _zoomBehav;
+        #endregion
 
         public CalibrateSensorsViewModel(IWindowManager windowManager, SimpleContainer container)
         {
             _container = container;
             _windowManager = windowManager;
             _eval = new FormulaEvaluator();
+
+            _backgroundCanvas = new Canvas() {Visibility = Visibility.Collapsed};
+
+            _behaviour = new BehaviourManager() {AllowMultipleEnabled = true};
+
+            _behaviour.Behaviours.Add(new GraphBackgroundBehaviour(_backgroundCanvas) { IsEnabled = true });
+
+            _zoomBehav = new CustomZoomBehaviour() {IsEnabled = true};
+            _zoomBehav.ZoomRequested += (o, e) =>
+                                            {
+                                                // Set the DateTime ranges for calibration via visual selection
+                                                UpdateGraphToShowRange((DateTime)e.FirstPoint.X, (DateTime)e.SecondPoint.X);
+                                            };
+            _zoomBehav.ZoomResetRequested += (o) =>
+                                                 {
+                                                     StartTime = _ds.StartTimeStamp;
+                                                     EndTime = _ds.EndTimeStamp;
+
+                                                     SensorToGraph.RemoveBounds();
+                                                 };
+
+            _behaviour.Behaviours.Add(_zoomBehav);
+
+            Behaviour = _behaviour;
         }
 
 		#region View Properties
+
+        public BehaviourManager Behaviour
+        {
+            get { return _behaviour; }
+            set { _behaviour = value; NotifyOfPropertyChange(() => Behaviour); }
+        }
+
+        public DataSeries<DateTime, float> DataSeries
+        {
+            get { return _dataSeries; }
+            set { _dataSeries = value; NotifyOfPropertyChange(() => DataSeries); }
+        }
+
+        public List<LineSeries> ChartSeries
+        {
+            get { return _lineSeries; }
+            set
+            {
+                _lineSeries = value;
+                NotifyOfPropertyChange(() => ChartSeries);
+            }
+        }
+
+        public GraphableSensor SensorToGraph
+        {
+            get { return _sensorToGraph; }
+            set { _sensorToGraph = value; }
+        }
+
+        public string ChartTitle { get; set; }
+        public string YAxisTitle { get; set; }
 
         public Brush FormulaBoxBackground
         {
@@ -145,13 +217,23 @@ namespace IndiaTango.ViewModels
 			{
 				_sensor = value;
 
+			    YAxisTitle = SelectedSensor.Unit;
+			    ChartTitle = SelectedSensor.Name;
+
+                SensorToGraph = new GraphableSensor(SelectedSensor);
+
 				NotifyOfPropertyChange(() => SelectedSensor);
+                NotifyOfPropertyChange(() => ChartTitle);
+                NotifyOfPropertyChange(() => YAxisTitle);
+                NotifyOfPropertyChange(() => SensorToGraph);
 				NotifyOfPropertyChange(() => SensorName);
                 NotifyOfPropertyChange(() => UndoButtonEnabled);
                 NotifyOfPropertyChange(() => RedoButtonEnabled);
                 NotifyOfPropertyChange(() => Title);
                 NotifyOfPropertyChange(() => CanEditDates);
                 NotifyOfPropertyChange(() => ApplyButtonEnabled);
+
+                RefreshGraph();
 			}
 		}
 
@@ -160,7 +242,6 @@ namespace IndiaTango.ViewModels
             get { return _startDateTime; }
             set
             {
-
                 _startDateTime = value;
 
                 //if (_ds != null && value >= _ds.StartTimeStamp && value <= EndTime)
@@ -170,8 +251,18 @@ namespace IndiaTango.ViewModels
                 //                          "Start time must be after than or equal to the first date of the data set (" +
                 //                          _ds.StartTimeStamp +
                 //                          ") and before the end time (" + EndTime + ")", false, true);
+                // TODO: sanity check
                 NotifyOfPropertyChange(() => StartTime);
             }
+        }
+
+        private void UpdateGraphToShowRange(DateTime start, DateTime end)
+        {
+            StartTime = start;
+            EndTime = end;
+
+            SensorToGraph.SetUpperAndLowerBounds(start, end);
+            UpdateGraph();
         }
 
         public DateTime EndTime 
@@ -210,12 +301,37 @@ namespace IndiaTango.ViewModels
 
         public void StartTimeChanged(RoutedPropertyChangedEventArgs<object> e)
         {
-            //TODO: change date range on graph
+            // Is start within bounds?
+            var newValue = (DateTime) e.NewValue;
+
+            if(newValue.CompareTo(EndTime) >= 0 || !inDatasetRange(newValue))
+            {
+                // Revert
+                StartTime = (DateTime) e.OldValue;
+                return;
+            }
+
+            UpdateGraphToShowRange(StartTime, EndTime);
         }
 
         public void EndTimeChanged(RoutedPropertyChangedEventArgs<object> e)
         {
-            //TODO: change date range on graph
+            // Is end within bounds?
+            var newValue = (DateTime)e.NewValue;
+
+            if (newValue.CompareTo(StartTime) <= 0 || !inDatasetRange(newValue))
+            {
+                // Revert
+                EndTime = (DateTime)e.OldValue;
+                return;
+            }
+
+            UpdateGraphToShowRange(StartTime, EndTime);
+        }
+
+        private bool inDatasetRange(DateTime val)
+        {
+            return (val.CompareTo(_ds.StartTimeStamp) >= 0 && val.CompareTo(_ds.EndTimeStamp) <= 0);
         }
 
 		public void btnUndo()
@@ -295,5 +411,52 @@ namespace IndiaTango.ViewModels
 			ZoomLevel = (int)e.NewValue;
 		}
 		#endregion
+
+       private void RefreshGraph()
+       {
+           if (SensorToGraph != null && SensorToGraph.DataPoints != null)
+               SensorToGraph.RefreshDataPoints();
+
+           UpdateGraph();
+       }
+
+       private void UpdateGraph()
+       {
+           if (SensorToGraph != null)
+               SampleValues(Common.MaximumGraphablePoints, SensorToGraph);
+           else
+               ChartSeries = new List<LineSeries>();
+
+           NotifyOfPropertyChange(() => ChartTitle);
+           NotifyOfPropertyChange(() => YAxisTitle);
+       }
+
+       // Only need one graph at a time here
+       private void SampleValues(int numberOfPoints, GraphableSensor sensor)
+       {
+           var generatedSeries = new List<LineSeries>();
+
+           HideBackground();
+
+            _sampleRate = sensor.DataPoints.Count() / (numberOfPoints);
+            Debug.Print("Number of points: {0} Max Number {1} Sampling rate {2}", sensor.DataPoints.Count(), numberOfPoints, _sampleRate);
+
+            var series = (_sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints.Where((x, index) => index % _sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints);
+            generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour) });
+
+            if (_sampleRate > 1) ShowBackground();
+
+           ChartSeries = generatedSeries;
+       }
+
+       private void HideBackground()
+       {
+           _backgroundCanvas.Visibility = Visibility.Collapsed;
+       }
+
+       private void ShowBackground()
+       {
+           _backgroundCanvas.Visibility = Visibility.Visible;
+       }
     }
 }

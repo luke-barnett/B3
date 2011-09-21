@@ -52,7 +52,7 @@
 
                     <StackPanel Orientation="Horizontal" Margin="5 5 5 0">
                         <TextBlock Text="Range:" VerticalAlignment="Center" Margin="0 0 10 0" />
-                        <extToolkit:DateTimePicker Width="125" Value="{Binding StartTime}" Format="Custom" FormatString="dd/MM/yy HH:mm" IsEnabled="{Binding CanEditDates}">
+                        <extToolkit:DateTimePicker Width="125" Value="{Binding StartTime, Mode=TwoWay}" Format="Custom" FormatString="dd/MM/yy HH:mm" IsEnabled="{Binding CanEditDates}">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="ValueChanged">
                                     <cal:ActionMessage MethodName="StartTimeChanged">
@@ -62,7 +62,7 @@
                             </i:Interaction.Triggers>
                         </extToolkit:DateTimePicker>
                         <TextBlock Text=" - to - " VerticalAlignment="Center" />
-                        <extToolkit:DateTimePicker Width="125" Value="{Binding EndTime}" Format="Custom" FormatString="dd/MM/yy HH:mm" IsEnabled="{Binding CanEditDates}">
+                        <extToolkit:DateTimePicker Width="125" Value="{Binding EndTime, Mode=TwoWay}" Format="Custom" FormatString="dd/MM/yy HH:mm" IsEnabled="{Binding CanEditDates}">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="ValueChanged">
                                     <cal:ActionMessage MethodName="EndTimeChanged">
@@ -137,7 +137,6 @@
                     <Slider Width="100" Maximum="1000" TickFrequency="100" TickPlacement="BottomRight" Value="{Binding ZoomLevel}" VerticalAlignment="Center" SmallChange="10" LargeChange="100" Margin="10" IsSnapToTickEnabled="True" IsSelectionRangeEnabled="False" Minimum="100" SelectionEnd="1000" />
                     <TextBlock Name="lblZoom" Text="{Binding ZoomText}" VerticalAlignment="Center" Margin="0" FontSize="15" />
                 </StackPanel>
-                <Label Content="Graphing Not Yet Implemented" Height="28" HorizontalAlignment="Center" Name="label1" VerticalAlignment="Center" Foreground="OrangeRed" />
             </Grid>
         </GroupBox>
     </Grid>
