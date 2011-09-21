@@ -327,7 +327,7 @@ namespace IndiaTango.ViewModels
 
 					reader.ProgressChanged += ImportProgressChanged;
 
-				    var readSensors = reader.ReadSensors(_bw);  // Prevent null references
+				    var readSensors = reader.ReadSensors(_bw, _ds);  // Prevent null references
 
 					if (readSensors == null)
 					{

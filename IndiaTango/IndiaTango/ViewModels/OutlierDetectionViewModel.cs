@@ -312,28 +312,28 @@ namespace IndiaTango.ViewModels
         private void UpdateGraph()
         {
             if (SelectedSensor != null)
-                SampleValues(Common.MaximumGraphablePoints, new Collection<GraphableSensor> { _graphableSensor });
+                SampleValues(Common.MaximumGraphablePoints, _graphableSensor);
             else
                 ChartSeries = new List<LineSeries>();
             NotifyOfPropertyChange(() => ChartTitle);
             NotifyOfPropertyChange(() => YAxisTitle);
         }
 
-        private void SampleValues(int numberOfPoints, ICollection<GraphableSensor> sensors)
+        private void SampleValues(int numberOfPoints, GraphableSensor sensor)
         {
             var generatedSeries = new List<LineSeries>();
 
             HideBackground();
 
-            foreach (var sensor in sensors)
-            {
-                _sampleRate = sensor.DataPoints.Count() / (numberOfPoints / sensors.Count);
-                Debug.Print("Number of points: {0} Max Number {1} Sampling rate {2}", sensor.DataPoints.Count(), numberOfPoints, _sampleRate);
+            _sampleRate = sensor.DataPoints.Count() / (numberOfPoints);
+            Debug.Print("Number of points: {0} Max Number {1} Sampling rate {2}", sensor.DataPoints.Count(), numberOfPoints, _sampleRate);
 
-                var series = (_sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints.Where((x, index) => index % _sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints);
-                generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour) });
-                if (_sampleRate > 1) ShowBackground();
-            }
+            var series = (_sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints.Where((x, index) => index % _sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints);
+            generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour) });
+            if (_sampleRate > 1) ShowBackground();
+
+            generatedSeries.Add(new LineSeries { DataSeries = new DataSeries<DateTime, float>("Upper Limit") { new DataPoint<DateTime, float>(sensor.Sensor.Owner.StartTimeStamp, sensor.Sensor.UpperLimit), new DataPoint<DateTime, float>(sensor.Sensor.Owner.EndTimeStamp, sensor.Sensor.UpperLimit) }, LineStroke = Brushes.OrangeRed});
+            generatedSeries.Add(new LineSeries { DataSeries = new DataSeries<DateTime, float>("Lower Limit") { new DataPoint<DateTime, float>(sensor.Sensor.Owner.StartTimeStamp, sensor.Sensor.LowerLimit), new DataPoint<DateTime, float>(sensor.Sensor.Owner.EndTimeStamp, sensor.Sensor.LowerLimit) }, LineStroke = Brushes.OrangeRed });
 
             ChartSeries = generatedSeries;
         }
