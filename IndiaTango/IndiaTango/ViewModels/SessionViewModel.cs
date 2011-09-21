@@ -67,6 +67,15 @@ namespace IndiaTango.ViewModels
             {
                 _ds = value;
                 ActionButtonsEnabled = true;
+                //Sigh
+                SiteName = _ds.Site.Name;
+                Owner = _ds.Site.Owner;
+                Latitude = _ds.Site.GpsLocation.DecimalDegreesLatitude.ToString();
+                Longitude = _ds.Site.GpsLocation.DecimalDegreesLongitude.ToString();
+                PrimaryContact = _ds.Site.PrimaryContact;
+                SecondaryContact = _ds.Site.SecondaryContact;
+                UniversityContact = _ds.Site.UniversityContact;
+
                 NotifyOfPropertyChange(() => SelectedSite);
                 NotifyOfPropertyChange(() => SiteName);
                 NotifyOfPropertyChange(() => Owner);
