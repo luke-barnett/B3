@@ -58,6 +58,11 @@ namespace IndiaTango.ViewModels
 			DoneCancelVisible = Visibility.Collapsed;
         }
 
+        /// <summary>
+        /// Sets the dataset to use for the session
+        /// </summary>
+        public Dataset Dataset { set { _ds = value; } }
+
 		#region View Properties
 		//TODO: Make a gloabl 'editing/creating/viewing site' state that the properties reference
         private Visibility _sensorWarningVis = Visibility.Collapsed;
