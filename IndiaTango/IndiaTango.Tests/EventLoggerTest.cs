@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -34,6 +35,8 @@ namespace IndiaTango.Tests
 
             _threadZero = new Thread(EventLoggerTest.DummyDoWork);
             _threadZero.Name = "Thread-0";
+
+
         }
         #endregion
 
@@ -133,6 +136,64 @@ namespace IndiaTango.Tests
         public static void WriteError()
         {
             Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + " ERROR    " + Thread.CurrentThread.Name + "                   ", EventLogger.LogError(Thread.CurrentThread.Name, "Weow weow weow"));
+        }
+        #endregion
+
+        #region Individual Sensor Logging Tests
+        [Test]
+        public void LogSensorInfoTest()
+        {
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       Temperature               Because we can.", EventLogger.LogSensorInfo("Temperature", "Because we can."));
+
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       This Sensor               Because we can.", EventLogger.LogSensorInfo("This Sensor", "Because we can."));
+        }
+
+        [Test]
+        public void LogSensorChangeTest()
+        {
+            var state = new SensorState(DateTime.Now,
+                                        new Dictionary<DateTime, float> { { new DateTime(2011, 5, 5, 5, 5, 0), 2000 } });
+            state.Reason = "Because we can.";
+            var result = state.LogChange("Temperature", "Extrapolation performed.");
+
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       Temperature               Extrapolation performed. Reason: Because we can.", result);
+
+            state = new SensorState(DateTime.Now,
+                                        new Dictionary<DateTime, float> { { new DateTime(2011, 5, 5, 5, 5, 0), 2000 } });
+            state.Reason = "Because we can.";
+            result = state.LogChange("Temperature", "Did some awesome work on the dataset.");
+
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       Temperature               Did some awesome work on the dataset. Reason: Because we can.", result);
+        }
+
+        [Test]
+        public void LogSensorChangeToFileTest()
+        {
+            var sensorLogPath = Path.Combine(EventLogger.GetSensorLogPath("Temperature"));
+            var sensorTwoLogPath = Path.Combine(EventLogger.GetSensorLogPath("Temperature20"));
+            
+            if(File.Exists(sensorLogPath))
+                File.Delete(sensorLogPath);
+
+            if (File.Exists(sensorTwoLogPath))
+                File.Delete(sensorTwoLogPath);
+
+            var state = new SensorState(DateTime.Now,
+                                        new Dictionary<DateTime, float> { { new DateTime(2011, 5, 5, 5, 5, 0), 2000 } });
+            state.Reason = "Because we can.";
+            state.LogChange("Temperature", "Extrapolation performed.");
+
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       Temperature               Extrapolation performed. Reason: Because we can.\r\n", File.ReadAllText(sensorLogPath));
+
+            state = new SensorState(DateTime.Now,
+                                        new Dictionary<DateTime, float> { { new DateTime(2011, 5, 5, 5, 5, 0), 2000 } });
+            state.Reason = "Because we can.";
+            state.LogChange("Temperature20", "Extrapolation performed.");
+
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       Temperature20             Extrapolation performed. Reason: Because we can.\r\n", File.ReadAllText(sensorTwoLogPath));
+
+            Assert.IsTrue(File.Exists(sensorLogPath));
+            Assert.IsTrue(File.Exists(sensorTwoLogPath));
         }
         #endregion
     }

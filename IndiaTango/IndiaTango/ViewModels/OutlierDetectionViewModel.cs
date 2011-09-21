@@ -197,10 +197,10 @@ namespace IndiaTango.ViewModels
                 return;
             _sensor.AddState(_sensor.CurrentState.removeValues(SelectedValues));
 
-            Finalise();
+            Finalise("Removed selected values from dataset.");
+
             RefreshGraph();
             Common.ShowMessageBox("Values Updated", "The selected values have been removed from the data", false, false);
-            EventLogger.LogInfo(GetType().ToString(), "Value removal complete. Sensor: " + SelectedSensor.Name);
         }
 
         public void btnMakeZero()
@@ -212,37 +212,19 @@ namespace IndiaTango.ViewModels
 
             _sensor.AddState(_sensor.CurrentState.ChangeToZero(SelectedValues));
 
-            Finalise();
+            Finalise("Set selected values to 0.");
             RefreshGraph();
             Common.ShowMessageBox("Values Updated", "The selected values have been set to 0.", false, false);
-            EventLogger.LogInfo(GetType().ToString(), "Value updation complete. Sensor: " + SelectedSensor.Name + ". Value: 0.");
         }
 
-        private void Finalise()
+        private void Finalise(string taskPerformed)
         {
             _outliers = _sensor.CurrentState.GetOutliers(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp,
                                                          _sensor.UpperLimit, _sensor.LowerLimit, _sensor.MaxRateOfChange);
             NotifyOfPropertyChange(() => Outliers);
             NotifyOfPropertyChange(() => OutliersStrings);
 
-            requestReason();
-        }
-
-
-        public void requestReason()
-        {
-            if (_sensor != null && _sensor.CurrentState != null)
-            {
-                var specify = (SpecifyValueViewModel)_container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel");
-                specify.Title = "Log Reason";
-                specify.Message = "Please specify a reason for this change:";
-                specify.Deactivated += (o, e) =>
-                {
-                    // Specify reason
-                    _sensor.CurrentState.Reason = specify.Text;
-                };
-                _windowManager.ShowDialog(specify);
-            }
+            Common.requestReason(_sensor, _container, _windowManager, _sensor.CurrentState, taskPerformed);
         }
 
         public void btnSpecify()
@@ -275,10 +257,10 @@ namespace IndiaTango.ViewModels
 
             _sensor.AddState(_sensor.CurrentState.ChangeToValue(SelectedValues, value));
 
-            Finalise();
+            Finalise("Specified values for selected data points as " + value + ".");
+
             RefreshGraph();
             Common.ShowMessageBox("Values Updated", "The selected values have been set to " + value + ".", false, false);
-            EventLogger.LogInfo(GetType().ToString(), "Value updation complete. Sensor: " + SelectedSensor.Name + ". Value: " + value + ".");
         }
 
         public void btnUndo()

@@ -269,5 +269,10 @@ namespace IndiaTango.Models
         {
             return _editTimestamp.ToString() + " " + Values.First().Key + " " + Values.First().Value;
         }
+
+        public string LogChange(string sensorName, string taskPerformed)
+        {
+            return EventLogger.LogSensorInfo(sensorName, taskPerformed + " Reason: " + Reason);
+        }
     }
 }
