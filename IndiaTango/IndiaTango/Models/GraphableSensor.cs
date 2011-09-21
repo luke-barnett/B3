@@ -13,9 +13,6 @@ namespace IndiaTango.Models
     public class GraphableSensor
     {
         private IEnumerable<DataPoint<DateTime, float>> _dataPoints;
-        private DateTime _lowerBound;
-        private DateTime _upperBound;
-        private bool _subSample;
 
         /// <summary>
         /// Creates a new GraphableSensor based on the given sensor
@@ -43,10 +40,10 @@ namespace IndiaTango.Models
             Sensor = baseSensor.Sensor;
             Colour = baseSensor.Colour;
 
-            _lowerBound = lowerTimeBound;
-            _upperBound = upperTimeBound;
+            LowerBound = lowerTimeBound;
+            UpperBound = upperTimeBound;
 
-            _subSample = true;
+            BoundsSet = true;
 
             DataPoints = null;
         }
@@ -76,7 +73,7 @@ namespace IndiaTango.Models
         /// </summary>
         public void RefreshDataPoints()
         {
-            DataPoints = !_subSample ? (from dataValue in Sensor.CurrentState.Values select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value)).OrderBy(dataPoint => dataPoint.X) : (from dataValue in Sensor.CurrentState.Values where dataValue.Key >= _lowerBound && dataValue.Key <= _upperBound select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value)).OrderBy(dataPoint => dataPoint.X);
+            DataPoints = !BoundsSet ? (from dataValue in Sensor.CurrentState.Values select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value)).OrderBy(dataPoint => dataPoint.X) : (from dataValue in Sensor.CurrentState.Values where dataValue.Key >= LowerBound && dataValue.Key <= UpperBound select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value)).OrderBy(dataPoint => dataPoint.X);
         }
 
         /// <summary>
@@ -86,9 +83,9 @@ namespace IndiaTango.Models
         /// <param name="upperBound">The upper bound</param>
         public void SetUpperAndLowerBounds(DateTime lowerBound, DateTime upperBound)
         {
-            _lowerBound = lowerBound;
-            _upperBound = upperBound;
-            _subSample = true;
+            LowerBound = lowerBound;
+            UpperBound = upperBound;
+            BoundsSet = true;
 
             //Force it to be recalculated
             DataPoints = null;
@@ -99,7 +96,7 @@ namespace IndiaTango.Models
         /// </summary>
         public void RemoveBounds()
         {
-            _subSample = false;
+            BoundsSet = false;
             //Force it to be recalculated
             DataPoints = null;
         }
@@ -112,5 +109,20 @@ namespace IndiaTango.Models
         {
             return Sensor.ToString();
         }
+
+        /// <summary>
+        /// Are there bounds set on the data values?
+        /// </summary>
+        public bool BoundsSet { get; private set; }
+
+        /// <summary>
+        /// The lower bound of the data values
+        /// </summary>
+        public DateTime LowerBound { get; private set; }
+
+        /// <summary>
+        /// The upper bound of the data values
+        /// </summary>
+        public DateTime UpperBound { get; private set; }
     }
 }
