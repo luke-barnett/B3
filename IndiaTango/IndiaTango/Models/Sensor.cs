@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace IndiaTango.Models
 {
     /// <summary>
     /// Represents a Sensor, which resembles a sensor attached to a buoy, measuring a given water quality parameter.
     /// </summary>
+    [Serializable]
+    [DataContract]
     public class Sensor
     {
         #region Private Members
@@ -27,7 +30,16 @@ namespace IndiaTango.Models
         /// </summary>
         /// <param name="name">The name of the sensor.</param>
         /// <param name="unit">The unit used to report values given by this sensor.</param>
-        public Sensor(string name, string unit) : this(name, "", 100, 0, unit, 0, "", "") { }
+        public Sensor(string name, string unit) : this(name, "", 100, 0, unit, 0, "", "", null) { }
+
+
+        /// <summary>
+        /// Creates a new sensor, with the specified sensor name and measurement unit.
+        /// </summary>
+        /// <param name="name">The name of the sensor.</param>
+        /// <param name="unit">The unit used to report values given by this sensor.</param>
+        /// <param name="owner">The owner of the sensor</param>
+        public Sensor(string name, string unit, Dataset owner) : this(name, "", 100, 0, unit, 0, "", "", owner) { }
 
         /// <summary>
         /// Creates a new sensor, using default values for Undo/Redo stacks, calibration dates, error threshold and a failure-indicating value.
@@ -40,7 +52,8 @@ namespace IndiaTango.Models
         /// <param name="maxRateOfChange">The maximum rate of change allowed by this sensor.</param>
         /// <param name="manufacturer">The manufacturer of this sensor.</param>
         /// <param name="serial">The serial number associated with this sensor.</param>
-        public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, string manufacturer, string serial) : this(name, description, upperLimit, lowerLimit, unit, maxRateOfChange, manufacturer, serial, new Stack<SensorState>(), new Stack<SensorState>(), new List<DateTime>()) { }
+        /// <param name="owner">The dataset owner of the sensor</param>
+        public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, string manufacturer, string serial, Dataset owner) : this(name, description, upperLimit, lowerLimit, unit, maxRateOfChange, manufacturer, serial, new Stack<SensorState>(), new Stack<SensorState>(), new List<DateTime>(), owner) { }
 
         /// <summary>
         /// Creates a new sensor, using default values for error threshold and failure-indicating value. 
@@ -56,7 +69,8 @@ namespace IndiaTango.Models
         /// <param name="undoStack">A stack containing previous sensor states.</param>
         /// <param name="redoStack">A stack containing sensor states created after the modifications of the current state.</param>
         /// <param name="calibrationDates">A list of dates, on which calibration was performed.</param>
-        public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, string manufacturer, string serial, Stack<SensorState> undoStack, Stack<SensorState> redoStack, List<DateTime> calibrationDates) : this(name, description, upperLimit, lowerLimit, unit, maxRateOfChange, manufacturer, serial, undoStack, redoStack, calibrationDates, IndiaTango.Properties.Settings.Default.DefaultErrorThreshold) { }
+        /// <param name="owner">The dataset owner of the sensor</param>
+        public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, string manufacturer, string serial, Stack<SensorState> undoStack, Stack<SensorState> redoStack, List<DateTime> calibrationDates, Dataset owner) : this(name, description, upperLimit, lowerLimit, unit, maxRateOfChange, manufacturer, serial, undoStack, redoStack, calibrationDates, Properties.Settings.Default.DefaultErrorThreshold, owner) { }
 
         /// <summary>
         /// Creates a new sensor.
@@ -73,8 +87,8 @@ namespace IndiaTango.Models
         /// <param name="redoStack">A stack containing sensor states created after the modifications of the current state.</param>
         /// <param name="calibrationDates">A list of dates, on which calibration was performed.</param>
         /// <param name="errorThreshold">The number of times a failure-indicating value can occur before this sensor is flagged as failing.</param>
-        /// <param name="failureIndicator">A value indicating a sensor has, generally, failed.</param>
-        public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, string manufacturer, string serial, Stack<SensorState> undoStack, Stack<SensorState> redoStack, List<DateTime> calibrationDates, int errorThreshold)
+        /// <param name="owner">The dataset that owns the sensor</param>
+        public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, string manufacturer, string serial, Stack<SensorState> undoStack, Stack<SensorState> redoStack, List<DateTime> calibrationDates, int errorThreshold, Dataset owner)
         {
             if (name == "")
                 throw new ArgumentNullException("Sensor name cannot be empty.");
@@ -110,6 +124,7 @@ namespace IndiaTango.Models
             SerialNumber = serial;
 
             ErrorThreshold = errorThreshold;
+            Owner = owner;
         }
         #endregion
 
@@ -118,6 +133,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the undo stack for this sensor. The undo stack contains a list of previous states this sensor was in before its current state. This stack cannot be null.
         /// </summary>
+        [DataMember]
         public Stack<SensorState> UndoStack
         {
             get { return _undoStack; }
@@ -133,6 +149,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the redo stack for this sensor. The redo stack contains a list of previous states this sensor can be in after the current state. This stack cannot be null.
         /// </summary>
+        [DataMember]
         public Stack<SensorState> RedoStack
         {
             get { return _redoStack; }
@@ -148,6 +165,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the list of dates this sensor was calibrated on. The list of calibration dates cannot be null.
         /// </summary>
+        [DataMember]
         public List<DateTime> CalibrationDates
         {
             get { return _calibrationDates; }
@@ -163,6 +181,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the name of this sensor. The sensor name cannot be null.
         /// </summary>
+        [DataMember]
         public string Name
         {
             get { return _name; }
@@ -178,11 +197,13 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the description of this sensor's purpose or function.
         /// </summary>
+        [DataMember]
         public string Description { get; set; }
 
         /// <summary>
         /// Gets or sets the lower limit for values reported by this sensor.
         /// </summary>
+        [DataMember]
         public float LowerLimit
         {
             get { return _lowerLimit; }
@@ -198,6 +219,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the upper limit for values reported by this sensor.
         /// </summary>
+        [DataMember]
         public float UpperLimit
         {
             get { return _upperLimit; }
@@ -213,6 +235,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the measurement unit reported with values collected by this sensor.
         /// </summary>
+        [DataMember]
         public string Unit
         {
             get { return _unit; }
@@ -226,13 +249,19 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the maximum rate of change allowed for values reported by this sensor.
         /// </summary>
+        [DataMember]
         public float MaxRateOfChange { get; set; }
 
         /// <summary>
         /// Gets or sets the name of the manufacturer of this sensor.
         /// </summary>
+        [DataMember]
         public string Manufacturer { get; set; }
 
+        /// <summary>
+        /// Gets or sets the serial number of this sensor
+        /// </summary>
+        [DataMember]
         public string SerialNumber
         {
             get { return _serialNumber; }
@@ -250,6 +279,7 @@ namespace IndiaTango.Models
             get { return (UndoStack.Count != 0) ? UndoStack.Peek() : null; }
         }
 
+        [DataMember]
         public int ErrorThreshold
         { 
             get { return _errorThreshold; }
@@ -261,6 +291,8 @@ namespace IndiaTango.Models
                 _errorThreshold = value;
             }
         }
+
+        public Dataset Owner { get; private set; }
 
         /// <summary>
         /// Gets a value indicating whether or not this sensor shows signs of physical failure.
@@ -275,8 +307,8 @@ namespace IndiaTango.Models
             if(CurrentState == null)
                 throw new NullReferenceException("No active sensor state exists for this sensor, so you can't detect whether it is failing or not.");
 
-            if(CurrentState.Values.Count == 0)
-                throw new IndexOutOfRangeException("The current state must have at least one value in it.");
+            if (CurrentState.Values.Count == 0)
+                return false;
 
             if(dataset == null)
                 throw new NullReferenceException("You must provide a non-null dataset.");

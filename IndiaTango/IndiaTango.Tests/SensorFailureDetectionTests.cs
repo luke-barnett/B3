@@ -112,7 +112,6 @@ namespace IndiaTango.Tests
         }
 
         [Test]
-        [ExpectedException(typeof(IndexOutOfRangeException))]
         public void SensorStateWithNoValues()
         {
             var sensorState = new SensorState(DateTime.Now, new Dictionary<DateTime, float>());
@@ -121,7 +120,7 @@ namespace IndiaTango.Tests
 
             var ds = new Dataset(_site, new List<Sensor> { _temperatureSensor });
 
-            _temperatureSensor.IsFailing(ds);
+            Assert.IsFalse(_temperatureSensor.IsFailing(ds));
         }
         #endregion
     }

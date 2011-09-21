@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using Caliburn.Micro;
 using IndiaTango.Models;
+using Visiblox.Charts;
 
 namespace IndiaTango.ViewModels
 {
@@ -17,12 +22,45 @@ namespace IndiaTango.ViewModels
         private Dataset _ds;
         private int _zoomLevel = 100;
         private Sensor _sensor;
-        private const int dateTimeStringLength = 10;
+
+        private List<LineSeries> _chartSeries = new List<LineSeries>();
+        private BehaviourManager _behaviour;
+        private DoubleRange _range;
+        private int _sampleRate;
+        private GraphableSensor _graphableSensor;
+        private Canvas _backgroundCanvas;
 
         public OutlierDetectionViewModel(IWindowManager manager, SimpleContainer container)
         {
             _windowManager = manager;
             _container = container;
+
+            _backgroundCanvas = new Canvas { Visibility = Visibility.Collapsed };
+
+            _behaviour = new BehaviourManager { AllowMultipleEnabled = true };
+
+            var backgroundBehaviour = new GraphBackgroundBehaviour(_backgroundCanvas) { IsEnabled = true };
+
+            _behaviour.Behaviours.Add(backgroundBehaviour);
+
+            var zoomBehaviour = new CustomZoomBehaviour { IsEnabled = true };
+            zoomBehaviour.ZoomRequested += (o, e) =>
+            {
+                var startTime = (DateTime)e.FirstPoint.X;
+                var endTime = (DateTime)e.SecondPoint.X;
+                _graphableSensor.SetUpperAndLowerBounds(startTime, endTime);
+                UpdateGraph();
+            };
+
+            zoomBehaviour.ZoomResetRequested += o =>
+            {
+                _graphableSensor.RemoveBounds();
+                UpdateGraph();
+            };
+
+            _behaviour.Behaviours.Add(zoomBehaviour);
+
+            Behaviour = _behaviour;
         }
 
         #region View Properties
@@ -65,7 +103,7 @@ namespace IndiaTango.ViewModels
                 var list = new List<String>();
                 foreach (var time in _outliers)
                 {
-                    list.Add(time.ToShortDateString()+" "+time.ToShortTimeString().PadRight(dateTimeStringLength) + _sensor.CurrentState.Values[time]);
+                    list.Add(time.ToShortDateString().PadRight(12)+time.ToShortTimeString().PadRight(15) + _sensor.CurrentState.Values[time]);
                 }
                 return list;
             }
@@ -77,7 +115,7 @@ namespace IndiaTango.ViewModels
             set
             {
                 _outliers = value;
-                NotifyOfPropertyChange(() => Outliers);
+                NotifyOfPropertyChange(() => OutliersStrings);
             }
         }
 
@@ -103,6 +141,8 @@ namespace IndiaTango.ViewModels
                 NotifyOfPropertyChange(() => SelectedSensor);
                 NotifyOfPropertyChange(() => SensorName);
                 NotifyOfPropertyChange(() => OutliersStrings);
+                _graphableSensor = _sensor != null ? new GraphableSensor(_sensor) : null;
+                UpdateGraph();
             }
         }
 
@@ -111,25 +151,184 @@ namespace IndiaTango.ViewModels
             get { return _selectedValues; }
             set
             {
-                _selectedValues = value;
+                if(value!=null)
+                    _selectedValues = value;
+                else
+                    _selectedValues = new List<DateTime>();
                 NotifyOfPropertyChange(() => SelectedValues);
             }
         }
+
+        public List<LineSeries> ChartSeries { get { return _chartSeries; } set { _chartSeries = value; NotifyOfPropertyChange(() => ChartSeries); } }
+
+        public BehaviourManager Behaviour { get { return _behaviour; } set { _behaviour = value; NotifyOfPropertyChange(() => Behaviour); } }
+
+        public string ChartTitle { get { return (SelectedSensor == null) ? string.Empty : SelectedSensor.Name; } }
+
+        public string YAxisTitle { get { return (SelectedSensor == null) ? string.Empty : SelectedSensor.Unit; } }
+
+        public DoubleRange Range { get { return _range; } set { _range = value; NotifyOfPropertyChange(() => Range); } }
+
+
+
+
+        #endregion
+
+        #region button event handlers
 
         public void SelectionChanged(SelectionChangedEventArgs e)
         {
             foreach (string item in e.RemovedItems)
             {
-                SelectedValues.Remove(DateTime.Parse(item.Substring(0,dateTimeStringLength)));
+                SelectedValues.Remove(DateTime.Parse(item.Substring(0, 27)));
             }
 
             foreach (string item in e.AddedItems)
             {
-                SelectedValues.Add(DateTime.Parse(item.Substring(0,dateTimeStringLength)));
+                SelectedValues.Add(DateTime.Parse(item.Substring(0, 27)));
             }
         }
 
 
+        public void btnRemove()
+        {
+            EventLogger.LogInfo(GetType().ToString(), "Value removal started.");
+            if (_selectedValues.Count == 0)
+                return;
+            _sensor.AddState(_sensor.CurrentState.removeValues(SelectedValues));
+
+            Finalise("Removed selected values from dataset.");
+
+            RefreshGraph();
+            Common.ShowMessageBox("Values Updated", "The selected values have been removed from the data", false, false);
+        }
+
+        public void btnMakeZero()
+        {
+            EventLogger.LogInfo(GetType().ToString(), "Value updation started.");
+
+            if (_selectedValues.Count == 0)
+                return;
+
+            _sensor.AddState(_sensor.CurrentState.ChangeToZero(SelectedValues));
+
+            Finalise("Set selected values to 0.");
+            RefreshGraph();
+            Common.ShowMessageBox("Values Updated", "The selected values have been set to 0.", false, false);
+        }
+
+        private void Finalise(string taskPerformed)
+        {
+            _outliers = _sensor.CurrentState.GetOutliers(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp,
+                                                         _sensor.UpperLimit, _sensor.LowerLimit, _sensor.MaxRateOfChange);
+            NotifyOfPropertyChange(() => Outliers);
+            NotifyOfPropertyChange(() => OutliersStrings);
+
+            Common.requestReason(_sensor, _container, _windowManager, _sensor.CurrentState, taskPerformed);
+        }
+
+        public void btnSpecify()
+        {
+            //TODO refactor
+            EventLogger.LogInfo(GetType().ToString(), "Value updation started.");
+
+            if (_selectedValues.Count == 0)
+                return;
+
+            var value = float.MinValue;
+
+            while (value == float.MinValue)
+            {
+                try
+                {
+                    var specifyVal = _container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel") as SpecifyValueViewModel;
+                    _windowManager.ShowDialog(specifyVal);
+                    //cancel
+                    if (specifyVal.Text == null)
+                        return;
+                    value = float.Parse(specifyVal.Text);
+                }
+                catch (FormatException f)
+                {
+                    var exit = Common.ShowMessageBox("An Error Occured", "Please enter a valid number.", true, true);
+                    if (exit) return;
+                }
+            }
+
+            _sensor.AddState(_sensor.CurrentState.ChangeToValue(SelectedValues, value));
+
+            Finalise("Specified values for selected data points as " + value + ".");
+
+            RefreshGraph();
+            Common.ShowMessageBox("Values Updated", "The selected values have been set to " + value + ".", false, false);
+        }
+
+        public void btnUndo()
+        {
+            _sensor.Undo();
+            Outliers = _sensor.CurrentState.GetOutliers(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp,
+                                                        _sensor.UpperLimit, _sensor.LowerLimit, _sensor.MaxRateOfChange);
+            RefreshGraph();
+        }
+
+        public void btnRedo()
+        {
+            _sensor.Redo();
+            Outliers = _sensor.CurrentState.GetOutliers(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp,
+                                                        _sensor.UpperLimit, _sensor.LowerLimit, _sensor.MaxRateOfChange);
+            RefreshGraph();
+        }
+
+        public void btnDone()
+        {
+            this.TryClose();
+        }
+
+        private void RefreshGraph()
+        {
+            if (_graphableSensor != null && _graphableSensor.DataPoints != null)
+                _graphableSensor.RefreshDataPoints();
+            UpdateGraph();
+        }
+
+        private void UpdateGraph()
+        {
+            if (SelectedSensor != null)
+                SampleValues(Common.MaximumGraphablePoints, _graphableSensor);
+            else
+                ChartSeries = new List<LineSeries>();
+            NotifyOfPropertyChange(() => ChartTitle);
+            NotifyOfPropertyChange(() => YAxisTitle);
+        }
+
+        private void SampleValues(int numberOfPoints, GraphableSensor sensor)
+        {
+            var generatedSeries = new List<LineSeries>();
+
+            HideBackground();
+
+            _sampleRate = sensor.DataPoints.Count() / (numberOfPoints);
+            Debug.Print("Number of points: {0} Max Number {1} Sampling rate {2}", sensor.DataPoints.Count(), numberOfPoints, _sampleRate);
+
+            var series = (_sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints.Where((x, index) => index % _sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints);
+            generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour) });
+            if (_sampleRate > 1) ShowBackground();
+
+            generatedSeries.Add(new LineSeries { DataSeries = new DataSeries<DateTime, float>("Upper Limit") { new DataPoint<DateTime, float>(sensor.Sensor.Owner.StartTimeStamp, sensor.Sensor.UpperLimit), new DataPoint<DateTime, float>(sensor.Sensor.Owner.EndTimeStamp, sensor.Sensor.UpperLimit) }, LineStroke = Brushes.OrangeRed});
+            generatedSeries.Add(new LineSeries { DataSeries = new DataSeries<DateTime, float>("Lower Limit") { new DataPoint<DateTime, float>(sensor.Sensor.Owner.StartTimeStamp, sensor.Sensor.LowerLimit), new DataPoint<DateTime, float>(sensor.Sensor.Owner.EndTimeStamp, sensor.Sensor.LowerLimit) }, LineStroke = Brushes.OrangeRed });
+
+            ChartSeries = generatedSeries;
+        }
+
+        private void HideBackground()
+        {
+            _backgroundCanvas.Visibility = Visibility.Collapsed;
+        }
+
+        private void ShowBackground()
+        {
+            _backgroundCanvas.Visibility = Visibility.Visible;
+        }
         #endregion
 
     }

@@ -7,6 +7,7 @@ using System.Xml.Serialization;
 
 namespace IndiaTango.Models
 {
+    [Serializable]
     [DataContract]
     public class Contact
     {

@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Runtime.Serialization;
 
 namespace IndiaTango.Models
 {
     /// <summary>
     /// A class representing a sensor state; that is, the values a sensor held at a given instance in time.
     /// </summary>
+    [Serializable]
+    [DataContract]
     public class SensorState
     {
         private DateTime _editTimestamp;
@@ -56,6 +58,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the timestamp of the last edit to this sensor state.
         /// </summary>
+        [DataMember]
         public DateTime EditTimestamp
         {
             get { return _editTimestamp; }
@@ -65,6 +68,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the list of values this sensor state holds.
         /// </summary>
+        [DataMember]
         public Dictionary<DateTime, float> Values
         {
             get { return _valueList; }
@@ -228,9 +232,48 @@ namespace IndiaTango.Models
             return newState;
         }
 
+        public SensorState ChangeToZero(List<DateTime> values )
+        {
+            return ChangeToValue(values, 0);
+        }
+
+        public SensorState ChangeToValue(List<DateTime> values, float value )
+        {           
+            if(values == null)
+                throw new ArgumentNullException("A non-null list of keys to set as " + value + " must be specified.");
+
+            var newState = Clone();
+
+            foreach (var time in values)
+            {
+                newState.Values[time]= value;
+            }
+
+            return newState;
+        }
+
+        public SensorState removeValues(List<DateTime> values )
+        {
+            if(values == null)
+                throw new ArgumentException("A non-null list to be removed must be specified");
+
+            var newState = Clone();
+            foreach (var time in values)
+            {
+                newState.Values.Remove(time);
+            }
+
+            return newState;
+        }
+
         public override string ToString()
         {
             return _editTimestamp.ToString() + " " + Values.First().Key + " " + Values.First().Value;
+        }
+
+        public string LogChange(string sensorName, string taskPerformed)
+        {
+            return EventLogger.LogSensorInfo(sensorName, taskPerformed + " Reason: " + Reason);
         }
     }
 }

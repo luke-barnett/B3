@@ -208,10 +208,9 @@ namespace IndiaTango.ViewModels
 
             _sensor.AddState(_sensor.CurrentState.MakeZero(SelectedValues));
 
-            Finalise();
+            Finalise("Selected values set to 0.");
 
 			Common.ShowMessageBox("Values Updated", "The selected values have been set to 0.", false, false);
-            EventLogger.LogInfo(GetType().ToString(), "Value updation complete. Sensor: " + SelectedSensor.Name + ". Value: 0.");
             RefreshGraph();
         }
 
@@ -225,9 +224,9 @@ namespace IndiaTango.ViewModels
 			if (_selectedValues.Count == 0)
 				return;
 
-            var value = Int32.MinValue;
+            var value = float.MinValue;
             
-			while (value == Int32.MinValue)
+			while (value.Equals(float.MinValue))
             {
                 try
                 {
@@ -236,7 +235,7 @@ namespace IndiaTango.ViewModels
                     //cancel
                     if (specifyVal.Text == null)
                         return;
-                    value = Int32.Parse(specifyVal.Text);
+                    value = float.Parse(specifyVal.Text);
                 }
                 catch (FormatException f)
                 {
@@ -247,20 +246,19 @@ namespace IndiaTango.ViewModels
 
             _sensor.AddState(_sensor.CurrentState.MakeValue(SelectedValues, value));
 
-            Finalise();
+            Finalise("Selected values has been set to " + value + ".");
 
             Common.ShowMessageBox("Values Updated", "The selected values have been set to " + value + ".", false, false);
-            EventLogger.LogInfo(GetType().ToString(),"Value updation complete. Sensor: " + SelectedSensor.Name + ". Value: " + value + ".");
             RefreshGraph();
         }
 
-        private void Finalise()
+        private void Finalise(string taskPerformed)
         {
             _missingValues = _sensor.CurrentState.GetMissingTimes(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp);
             NotifyOfPropertyChange(() => MissingValues);
             NotifyOfPropertyChange(() => MissingCount);
 
-            requestReason();
+            Common.requestReason(_sensor, _container, _windowManager, _sensor.CurrentState, taskPerformed);
         }
 
         public void btnExtrapolate()
@@ -289,10 +287,9 @@ namespace IndiaTango.ViewModels
                 var newState = SelectedSensor.CurrentState.Extrapolate(SelectedValues, Dataset);
                 SelectedSensor.AddState(newState);
 
-                Finalise();
+                Finalise("Value extrapolation performed.");
 
                 Common.ShowMessageBox("Values updated", "The values have been extrapolated successfully.", false, false);
-                EventLogger.LogInfo(GetType().ToString(), "Value extrapolation complete. Sensor: " + SelectedSensor.Name);
             }
             catch (Exception e)
             {
@@ -300,22 +297,6 @@ namespace IndiaTango.ViewModels
                                       false, true, e);
             }
             RefreshGraph();
-        }
-
-        public void requestReason()
-        {
-            if(_sensor != null && _sensor.CurrentState != null)
-            {
-                var specify = (SpecifyValueViewModel)_container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel");
-                specify.Title = "Log Reason";
-                specify.Message = "Please specify a reason for this change:";
-                specify.Deactivated += (o, e) =>
-                                           {
-                                               // Specify reason
-                                               _sensor.CurrentState.Reason = specify.Text;
-                                           };
-                _windowManager.ShowDialog(specify);
-            }
         }
 
 		public void btnZoomIn()
