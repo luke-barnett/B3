@@ -29,6 +29,15 @@ namespace IndiaTango.Models
         /// <param name="unit">The unit used to report values given by this sensor.</param>
         public Sensor(string name, string unit) : this(name, "", 100, 0, unit, 0, "", "", null) { }
 
+
+        /// <summary>
+        /// Creates a new sensor, with the specified sensor name and measurement unit.
+        /// </summary>
+        /// <param name="name">The name of the sensor.</param>
+        /// <param name="unit">The unit used to report values given by this sensor.</param>
+        /// <param name="owner">The owner of the sensor</param>
+        public Sensor(string name, string unit, Dataset owner) : this(name, "", 100, 0, unit, 0, "", "", owner) { }
+
         /// <summary>
         /// Creates a new sensor, using default values for Undo/Redo stacks, calibration dates, error threshold and a failure-indicating value.
         /// </summary>
