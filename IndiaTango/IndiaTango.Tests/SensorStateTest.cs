@@ -31,7 +31,7 @@ namespace IndiaTango.Tests
             valueList.Add(modifiedDate, 63.77f);
             secondValueList.Add(new DateTime(2005, 11, 3, 14, 27, 12), 22.7f);
             secondValueList.Add(new DateTime(2005, 12, 4, 14, 27, 28), 22.3f);
-            _testSensor = new Sensor("Temperature1", "Temp at 100m", 100, 0, "C", 2, "Awesome", "AW3S0ME");
+            _testSensor = new Sensor("Temperature1", "Temp at 100m", 100, 0, "C", 2, "Awesome", "AW3S0ME", null);
         }
 
         #region Timestamp Tests

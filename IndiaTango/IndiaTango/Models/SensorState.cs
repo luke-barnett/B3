@@ -228,6 +228,40 @@ namespace IndiaTango.Models
             return newState;
         }
 
+        public SensorState ChangeToZero(List<DateTime> values )
+        {
+            return ChangeToValue(values, 0);
+        }
+
+        public SensorState ChangeToValue(List<DateTime> values, float value )
+        {           
+            if(values == null)
+                throw new ArgumentNullException("A non-null list of keys to set as " + value + " must be specified.");
+
+            var newState = Clone();
+
+            foreach (var time in values)
+            {
+                newState.Values[time]= value;
+            }
+
+            return newState;
+        }
+
+        public SensorState removeValues(List<DateTime> values )
+        {
+            if(values == null)
+                throw new ArgumentException("A non-null list to be removed must be specified");
+
+            var newState = Clone();
+            foreach (var time in values)
+            {
+                newState.Values.Remove(time);
+            }
+
+            return newState;
+        }
+
         public override string ToString()
         {
             return _editTimestamp.ToString() + " " + Values.First().Key + " " + Values.First().Value;
