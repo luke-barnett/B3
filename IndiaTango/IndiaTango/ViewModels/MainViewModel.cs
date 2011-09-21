@@ -43,6 +43,13 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        public void BtnSettings()
+        {
+            var settingsView =
+                (SettingsViewModel) _container.GetInstance(typeof (SettingsViewModel), "SettingsViewModel");
+            _windowManager.ShowDialog(settingsView);
+        }
+
         public void OnLoaded()
         {
             EventLogger.LogInfo(GetType().ToString(), "Program started.");
