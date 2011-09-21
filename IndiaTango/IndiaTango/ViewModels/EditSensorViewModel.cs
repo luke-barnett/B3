@@ -242,7 +242,7 @@ namespace IndiaTango.ViewModels
                 try
                 {
                     // TODO: more user-friendly conversion messages!
-                    Sensor s = new Sensor(Name, Description, float.Parse(UpperLimit), float.Parse(LowerLimit), Unit, float.Parse(MaximumRateOfChange), Manufacturer, SerialNumber, new Stack<SensorState>(), new Stack<SensorState>(), new List<DateTime>(), int.Parse(ErrorThreshold));
+                    Sensor s = new Sensor(Name, Description, float.Parse(UpperLimit), float.Parse(LowerLimit), Unit, float.Parse(MaximumRateOfChange), Manufacturer, SerialNumber, new Stack<SensorState>(), new Stack<SensorState>(), new List<DateTime>(), int.Parse(ErrorThreshold), _ds);
                     SelectedItem = new ListedSensor(s, _ds);
                     EventLogger.LogInfo(GetType().ToString(), "Created new sensor. Sensor name: " + s.Name);
                     this.TryClose();
