@@ -7,6 +7,7 @@ namespace IndiaTango.Models
     /// <summary>
     /// Represents a pertinent event that can be recorded.
     /// </summary>
+    [Serializable]
     [DataContract]
     public class Event
     {

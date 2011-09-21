@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Windows;
 using System.Windows.Forms;
@@ -387,8 +390,16 @@ namespace IndiaTango.ViewModels
 		public void btnSave()
 		{
             EventLogger.LogInfo(GetType().ToString(), "Session save started.");
-			Common.ShowFeatureNotImplementedMessageBox();
-            EventLogger.LogInfo(GetType().ToString(), "Session save complete. File saved to:");
+		    var saveFileDialog = new SaveFileDialog();
+		    if(saveFileDialog.ShowDialog() == DialogResult.OK)
+		    {
+		        using(var stream = new FileStream(saveFileDialog.FileName, FileMode.Create))
+                    new BinaryFormatter().Serialize(stream, _ds);
+                EventLogger.LogInfo(GetType().ToString(), "Session save complete. File saved to:");
+		    }
+            else
+                EventLogger.LogInfo(GetType().ToString(), "Session save aborted");
+            
 		}
 
 		public void btnExport()

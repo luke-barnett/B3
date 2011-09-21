@@ -7,6 +7,7 @@ using System.Runtime.Serialization;
 
 namespace IndiaTango.Models
 {
+    [Serializable]
     [DataContract]
     public class Site
     {

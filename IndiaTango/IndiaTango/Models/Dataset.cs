@@ -4,6 +4,7 @@ using System.Runtime.Serialization;
 
 namespace IndiaTango.Models
 {
+    [Serializable]
     [DataContract]
     public class Dataset
     {
@@ -60,6 +61,7 @@ namespace IndiaTango.Models
         public DateTime StartTimeStamp
         {
             get { return _startTimeStamp; }
+            private set { _startTimeStamp = value; }
         }
 
         /// <summary>
@@ -69,6 +71,7 @@ namespace IndiaTango.Models
         public DateTime EndTimeStamp
         {
             get { return _endTimeStamp; }
+            private set { _endTimeStamp = value; }
         }
 
 

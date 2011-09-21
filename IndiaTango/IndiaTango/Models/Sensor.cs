@@ -8,6 +8,7 @@ namespace IndiaTango.Models
     /// <summary>
     /// Represents a Sensor, which resembles a sensor attached to a buoy, measuring a given water quality parameter.
     /// </summary>
+    [Serializable]
     [DataContract]
     public class Sensor
     {
@@ -291,7 +292,6 @@ namespace IndiaTango.Models
             }
         }
 
-        [DataMember]
         public Dataset Owner { get; private set; }
 
         /// <summary>

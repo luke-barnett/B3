@@ -8,6 +8,7 @@ namespace IndiaTango.Models
     /// <summary>
     /// A class representing a sensor state; that is, the values a sensor held at a given instance in time.
     /// </summary>
+    [Serializable]
     [DataContract]
     public class SensorState
     {
