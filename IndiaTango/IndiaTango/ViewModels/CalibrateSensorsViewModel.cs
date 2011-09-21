@@ -118,6 +118,10 @@ namespace IndiaTango.ViewModels
             set
             {
                 _formulaText = value;
+                NotifyOfPropertyChange(() => FormulaText);
+
+                if (!IndiaTango.Properties.Settings.Default.EvaluateFormulaOnKeyUp)
+                    return;
 
                 //Uncomment for per character validity checking
                 //ValidFormula = _eval.ParseFormula(value);
@@ -126,8 +130,6 @@ namespace IndiaTango.ViewModels
                 //Uncoment for per character compile checking
                 _results = _eval.CompileFormula(FormulaText);
                 ValidFormula = _eval.CheckCompileResults(_results);
-
-                NotifyOfPropertyChange(() => FormulaText);
             }
         }
 		
@@ -384,7 +386,7 @@ namespace IndiaTango.ViewModels
             {
                 Common.ShowMessageBoxWithExpansion("Unable to Apply Formula",
                                                    "An error was encounted when trying to apply the formula.\nPlease check the formula syntax.",
-                                                   false, true, _results.Output.ToString());
+                                                   false, true, (_results != null) ? _results.Output.ToString() : "");
             }
 
             ViewCursor = Cursors.Default;
