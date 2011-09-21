@@ -8,6 +8,8 @@ using System.Windows.Forms;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Caliburn.Micro;
+using IndiaTango.ViewModels;
 using WindowsFormsAero.Dwm;
 using WindowsFormsAero.TaskDialog;
 using Brushes = System.Windows.Media.Brushes;
@@ -201,6 +203,25 @@ namespace IndiaTango.Models
             using (var file = File.Create(filename))
             {
                 pngEncoder.Save(file);
+            }
+        }
+
+        public static void requestReason(Sensor sensor, SimpleContainer _container, IWindowManager _windowManager, SensorState state, string taskPerformed)
+        {
+            if(state != null)
+            {
+                var specify = (SpecifyValueViewModel)_container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel");
+                specify.Title = "Log Reason";
+                specify.Message = "Please specify a reason for this change:";
+                specify.Deactivated += (o, e) =>
+                                           {
+                                               // Specify reason
+                                               state.Reason = specify.Text;
+
+                                               // Log this change to the file!
+                                               state.LogChange(sensor.Name, taskPerformed);
+                                           };
+                _windowManager.ShowDialog(specify);
             }
         }
     }

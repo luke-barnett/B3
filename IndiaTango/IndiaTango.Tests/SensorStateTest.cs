@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 using IndiaTango.Models;
+using System.IO;
 
 namespace IndiaTango.Tests
 {
