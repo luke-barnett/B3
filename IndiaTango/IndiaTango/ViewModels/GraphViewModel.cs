@@ -454,8 +454,6 @@ namespace IndiaTango.ViewModels
             var fileDialog = new SaveFileDialog
                                  {
                                      AddExtension = true,
-                                     CheckPathExists = true,
-                                     CheckFileExists = true,
                                      Filter = @"Images|*.png"
                                  };
 
