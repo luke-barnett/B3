@@ -5,7 +5,7 @@
         xmlns:charts="clr-namespace:Visiblox.Charts;assembly=Visiblox.Charts"
         xmlns:multiseries="clr-namespace:IndiaTango.MultiSeriesBinding"
         xmlns:extToolkit="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit/extended"
-        Title="{Binding Title}" Icon="{Binding Icon}" Height="700" Width="950" WindowStartupLocation="CenterScreen">
+        Title="{Binding Title}" Icon="{Binding Icon}" Height="700" Width="950" WindowStartupLocation="CenterScreen" Cursor="{Binding ViewCursor}">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="370" />
@@ -75,17 +75,17 @@
                     
                     <TextBlock Text="Enter Formula Below:" Margin="5"/>
                     
-                    <TextBox Height="50" BorderBrush="OrangeRed" Margin="5 0" Text="{Binding FormulaText, Mode=TwoWay}" Background="{Binding FormulaBoxBackground}" />
+                    <TextBox Name="txtFormula" Height="50" BorderBrush="OrangeRed" Margin="5 0" Text="{Binding FormulaText, Mode=TwoWay, UpdateSourceTrigger=Explicit}" Background="{Binding FormulaBoxBackground}" KeyUp="TextBox_KeyUp" />
                     
                     <WrapPanel HorizontalAlignment="Right">
-                        <Button Name="btnHelp" FontSize="15"  HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom">
+                        <Button Name="btnHelp" FontSize="15"  HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" >
                             <StackPanel Orientation="Horizontal">
                                 <Image Source="/IndiaTango;component/Images/help_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
                                 <TextBlock Text="Help" VerticalAlignment="Center" Margin="5" />
                             </StackPanel>
                         </Button>
 
-                        <Button Name="btnApply" FontSize="15"  HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding ValidFormula}" VerticalAlignment="Bottom">
+                        <Button Name="btnApply" FontSize="15"  HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding ApplyButtonEnabled}" VerticalAlignment="Bottom">
                             <StackPanel Orientation="Horizontal">
                                 <Image Source="/IndiaTango;component/Images/done_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
                                 <TextBlock Text="Apply" VerticalAlignment="Center" Margin="5" />

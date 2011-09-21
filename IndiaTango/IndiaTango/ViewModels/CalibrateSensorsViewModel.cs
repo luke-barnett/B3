@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Forms;
 using System.Windows.Media;
 using Caliburn.Micro;
 using IndiaTango.Models;
@@ -23,6 +24,7 @@ namespace IndiaTango.ViewModels
         private DateTime _startDateTime, _endDateTime;
         private FormulaEvaluator _eval;
         private CompilerResults _results;
+        private Cursor _viewCursor = Cursors.Default;
 
         public CalibrateSensorsViewModel(IWindowManager windowManager, SimpleContainer container)
         {
@@ -45,19 +47,29 @@ namespace IndiaTango.ViewModels
             {
                 _formulaText = value;
 
-                 _results = _eval.ParseFormula(value);
-                
-                _validFormula = _results != null && _results.CompiledAssembly != null;
+                //Uncomment for per character validity checking
+                //ValidFormula = _eval.ParseFormula(value);
+                //Console.WriteLine("Formual Validity: " + _validFormula);
+
+                //Uncoment for per character compile checking
+                _results = _eval.CompileFormula(FormulaText);
+                ValidFormula = _eval.CheckCompileResults(_results);
 
                 NotifyOfPropertyChange(() => FormulaText);
-                NotifyOfPropertyChange(() => ValidFormula);
             }
         }
 		
         public bool ValidFormula
         {
             get { return _validFormula; }
-            set { _validFormula = value; NotifyOfPropertyChange(() => ValidFormula); NotifyOfPropertyChange(() => FormulaBoxBackground);}
+            set
+            {
+                _validFormula = value; 
+
+                NotifyOfPropertyChange(() => ValidFormula); 
+                NotifyOfPropertyChange(() => FormulaBoxBackground);
+                NotifyOfPropertyChange(() => ApplyButtonEnabled);
+            }
         }
 
         public bool RedoButtonEnabled
@@ -68,6 +80,11 @@ namespace IndiaTango.ViewModels
         public bool UndoButtonEnabled
         {
             get { return SelectedSensor != null && SelectedSensor.UndoStack.Count > 1; }
+        }
+
+        public bool ApplyButtonEnabled
+        {
+            get { return SelectedSensor != null && ValidFormula; }
         }
 
 		public int ZoomLevel
@@ -85,7 +102,16 @@ namespace IndiaTango.ViewModels
 			}
 		}
 
-        public Dataset Dataset { get { return _ds; } set { _ds = value; } }
+        public Dataset Dataset
+        {
+            get { return _ds; } 
+            set 
+            { 
+                _ds = value;
+                StartTime = _ds.StartTimeStamp;
+                EndTime = _ds.EndTimeStamp;
+            }
+        }
 
 		public string ZoomText
 		{
@@ -125,25 +151,57 @@ namespace IndiaTango.ViewModels
                 NotifyOfPropertyChange(() => RedoButtonEnabled);
                 NotifyOfPropertyChange(() => Title);
                 NotifyOfPropertyChange(() => CanEditDates);
+                NotifyOfPropertyChange(() => ApplyButtonEnabled);
 			}
 		}
 
-
         public DateTime StartTime
         {
-            get { return _startDateTime; } 
-            set { _startDateTime = value; NotifyOfPropertyChange(() => StartTime); NotifyOfPropertyChange(() => CanEditDates); }
+            get { return _startDateTime; }
+            set
+            {
+
+                _startDateTime = value;
+
+                //if (_ds != null && value >= _ds.StartTimeStamp && value <= EndTime)
+                //    _startDateTime = value;
+                //else if(_ds != null)
+                //    Common.ShowMessageBox("Incorrect Date",
+                //                          "Start time must be after than or equal to the first date of the data set (" +
+                //                          _ds.StartTimeStamp +
+                //                          ") and before the end time (" + EndTime + ")", false, true);
+                NotifyOfPropertyChange(() => StartTime);
+            }
         }
 
         public DateTime EndTime 
-        { 
-            get { return _endDateTime; } 
-            set { _endDateTime = value; NotifyOfPropertyChange(() => EndTime); NotifyOfPropertyChange(() => CanEditDates); } 
+        {
+            get { return _endDateTime; }
+            set
+            {
+                _endDateTime = value;
+
+
+                //if (_ds != null && value <= _ds.EndTimeStamp && value >= StartTime)
+                //    _endDateTime = value;
+                //else if(_ds != null)
+                //    Common.ShowMessageBox("Incorrect Date",
+                //                          "End time must be before than or equal to the last date of the data set (" +
+                //                          _ds.EndTimeStamp +
+                //                          ") and after the start time (" + StartTime + ")", false, true);
+                NotifyOfPropertyChange(() => EndTime);
+            }
         }
 
         public bool CanEditDates
         {
             get { return (SelectedSensor != null); }
+        }
+
+        public Cursor ViewCursor
+        {
+            get { return _viewCursor; }
+            set { _viewCursor = value; NotifyOfPropertyChange(() => ViewCursor); }
         }
 
 		#endregion
@@ -191,9 +249,29 @@ namespace IndiaTango.ViewModels
 
         public void btnApply()
         {
-            Common.ShowFeatureNotImplementedMessageBox();
-            NotifyOfPropertyChange(() => UndoButtonEnabled);
-            NotifyOfPropertyChange(() => RedoButtonEnabled);
+
+            _results = _eval.CompileFormula(FormulaText);
+            ValidFormula = _eval.CheckCompileResults(_results);
+            ViewCursor = Cursors.WaitCursor;
+
+            if(ValidFormula)
+            {
+                SensorState newState = _eval.EvaluateFormula(_results, SelectedSensor.CurrentState.Clone(), _ds.StartTimeStamp,
+                                                         _ds.EndTimeStamp);
+
+                SelectedSensor.AddState(newState);
+
+                NotifyOfPropertyChange(() => UndoButtonEnabled);
+                NotifyOfPropertyChange(() => RedoButtonEnabled);
+            }
+            else
+            {
+                Common.ShowMessageBoxWithExpansion("Unable to Apply Formula",
+                                                   "An error was encounted when trying to apply the formula.\nPlease check the formula syntax.",
+                                                   false, true, _results.Output.ToString());
+            }
+
+            ViewCursor = Cursors.Default;
         }
 
         public void btnClear()

@@ -130,35 +130,40 @@ namespace IndiaTango.Models
 			}
 		}
 
+        public static bool ShowMessageBoxWithExpansion(string title, string text, bool showCancel, bool isError, string expansion)
+        {
+            if (CanUseGlass && !System.Diagnostics.Debugger.IsAttached)
+            {
+                TaskDialog dialog = new TaskDialog(title, title, text,
+                                                   (showCancel ? (TaskDialogButton.OK | TaskDialogButton.Cancel) : TaskDialogButton.OK));
+                try
+                {
+                    dialog.CustomIcon = isError ? Properties.Resources.error_32 : Properties.Resources.info_32;
+
+                    dialog.ShowExpandedInfoInFooter = true;
+                    dialog.ExpandedInformation = expansion;
+
+                    var result = dialog.Show();
+                    return result.CommonButton == WindowsFormsAero.TaskDialog.Result.OK;
+                }
+                catch (Exception e)
+                {
+                    System.Windows.Forms.MessageBox.Show(e.Message);
+                }
+
+                return false;
+            }
+            else
+            {
+                return ShowMessageBox(title, text + "\n\n" + expansion, showCancel, isError);
+            }
+        }
+
         public static bool ShowMessageBoxWithException(string title, string text, bool showCancel, bool isError, Exception ex)
         {
             EventLogger.LogError("MessageBoxWithException", "An exception was thrown. " + ex.Message);
 
-            if (CanUseGlass && !System.Diagnostics.Debugger.IsAttached)
-            {
-            	TaskDialog dialog = new TaskDialog(title, title, text,
-            	                                   (showCancel ? (TaskDialogButton.OK | TaskDialogButton.Cancel) : TaskDialogButton.OK));
-				try
-				{
-					dialog.CustomIcon = isError ? Properties.Resources.error_32 : Properties.Resources.info_32;
-
-					dialog.ShowExpandedInfoInFooter = true;
-					dialog.ExpandedInformation = ex.Message;
-
-					var result = dialog.Show();
-					return result.CommonButton == WindowsFormsAero.TaskDialog.Result.OK;
-				}
-				catch (Exception e)
-				{
-					System.Windows.Forms.MessageBox.Show(e.Message);
-				}
-
-            	return false;
-            }
-            else
-            {
-                return ShowMessageBox(title, text, showCancel, isError);
-            }
+            return ShowMessageBoxWithExpansion(title, text, showCancel, isError, ex.Message);
         }
 
 		public static void ShowFeatureNotImplementedMessageBox()

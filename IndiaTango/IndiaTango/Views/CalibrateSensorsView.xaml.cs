@@ -22,5 +22,10 @@ namespace IndiaTango.Views
         {
             InitializeComponent();
         }
+
+        private void TextBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            txtFormula.GetBindingExpression(TextBox.TextProperty).UpdateSource();
+        }
     }
 }

@@ -63,7 +63,19 @@ namespace IndiaTango.Models
             GetMathMemberNames();
         }
 
-        public CompilerResults ParseFormula(string formula)
+        public bool ParseFormula(string formula)
+        {
+            Regex regularExpression = new Regex("^[0-9x/.=/-/+/*/^/(/)/t (t/..+)]*$");
+
+            return  regularExpression.IsMatch(formula);
+        }
+
+        public bool CheckCompileResults(CompilerResults results)
+        {
+            return results != null && results.CompiledAssembly != null;
+        }
+
+        public CompilerResults CompileFormula(string formula)
         {
             // change evaluation string to pick up Math class members
             formula = RefineEvaluationString(formula);
@@ -81,13 +93,10 @@ namespace IndiaTango.Models
             return results;
         }
 
-        public SensorState EvaluateFormula(string formula,SensorState sensorState, DateTime startTime, DateTime endTime)
+        public SensorState EvaluateFormula(CompilerResults results, SensorState sensorState, DateTime startTime, DateTime endTime)
         {
-            sensorState.Values.Keys.ElementAt(0);
             if (startTime >= endTime)
                 throw new ArgumentException("End time must be greater than start time");
-
-            CompilerResults results = ParseFormula(formula);
 
             // if the code compiled okay,
             // run the code using the new assembly (which is inside the results)
