@@ -194,22 +194,6 @@ namespace IndiaTango.ViewModels
             FormulaText = "";
         }
 
-        public void requestReason()
-        {
-            if(_sensor != null && _sensor.CurrentState != null)
-            {
-                var specify = (SpecifyValueViewModel)_container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel");
-                specify.Title = "Log Reason";
-                specify.Message = "Please specify a reason for this change:";
-                specify.Deactivated += (o, e) =>
-                                           {
-                                               // Specify reason
-                                               _sensor.CurrentState.Reason = specify.Text;
-                                           };
-                _windowManager.ShowDialog(specify);
-            }
-        }
-
 		public void btnZoomIn()
 		{
 			//TODO: Implement zoom
