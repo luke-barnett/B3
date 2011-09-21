@@ -32,7 +32,7 @@ namespace IndiaTango.ViewModels
         public void BtnLoad()
         {
             EventLogger.LogInfo(GetType().ToString(), "Loading a session...");
-            var openFileDialog = new OpenFileDialog();
+            var openFileDialog = new OpenFileDialog { Filter = "Session Files|*.indiatango" };
             
             if(openFileDialog.ShowDialog() == DialogResult.OK)
             {
