@@ -99,6 +99,9 @@ namespace IndiaTango.Models
             BoundsSet = false;
             //Force it to be recalculated
             DataPoints = null;
+            //Reset the bounds
+            LowerBound = DateTime.MinValue;
+            UpperBound = DateTime.MinValue;
         }
 
         /// <summary>
