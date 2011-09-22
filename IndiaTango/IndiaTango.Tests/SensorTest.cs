@@ -755,7 +755,29 @@ namespace IndiaTango.Tests
         [Test]
         public void MinMaxMethod()
         {
-            
+            var ss = new SensorState(DateTime.Now);
+            var date1 = new DateTime(2011, 1, 1,0,0,0);
+            var date2 = new DateTime(2011, 1, 1,0, 15, 0);
+            ss.Values.Add(date1,3f);
+            ss.Values.Add(date2, 1.5f);
+            _sensor1.AddState(ss);
+            var stuff = _sensor1.CurrentState.GetOutliersFromMaxAndMin(15, date1, date2, 1, 2,
+                                                           100);
+            Assert.Contains(date1,stuff);
+        }
+
+        [Test]
+        public void RateOfChangeMethod()
+        {
+            var ss = new SensorState(DateTime.Now);
+            var date1 = new DateTime(2011, 1, 1, 0, 0, 0);
+            var date2 = new DateTime(2011, 1, 1, 0, 15, 0);
+            ss.Values.Add(date1, 0f);
+            ss.Values.Add(date2, 5f);
+            _sensor1.AddState(ss);
+            var stuff = _sensor1.CurrentState.GetOutliersFromMaxAndMin(15, date1, date2, 1, 10,
+                                                           4);
+            Assert.Contains(date2, stuff);
         }
 
         #endregion

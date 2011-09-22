@@ -229,7 +229,7 @@ namespace IndiaTango.Models
         /// <param name="dataValue">The key, representing an unknown data point, to use.</param>
         /// <param name="ds">A dataset to use, primarily to determine the time that elapses between data points.</param>
         /// <returns>A key representing the first known data value before the value represented by dataValue.</returns>
-        public DateTime FindPrevValue(DateTime dataValue, Dataset ds)
+        private DateTime FindPrevValue(DateTime dataValue, Dataset ds)
         {
             var prevValue = DateTime.MinValue;
             var time = 0;
