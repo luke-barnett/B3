@@ -74,7 +74,7 @@
             
             <Button Grid.Row="0" Grid.Column="0" Name="BtnNew"  FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10" VerticalContentAlignment="Bottom">
                 <StackPanel Orientation="Vertical">
-                    <Image Source="/IndiaTango;component/Images/new.png" Width="200" Height="64" />
+                    <Image Source="/IndiaTango;component/Images/new.png" Width="64" Height="64" />
                     <TextBlock Text="New Session" HorizontalAlignment="Center" />
                 </StackPanel>
             </Button>
@@ -84,7 +84,7 @@
 
             <Button Grid.Row="0" Grid.Column="2" Name="BtnSettings" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10" VerticalContentAlignment="Bottom">
                 <StackPanel Orientation="Vertical">
-                    <Image Source="/IndiaTango;component/Images/B3_icon.png" Width="200" Height="64" />
+                    <Image Source="/IndiaTango;component/Images/settings_64.png" Width="64" Height="64" />
                     <TextBlock Text="Settings..." HorizontalAlignment="Center" />
                 </StackPanel>
             </Button>

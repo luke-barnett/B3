@@ -182,17 +182,22 @@ namespace IndiaTango.ViewModels
 
 		public void btnUndo()
 		{
-            _sensor.Undo();
-            MissingValues = _sensor.CurrentState.GetMissingTimes(15, _ds.StartTimeStamp, _ds.EndTimeStamp);
-            RefreshGraph();
+			_sensor.Undo();
+			MissingValues = _sensor.CurrentState.GetMissingTimes(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp);
+			RefreshGraph();
+			NotifyOfPropertyChange(() => UndoButtonEnabled);
+			NotifyOfPropertyChange(() => RedoButtonEnabled);
 		}
 
 		public void btnRedo()
 		{
-            _sensor.Redo();
-            MissingValues = _sensor.CurrentState.GetMissingTimes(15, _ds.StartTimeStamp, _ds.EndTimeStamp);
-            RefreshGraph();
+			_sensor.Redo();
+			MissingValues = _sensor.CurrentState.GetMissingTimes(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp);
+			RefreshGraph();
+			NotifyOfPropertyChange(() => UndoButtonEnabled);
+			NotifyOfPropertyChange(() => RedoButtonEnabled);
 		}
+
 
 		public void btnDone()
 		{

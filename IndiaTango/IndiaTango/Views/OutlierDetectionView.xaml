@@ -44,14 +44,14 @@
             <GroupBox Grid.Row="2" Header="Actions" BorderBrush="OrangeRed" Margin="10 5 5 10">
                 <StackPanel>
                     <WrapPanel Margin="5">
-                        <Button Name="btnUndo" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding ActionButtonsEnabled}">
+                        <Button Name="btnUndo" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding UndoButtonEnabled}">
                             <StackPanel Orientation="Vertical">
                                 <Image Source="/IndiaTango;component/Images/undo.png" Width="64" Height="64" />
                                 <TextBlock Text="Undo" HorizontalAlignment="Center" />
                             </StackPanel>
                         </Button>
 
-                        <Button Name="btnRedo" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding ActionButtonsEnabled}">
+                        <Button Name="btnRedo" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding RedoButtonEnabled}">
                             <StackPanel Orientation="Vertical">
                                 <Image Source="/IndiaTango;component/Images/redo.png" Width="64" Height="64" />
                                 <TextBlock Text="Redo" HorizontalAlignment="Center" />

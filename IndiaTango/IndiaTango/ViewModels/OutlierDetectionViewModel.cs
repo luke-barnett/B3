@@ -159,6 +159,16 @@ namespace IndiaTango.ViewModels
             }
         }
 
+		public bool RedoButtonEnabled
+		{
+			get { return SelectedSensor != null && SelectedSensor.RedoStack.Count > 0; }
+		}
+
+		public bool UndoButtonEnabled
+		{
+			get { return SelectedSensor != null && SelectedSensor.UndoStack.Count > 1; }
+		}
+
         public List<LineSeries> ChartSeries { get { return _chartSeries; } set { _chartSeries = value; NotifyOfPropertyChange(() => ChartSeries); } }
 
         public BehaviourManager Behaviour { get { return _behaviour; } set { _behaviour = value; NotifyOfPropertyChange(() => Behaviour); } }
@@ -269,6 +279,8 @@ namespace IndiaTango.ViewModels
             Outliers = _sensor.CurrentState.GetOutliersFromMaxAndMin(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp,
                                                         _sensor.UpperLimit, _sensor.LowerLimit, _sensor.MaxRateOfChange);
             RefreshGraph();
+			NotifyOfPropertyChange(() => UndoButtonEnabled);
+			NotifyOfPropertyChange(() => RedoButtonEnabled);
         }
 
         public void btnRedo()
@@ -277,6 +289,8 @@ namespace IndiaTango.ViewModels
             Outliers = _sensor.CurrentState.GetOutliersFromMaxAndMin(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp,
                                                         _sensor.UpperLimit, _sensor.LowerLimit, _sensor.MaxRateOfChange);
             RefreshGraph();
+			NotifyOfPropertyChange(() => UndoButtonEnabled);
+			NotifyOfPropertyChange(() => RedoButtonEnabled);
         }
 
         public void btnDone()
