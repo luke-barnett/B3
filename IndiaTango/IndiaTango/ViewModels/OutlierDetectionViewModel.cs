@@ -135,7 +135,7 @@ namespace IndiaTango.ViewModels
             set
             {
                 _sensor = value;
-                Outliers = _sensor.CurrentState.GetOutliers(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp,
+                Outliers = _sensor.CurrentState.GetOutliersFromMaxAndMin(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp,
                                                             _sensor.UpperLimit, _sensor.LowerLimit,
                                                             _sensor.MaxRateOfChange);
                 NotifyOfPropertyChange(() => SelectedSensor);
@@ -220,7 +220,7 @@ namespace IndiaTango.ViewModels
 
         private void Finalise()
         {
-            _outliers = _sensor.CurrentState.GetOutliers(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp,
+            _outliers = _sensor.CurrentState.GetOutliersFromMaxAndMin(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp,
                                                          _sensor.UpperLimit, _sensor.LowerLimit, _sensor.MaxRateOfChange);
             NotifyOfPropertyChange(() => Outliers);
             NotifyOfPropertyChange(() => OutliersStrings);
@@ -284,7 +284,7 @@ namespace IndiaTango.ViewModels
         public void btnUndo()
         {
             _sensor.Undo();
-            Outliers = _sensor.CurrentState.GetOutliers(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp,
+            Outliers = _sensor.CurrentState.GetOutliersFromMaxAndMin(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp,
                                                         _sensor.UpperLimit, _sensor.LowerLimit, _sensor.MaxRateOfChange);
             RefreshGraph();
         }
@@ -292,7 +292,7 @@ namespace IndiaTango.ViewModels
         public void btnRedo()
         {
             _sensor.Redo();
-            Outliers = _sensor.CurrentState.GetOutliers(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp,
+            Outliers = _sensor.CurrentState.GetOutliersFromMaxAndMin(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp,
                                                         _sensor.UpperLimit, _sensor.LowerLimit, _sensor.MaxRateOfChange);
             RefreshGraph();
         }
@@ -301,6 +301,8 @@ namespace IndiaTango.ViewModels
         {
             this.TryClose();
         }
+
+
 
         private void RefreshGraph()
         {

@@ -749,5 +749,15 @@ namespace IndiaTango.Tests
             ls.Dataset = null;
         }
         #endregion
+
+        #region Outlier detection tests
+
+        [Test]
+        public void MinMaxMethod()
+        {
+            
+        }
+
+        #endregion
     }
 }

@@ -119,7 +119,7 @@ namespace IndiaTango.Models
             return missing;
         }
 
-        public List<DateTime> GetOutliers(int timeGap,DateTime start, DateTime end,float upperLimit, float lowerLimit, float maxRateChange)
+        public List<DateTime> GetOutliersFromMaxAndMin(int timeGap,DateTime start, DateTime end,float upperLimit, float lowerLimit, float maxRateChange)
         {
             var outliers = new List<DateTime>();
             var prev = 0f;
@@ -135,6 +135,43 @@ namespace IndiaTango.Models
             }
             return outliers;
         }
+
+        /// <summary>
+        /// Gets the outliers by calculating standard deviations for points
+        /// </summary>
+        /// <param name="timeGap">the time between each data point</param>
+        /// <param name="start">the start time for the dataset</param>
+        /// <param name="end">the end time for the dataset</param>
+        /// <param name="numStdDev">the numnber of standard deviations from the mean that the outliers begin</param>
+        /// <param name="smoothingPeriod">the number of points used to calculate the standard deviation</param>
+        /// <returns></returns>
+        public List<DateTime> GetOutliersFromStdDev(int timeGap, DateTime start, DateTime end, int numStdDev, int smoothingPeriod)
+        {
+            var outliers = new List<DateTime>();
+            for (var time = start; time <= end;time = time.AddMinutes(timeGap) )
+            {
+                var values = new List<float>();
+                var value = 0f;
+                if (!Values.TryGetValue(time, out value)) continue;
+                for (var i = time; i < time.AddMinutes(timeGap * smoothingPeriod); i = i.AddMinutes(-timeGap))
+                {
+                    var avValue = 0f;
+                    if (!Values.TryGetValue(time, out avValue)) continue;
+                    values.Add(avValue);
+                }
+                var avg = values.Average();
+                var sum = values.Sum(d => Math.Pow(d - avg, 2));
+                var stdDev = (float)Math.Sqrt((sum) / (values.Count() - 1));
+                var top = avg + (numStdDev*stdDev);
+                var bottom = avg - (numStdDev*stdDev);
+                if(value > top || value < bottom)
+                {
+                    outliers.Add(time);
+                }
+            }
+            return outliers;
+        }
+
 
         /// <summary>
         /// Given a timestamp which represents a missing value, extrapolates the dataset using the first known point before the given point, and the first known point after the given point in the list of keys.
