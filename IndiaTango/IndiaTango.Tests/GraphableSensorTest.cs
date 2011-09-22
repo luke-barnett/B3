@@ -10,15 +10,16 @@ namespace IndiaTango.Tests
     class GraphableSensorTest
     {
         private GraphableSensor sensor;
+        private DateTime baseDate;
 
         [SetUp]
         public void SetUp()
         {
-            var rawSensor = new Sensor("Temperature", "Temperature at 30m", 40, 20, "C", 20, "Temperature Sensors Ltd.", "1102123");
+            var rawSensor = new Sensor("Temperature", "Temperature at 30m", 40, 20, "C", 20, "Temperature Sensors Ltd.", "1102123", null);
 
             rawSensor.AddState(new SensorState(DateTime.Now));
 
-            var baseDate = DateTime.Now;
+            baseDate = DateTime.Now;
 
             rawSensor.CurrentState.Values.Add(baseDate, 15);
             rawSensor.CurrentState.Values.Add(baseDate.AddMinutes(15), 20);
@@ -47,9 +48,54 @@ namespace IndiaTango.Tests
         public void DataPointsTest()
         {
             var dataPoints = sensor.DataPoints.ToArray();
-            Assert.AreEqual(dataPoints[0].Y, 15);
-            Assert.AreEqual(dataPoints[1].Y, 20);
-            Assert.AreEqual(dataPoints[2].Y, 25);
+            Assert.AreEqual(15, dataPoints[0].Y);
+            Assert.AreEqual(20, dataPoints[1].Y);
+            Assert.AreEqual(25, dataPoints[2].Y);
+        }
+
+        [Test]
+        public void SetBoundsTest()
+        {
+            sensor.SetUpperAndLowerBounds(baseDate.AddMinutes(10), baseDate.AddMinutes(28));
+            Assert.AreEqual(1, sensor.DataPoints.Count());
+        }
+
+        [Test]
+        public void SetAndRemoveBoundsTest()
+        {
+            SetBoundsTest();
+            sensor.RemoveBounds();
+            Assert.AreEqual(3, sensor.DataPoints.Count());
+        }
+
+        [Test]
+        public void GetUpperBoundsTest()
+        {
+            Assert.AreEqual(DateTime.MinValue, sensor.UpperBound);
+            SetBoundsTest();
+            Assert.AreEqual(baseDate.AddMinutes(28), sensor.UpperBound);
+            sensor.RemoveBounds();
+            Assert.AreEqual(DateTime.MinValue, sensor.UpperBound);
+        }
+
+        [Test]
+        public void GetLowerBoundsTest()
+        {
+            Assert.AreEqual(DateTime.MinValue, sensor.LowerBound);
+            SetBoundsTest();
+            Assert.AreEqual(baseDate.AddMinutes(10), sensor.LowerBound);
+            sensor.RemoveBounds();
+            Assert.AreEqual(DateTime.MinValue, sensor.LowerBound);
+        }
+
+        [Test]
+        public void GetBoundsSet()
+        {
+            Assert.AreEqual(false, sensor.BoundsSet);
+            SetBoundsTest();
+            Assert.AreEqual(true, sensor.BoundsSet);
+            sensor.RemoveBounds();
+            Assert.AreEqual(false, sensor.BoundsSet);
         }
     }
 }

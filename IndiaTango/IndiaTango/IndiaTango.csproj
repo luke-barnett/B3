@@ -112,6 +112,7 @@
     <Compile Include="ViewModels\OutlierDetectionViewModel.cs" />
     <Compile Include="ViewModels\SensorTemplateManagerViewModel.cs" />
     <Compile Include="ViewModels\SessionViewModel.cs" />
+    <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="ViewModels\SpecifyValueViewModel.cs" />
     <Compile Include="Views\BuoyDetailsView.xaml.cs">
       <DependentUpon>BuoyDetailsView.xaml</DependentUpon>
@@ -145,6 +146,9 @@
     </Compile>
     <Compile Include="Views\SessionView.xaml.cs">
       <DependentUpon>SessionView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SettingsView.xaml.cs">
+      <DependentUpon>SettingsView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SpecifyValueView.xaml.cs">
       <DependentUpon>SpecifyValueView.xaml</DependentUpon>
@@ -229,6 +233,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SessionView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SettingsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

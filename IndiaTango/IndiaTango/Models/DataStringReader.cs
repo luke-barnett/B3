@@ -62,7 +62,7 @@ namespace IndiaTango.Models
                 var sensorValues = sensor.Split('[');
             }
 
-            return stringSensors.Select(stringSensor => new Sensor("Constructed Sensor", "X")).ToList();
+            return stringSensors.Select(stringSensor => new Sensor("Constructed Sensor", "X", null)).ToList();
         }
 
         public Site ReadBuoy()

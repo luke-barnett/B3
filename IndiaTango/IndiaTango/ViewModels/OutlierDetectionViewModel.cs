@@ -197,10 +197,10 @@ namespace IndiaTango.ViewModels
                 return;
             _sensor.AddState(_sensor.CurrentState.removeValues(SelectedValues));
 
-            Finalise();
+            Finalise("Removed selected values from dataset.");
+
             RefreshGraph();
             Common.ShowMessageBox("Values Updated", "The selected values have been removed from the data", false, false);
-            EventLogger.LogInfo(GetType().ToString(), "Value removal complete. Sensor: " + SelectedSensor.Name);
         }
 
         public void btnMakeZero()
@@ -212,37 +212,19 @@ namespace IndiaTango.ViewModels
 
             _sensor.AddState(_sensor.CurrentState.ChangeToZero(SelectedValues));
 
-            Finalise();
+            Finalise("Set selected values to 0.");
             RefreshGraph();
             Common.ShowMessageBox("Values Updated", "The selected values have been set to 0.", false, false);
-            EventLogger.LogInfo(GetType().ToString(), "Value updation complete. Sensor: " + SelectedSensor.Name + ". Value: 0.");
         }
 
-        private void Finalise()
+        private void Finalise(string taskPerformed)
         {
             _outliers = _sensor.CurrentState.GetOutliersFromMaxAndMin(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp,
                                                          _sensor.UpperLimit, _sensor.LowerLimit, _sensor.MaxRateOfChange);
             NotifyOfPropertyChange(() => Outliers);
             NotifyOfPropertyChange(() => OutliersStrings);
 
-            requestReason();
-        }
-
-
-        public void requestReason()
-        {
-            if (_sensor != null && _sensor.CurrentState != null)
-            {
-                var specify = (SpecifyValueViewModel)_container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel");
-                specify.Title = "Log Reason";
-                specify.Message = "Please specify a reason for this change:";
-                specify.Deactivated += (o, e) =>
-                {
-                    // Specify reason
-                    _sensor.CurrentState.Reason = specify.Text;
-                };
-                _windowManager.ShowDialog(specify);
-            }
+            Common.requestReason(_sensor, _container, _windowManager, _sensor.CurrentState, taskPerformed);
         }
 
         public void btnSpecify()
@@ -275,10 +257,10 @@ namespace IndiaTango.ViewModels
 
             _sensor.AddState(_sensor.CurrentState.ChangeToValue(SelectedValues, value));
 
-            Finalise();
+            Finalise("Specified values for selected data points as " + value + ".");
+
             RefreshGraph();
             Common.ShowMessageBox("Values Updated", "The selected values have been set to " + value + ".", false, false);
-            EventLogger.LogInfo(GetType().ToString(), "Value updation complete. Sensor: " + SelectedSensor.Name + ". Value: " + value + ".");
         }
 
         public void btnUndo()
@@ -314,28 +296,28 @@ namespace IndiaTango.ViewModels
         private void UpdateGraph()
         {
             if (SelectedSensor != null)
-                SampleValues(Common.MaximumGraphablePoints, new Collection<GraphableSensor> { _graphableSensor });
+                SampleValues(Common.MaximumGraphablePoints, _graphableSensor);
             else
                 ChartSeries = new List<LineSeries>();
             NotifyOfPropertyChange(() => ChartTitle);
             NotifyOfPropertyChange(() => YAxisTitle);
         }
 
-        private void SampleValues(int numberOfPoints, ICollection<GraphableSensor> sensors)
+        private void SampleValues(int numberOfPoints, GraphableSensor sensor)
         {
             var generatedSeries = new List<LineSeries>();
 
             HideBackground();
 
-            foreach (var sensor in sensors)
-            {
-                _sampleRate = sensor.DataPoints.Count() / (numberOfPoints / sensors.Count);
-                Debug.Print("Number of points: {0} Max Number {1} Sampling rate {2}", sensor.DataPoints.Count(), numberOfPoints, _sampleRate);
+            _sampleRate = sensor.DataPoints.Count() / (numberOfPoints);
+            Debug.Print("Number of points: {0} Max Number {1} Sampling rate {2}", sensor.DataPoints.Count(), numberOfPoints, _sampleRate);
 
-                var series = (_sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints.Where((x, index) => index % _sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints);
-                generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour) });
-                if (_sampleRate > 1) ShowBackground();
-            }
+            var series = (_sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints.Where((x, index) => index % _sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints);
+            generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour) });
+            if (_sampleRate > 1) ShowBackground();
+
+            generatedSeries.Add(new LineSeries { DataSeries = new DataSeries<DateTime, float>("Upper Limit") { new DataPoint<DateTime, float>((sensor.BoundsSet) ? sensor.LowerBound : sensor.Sensor.Owner.StartTimeStamp, sensor.Sensor.UpperLimit), new DataPoint<DateTime, float>((sensor.BoundsSet) ? sensor.UpperBound : sensor.Sensor.Owner.EndTimeStamp, sensor.Sensor.UpperLimit) }, LineStroke = Brushes.OrangeRed });
+            generatedSeries.Add(new LineSeries { DataSeries = new DataSeries<DateTime, float>("Lower Limit") { new DataPoint<DateTime, float>((sensor.BoundsSet) ? sensor.LowerBound : sensor.Sensor.Owner.StartTimeStamp, sensor.Sensor.LowerLimit), new DataPoint<DateTime, float>((sensor.BoundsSet) ? sensor.UpperBound : sensor.Sensor.Owner.EndTimeStamp, sensor.Sensor.LowerLimit) }, LineStroke = Brushes.OrangeRed });
 
             ChartSeries = generatedSeries;
         }

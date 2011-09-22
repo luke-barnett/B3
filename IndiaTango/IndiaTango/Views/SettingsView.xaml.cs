@@ -14,18 +14,13 @@ using System.Windows.Shapes;
 namespace IndiaTango.Views
 {
     /// <summary>
-    /// Interaction logic for MissingValues.xaml
+    /// Interaction logic for SettingsView.xaml
     /// </summary>
-    public partial class CalibrateSensorsView : Window
+    public partial class SettingsView : Window
     {
-        public CalibrateSensorsView()
+        public SettingsView()
         {
             InitializeComponent();
-        }
-
-        private void TextBox_KeyUp(object sender, KeyEventArgs e)
-        {
-            txtFormula.GetBindingExpression(TextBox.TextProperty).UpdateSource();
         }
     }
 }

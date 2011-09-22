@@ -6,6 +6,7 @@ namespace IndiaTango.Models
     /// <summary>
     /// Represents a pair of GPS co-ordinates, optionally constructed using DMS (Degrees Minutes Seconds) or Decimal Degrees notation.
     /// </summary>
+    [Serializable]
     [DataContract]
     public class GPSCoords
     {

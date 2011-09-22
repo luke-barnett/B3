@@ -14,7 +14,7 @@ namespace IndiaTango.Models
         private const string Info = "INFO";
         private const string Warning = "WARNING";
         private const string Error = "ERROR";
-        private const string _timeFormatString = "dd/MM/yyyy HH:MM:ss.ff";
+        private const string _timeFormatString = "dd/MM/yyyy HH:MM:ss";
         private static StreamWriter _writer;
         private readonly static object Mutex = new object();
         #endregion
@@ -28,6 +28,11 @@ namespace IndiaTango.Models
             get { return Path.Combine(Common.AppDataPath,"Logs","log.txt") ; }
         }
 
+        public static string GetSensorLogPath(string sensorName)
+        {
+            return Path.Combine(Common.AppDataPath, "Logs", "SensorLog-" + sensorName + ".txt");
+        }
+
         /// <summary>
         /// Returns the format string used to display the date and time for each logged event
         /// </summary>
@@ -38,21 +43,29 @@ namespace IndiaTango.Models
         #endregion
 
         #region PrivateMethods
-        private static void WriteLogToFile(string log)
+        /// <summary>
+        /// Write a logged event to a log file.
+        /// </summary>
+        /// <param name="log">A string describing the event to log.</param>
+        /// <param name="filePath">The path of the log file to write to. If null, uses the default log file.</param>
+        private static void WriteLogToFile(string log, string filePath)
         {
-            if(!Directory.Exists(LogFilePath))
-                Directory.CreateDirectory(Path.GetDirectoryName(LogFilePath));
+            if (filePath == null)
+                filePath = LogFilePath;
+
+            if (!Directory.Exists(filePath))
+                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
 
             lock (Mutex)
             {
-                _writer = File.AppendText(LogFilePath);
+                _writer = File.AppendText(filePath);
                 _writer.WriteLine(log);
                 _writer.Close();
                 Debug.WriteLine(log);
             }
         }
 
-        private static string LogBase(string logType, string threadName, string eventDetails)
+        private static string LogBase(string logType, string threadName, string eventDetails, string destFile)
         {
             if (String.IsNullOrWhiteSpace(threadName))
                 threadName = "<No Thread Name>";
@@ -65,7 +78,7 @@ namespace IndiaTango.Models
 
             string logString = DateTime.Now.ToString(TimeFormatString) + "    " + logType.PadRight(10).Substring(0, 10) + " " + threadName.PadRight(25).Substring(0, 25) + " " + eventDetails;
             
-            WriteLogToFile(logString);
+            WriteLogToFile(logString, destFile);
 
             return logString;
         }
@@ -80,7 +93,7 @@ namespace IndiaTango.Models
         /// <returns></returns>
         public static string LogInfo(string threadName, string eventDetails)
         {
-            return LogBase(Info, threadName, eventDetails);
+            return LogBase(Info, threadName, eventDetails, null);
         }
 
         /// <summary>
@@ -91,7 +104,7 @@ namespace IndiaTango.Models
         /// <returns></returns>
         public static string LogWarning(string threadName, string eventDetails)
         {
-            return LogBase(Warning, threadName, eventDetails);
+            return LogBase(Warning, threadName, eventDetails, null);
         }
 
         /// <summary>
@@ -102,7 +115,18 @@ namespace IndiaTango.Models
         /// <returns></returns>
         public static string LogError(string threadName, string eventDetails)
         {
-            return LogBase(Error, threadName, eventDetails);
+            return LogBase(Error, threadName, eventDetails, null);
+        }
+
+        /// <summary>
+        /// Logs a change to a sensor, to an individual file for each sensor.
+        /// </summary>
+        /// <param name="sensorName"></param>
+        /// <param name="eventDetails"></param>
+        /// <returns></returns>
+        public static string LogSensorInfo(string sensorName, string eventDetails)
+        {
+            return LogBase(Info, sensorName, eventDetails, GetSensorLogPath(sensorName));
         }
         #endregion
     }

@@ -8,6 +8,8 @@ using System.Windows.Forms;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Caliburn.Micro;
+using IndiaTango.ViewModels;
 using WindowsFormsAero.Dwm;
 using WindowsFormsAero.TaskDialog;
 using Brushes = System.Windows.Media.Brushes;
@@ -130,35 +132,40 @@ namespace IndiaTango.Models
 			}
 		}
 
+        public static bool ShowMessageBoxWithExpansion(string title, string text, bool showCancel, bool isError, string expansion)
+        {
+            if (CanUseGlass && !System.Diagnostics.Debugger.IsAttached)
+            {
+                TaskDialog dialog = new TaskDialog(title, title, text,
+                                                   (showCancel ? (TaskDialogButton.OK | TaskDialogButton.Cancel) : TaskDialogButton.OK));
+                try
+                {
+                    dialog.CustomIcon = isError ? Properties.Resources.error_32 : Properties.Resources.info_32;
+
+                    dialog.ShowExpandedInfoInFooter = true;
+                    dialog.ExpandedInformation = expansion;
+
+                    var result = dialog.Show();
+                    return result.CommonButton == WindowsFormsAero.TaskDialog.Result.OK;
+                }
+                catch (Exception e)
+                {
+                    System.Windows.Forms.MessageBox.Show(e.Message);
+                }
+
+                return false;
+            }
+            else
+            {
+                return ShowMessageBox(title, text + "\n\n" + expansion, showCancel, isError);
+            }
+        }
+
         public static bool ShowMessageBoxWithException(string title, string text, bool showCancel, bool isError, Exception ex)
         {
             EventLogger.LogError("MessageBoxWithException", "An exception was thrown. " + ex.Message);
 
-            if (CanUseGlass && !System.Diagnostics.Debugger.IsAttached)
-            {
-            	TaskDialog dialog = new TaskDialog(title, title, text,
-            	                                   (showCancel ? (TaskDialogButton.OK | TaskDialogButton.Cancel) : TaskDialogButton.OK));
-				try
-				{
-					dialog.CustomIcon = isError ? Properties.Resources.error_32 : Properties.Resources.info_32;
-
-					dialog.ShowExpandedInfoInFooter = true;
-					dialog.ExpandedInformation = ex.Message;
-
-					var result = dialog.Show();
-					return result.CommonButton == WindowsFormsAero.TaskDialog.Result.OK;
-				}
-				catch (Exception e)
-				{
-					System.Windows.Forms.MessageBox.Show(e.Message);
-				}
-
-            	return false;
-            }
-            else
-            {
-                return ShowMessageBox(title, text, showCancel, isError);
-            }
+            return ShowMessageBoxWithExpansion(title, text, showCancel, isError, ex.Message);
         }
 
 		public static void ShowFeatureNotImplementedMessageBox()
@@ -203,6 +210,25 @@ namespace IndiaTango.Models
             using (var file = File.Create(filename))
             {
                 pngEncoder.Save(file);
+            }
+        }
+
+        public static void requestReason(Sensor sensor, SimpleContainer _container, IWindowManager _windowManager, SensorState state, string taskPerformed)
+        {
+            if(state != null)
+            {
+                var specify = (SpecifyValueViewModel)_container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel");
+                specify.Title = "Log Reason";
+                specify.Message = "Please specify a reason for this change:";
+                specify.Deactivated += (o, e) =>
+                                           {
+                                               // Specify reason
+                                               state.Reason = specify.Text;
+
+                                               // Log this change to the file!
+                                               state.LogChange(sensor.Name, taskPerformed);
+                                           };
+                _windowManager.ShowDialog(specify);
             }
         }
     }

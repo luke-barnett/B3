@@ -27,10 +27,10 @@ namespace IndiaTango.Models
 
         public List<Sensor> ReadSensors()
         {
-            return ReadSensors(null);
+            return ReadSensors(null, null);
         }
 
-        public List<Sensor> ReadSensors(BackgroundWorker asyncWorker)
+        public List<Sensor> ReadSensors(BackgroundWorker asyncWorker, Dataset owner)
         {
         	if (sensors != null)
                 return sensors.ToList();
@@ -68,7 +68,7 @@ namespace IndiaTango.Models
                         if (asyncWorker != null && asyncWorker.CancellationPending)
                             return null;
 
-                        sensors[i - startOffset] = new Sensor(sensorNames[i], null);
+                        sensors[i - startOffset] = new Sensor(sensorNames[i], null, owner);
                         sensors[i - startOffset].AddState(new SensorState(DateTime.Now));
                     }
 

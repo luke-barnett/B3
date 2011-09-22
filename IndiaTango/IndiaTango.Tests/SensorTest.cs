@@ -54,8 +54,7 @@ namespace IndiaTango.Tests
             _secondUndoStack.Push(new SensorState(new DateTime(2005, 4, 3, 2, 1, 0)));
             _secondUndoStack.Push(new SensorState(new DateTime(2005, 4, 4, 2, 1, 0)));
 
-            _sensor1 = new Sensor("Temperature", "Temperature at 10m", 100, 20, "°C", 0.003f, "Awesome Industries", _testSerial);
-            _sensor2 = new Sensor("DO", "Dissolved Oxygen in the water", 50, 0, "%", 5.6f, "SensorPlus", "SENSORPLUS123120A000");
+            
 
             _tempSensor = new Sensor("Temperature", "C");
 
@@ -79,13 +78,16 @@ namespace IndiaTango.Tests
 
             _ds = new Dataset(new Site(10, "Lake", "Bob Smith", contact, contact, contact, new GPSCoords(50, 50)));
             _ds2 = new Dataset(new Site(10, "Lake Awesome", "Andy Smith", contact, contact, contact, new GPSCoords(70, 30)));
+
+            _sensor1 = new Sensor("Temperature", "Temperature at 10m", 100, 20, "°C", 0.003f, "Awesome Industries", _testSerial, _ds);
+            _sensor2 = new Sensor("DO", "Dissolved Oxygen in the water", 50, 0, "%", 5.6f, "SensorPlus", "SENSORPLUS123120A000", _ds2);
         }
 
         #region Undo Stack Tests
         [Test]
         public void GetUndoStack()
         {
-            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _blankStack, _blankCalibrationDates);
+            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _blankStack, _blankCalibrationDates, _ds);
 
             Assert.AreEqual(_testUndoStack, testSensor.UndoStack);
         }
@@ -93,7 +95,7 @@ namespace IndiaTango.Tests
         [Test]
         public void SetUndoStack()
         {
-            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _blankStack, _blankCalibrationDates);
+            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _blankStack, _blankCalibrationDates, _ds);
 
             testSensor.UndoStack = _secondUndoStack;
             Assert.AreEqual(_secondUndoStack, testSensor.UndoStack);
@@ -106,7 +108,7 @@ namespace IndiaTango.Tests
         [ExpectedException(typeof(FormatException))]
         public void SetUndoStackToNull()
         {
-            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _blankStack, _blankCalibrationDates);
+            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _blankStack, _blankCalibrationDates, _ds);
             testSensor.UndoStack = null;
         }
 
@@ -114,7 +116,7 @@ namespace IndiaTango.Tests
         [ExpectedException(typeof(FormatException))]
         public void SetRedoStackToNull()
         {
-            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _blankStack, _blankCalibrationDates);
+            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _blankStack, _blankCalibrationDates, _ds);
             testSensor.RedoStack = null;
         }
 
@@ -122,7 +124,7 @@ namespace IndiaTango.Tests
         [ExpectedException(typeof(FormatException))]
         public void SetCalibrationDatesListToNull()
         {
-            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _blankStack, _blankCalibrationDates);
+            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _blankStack, _blankCalibrationDates, _ds);
             testSensor.CalibrationDates = null;
         }
         #endregion
@@ -131,7 +133,7 @@ namespace IndiaTango.Tests
         [Test]
         public void GetRedoStack()
         {
-            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _secondUndoStack, _blankCalibrationDates);
+            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _secondUndoStack, _blankCalibrationDates, _ds);
 
             Assert.AreEqual(_secondUndoStack, testSensor.RedoStack);
         }
@@ -139,7 +141,7 @@ namespace IndiaTango.Tests
         [Test]
         public void SetRedoStack()
         {
-            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _secondUndoStack, _blankCalibrationDates);
+            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _secondUndoStack, _blankCalibrationDates, _ds);
             testSensor.RedoStack = _testUndoStack;
 
             Assert.AreEqual(_testUndoStack, testSensor.RedoStack);
@@ -156,27 +158,27 @@ namespace IndiaTango.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void NullRedoButNotUndoStack()
         {
-            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, null, _blankCalibrationDates);
+            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, null, _blankCalibrationDates, _ds);
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void NullUndoAndRedoStack()
         {
-            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, null, null, _blankCalibrationDates);
+            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, null, null, _blankCalibrationDates, _ds);
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void NullUndoButNotRedoStack()
         {
-            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, null, _testUndoStack, _blankCalibrationDates);
+            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, null, _testUndoStack, _blankCalibrationDates, _ds);
         }
 
         [Test]
         public void MinimalConstructorsCreateEmptyStacksAndLists()
         {
-            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial);
+            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _ds);
 
             Assert.IsNotNull(testSensor.UndoStack);
             Assert.IsNotNull(testSensor.RedoStack);
@@ -202,7 +204,7 @@ namespace IndiaTango.Tests
             calibrationDatesTest.Add(new DateTime(2011, 7, 4, 21, 45, 0));
             calibrationDatesTest.Add(new DateTime(2011, 7, 4, 22, 0, 0));
 
-            Sensor testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _secondUndoStack, calibrationDatesTest);
+            Sensor testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _secondUndoStack, calibrationDatesTest, _ds);
 
             Assert.AreEqual(calibrationDatesTest, testSensor.CalibrationDates);
         }
@@ -216,7 +218,7 @@ namespace IndiaTango.Tests
             calibrationDatesTest.Add(new DateTime(2011, 7, 4, 21, 45, 0));
             calibrationDatesTest.Add(new DateTime(2011, 7, 4, 22, 0, 0));
 
-            Sensor testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _secondUndoStack, calibrationDatesTest);
+            Sensor testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _secondUndoStack, calibrationDatesTest, _ds);
 
             List<DateTime> secondCalibrationTest = new List<DateTime>();
             secondCalibrationTest.Add(new DateTime(2010, 7, 3, 21, 15, 0));
@@ -360,7 +362,7 @@ namespace IndiaTango.Tests
         public void SetSerialNumberNullConstructorTest()
         {
             new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange,
-                       _testManufacturer, null);
+                       _testManufacturer, null, _ds);
         }
 
         [Test]
@@ -383,14 +385,14 @@ namespace IndiaTango.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void InvalidNameTest()
         {
-            _sensor3 = new Sensor("", "", 0, 0, "%", 0, "", "");
+            _sensor3 = new Sensor("", "", 0, 0, "%", 0, "", "", _ds);
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void InvalidUnitTest()
         {
-            _sensor3 = new Sensor("Temperature", "", 0, 0, "", 0, "", "");
+            _sensor3 = new Sensor("Temperature", "", 0, 0, "", 0, "", "", _ds);
         }
 
         [Test]
@@ -597,12 +599,12 @@ namespace IndiaTango.Tests
         {
             var sensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit,
                                     _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _testUndoStack,
-                                    new List<DateTime>(), 4);
+                                    new List<DateTime>(), 4, _ds);
             Assert.AreEqual(4, sensor.ErrorThreshold);
 
             var sensorTwo = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit,
                                     _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _testUndoStack,
-                                    new List<DateTime>(), 6);
+                                    new List<DateTime>(), 6, _ds);
             Assert.AreEqual(6, sensorTwo.ErrorThreshold);
         }
 
@@ -622,7 +624,7 @@ namespace IndiaTango.Tests
         {
             var sensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit,
                                      _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _testUndoStack,
-                                     new List<DateTime>(), 0);
+                                     new List<DateTime>(), 0, _ds);
         }
 
         [Test]
@@ -631,7 +633,7 @@ namespace IndiaTango.Tests
         {
              var sensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit,
                                      _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _testUndoStack,
-                                     new List<DateTime>(), -9);
+                                     new List<DateTime>(), -9, _ds);
         }
 
         [Test]
@@ -670,7 +672,7 @@ namespace IndiaTango.Tests
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void UpperLimitLessThanLowerLimit()
         {
-            var s = new Sensor("Awesome Sensor", "An awesome sensor", 10, 100, "A", 2, "Awesome Co", "XX323929");
+            var s = new Sensor("Awesome Sensor", "An awesome sensor", 10, 100, "A", 2, "Awesome Co", "XX323929", _ds);
         }
         #endregion
 
@@ -748,6 +750,19 @@ namespace IndiaTango.Tests
             var ls = new ListedSensor(_sensor1, _ds);
             ls.Dataset = null;
         }
+        #endregion
+
+        #region Dataset Tests
+
+        [Test]
+        public void CheckDataSet()
+        {
+            Assert.AreEqual(_ds, _sensor1.Owner);
+            Assert.AreNotEqual(_ds2,_sensor1.Owner);
+            Assert.AreEqual(_ds2, _sensor2.Owner);
+            Assert.AreNotEqual(_ds, _sensor2.Owner);
+        }
+
         #endregion
 
         #region Outlier detection tests

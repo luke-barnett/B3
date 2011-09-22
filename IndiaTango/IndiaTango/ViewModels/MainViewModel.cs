@@ -1,11 +1,8 @@
-﻿using System;
-using System.Threading;
-using System.Windows;
-using System.Windows.Interop;
-using System.Windows.Media;
+﻿using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Windows.Forms;
 using Caliburn.Micro;
 using IndiaTango.Models;
-using MessageBox = System.Windows.Forms.MessageBox;
 
 namespace IndiaTango.ViewModels
 {
@@ -34,8 +31,23 @@ namespace IndiaTango.ViewModels
         
         public void BtnLoad()
         {
-            EventLogger.LogInfo(GetType().ToString(), "Loading a new session...");
-        	Common.ShowFeatureNotImplementedMessageBox();
+            EventLogger.LogInfo(GetType().ToString(), "Loading a session...");
+            var openFileDialog = new OpenFileDialog { Filter = "Session Files|*.indiatango" };
+            
+            if(openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                var sessionView = (SessionViewModel)_container.GetInstance(typeof(SessionViewModel), "SessionViewModel");
+                using(var stream = new FileStream(openFileDialog.FileName, FileMode.Open))
+                    sessionView.Dataset = (Dataset)new BinaryFormatter().Deserialize(stream);
+                _windowManager.ShowDialog(sessionView);
+            }
+        }
+
+        public void BtnSettings()
+        {
+            var settingsView =
+                (SettingsViewModel) _container.GetInstance(typeof (SettingsViewModel), "SettingsViewModel");
+            _windowManager.ShowDialog(settingsView);
         }
 
         public void OnLoaded()
