@@ -4,7 +4,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:cal="http://www.caliburnproject.org"
-        Title="{Binding Title}" Height="400" Width="487" Icon="{Binding Icon}" WindowStartupLocation="CenterScreen" Loaded="OnLoaded" ResizeMode="NoResize">
+        Title="{Binding Title}" Height="400" Width="487" Icon="{Binding Icon}" WindowStartupLocation="CenterScreen" Loaded="OnLoaded" ResizeMode="NoResize" Cursor="{Binding ViewCursor}">
 
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">

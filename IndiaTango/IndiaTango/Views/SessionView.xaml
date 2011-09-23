@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:caliburn="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro"
-        Title="{Binding Title}" Icon="{Binding Icon}" Height="570" Width="950" WindowStartupLocation="CenterScreen" Loaded="OnLoaded">
+        Title="{Binding Title}" Icon="{Binding Icon}" Height="570" Width="950" WindowStartupLocation="CenterScreen" Loaded="OnLoaded" Cursor="{Binding ViewCursor}">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
             <caliburn:ActionMessage MethodName="OnLoaded" />

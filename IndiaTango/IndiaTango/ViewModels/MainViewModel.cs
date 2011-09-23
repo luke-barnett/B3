@@ -3,6 +3,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
 using Caliburn.Micro;
 using IndiaTango.Models;
+using Cursor = System.Windows.Input.Cursor;
+using Cursors = System.Windows.Input.Cursors;
 
 namespace IndiaTango.ViewModels
 {
@@ -10,6 +12,7 @@ namespace IndiaTango.ViewModels
     {
         private readonly IWindowManager _windowManager;
         private readonly SimpleContainer _container;
+		private Cursor _viewCursor = Cursors.Arrow;
 
         public MainViewModel(IWindowManager windowManager, SimpleContainer container)
         {
@@ -20,6 +23,12 @@ namespace IndiaTango.ViewModels
         public string Title { get { return ApplicationTitle; } }
 
 		public string TagLine { get { return ApplicationTagLine; } }
+
+		public Cursor ViewCursor
+		{
+			get { return _viewCursor; }
+			set { _viewCursor = value; NotifyOfPropertyChange(() => ViewCursor); }
+		}
 
         public void BtnNew()
         {
@@ -33,14 +42,18 @@ namespace IndiaTango.ViewModels
         {
             EventLogger.LogInfo(GetType().ToString(), "Loading a session...");
             var openFileDialog = new OpenFileDialog { Filter = "Session Files|*.indiatango" };
-            
+
+			ViewCursor = Cursors.Wait;
             if(openFileDialog.ShowDialog() == DialogResult.OK)
             {
+            	
                 var sessionView = (SessionViewModel)_container.GetInstance(typeof(SessionViewModel), "SessionViewModel");
                 using(var stream = new FileStream(openFileDialog.FileName, FileMode.Open))
                     sessionView.Dataset = (Dataset)new BinaryFormatter().Deserialize(stream);
+            	
                 _windowManager.ShowDialog(sessionView);
             }
+			ViewCursor = Cursors.Arrow;
         }
 
         public void BtnSettings()

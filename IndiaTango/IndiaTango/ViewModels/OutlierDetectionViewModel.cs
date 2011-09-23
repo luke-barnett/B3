@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using Caliburn.Micro;
 using IndiaTango.Models;
@@ -22,6 +23,7 @@ namespace IndiaTango.ViewModels
         private Dataset _ds;
         private int _zoomLevel = 100;
         private Sensor _sensor;
+		private Cursor _viewCursor = Cursors.Arrow;
 
         private List<LineSeries> _chartSeries = new List<LineSeries>();
         private BehaviourManager _behaviour;
@@ -64,6 +66,12 @@ namespace IndiaTango.ViewModels
         }
 
         #region View Properties
+
+		public Cursor ViewCursor
+		{
+			get { return _viewCursor; }
+			set { _viewCursor = value; NotifyOfPropertyChange(() => ViewCursor); }
+		}
 
         public int ZoomLevel
         {
@@ -208,6 +216,8 @@ namespace IndiaTango.ViewModels
             EventLogger.LogInfo(GetType().ToString(), "Value removal started.");
             if (_selectedValues.Count == 0)
                 return;
+
+        	ViewCursor = Cursors.Wait;
             _sensor.AddState(_sensor.CurrentState.removeValues(SelectedValues));
 
             Finalise("Removed selected values from dataset.");
@@ -217,6 +227,7 @@ namespace IndiaTango.ViewModels
 
             NotifyOfPropertyChange(() => UndoButtonEnabled);
             NotifyOfPropertyChange(() => RedoButtonEnabled);
+        	ViewCursor = Cursors.Arrow;
         }
 
         public void btnMakeZero()
@@ -226,6 +237,7 @@ namespace IndiaTango.ViewModels
             if (_selectedValues.Count == 0)
                 return;
 
+			ViewCursor = Cursors.Wait;
             _sensor.AddState(_sensor.CurrentState.ChangeToZero(SelectedValues));
 
             Finalise("Set selected values to 0.");
@@ -234,6 +246,7 @@ namespace IndiaTango.ViewModels
 
             NotifyOfPropertyChange(() => UndoButtonEnabled);
             NotifyOfPropertyChange(() => RedoButtonEnabled);
+			ViewCursor = Cursors.Arrow;
         }
 
         private void Finalise(string taskPerformed)
@@ -274,6 +287,7 @@ namespace IndiaTango.ViewModels
                 }
             }
 
+			ViewCursor = Cursors.Wait;
             _sensor.AddState(_sensor.CurrentState.ChangeToValue(SelectedValues, value));
 
             Finalise("Specified values for selected data points as " + value + ".");
@@ -283,6 +297,7 @@ namespace IndiaTango.ViewModels
 
             NotifyOfPropertyChange(() => UndoButtonEnabled);
             NotifyOfPropertyChange(() => RedoButtonEnabled);
+			ViewCursor = Cursors.Arrow;
         }
 
         public void btnUndo()

@@ -13,6 +13,8 @@ using Caliburn.Micro;
 using IndiaTango.Models;
 using Visiblox.Charts;
 using System.Windows.Controls;
+using Cursor = System.Windows.Input.Cursor;
+using Cursors = System.Windows.Input.Cursors;
 using MessageBox = System.Windows.Forms.MessageBox;
 
 namespace IndiaTango.ViewModels
@@ -24,6 +26,7 @@ namespace IndiaTango.ViewModels
         private readonly IWindowManager _windowManager;
         private Dataset _ds;
         private BackgroundWorker _bw;
+		private Cursor _viewCursor = Cursors.Arrow;
 
         private static double _progressBarPercent = 0;
 
@@ -58,7 +61,8 @@ namespace IndiaTango.ViewModels
             DoneCancelVisible = Visibility.Collapsed;
         }
 
-        /// <summary>
+		#region View Properties
+		/// <summary>
         /// Sets the dataset to use for the session
         /// </summary>
         public Dataset Dataset
@@ -90,7 +94,7 @@ namespace IndiaTango.ViewModels
             }
         }
 
-        #region View Properties
+        
         //TODO: Make a gloabl 'editing/creating/viewing site' state that the properties reference
         private Visibility _sensorWarningVis = Visibility.Collapsed;
 
@@ -104,6 +108,12 @@ namespace IndiaTango.ViewModels
         {
             get { return "New Session"; }
         }
+
+		public Cursor ViewCursor
+		{
+			get { return _viewCursor; }
+			set { _viewCursor = value; NotifyOfPropertyChange(() => ViewCursor); }
+		}
 
         public double ProgressBarPercent
         {
@@ -352,6 +362,7 @@ namespace IndiaTango.ViewModels
             var result = fileDialog.ShowDialog();
             if (result == DialogResult.OK)
             {
+            	ViewCursor = Cursors.Wait;
                 _bw.DoWork += delegate(object sender, DoWorkEventArgs eventArgs)
                 {
                     EventLogger.LogInfo("BackgroundImportThread", "Data import started.");
@@ -402,7 +413,7 @@ namespace IndiaTango.ViewModels
                 ImportEnabled = false;
 
                 _bw.RunWorkerAsync();
-
+				ViewCursor = Cursors.Arrow;
 
             }
         }
@@ -425,9 +436,11 @@ namespace IndiaTango.ViewModels
             var saveFileDialog = new SaveFileDialog { Filter = "Session Files|*.indiatango" };
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
+				ViewCursor = Cursors.Wait;
                 using (var stream = new FileStream(saveFileDialog.FileName, FileMode.Create))
                     new BinaryFormatter().Serialize(stream, _ds);
                 EventLogger.LogInfo(GetType().ToString(), "Session save complete. File saved to:");
+				ViewCursor = Cursors.Arrow;
             }
             else
                 EventLogger.LogInfo(GetType().ToString(), "Session save aborted");

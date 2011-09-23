@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:cal="http://www.caliburnproject.org"
         xmlns:charts="clr-namespace:Visiblox.Charts;assembly=Visiblox.Charts"
-        xmlns:multiseries="clr-namespace:IndiaTango.MultiSeriesBinding" Title="{Binding SensorName}" Icon="{Binding Icon}" Height="700" Width="950" WindowStartupLocation="CenterScreen">
+        xmlns:multiseries="clr-namespace:IndiaTango.MultiSeriesBinding" Title="{Binding SensorName}" Icon="{Binding Icon}" Height="700" Width="950" WindowStartupLocation="CenterScreen" Cursor="{Binding ViewCursor}">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="370" />
@@ -69,21 +69,21 @@
                     <Rectangle Height="3" Fill="OrangeRed" Margin="10 0" Grid.Row="1" Grid.ColumnSpan="5" SnapsToDevicePixels="True" Stroke="White" />
                     
                     <WrapPanel Margin="5">
-                        <Button Name="btnExtrapolate" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding ActionButtonsEnabled}">
+                        <Button Name="btnExtrapolate" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom">
                             <StackPanel Orientation="Vertical">
                                 <Image Source="/IndiaTango;component/Images/graph_extrapolate.png" Width="64" Height="64" />
                                 <TextBlock Text="Extrapolate" HorizontalAlignment="Center" />
                             </StackPanel>
                         </Button>
 
-                        <Button Name="btnMakeZero" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding ActionButtonsEnabled}">
+                        <Button Name="btnMakeZero" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom">
                             <StackPanel Orientation="Vertical">
                                 <Image Source="/IndiaTango;component/Images/graph_zero.png" Width="64" Height="64" />
                                 <TextBlock Text="Make Zero" HorizontalAlignment="Center" />
                             </StackPanel>
                         </Button>
 
-                        <Button Name="btnSpecify" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding ActionButtonsEnabled}">
+                        <Button Name="btnSpecify" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom">
                             <StackPanel Orientation="Vertical">
                                 <Image Source="/IndiaTango;component/Images/graph_specify.png" Width="64" Height="64" />
                                 <TextBlock Text="Specify Value" HorizontalAlignment="Center" />

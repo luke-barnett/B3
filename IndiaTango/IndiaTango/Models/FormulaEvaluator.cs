@@ -72,7 +72,7 @@ namespace IndiaTango.Models
 
         public bool CheckCompileResults(CompilerResults results)
         {
-            return results != null && results.CompiledAssembly != null;
+			return results != null && results.Errors.Count == 0 && results.CompiledAssembly != null;
         }
 
         public CompilerResults CompileFormula(string formula)
@@ -83,9 +83,15 @@ namespace IndiaTango.Models
             // build the class using codedom
             BuildClass(formula);
 
-            // compile the class into an in-memory assembly.
-            // if it doesn't compile, show errors in the window
-            CompilerResults results = CompileCode(_compiler, _parms, _source.ToString());
+			//actually compile the code
+			CompilerResults results = _compiler.CompileAssemblyFromSource(_parms, _source.ToString());
+
+			//Do we have any compiler errors?
+			if (results.Errors.Count > 0)
+			{
+				foreach (CompilerError error in results.Errors)
+					Console.WriteLine("Compile Error:" + error.ErrorText);
+			}
 
             Console.WriteLine("...........................\r\n");
             Console.WriteLine(_source.ToString());
@@ -116,29 +122,6 @@ namespace IndiaTango.Models
 
 
         #region PrivateMethods
-
-        /// <summary>
-        /// Compiles the code from the code string
-        /// </summary>
-        /// <param name="compiler"></param>
-        /// <param name="parms"></param>
-        /// <param name="source"></param>
-        /// <returns></returns>
-        private CompilerResults CompileCode(ICodeCompiler compiler, CompilerParameters parms, string source)
-        {
-            //actually compile the code
-            CompilerResults results = compiler.CompileAssemblyFromSource(parms, source);
-
-            //Do we have any compiler errors?
-            if (results.Errors.Count > 0)
-            {
-                foreach (CompilerError error in results.Errors)
-                    Console.WriteLine("Compile Error:" + error.ErrorText);
-                return null;
-            }
-
-            return results;
-        }
 
         /// <summary>
         /// Change evaluation string to use .NET Math library
