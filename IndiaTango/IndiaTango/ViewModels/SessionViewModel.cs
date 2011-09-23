@@ -2,20 +2,14 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
-using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Threading;
 using System.Windows;
 using System.Windows.Forms;
 using Caliburn.Micro;
 using IndiaTango.Models;
-using Visiblox.Charts;
 using System.Windows.Controls;
-using Cursor = System.Windows.Input.Cursor;
 using Cursors = System.Windows.Input.Cursors;
-using MessageBox = System.Windows.Forms.MessageBox;
 
 namespace IndiaTango.ViewModels
 {
@@ -26,17 +20,17 @@ namespace IndiaTango.ViewModels
         private readonly IWindowManager _windowManager;
         private Dataset _ds;
         private BackgroundWorker _bw;
-		private Cursor _viewCursor = Cursors.Arrow;
 
-        private static double _progressBarPercent = 0;
+        private static double _progressBarPercent;
 
-        private const string STATUS_TEXT_AWAITING_INPUT =
+        private const string StatusTextAwaitingInput =
             "To Start, click Import Data, then fill out the properties to the right.";
 
-        private string _statusLabelText = STATUS_TEXT_AWAITING_INPUT;
+        private string _statusLabelText = StatusTextAwaitingInput;
         private Visibility _progressBarVisible = Visibility.Hidden;
-        private bool _actionButtonsEnabled = false;
-        private bool _siteControlsEnabled = false;
+        private bool _actionButtonsEnabled;
+        private bool _siteControlsEnabled;
+        private bool _saveButtonEnabled;
         private Visibility _createEditDeleteVisible = Visibility.Visible;
         private Visibility _doneCancelVisible = Visibility.Hidden;
 
@@ -61,8 +55,7 @@ namespace IndiaTango.ViewModels
             DoneCancelVisible = Visibility.Collapsed;
         }
 
-		#region View Properties
-		/// <summary>
+        /// <summary>
         /// Sets the dataset to use for the session
         /// </summary>
         public Dataset Dataset
@@ -71,6 +64,7 @@ namespace IndiaTango.ViewModels
             {
                 _ds = value;
                 ActionButtonsEnabled = true;
+                SaveButtonEnabled = true;
                 //Sigh
                 if (_ds.Site == null)
                     return;
@@ -81,6 +75,8 @@ namespace IndiaTango.ViewModels
                 PrimaryContact = _ds.Site.PrimaryContact;
                 SecondaryContact = _ds.Site.SecondaryContact;
                 UniversityContact = _ds.Site.UniversityContact;
+
+                StatusLabelText = "";
 
                 NotifyOfPropertyChange(() => SelectedSite);
                 NotifyOfPropertyChange(() => SiteName);
@@ -94,7 +90,7 @@ namespace IndiaTango.ViewModels
             }
         }
 
-        
+        #region View Properties
         //TODO: Make a gloabl 'editing/creating/viewing site' state that the properties reference
         private Visibility _sensorWarningVis = Visibility.Collapsed;
 
@@ -108,12 +104,6 @@ namespace IndiaTango.ViewModels
         {
             get { return "New Session"; }
         }
-
-		public Cursor ViewCursor
-		{
-			get { return _viewCursor; }
-			set { _viewCursor = value; NotifyOfPropertyChange(() => ViewCursor); }
-		}
 
         public double ProgressBarPercent
         {
@@ -163,6 +153,16 @@ namespace IndiaTango.ViewModels
                 _actionButtonsEnabled = value;
                 NotifyOfPropertyChange(() => ActionButtonsEnabled);
                 NotifyOfPropertyChange(() => ProgressState);
+            }
+        }
+
+        public bool SaveButtonEnabled
+        {
+            get { return _saveButtonEnabled; }
+            set
+            {
+                _saveButtonEnabled = value;
+                NotifyOfPropertyChange(() => SaveButtonEnabled);
             }
         }
 
@@ -362,7 +362,6 @@ namespace IndiaTango.ViewModels
             var result = fileDialog.ShowDialog();
             if (result == DialogResult.OK)
             {
-            	ViewCursor = Cursors.Wait;
                 _bw.DoWork += delegate(object sender, DoWorkEventArgs eventArgs)
                 {
                     EventLogger.LogInfo("BackgroundImportThread", "Data import started.");
@@ -379,7 +378,7 @@ namespace IndiaTango.ViewModels
                     {
                         eventArgs.Cancel = true;
                         ProgressBarPercent = 0;
-                        StatusLabelText = STATUS_TEXT_AWAITING_INPUT;
+                        StatusLabelText = StatusTextAwaitingInput;
                         ActionButtonsEnabled = false;
                     }
                     else
@@ -388,6 +387,7 @@ namespace IndiaTango.ViewModels
 
                         // Loaded successfully
                         ActionButtonsEnabled = true;
+                        SaveButtonEnabled = true;
                         StatusLabelText = "";
                         SensorList = readSensors;
 
@@ -413,7 +413,7 @@ namespace IndiaTango.ViewModels
                 ImportEnabled = false;
 
                 _bw.RunWorkerAsync();
-				ViewCursor = Cursors.Arrow;
+
 
             }
         }
@@ -436,11 +436,23 @@ namespace IndiaTango.ViewModels
             var saveFileDialog = new SaveFileDialog { Filter = "Session Files|*.indiatango" };
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
-				ViewCursor = Cursors.Wait;
-                using (var stream = new FileStream(saveFileDialog.FileName, FileMode.Create))
-                    new BinaryFormatter().Serialize(stream, _ds);
-                EventLogger.LogInfo(GetType().ToString(), "Session save complete. File saved to:");
-				ViewCursor = Cursors.Arrow;
+                var bw = new BackgroundWorker();
+                bw.DoWork += (o, e) =>
+                                 {
+                                     using (var stream = new FileStream(saveFileDialog.FileName, FileMode.Create))
+                                         new BinaryFormatter().Serialize(stream, _ds);
+                                     EventLogger.LogInfo(GetType().ToString(), string.Format("Session save complete. File saved to: {0}", saveFileDialog.FileName));
+                                 };
+                bw.RunWorkerCompleted += (o, e) =>
+                                             {
+                                                 ApplicationCursor = Cursors.Arrow;
+                                                 ImportEnabled = true;
+                                                 ActionButtonsEnabled = true;
+                                             };
+                ApplicationCursor = Cursors.Wait;
+                ImportEnabled = false;
+                ActionButtonsEnabled = false;
+                bw.RunWorkerAsync();
             }
             else
                 EventLogger.LogInfo(GetType().ToString(), "Session save aborted");

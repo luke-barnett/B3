@@ -35,6 +35,8 @@ namespace IndiaTango.ViewModels
         private DateTime _startDateTime;
         private DateTime _endDateTime;
         private bool _selectionMode;
+        private List<String> _samplingCaps = new List<string>();
+        private int _samplingCapIndex;
 
         #region YAxisControls
 
@@ -107,6 +109,9 @@ namespace IndiaTango.ViewModels
             behaviourManager.Behaviours.Add(backgroundBehaviour);
 
             Behaviour = behaviourManager;
+
+            GenerateSampmplingCaps();
+            SelectedSamplingCapIndex = 3;
         }
 
         #region Public Parameters
@@ -269,6 +274,18 @@ namespace IndiaTango.ViewModels
         /// Whether or not you can currently edit the dates or not
         /// </summary>
         public bool CanEditDates { get { return (_selectedSensors.Count() > 0); } }
+
+        public List<String> SamplingCaps { get { return _samplingCaps; } set { _samplingCaps = value; NotifyOfPropertyChange(() => SamplingCaps); } }
+
+        public int SelectedSamplingCapIndex
+        {
+            get { return _samplingCapIndex; }
+            set
+            {
+                _samplingCapIndex = value;
+                NotifyOfPropertyChange(() => SelectedSamplingCapIndex);
+            }
+        }
 
         #endregion
 
@@ -440,6 +457,20 @@ namespace IndiaTango.ViewModels
             Debug.WriteLine("As a result start {0} and end {1}", StartTime, EndTime);
         }
 
+        private void GenerateSampmplingCaps()
+        {
+            SamplingCaps.Add("1000");
+            SamplingCaps.Add("5000");
+            SamplingCaps.Add("10000");
+            SamplingCaps.Add("15000");
+            SamplingCaps.Add("20000");
+            SamplingCaps.Add("30000");
+            SamplingCaps.Add("40000");
+            SamplingCaps.Add("All");
+
+            SamplingCaps = new List<string>(SamplingCaps);
+        }
+
         #endregion
 
         #region Event Handlers
@@ -537,6 +568,20 @@ namespace IndiaTango.ViewModels
             {
                 sensor.SetUpperAndLowerBounds(StartTime, EndTime);
             }
+            SampleValues(Common.MaximumGraphablePoints, _selectedSensors);
+        }
+
+        public void SamplingCapChanged(SelectionChangedEventArgs e)
+        {
+            try
+            {
+                Common.MaximumGraphablePoints = int.Parse((string)e.AddedItems[0]);
+            }
+            catch (Exception)
+            {
+                Common.MaximumGraphablePoints = int.MaxValue;
+            }
+
             SampleValues(Common.MaximumGraphablePoints, _selectedSensors);
         }
 

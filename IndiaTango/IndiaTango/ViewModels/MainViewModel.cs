@@ -1,9 +1,9 @@
-﻿using System.IO;
+﻿using System.ComponentModel;
+using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
 using Caliburn.Micro;
 using IndiaTango.Models;
-using Cursor = System.Windows.Input.Cursor;
 using Cursors = System.Windows.Input.Cursors;
 
 namespace IndiaTango.ViewModels
@@ -12,23 +12,22 @@ namespace IndiaTango.ViewModels
     {
         private readonly IWindowManager _windowManager;
         private readonly SimpleContainer _container;
-		private Cursor _viewCursor = Cursors.Arrow;
+        private bool _buttonsEnabled = true;
+        private Dataset dataset { get; set; }
+        private bool datasetLoaded = true;
 
         public MainViewModel(IWindowManager windowManager, SimpleContainer container)
         {
             _windowManager = windowManager;
             _container = container;
+            
         }
 
         public string Title { get { return ApplicationTitle; } }
 
 		public string TagLine { get { return ApplicationTagLine; } }
 
-		public Cursor ViewCursor
-		{
-			get { return _viewCursor; }
-			set { _viewCursor = value; NotifyOfPropertyChange(() => ViewCursor); }
-		}
+        public bool ButtonsEnabled { get { return _buttonsEnabled; } set { _buttonsEnabled = value; NotifyOfPropertyChange(() => ButtonsEnabled); } }
 
         public void BtnNew()
         {
@@ -42,18 +41,33 @@ namespace IndiaTango.ViewModels
         {
             EventLogger.LogInfo(GetType().ToString(), "Loading a session...");
             var openFileDialog = new OpenFileDialog { Filter = "Session Files|*.indiatango" };
-
-			ViewCursor = Cursors.Wait;
+            
             if(openFileDialog.ShowDialog() == DialogResult.OK)
             {
-            	
-                var sessionView = (SessionViewModel)_container.GetInstance(typeof(SessionViewModel), "SessionViewModel");
-                using(var stream = new FileStream(openFileDialog.FileName, FileMode.Open))
-                    sessionView.Dataset = (Dataset)new BinaryFormatter().Deserialize(stream);
-            	
-                _windowManager.ShowDialog(sessionView);
+                ApplicationCursor = Cursors.Wait;
+                ButtonsEnabled = false;
+                var bw = new BackgroundWorker();
+                bw.DoWork += (o, e) =>
+                                 {
+                                     EventLogger.LogInfo("Loading", "Started loading from file");
+                                     using (var stream = new FileStream(openFileDialog.FileName, FileMode.Open))
+                                         e.Result = new BinaryFormatter().Deserialize(stream);
+                                     EventLogger.LogInfo("Loading", "Loading from file completed");
+                                 };
+                bw.RunWorkerCompleted += (o, e) =>
+                                             {
+                                                 if (e.Cancelled || e.Error != null)
+                                                     return;
+                                                 var sessionView = (SessionViewModel)_container.GetInstance(typeof(SessionViewModel), "SessionViewModel");
+                                                 sessionView.Dataset = (Dataset) e.Result;
+
+                                                 ApplicationCursor = Cursors.Arrow;
+                                                 ButtonsEnabled = true;
+                                                 EventLogger.LogInfo(GetType().ToString(), "Loading Session View");
+                                                 _windowManager.ShowDialog(sessionView);
+                                             };
+                bw.RunWorkerAsync();
             }
-			ViewCursor = Cursors.Arrow;
         }
 
         public void BtnSettings()
