@@ -55,10 +55,15 @@
                         </toolkit:DateTimePicker>
                     </StackPanel>
                     
-                    <TextBlock Text="Render Method:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" />
-                    <ComboBox Grid.Row="1" Grid.Column="1" Margin="5" SelectedIndex="0" IsEnabled="False">
-                        <ComboBoxItem Content="Fast" />
-                        <ComboBoxItem Content="All Points" />
+                    <TextBlock Text="Sampling Size:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" />
+                    <ComboBox Grid.Row="1" Grid.Column="1" Margin="5" SelectedIndex="{Binding SelectedSamplingCapIndex, Mode=TwoWay}" ItemsSource="{Binding SamplingCaps}">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="SelectionChanged">
+                                <cal:ActionMessage MethodName="SamplingCapChanged">
+                                    <cal:Parameter Value="$eventArgs" />
+                                </cal:ActionMessage>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
                     </ComboBox>
                 </Grid>
             </GroupBox>
