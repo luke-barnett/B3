@@ -38,7 +38,7 @@ namespace IndiaTango.ViewModels
 
         #region YAxisControls
 
-        private DoubleRange _range = new DoubleRange(0,0);
+        private DoubleRange _range = new DoubleRange(0, 0);
         private double _minimum;
         private double _minimumMinimum;
         private double _maximumMinimum;
@@ -56,21 +56,21 @@ namespace IndiaTango.ViewModels
         #endregion
 
         #endregion
-        
+
         public GraphViewModel(IWindowManager windowManager, SimpleContainer container)
         {
             _windowManager = windowManager;
             _container = container;
 
-            _graphBackground = new Canvas {Visibility = Visibility.Collapsed};
+            _graphBackground = new Canvas { Visibility = Visibility.Collapsed };
 
-            var behaviourManager = new BehaviourManager {AllowMultipleEnabled = true};
+            var behaviourManager = new BehaviourManager { AllowMultipleEnabled = true };
 
             var zoomBehaviour = new CustomZoomBehaviour { IsEnabled = !_selectionMode };
             zoomBehaviour.ZoomRequested += (o, e) =>
                                                  {
-                                                     StartTime = (DateTime) e.FirstPoint.X;
-                                                     EndTime = (DateTime) e.SecondPoint.X;
+                                                     StartTime = (DateTime)e.FirstPoint.X;
+                                                     EndTime = (DateTime)e.SecondPoint.X;
                                                      foreach (var sensor in _selectedSensors)
                                                      {
                                                          sensor.SetUpperAndLowerBounds(StartTime, EndTime);
@@ -86,7 +86,7 @@ namespace IndiaTango.ViewModels
                                                           SampleValues(Common.MaximumGraphablePoints, _selectedSensors);
                                                           CalculateDateTimeEndPoints();
                                                       };
-            
+
             behaviourManager.Behaviours.Add(zoomBehaviour);
 
             var selectionBehaviour = new CustomSelectionBehaviour { IsEnabled = _selectionMode };
@@ -102,7 +102,7 @@ namespace IndiaTango.ViewModels
                                                      };
             behaviourManager.Behaviours.Add(selectionBehaviour);
 
-            var backgroundBehaviour = new GraphBackgroundBehaviour(_graphBackground){ IsEnabled = true };
+            var backgroundBehaviour = new GraphBackgroundBehaviour(_graphBackground) { IsEnabled = true };
 
             behaviourManager.Behaviours.Add(backgroundBehaviour);
 
@@ -156,7 +156,22 @@ namespace IndiaTango.ViewModels
         /// <summary>
         /// The minimum value as a readable string
         /// </summary>
-        public string MinimumValue { get { return string.Format("Y Axis Min: {0}", (int)Minimum); } }
+        public string MinimumValue
+        {
+            get { return string.Format("{0:N2}", Minimum); }
+            set
+            {
+                var old = Minimum;
+                try
+                {
+                    Minimum = double.Parse(value);
+                }
+                catch (Exception e)
+                {
+                    Minimum = old;
+                }
+            }
+        }
 
         /// <summary>
         /// The highest value the bottom range can reach
@@ -176,7 +191,22 @@ namespace IndiaTango.ViewModels
         /// <summary>
         /// The maximum value as a readable string
         /// </summary>
-        public string MaximumValue { get { return string.Format("Y Axis Max: {0}", (int)Maximum); } }
+        public string MaximumValue
+        {
+            get { return string.Format("{0:N2}", Maximum); }
+            set
+            {
+                var old = Maximum;
+                try
+                {
+                    Maximum = double.Parse(value);
+                }
+                catch (Exception e)
+                {
+                    Maximum = old;
+                }
+            }
+        }
 
         /// <summary>
         /// The highest value the top range can reach
@@ -213,7 +243,7 @@ namespace IndiaTango.ViewModels
         /// <summary>
         /// The selected sensors colour
         /// </summary>
-        public Color SelectedSensorColour { get { return (_selectedSensor == null) ? Colors.Black : _selectedSensor.Colour; } set { if(_selectedSensors != null) _selectedSensor.Colour = value; NotifyOfPropertyChange(() => SelectedSensorColour); if(_selectedSensors.Contains(_selectedSensor)) RedrawGraph();} }
+        public Color SelectedSensorColour { get { return (_selectedSensor == null) ? Colors.Black : _selectedSensor.Colour; } set { if (_selectedSensors != null) _selectedSensor.Colour = value; NotifyOfPropertyChange(() => SelectedSensorColour); if (_selectedSensors.Contains(_selectedSensor)) RedrawGraph(); } }
 
         /// <summary>
         /// The name of the selected sensor
@@ -326,11 +356,11 @@ namespace IndiaTango.ViewModels
 
             foreach (var sensor in sensors)
             {
-                _sampleRate = sensor.DataPoints.Count()/(numberOfPoints/sensors.Count);
+                _sampleRate = sensor.DataPoints.Count() / (numberOfPoints / sensors.Count);
                 Debug.Print("Number of points: {0} Max Number {1} Sampling rate {2}", sensor.DataPoints.Count(), numberOfPoints, _sampleRate);
 
                 var series = (_sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints.Where((x, index) => index % _sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints);
-                generatedSeries.Add(new LineSeries{ DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour)});
+                generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour) });
                 if (_sampleRate > 1) ShowBackground();
             }
 
@@ -428,7 +458,7 @@ namespace IndiaTango.ViewModels
         /// <param name="e">The event arguments</param>
         public void SensorChecked(RoutedEventArgs e)
         {
-            var checkbox = (CheckBox) e.Source;
+            var checkbox = (CheckBox)e.Source;
             AddSensor((GraphableSensor)checkbox.Content);
 
             SelectedSensor = (GraphableSensor)checkbox.Content;
@@ -461,7 +491,7 @@ namespace IndiaTango.ViewModels
 
             if (result == DialogResult.OK)
             {
-                Common.RenderImage((Chart) chart, fileDialog.FileName);
+                Common.RenderImage((Chart)chart, fileDialog.FileName);
                 EventLogger.LogInfo(GetType().ToString(), "Graph export complete. File saved to: " + fileDialog.FileName);
             }
             else
@@ -474,10 +504,10 @@ namespace IndiaTango.ViewModels
         /// <param name="e">The event arguments about the new date</param>
         public void StartTimeChanged(RoutedPropertyChangedEventArgs<object> e)
         {
-            if(e == null)
+            if (e == null)
                 return;
- 
-            if (e.OldValue == null  || (DateTime)e.OldValue == new DateTime() || (DateTime)e.NewValue < EndTime)
+
+            if (e.OldValue == null || (DateTime)e.OldValue == new DateTime() || (DateTime)e.NewValue < EndTime)
                 StartTime = (DateTime)e.NewValue;
             else
                 StartTime = (DateTime)e.OldValue;

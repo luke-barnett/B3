@@ -68,6 +68,8 @@ namespace IndiaTango.ViewModels
                 _ds = value;
                 ActionButtonsEnabled = true;
                 //Sigh
+                if (_ds.Site == null)
+                    return;
                 SiteName = _ds.Site.Name;
                 Owner = _ds.Site.Owner;
                 Latitude = _ds.Site.GpsLocation.DecimalDegreesLatitude.ToString();
