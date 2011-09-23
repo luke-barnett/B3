@@ -138,6 +138,8 @@ namespace IndiaTango.ViewModels
 				MissingValues = _sensor.CurrentState.GetMissingTimes(15,_ds.StartTimeStamp,_ds.EndTimeStamp);
 				NotifyOfPropertyChange(() => SensorName);
 				NotifyOfPropertyChange(() => MissingCount);
+                NotifyOfPropertyChange(() => RedoButtonEnabled);
+                NotifyOfPropertyChange(() => UndoButtonEnabled);
 			    _graphableSensor = _sensor != null ? new GraphableSensor(_sensor) : null;
 			    UpdateGraph();
 			}
@@ -178,6 +180,8 @@ namespace IndiaTango.ViewModels
 			{
 				SelectedValues.Add(item);
 			}
+            NotifyOfPropertyChange(() => UndoButtonEnabled);
+            
 		}
 
 		public void btnUndo()
@@ -217,6 +221,8 @@ namespace IndiaTango.ViewModels
 
 			Common.ShowMessageBox("Values Updated", "The selected values have been set to 0.", false, false);
             RefreshGraph();
+            NotifyOfPropertyChange(() => UndoButtonEnabled);
+            NotifyOfPropertyChange(() => RedoButtonEnabled);
         }
 
         
@@ -255,6 +261,8 @@ namespace IndiaTango.ViewModels
 
             Common.ShowMessageBox("Values Updated", "The selected values have been set to " + value + ".", false, false);
             RefreshGraph();
+            NotifyOfPropertyChange(() => UndoButtonEnabled);
+            NotifyOfPropertyChange(() => RedoButtonEnabled);
         }
 
         private void Finalise(string taskPerformed)
@@ -302,6 +310,8 @@ namespace IndiaTango.ViewModels
                                       false, true, e);
             }
             RefreshGraph();
+            NotifyOfPropertyChange(() => UndoButtonEnabled);
+            NotifyOfPropertyChange(() => RedoButtonEnabled);
         }
 
 		public void btnZoomIn()

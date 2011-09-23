@@ -197,6 +197,9 @@ namespace IndiaTango.ViewModels
             {
                 SelectedValues.Add(DateTime.Parse(item.Substring(0, 27)));
             }
+
+            NotifyOfPropertyChange(() => UndoButtonEnabled);
+            NotifyOfPropertyChange(() => RedoButtonEnabled);
         }
 
 
@@ -211,6 +214,9 @@ namespace IndiaTango.ViewModels
 
             RefreshGraph();
             Common.ShowMessageBox("Values Updated", "The selected values have been removed from the data", false, false);
+
+            NotifyOfPropertyChange(() => UndoButtonEnabled);
+            NotifyOfPropertyChange(() => RedoButtonEnabled);
         }
 
         public void btnMakeZero()
@@ -225,6 +231,9 @@ namespace IndiaTango.ViewModels
             Finalise("Set selected values to 0.");
             RefreshGraph();
             Common.ShowMessageBox("Values Updated", "The selected values have been set to 0.", false, false);
+
+            NotifyOfPropertyChange(() => UndoButtonEnabled);
+            NotifyOfPropertyChange(() => RedoButtonEnabled);
         }
 
         private void Finalise(string taskPerformed)
@@ -271,6 +280,9 @@ namespace IndiaTango.ViewModels
 
             RefreshGraph();
             Common.ShowMessageBox("Values Updated", "The selected values have been set to " + value + ".", false, false);
+
+            NotifyOfPropertyChange(() => UndoButtonEnabled);
+            NotifyOfPropertyChange(() => RedoButtonEnabled);
         }
 
         public void btnUndo()
