@@ -37,7 +37,7 @@
                     <TextBox Grid.ColumnSpan="2" Text="{Binding SmoothingPeriod}" Grid.Column="1" Width="171" />
                     <Label Grid.Column="2" Content="Hours" />
                     </Grid>
-                    <Slider Value="{Binding SmoothingPeriod}" Maximum="{Binding MaxHours}" Minimum="1"/>
+                    <Slider Value="{Binding SmoothingPeriod}" Maximum="200" Minimum="1"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>

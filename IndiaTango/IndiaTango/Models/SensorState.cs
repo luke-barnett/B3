@@ -152,30 +152,53 @@ namespace IndiaTango.Models
         public List<DateTime> GetOutliersFromStdDev(int timeGap, DateTime start, DateTime end, int numStdDev, int smoothingPeriod)
         {
             var outliers = new List<DateTime>();
-            var prev = start;
+            var values = new LinkedList<float>();
+            var prevVal = 0f;
+            prevVal = (Values.TryGetValue(start, out prevVal)? prevVal:float.NaN);
+            for (var i = start; i > start.AddMinutes(-(timeGap * smoothingPeriod)); i = i.AddMinutes(-timeGap))
+            {
+                values.AddFirst(float.NaN);
+            }
             for (var time = start.AddMinutes(timeGap); time <= end;time = time.AddMinutes(timeGap) )
             {
-                var values = new List<float>();
+                values.RemoveFirst();
                 var value = 0f;
-                if (!Values.TryGetValue(time, out value)) continue;
-                for (var i = prev; i > prev.AddMinutes(-(timeGap * smoothingPeriod)); i = i.AddMinutes(-timeGap))
-                {
-                    var avValue = 0f;
-                    if (!Values.TryGetValue(i, out avValue)) continue;
-                    values.Add(avValue);
-                }
-                var avg = values.Average();
-                var sum = values.Sum(d => Math.Pow(d - avg, 2));
-                var stdDev = (float)Math.Sqrt((sum) / (values.Count() - 1));
+                value = (Values.TryGetValue(time, out value) ? value : float.NaN);
+                values.AddLast(prevVal);
+                var avg = GetAverage(values);
+                var sum = GetSquaresSum(values,avg);
+                var stdDev = (float)Math.Sqrt((sum) / (GetCount(values) - 1));
                 var top = avg + (numStdDev*stdDev);
                 var bottom = avg - (numStdDev*stdDev);
                 if(value > top || value < bottom)
                 {
                     outliers.Add(time);
                 }
-                prev = time;
+                prevVal = value;
             }
             return outliers;
+        }
+
+        private float GetSquaresSum(IEnumerable<float> values, float average)
+        {
+            return values.Where(value => !float.IsNaN(value)).Sum(value => (float) Math.Pow(value - average, 2));
+        }
+
+        private int GetCount(IEnumerable<float> values)
+        {
+            return values.Count(value => !float.IsNaN(value));
+        }
+
+        private float GetAverage(IEnumerable<float> values)
+        {
+            var sum = 0f;
+            var count = 0;
+            foreach (var value in values.Where(value => !float.IsNaN(value)))
+            {
+                count++;
+                sum += value;
+            }
+            return sum/count;
         }
 
 
