@@ -403,11 +403,14 @@ namespace IndiaTango.Tests
             testSensorState.Values.Add(date3, 3f);
             testSensorState.Values.Add(date4, 7f);
             //mean=4.5,stddev=3
-            var outliers = testSensorState.GetOutliersFromStdDev(15, date1, date4, 1, 4);
+            var outliers = testSensorState.GetOutliersFromStdDev(15, date1, date4, 2, 4);
             Assert.IsEmpty(outliers);
-            testSensorState.Values.Add(date5, 9f);
-            outliers = testSensorState.GetOutliersFromStdDev(15, date1, date5, 1, 4);
-            Assert.Contains(new KeyValuePair<DateTime, float>(date5, 9f), outliers);
+            testSensorState.Values.Add(date5, 11f);
+            outliers = testSensorState.GetOutliersFromStdDev(15, date1, date5, 2, 4);
+            Assert.Contains(date5, outliers);
+            testSensorState.Values.Add(date6, 2);
+            outliers = testSensorState.GetOutliersFromStdDev(15, date1, date6, 1, 4);
+            Assert.Contains(date6,outliers);
         }
 
         #endregion

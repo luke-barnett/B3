@@ -152,15 +152,16 @@ namespace IndiaTango.Models
         public List<DateTime> GetOutliersFromStdDev(int timeGap, DateTime start, DateTime end, int numStdDev, int smoothingPeriod)
         {
             var outliers = new List<DateTime>();
-            for (var time = start; time <= end;time = time.AddMinutes(timeGap) )
+            var prev = start;
+            for (var time = start.AddMinutes(timeGap); time <= end;time = time.AddMinutes(timeGap) )
             {
                 var values = new List<float>();
                 var value = 0f;
                 if (!Values.TryGetValue(time, out value)) continue;
-                for (var i = time; i > time.AddMinutes(-(timeGap * smoothingPeriod)); i = i.AddMinutes(-timeGap))
+                for (var i = prev; i > prev.AddMinutes(-(timeGap * smoothingPeriod)); i = i.AddMinutes(-timeGap))
                 {
                     var avValue = 0f;
-                    if (!Values.TryGetValue(time, out avValue)) continue;
+                    if (!Values.TryGetValue(i, out avValue)) continue;
                     values.Add(avValue);
                 }
                 var avg = values.Average();
@@ -172,6 +173,7 @@ namespace IndiaTango.Models
                 {
                     outliers.Add(time);
                 }
+                prev = time;
             }
             return outliers;
         }
