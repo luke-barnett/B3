@@ -398,6 +398,7 @@ namespace IndiaTango.Tests
             var date4 = new DateTime(2011, 1, 1, 0, 45, 0);
             var date5 = new DateTime(2011, 1, 1, 1, 0, 0);
             var date6 = new DateTime(2011, 1, 1, 1, 15, 0);
+            var date7 = new DateTime(2011, 1, 1, 1, 30, 0);
             testSensorState.Values.Add(date1, 1f);
             testSensorState.Values.Add(date2, 7f);
             testSensorState.Values.Add(date3, 3f);
@@ -411,6 +412,9 @@ namespace IndiaTango.Tests
             testSensorState.Values.Add(date6, 2);
             outliers = testSensorState.GetOutliersFromStdDev(15, date1, date6, 1, 4);
             Assert.Contains(date6,outliers);
+            testSensorState.Values.Add(date7, 10);
+            outliers = testSensorState.GetOutliersFromStdDev(15, date1, date7, 1, 4);
+            Assert.Contains(date7, outliers);
         }
 
         #endregion
