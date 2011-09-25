@@ -18,6 +18,10 @@ using System.Text.RegularExpressions;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Original calculator code sourced from:http://www.c-sharpcorner.com/UploadFile/mgold/CodeDomCalculator08082005003253AM/CodeDomCalculator.aspx
+    /// Author: Mike Gold
+    /// </summary>
     public class FormulaEvaluator
     {
         readonly ArrayList _mathMembers = new ArrayList();
