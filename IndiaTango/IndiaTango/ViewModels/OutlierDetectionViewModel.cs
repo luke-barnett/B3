@@ -22,6 +22,9 @@ namespace IndiaTango.ViewModels
         private Dataset _ds;
         private int _zoomLevel = 100;
         private Sensor _sensor;
+        private bool _minMaxMode = true;
+        private int _numStdDev;
+        private int _smoothingPeriod;
 
         private List<LineSeries> _chartSeries = new List<LineSeries>();
         private BehaviourManager _behaviour;
@@ -135,9 +138,13 @@ namespace IndiaTango.ViewModels
             set
             {
                 _sensor = value;
-                Outliers = _sensor.CurrentState.GetOutliersFromMaxAndMin(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp,
-                                                            _sensor.UpperLimit, _sensor.LowerLimit,
-                                                            _sensor.MaxRateOfChange);
+                Outliers = (_minMaxMode)
+                               ? _sensor.CurrentState.GetOutliersFromMaxAndMin(_ds.DataInterval, _ds.StartTimeStamp,
+                                                                               _ds.EndTimeStamp,
+                                                                               _sensor.UpperLimit, _sensor.LowerLimit,
+                                                                               _sensor.MaxRateOfChange)
+                               : _sensor.CurrentState.GetOutliersFromStdDev(_ds.DataInterval, _ds.StartTimeStamp,
+                                                                            _ds.EndTimeStamp, NumStdDev, SmoothingPeriod);
                 NotifyOfPropertyChange(() => SelectedSensor);
                 NotifyOfPropertyChange(() => SensorName);
                 NotifyOfPropertyChange(() => OutliersStrings);
@@ -156,6 +163,61 @@ namespace IndiaTango.ViewModels
                 else
                     _selectedValues = new List<DateTime>();
                 NotifyOfPropertyChange(() => SelectedValues);
+            }
+        }
+
+        public Boolean MinMaxMode
+        {
+            get { return _minMaxMode; }
+            set 
+            { 
+                _minMaxMode = value;
+                NotifyOfPropertyChange(()=>MinMaxMode);
+                NotifyOfPropertyChange(() =>StdDevMode);
+                NotifyOfPropertyChange(()=>OutliersStrings);
+                NotifyOfPropertyChange(()=>SelectedSensor);
+            }
+        }
+
+        public Boolean StdDevMode
+        {
+            get { return !_minMaxMode; }
+            set
+            {
+                _minMaxMode = !value;
+                NotifyOfPropertyChange(() => MinMaxMode);
+                NotifyOfPropertyChange(() => StdDevMode);
+                NotifyOfPropertyChange(() => OutliersStrings);
+                NotifyOfPropertyChange(() => SelectedSensor);
+            }
+        }
+
+        public int NumStdDev
+        {
+            get { return _numStdDev; }
+            set
+            {
+                _numStdDev = value;
+                NotifyOfPropertyChange(() => NumStdDev);
+                NotifyOfPropertyChange(()=>SelectedSensor);
+            }
+
+        }
+
+        public int MaxHours
+        {
+            get { return (int)Math.Floor(_ds.EndTimeStamp.Subtract(_ds.StartTimeStamp).TotalHours); }
+        }
+
+        public int SmoothingPeriod
+        {
+            get { return _smoothingPeriod/(60/_ds.DataInterval); }
+            set
+            {
+                
+                _smoothingPeriod= value*(60/_ds.DataInterval);
+                NotifyOfPropertyChange(() => SmoothingPeriod);
+                NotifyOfPropertyChange(() => SelectedSensor);
             }
         }
 
@@ -219,8 +281,13 @@ namespace IndiaTango.ViewModels
 
         private void Finalise(string taskPerformed)
         {
-            _outliers = _sensor.CurrentState.GetOutliersFromMaxAndMin(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp,
-                                                         _sensor.UpperLimit, _sensor.LowerLimit, _sensor.MaxRateOfChange);
+            Outliers = (_minMaxMode)
+                           ? _sensor.CurrentState.GetOutliersFromMaxAndMin(_ds.DataInterval, _ds.StartTimeStamp,
+                                                                           _ds.EndTimeStamp,
+                                                                           _sensor.UpperLimit, _sensor.LowerLimit,
+                                                                           _sensor.MaxRateOfChange)
+                           : _sensor.CurrentState.GetOutliersFromStdDev(_ds.DataInterval, _ds.StartTimeStamp,
+                                                                        _ds.EndTimeStamp,NumStdDev,SmoothingPeriod);
             NotifyOfPropertyChange(() => Outliers);
             NotifyOfPropertyChange(() => OutliersStrings);
 
@@ -266,16 +333,26 @@ namespace IndiaTango.ViewModels
         public void btnUndo()
         {
             _sensor.Undo();
-            Outliers = _sensor.CurrentState.GetOutliersFromMaxAndMin(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp,
-                                                        _sensor.UpperLimit, _sensor.LowerLimit, _sensor.MaxRateOfChange);
+            Outliers = (_minMaxMode)
+                           ? _sensor.CurrentState.GetOutliersFromMaxAndMin(_ds.DataInterval, _ds.StartTimeStamp,
+                                                                           _ds.EndTimeStamp,
+                                                                           _sensor.UpperLimit, _sensor.LowerLimit,
+                                                                           _sensor.MaxRateOfChange)
+                           : _sensor.CurrentState.GetOutliersFromStdDev(_ds.DataInterval, _ds.StartTimeStamp,
+                                                                        _ds.EndTimeStamp,NumStdDev,SmoothingPeriod);
             RefreshGraph();
         }
 
         public void btnRedo()
         {
             _sensor.Redo();
-            Outliers = _sensor.CurrentState.GetOutliersFromMaxAndMin(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp,
-                                                        _sensor.UpperLimit, _sensor.LowerLimit, _sensor.MaxRateOfChange);
+            Outliers = (_minMaxMode)
+                           ? _sensor.CurrentState.GetOutliersFromMaxAndMin(_ds.DataInterval, _ds.StartTimeStamp,
+                                                                           _ds.EndTimeStamp,
+                                                                           _sensor.UpperLimit, _sensor.LowerLimit,
+                                                                           _sensor.MaxRateOfChange)
+                           : _sensor.CurrentState.GetOutliersFromStdDev(_ds.DataInterval, _ds.StartTimeStamp,
+                                                                        _ds.EndTimeStamp, NumStdDev, SmoothingPeriod);
             RefreshGraph();
         }
 

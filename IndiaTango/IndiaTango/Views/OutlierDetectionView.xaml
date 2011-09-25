@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:cal="http://www.caliburnproject.org"
         xmlns:charts="clr-namespace:Visiblox.Charts;assembly=Visiblox.Charts"
-        xmlns:multiseries="clr-namespace:IndiaTango.MultiSeriesBinding" Title="{Binding SensorName}" Icon="{Binding Icon}" Height="700" Width="950" WindowStartupLocation="CenterScreen">
+        xmlns:multiseries="clr-namespace:IndiaTango.MultiSeriesBinding" Title="{Binding SensorName}" Icon="{Binding Icon}" Height="900" Width="1500" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="370" />
@@ -12,12 +12,44 @@
 
         <Grid Grid.Column="0">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <GroupBox Grid.Row="0" Header="Select A Sensor" BorderBrush="OrangeRed" Margin="10 5 5 5">
+            <GroupBox Grid.Row="0" Header="Select Detection Method" BorderBrush="OrangeRed" Margin="10 5 5 5">
+                <StackPanel>
+                    <RadioButton Content="Use Min/Max/Rate of Change Detection Method" Height="19" Name="radioButton1" IsChecked="{Binding MinMaxMode}"/>
+                    <RadioButton Content="Use Standard Deviation Detection Method" Height="19" Name="radioButton2" IsChecked="{Binding StdDevMode}"/>
+                </StackPanel>
+            </GroupBox>
+            <GroupBox Grid.Row="1" Header="Standard Deviation Mode Options" BorderBrush="OrangeRed" Margin="10 5 5 5" IsEnabled="{Binding StdDevMode}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="172"/>
+                            <ColumnDefinition Width="129"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                    <Label Content="Smoothing Period" Margin="0,0,21,0" />
+                    <TextBox Grid.ColumnSpan="2" Text="{Binding SmoothingPeriod}" Grid.Column="1" Width="171" />
+                    <Label Grid.Column="2" Content="Hours" />
+                    </Grid>
+                    <Slider Value="{Binding SmoothingPeriod}" Maximum="{Binding MaxHours}"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Column="0" Content="Standard Deviations"/>
+                        <TextBox Grid.Column="1" Grid.ColumnSpan="2"  Text="{Binding NumStdDev}"/>
+                    </Grid>
+                    <Slider Value="{Binding NumStdDev}" Maximum="5" Minimum="1"/>
+                </StackPanel>
+            </GroupBox>
+            <GroupBox Grid.Row="2" Header="Select A Sensor" BorderBrush="OrangeRed" Margin="10 5 5 5">
                 <ListBox ItemsSource="{Binding SensorList}"  SelectionMode="Single" Margin="5" SelectedItem="{Binding SelectedSensor}">
                     <!--<i:Interaction.Triggers>
                         <i:EventTrigger EventName="SelectionChanged">
@@ -29,7 +61,7 @@
                 </ListBox>
             </GroupBox>
 
-            <GroupBox Grid.Row="1" Header="Readings Found" BorderBrush="OrangeRed" Margin="10 5 5 5">
+            <GroupBox Grid.Row="3" Header="Readings Found" BorderBrush="OrangeRed" Margin="10 5 5 5">
                 <ListBox Margin="5" ItemsSource ="{Binding OutliersStrings}" SelectedItem="{Binding SelectedValues}" SelectionMode="Extended">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="SelectionChanged">
@@ -41,7 +73,7 @@
                 </ListBox>
             </GroupBox>
 
-            <GroupBox Grid.Row="2" Header="Actions" BorderBrush="OrangeRed" Margin="10 5 5 10">
+            <GroupBox Grid.Row="4" Header="Actions" BorderBrush="OrangeRed" Margin="10 5 5 10">
                 <StackPanel>
                     <WrapPanel Margin="5">
                         <Button Name="btnUndo" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding ActionButtonsEnabled}">

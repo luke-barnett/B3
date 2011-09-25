@@ -157,7 +157,7 @@ namespace IndiaTango.Models
                 var values = new List<float>();
                 var value = 0f;
                 if (!Values.TryGetValue(time, out value)) continue;
-                for (var i = time; i < time.AddMinutes(timeGap * smoothingPeriod); i = i.AddMinutes(-timeGap))
+                for (var i = time; i > time.AddMinutes(-(timeGap * smoothingPeriod)); i = i.AddMinutes(-timeGap))
                 {
                     var avValue = 0f;
                     if (!Values.TryGetValue(time, out avValue)) continue;
