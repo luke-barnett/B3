@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using Caliburn.Micro;
 using IndiaTango.Models;
@@ -25,6 +26,7 @@ namespace IndiaTango.ViewModels
         private bool _minMaxMode = true;
         private int _numStdDev;
         private int _smoothingPeriod;
+		private Cursor _viewCursor = Cursors.Arrow;
 
         private List<LineSeries> _chartSeries = new List<LineSeries>();
         private BehaviourManager _behaviour;
@@ -67,6 +69,12 @@ namespace IndiaTango.ViewModels
         }
 
         #region View Properties
+
+		public Cursor ViewCursor
+		{
+			get { return _viewCursor; }
+			set { _viewCursor = value; NotifyOfPropertyChange(() => ViewCursor); }
+		}
 
         public int ZoomLevel
         {
@@ -221,6 +229,16 @@ namespace IndiaTango.ViewModels
             }
         }
 
+		public bool RedoButtonEnabled
+		{
+			get { return SelectedSensor != null && SelectedSensor.RedoStack.Count > 0; }
+		}
+
+		public bool UndoButtonEnabled
+		{
+			get { return SelectedSensor != null && SelectedSensor.UndoStack.Count > 1; }
+		}
+
         public List<LineSeries> ChartSeries { get { return _chartSeries; } set { _chartSeries = value; NotifyOfPropertyChange(() => ChartSeries); } }
 
         public BehaviourManager Behaviour { get { return _behaviour; } set { _behaviour = value; NotifyOfPropertyChange(() => Behaviour); } }
@@ -249,6 +267,9 @@ namespace IndiaTango.ViewModels
             {
                 SelectedValues.Add(DateTime.Parse(item.Substring(0, 27)));
             }
+
+            NotifyOfPropertyChange(() => UndoButtonEnabled);
+            NotifyOfPropertyChange(() => RedoButtonEnabled);
         }
 
 
@@ -257,12 +278,18 @@ namespace IndiaTango.ViewModels
             EventLogger.LogInfo(GetType().ToString(), "Value removal started.");
             if (_selectedValues.Count == 0)
                 return;
+
+        	ViewCursor = Cursors.Wait;
             _sensor.AddState(_sensor.CurrentState.removeValues(SelectedValues));
 
             Finalise("Removed selected values from dataset.");
 
             RefreshGraph();
             Common.ShowMessageBox("Values Updated", "The selected values have been removed from the data", false, false);
+
+            NotifyOfPropertyChange(() => UndoButtonEnabled);
+            NotifyOfPropertyChange(() => RedoButtonEnabled);
+        	ViewCursor = Cursors.Arrow;
         }
 
         public void btnMakeZero()
@@ -272,11 +299,16 @@ namespace IndiaTango.ViewModels
             if (_selectedValues.Count == 0)
                 return;
 
+			ViewCursor = Cursors.Wait;
             _sensor.AddState(_sensor.CurrentState.ChangeToZero(SelectedValues));
 
             Finalise("Set selected values to 0.");
             RefreshGraph();
             Common.ShowMessageBox("Values Updated", "The selected values have been set to 0.", false, false);
+
+            NotifyOfPropertyChange(() => UndoButtonEnabled);
+            NotifyOfPropertyChange(() => RedoButtonEnabled);
+			ViewCursor = Cursors.Arrow;
         }
 
         private void Finalise(string taskPerformed)
@@ -322,12 +354,17 @@ namespace IndiaTango.ViewModels
                 }
             }
 
+			ViewCursor = Cursors.Wait;
             _sensor.AddState(_sensor.CurrentState.ChangeToValue(SelectedValues, value));
 
             Finalise("Specified values for selected data points as " + value + ".");
 
             RefreshGraph();
             Common.ShowMessageBox("Values Updated", "The selected values have been set to " + value + ".", false, false);
+
+            NotifyOfPropertyChange(() => UndoButtonEnabled);
+            NotifyOfPropertyChange(() => RedoButtonEnabled);
+			ViewCursor = Cursors.Arrow;
         }
 
         public void btnUndo()
@@ -341,6 +378,8 @@ namespace IndiaTango.ViewModels
                            : _sensor.CurrentState.GetOutliersFromStdDev(_ds.DataInterval, _ds.StartTimeStamp,
                                                                         _ds.EndTimeStamp,NumStdDev,SmoothingPeriod);
             RefreshGraph();
+			NotifyOfPropertyChange(() => UndoButtonEnabled);
+			NotifyOfPropertyChange(() => RedoButtonEnabled);
         }
 
         public void btnRedo()
@@ -354,6 +393,8 @@ namespace IndiaTango.ViewModels
                            : _sensor.CurrentState.GetOutliersFromStdDev(_ds.DataInterval, _ds.StartTimeStamp,
                                                                         _ds.EndTimeStamp, NumStdDev, SmoothingPeriod);
             RefreshGraph();
+			NotifyOfPropertyChange(() => UndoButtonEnabled);
+			NotifyOfPropertyChange(() => RedoButtonEnabled);
         }
 
         public void btnDone()

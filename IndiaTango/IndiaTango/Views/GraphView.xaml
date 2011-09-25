@@ -55,10 +55,15 @@
                         </toolkit:DateTimePicker>
                     </StackPanel>
                     
-                    <TextBlock Text="Render Method:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" />
-                    <ComboBox Grid.Row="1" Grid.Column="1" Margin="5" SelectedIndex="0" IsEnabled="False">
-                        <ComboBoxItem Content="Fast" />
-                        <ComboBoxItem Content="All Points" />
+                    <TextBlock Text="Sampling Size:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" />
+                    <ComboBox Grid.Row="1" Grid.Column="1" Margin="5" SelectedIndex="{Binding SelectedSamplingCapIndex, Mode=TwoWay}" ItemsSource="{Binding SamplingCaps}">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="SelectionChanged">
+                                <cal:ActionMessage MethodName="SamplingCapChanged">
+                                    <cal:Parameter Value="$eventArgs" />
+                                </cal:ActionMessage>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
                     </ComboBox>
                 </Grid>
             </GroupBox>
@@ -143,10 +148,10 @@
             
             <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Stretch">
                 <Slider Width="100" Minimum="{Binding MinimumMinimum}" Maximum="{Binding MaximumMinimum}" Value="{Binding Minimum, Mode=TwoWay}" TickPlacement="BottomRight" VerticalAlignment="Center" Margin="10" IsSnapToTickEnabled="True" TickFrequency="10" />
-                <TextBlock Text="{Binding MinimumValue}"  VerticalAlignment="Center" Margin="0" FontSize="15" />
+                <TextBox Name="MinimumValue" Text="{Binding MinimumValue, Mode=TwoWay, UpdateSourceTrigger=Explicit}"  VerticalAlignment="Center" Margin="0" FontSize="15" Width="50" KeyUp="MinimumValue_KeyUp" />
 
                 <Slider Width="100" Minimum="{Binding MinimumMaximum}" Maximum="{Binding MaximumMaximum}" Value="{Binding Maximum, Mode=TwoWay}" TickPlacement="BottomRight" VerticalAlignment="Center"  Margin="10" IsSnapToTickEnabled="True" TickFrequency="10" />
-                <TextBlock Text="{Binding MaximumValue}" VerticalAlignment="Center" Margin="0" FontSize="15" />
+                <TextBox Name="MaximumValue" Text="{Binding MaximumValue, Mode=TwoWay, UpdateSourceTrigger=Explicit}" VerticalAlignment="Center" Margin="0" FontSize="15" Width="50" KeyUp="MaximumValue_KeyUp" />
             </StackPanel>
             
             <StackPanel Grid.Row="1"  HorizontalAlignment="Right">

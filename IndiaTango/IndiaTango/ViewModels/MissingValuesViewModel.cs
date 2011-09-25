@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using Caliburn.Micro;
 using IndiaTango.Models;
@@ -22,6 +23,7 @@ namespace IndiaTango.ViewModels
 		private List<DateTime> _missingValues = new List<DateTime>();
 		private List<DateTime> _selectedValues = new List<DateTime>();
         private Dataset _ds;
+		private Cursor _viewCursor = Cursors.Arrow;
 
         private List<LineSeries> _chartSeries = new List<LineSeries>();
         private BehaviourManager _behaviour;
@@ -64,6 +66,12 @@ namespace IndiaTango.ViewModels
         }
 
 		#region View Properties
+
+		public Cursor ViewCursor
+		{
+			get { return _viewCursor; }
+			set { _viewCursor = value; NotifyOfPropertyChange(() => ViewCursor); }
+		}
 
         public bool RedoButtonEnabled
         {
@@ -138,6 +146,8 @@ namespace IndiaTango.ViewModels
 				MissingValues = _sensor.CurrentState.GetMissingTimes(15,_ds.StartTimeStamp,_ds.EndTimeStamp);
 				NotifyOfPropertyChange(() => SensorName);
 				NotifyOfPropertyChange(() => MissingCount);
+                NotifyOfPropertyChange(() => RedoButtonEnabled);
+                NotifyOfPropertyChange(() => UndoButtonEnabled);
 			    _graphableSensor = _sensor != null ? new GraphableSensor(_sensor) : null;
 			    UpdateGraph();
 			}
@@ -178,21 +188,28 @@ namespace IndiaTango.ViewModels
 			{
 				SelectedValues.Add(item);
 			}
+            NotifyOfPropertyChange(() => UndoButtonEnabled);
+            
 		}
 
 		public void btnUndo()
 		{
-            _sensor.Undo();
-            MissingValues = _sensor.CurrentState.GetMissingTimes(15, _ds.StartTimeStamp, _ds.EndTimeStamp);
-            RefreshGraph();
+			_sensor.Undo();
+			MissingValues = _sensor.CurrentState.GetMissingTimes(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp);
+			RefreshGraph();
+			NotifyOfPropertyChange(() => UndoButtonEnabled);
+			NotifyOfPropertyChange(() => RedoButtonEnabled);
 		}
 
 		public void btnRedo()
 		{
-            _sensor.Redo();
-            MissingValues = _sensor.CurrentState.GetMissingTimes(15, _ds.StartTimeStamp, _ds.EndTimeStamp);
-            RefreshGraph();
+			_sensor.Redo();
+			MissingValues = _sensor.CurrentState.GetMissingTimes(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp);
+			RefreshGraph();
+			NotifyOfPropertyChange(() => UndoButtonEnabled);
+			NotifyOfPropertyChange(() => RedoButtonEnabled);
 		}
+
 
 		public void btnDone()
 		{
@@ -212,6 +229,8 @@ namespace IndiaTango.ViewModels
 
 			Common.ShowMessageBox("Values Updated", "The selected values have been set to 0.", false, false);
             RefreshGraph();
+            NotifyOfPropertyChange(() => UndoButtonEnabled);
+            NotifyOfPropertyChange(() => RedoButtonEnabled);
         }
 
         
@@ -244,12 +263,16 @@ namespace IndiaTango.ViewModels
                 }
             }
 
+        	ViewCursor = Cursors.Wait;
             _sensor.AddState(_sensor.CurrentState.MakeValue(SelectedValues, value));
 
             Finalise("Selected values has been set to " + value + ".");
 
             Common.ShowMessageBox("Values Updated", "The selected values have been set to " + value + ".", false, false);
             RefreshGraph();
+            NotifyOfPropertyChange(() => UndoButtonEnabled);
+            NotifyOfPropertyChange(() => RedoButtonEnabled);
+        	ViewCursor = Cursors.Arrow;
         }
 
         private void Finalise(string taskPerformed)
@@ -282,6 +305,8 @@ namespace IndiaTango.ViewModels
             if (!Common.ShowMessageBox("Extrapolate", "This will find the first and last value in the current range and extrapolate between them.\r\n\r\nAre you sure you want to do this?", true, false))
                 return;
 
+        	ViewCursor = Cursors.Wait;
+
             try
             {
                 var newState = SelectedSensor.CurrentState.Extrapolate(SelectedValues, Dataset);
@@ -295,8 +320,12 @@ namespace IndiaTango.ViewModels
             {
                 Common.ShowMessageBoxWithException("Error", "An error occured during extrapolation. Ensure you have selected a sensor and one or more data points, and try again.",
                                       false, true, e);
+				ViewCursor = Cursors.Arrow;
             }
             RefreshGraph();
+            NotifyOfPropertyChange(() => UndoButtonEnabled);
+            NotifyOfPropertyChange(() => RedoButtonEnabled);
+        	ViewCursor = Cursors.Arrow;
         }
 
 		public void btnZoomIn()

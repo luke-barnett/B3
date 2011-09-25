@@ -66,6 +66,7 @@ namespace IndiaTango.ViewModels
             Common.ShowMessageBox("Your settings have been saved",
                                   "The changes you've made to these settings have been saved, and will take effect immediately.",
                                   false, false);
+			this.TryClose();
         }
 
         public void btnDone()

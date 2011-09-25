@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:cal="http://www.caliburnproject.org"
         xmlns:charts="clr-namespace:Visiblox.Charts;assembly=Visiblox.Charts"
-        xmlns:multiseries="clr-namespace:IndiaTango.MultiSeriesBinding" Title="{Binding SensorName}" Icon="{Binding Icon}" Height="900" Width="1500" WindowStartupLocation="CenterScreen">
+        xmlns:multiseries="clr-namespace:IndiaTango.MultiSeriesBinding" Title="{Binding SensorName}" Icon="{Binding Icon}" Height="900" Width="1500" WindowStartupLocation="CenterScreen" Cursor="{Binding ViewCursor}">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="370" />
@@ -37,7 +37,7 @@
                     <TextBox Grid.ColumnSpan="2" Text="{Binding SmoothingPeriod}" Grid.Column="1" Width="171" />
                     <Label Grid.Column="2" Content="Hours" />
                     </Grid>
-                    <Slider Value="{Binding SmoothingPeriod}" Maximum="{Binding MaxHours}"/>
+                    <Slider Value="{Binding SmoothingPeriod}" Maximum="{Binding MaxHours}" Minimum="1"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -76,21 +76,21 @@
             <GroupBox Grid.Row="4" Header="Actions" BorderBrush="OrangeRed" Margin="10 5 5 10">
                 <StackPanel>
                     <WrapPanel Margin="5">
-                        <Button Name="btnUndo" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding ActionButtonsEnabled}">
+                        <Button Name="btnUndo" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding UndoButtonEnabled}">
                             <StackPanel Orientation="Vertical">
                                 <Image Source="/IndiaTango;component/Images/undo.png" Width="64" Height="64" />
                                 <TextBlock Text="Undo" HorizontalAlignment="Center" />
                             </StackPanel>
                         </Button>
 
-                        <Button Name="btnRedo" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding ActionButtonsEnabled}">
+                        <Button Name="btnRedo" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding RedoButtonEnabled}">
                             <StackPanel Orientation="Vertical">
                                 <Image Source="/IndiaTango;component/Images/redo.png" Width="64" Height="64" />
                                 <TextBlock Text="Redo" HorizontalAlignment="Center" />
                             </StackPanel>
                         </Button>
 
-                        <Button Name="btnDone" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding ActionButtonsEnabled}">
+                        <Button Name="btnDone" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" >
                             <StackPanel Orientation="Vertical">
                                 <Image Source="/IndiaTango;component/Images/done_64.png" Width="64" Height="64" />
                                 <TextBlock Text="Done" HorizontalAlignment="Center" />
@@ -101,21 +101,21 @@
                     <Rectangle Height="3" Fill="OrangeRed" Margin="10 0" Grid.Row="1" Grid.ColumnSpan="5" SnapsToDevicePixels="True" Stroke="White" />
 
                     <WrapPanel Margin="5">
-                        <Button Name="btnRemove" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding ActionButtonsEnabled}">
+                        <Button Name="btnRemove" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" >
                             <StackPanel Orientation="Vertical">
                                 <Image Source="/IndiaTango;component/Images/remove_point.png" Width="64" Height="64" />
                                 <TextBlock Text="Remove value" HorizontalAlignment="Center" />
                             </StackPanel>
                         </Button>
 
-                        <Button Name="btnMakeZero" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding ActionButtonsEnabled}">
+                        <Button Name="btnMakeZero" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom">
                             <StackPanel Orientation="Vertical">
                                 <Image Source="/IndiaTango;component/Images/graph_zero.png" Width="64" Height="64" />
                                 <TextBlock Text="Make Zero" HorizontalAlignment="Center" />
                             </StackPanel>
                         </Button>
 
-                        <Button Name="btnSpecify" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding ActionButtonsEnabled}">
+                        <Button Name="btnSpecify" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" >
                             <StackPanel Orientation="Vertical">
                                 <Image Source="/IndiaTango;component/Images/graph_specify.png" Width="64" Height="64" />
                                 <TextBlock Text="Specify Value" HorizontalAlignment="Center" />

@@ -6,8 +6,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Windows;
+//using System.Windows.Controls;
+//using System.Windows.Forms;
 using System.Windows.Controls;
-using System.Windows.Forms;
+using System.Windows.Input;
 using System.Windows.Media;
 using Caliburn.Micro;
 using IndiaTango.Models;
@@ -33,7 +35,7 @@ namespace IndiaTango.ViewModels
         private int _sampleRate;
         private int _zoomLevel = 100;
         private DateTime _startDateTime, _endDateTime;
-        private Cursor _viewCursor = Cursors.Default;
+    	private Cursor _viewCursor = Cursors.Arrow;
         private List<LineSeries> _lineSeries;
         private DataSeries<DateTime, float> _dataSeries;
         private GraphableSensor _sensorToGraph;
@@ -158,7 +160,7 @@ namespace IndiaTango.ViewModels
 
         public bool ApplyButtonEnabled
         {
-            get { return SelectedSensor != null && ValidFormula; }
+            get { return SelectedSensor != null && (ValidFormula || !IndiaTango.Properties.Settings.Default.EvaluateFormulaOnKeyUp); }
         }
 
 		public int ZoomLevel
@@ -341,8 +343,8 @@ namespace IndiaTango.ViewModels
             _sensor.Undo();
             NotifyOfPropertyChange(() => UndoButtonEnabled);
             NotifyOfPropertyChange(() => RedoButtonEnabled);
-            //TODO: Update graph
-            
+			RefreshGraph();
+
 		}
 
 		public void btnRedo()
@@ -350,7 +352,7 @@ namespace IndiaTango.ViewModels
             _sensor.Redo();
             NotifyOfPropertyChange(() => UndoButtonEnabled);
             NotifyOfPropertyChange(() => RedoButtonEnabled);
-            //TODO: Update graph
+			RefreshGraph();
 		}
 
 		public void btnDone()
@@ -360,20 +362,31 @@ namespace IndiaTango.ViewModels
 
         public void btnHelp()
         {
-            //TODO: Help dialog
-            //Common.ShowFeatureNotImplementedMessageBox();
-            FormulaText = FormulaText;
+        	string message = "";
+
+        	message = "The program applies the formula entered across all data points within the specified range. " +
+        	          "The following gives an indication of the operations and syntax.\n\n" +
+					  "Mathematical operations\t [ -, +, *, ^, % ]\n" +
+        	          "Mathematical functions\t [ Sin(y), Cos(y), Tan(y), Pi ]\n\n" +
+        	          "To set a data points value, use 'x = ' followed by the value.\n\n" +
+        	          "To use the data points time stamp in calculations use 't.' followed by the time part desired.\n" +
+        	          "   eg: t.Year, t.Month, t.Day, t.Hour, t.Minute, t.Second\n\n" +
+        	          "Examples:\n" +
+        	          "'x = x + 1'\n" +
+        	          "'x = t.Date'\n" +
+        	          "'x = x * Cos(x + 1) + 2'";
+			Common.ShowMessageBox("Formula Help", message, false, false);
         }
 
         public void btnApply()
         {
-
             _results = _eval.CompileFormula(FormulaText);
             ValidFormula = _eval.CheckCompileResults(_results);
-            ViewCursor = Cursors.WaitCursor;
+        	DateTime t = DateTime.Now;
 
             if(ValidFormula)
             {
+				ViewCursor = Cursors.Wait;
                 SensorState newState = _eval.EvaluateFormula(_results, SelectedSensor.CurrentState.Clone(), _ds.StartTimeStamp,
                                                          _ds.EndTimeStamp);
 
@@ -381,15 +394,22 @@ namespace IndiaTango.ViewModels
 
                 NotifyOfPropertyChange(() => UndoButtonEnabled);
                 NotifyOfPropertyChange(() => RedoButtonEnabled);
+				ViewCursor = Cursors.Arrow;
             }
             else
             {
+            	string errorString = "";
+
+				if (_results.Errors.Count > 0)
+					foreach (CompilerError error in _results.Errors)
+						errorString += error.ErrorText + "\n";
+
                 Common.ShowMessageBoxWithExpansion("Unable to Apply Formula",
                                                    "An error was encounted when trying to apply the formula.\nPlease check the formula syntax.",
-                                                   false, true, (_results != null) ? _results.Output.ToString() : "");
+                                                   false, true, errorString);
             }
 
-            ViewCursor = Cursors.Default;
+			RefreshGraph();
         }
 
         public void btnClear()

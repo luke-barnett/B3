@@ -362,5 +362,54 @@ namespace IndiaTango.Tests
             oldState.MakeValue(null, 5);
         }
         #endregion
+
+        #region Outlier detection tests
+
+        [Test]
+        public void MinMaxMethod()
+        {
+            var date1 = new DateTime(2011, 1, 1, 0, 0, 0);
+            var date2 = new DateTime(2011, 1, 1, 0, 15, 0);
+            testSensorState.Values.Add(date1, 3f);
+            testSensorState.Values.Add(date2, 1.5f);
+            var stuff = testSensorState.GetOutliersFromMaxAndMin(15, date1, date2, 1, 2,
+                                                           100);
+            Assert.Contains(date1, stuff);
+        }
+
+        [Test]
+        public void RateOfChangeMethod()
+        {
+            var date1 = new DateTime(2011, 1, 1, 0, 0, 0);
+            var date2 = new DateTime(2011, 1, 1, 0, 15, 0);
+            testSensorState.Values.Add(date1, 0f);
+            testSensorState.Values.Add(date2, 5f);
+            var stuff = testSensorState.GetOutliersFromMaxAndMin(15, date1, date2, 1, 10,
+                                                           4);
+            Assert.Contains(date2, stuff);
+        }
+
+        [Test]
+        public void StdDevMethod()
+        {
+            var date1 = new DateTime(2011, 1, 1, 0, 0, 0);
+            var date2 = new DateTime(2011, 1, 1, 0, 15, 0);
+            var date3 = new DateTime(2011, 1, 1, 0, 30, 0);
+            var date4 = new DateTime(2011, 1, 1, 0, 45, 0);
+            var date5 = new DateTime(2011, 1, 1, 1, 0, 0);
+            var date6 = new DateTime(2011, 1, 1, 1, 15, 0);
+            testSensorState.Values.Add(date1, 1f);
+            testSensorState.Values.Add(date2, 7f);
+            testSensorState.Values.Add(date3, 3f);
+            testSensorState.Values.Add(date4, 7f);
+            //mean=4.5,stddev=3
+            var outliers = testSensorState.GetOutliersFromStdDev(15, date1, date4, 1, 4);
+            Assert.IsEmpty(outliers);
+            testSensorState.Values.Add(date5, 9f);
+            outliers = testSensorState.GetOutliersFromStdDev(15, date1, date5, 1, 4);
+            Assert.Contains(new KeyValuePair<DateTime, float>(date5, 9f), outliers);
+        }
+
+        #endregion
     }
 }
