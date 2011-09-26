@@ -765,6 +765,35 @@ namespace IndiaTango.Tests
 
         #endregion
 
-       
+        #region Revert To Raw Tests
+        [Test]
+        public void SetRawData()
+        {
+            var s = new Sensor("Temperature", "C");
+            var baseDate = new DateTime(2011, 5, 5, 12, 15, 0);
+            var original = new SensorState(new Dictionary<DateTime, float>() { { baseDate.AddMinutes(15), 20 }, { baseDate.AddMinutes(30), 40 }, { baseDate.AddMinutes(45), 60 }, { baseDate.AddMinutes(60), 80 } });
+
+            s.RawData = original;
+
+            Assert.AreEqual(s.RawData, original);
+        }
+
+        [Test]
+        public void RevertToRaw()
+        {
+            var s = new Sensor("Temperature", "C");
+            var baseDate = new DateTime(2011, 5, 5, 12, 15, 0);
+            var original = new SensorState(new Dictionary<DateTime, float>() { { baseDate.AddMinutes(15), 20 }, { baseDate.AddMinutes(30), 40 }, { baseDate.AddMinutes(45), 60 }, { baseDate.AddMinutes(60), 80 } });
+
+            var newValues = new SensorState(new Dictionary<DateTime, float>() { { baseDate.AddMinutes(15), 20 }, { baseDate.AddMinutes(30), 40 }, { baseDate.AddMinutes(45), 60 }, { baseDate.AddMinutes(60), 1000 } });
+
+            s.RawData = original;
+
+            s.AddState(newValues);
+            s.RevertToRaw();
+
+            Assert.AreEqual(s.CurrentState, original);
+        }
+        #endregion
     }
 }

@@ -24,6 +24,9 @@ namespace IndiaTango.Models
             return s;
         }
 
+        public SensorState(Dictionary<DateTime, float> valueList) : this(DateTime.Now, valueList) {}
+        public SensorState(Dictionary<DateTime, float> valueList, string reason) : this(DateTime.Now, valueList, reason) { }
+
         /// <summary>
         /// Creates a new sensor state with the specified timestamp representing the date it was last edited.
         /// </summary>

@@ -294,6 +294,8 @@ namespace IndiaTango.Models
 
         public Dataset Owner { get; private set; }
 
+        public SensorState RawData { get; set; }
+
         /// <summary>
         /// Gets a value indicating whether or not this sensor shows signs of physical failure.
         /// </summary>
@@ -374,5 +376,12 @@ namespace IndiaTango.Models
             return this.Name;
         }
         #endregion
+
+        public void RevertToRaw()
+        {
+            UndoStack.Clear();
+            RedoStack.Clear();
+            UndoStack.Push(RawData);
+        }
     }
 }
