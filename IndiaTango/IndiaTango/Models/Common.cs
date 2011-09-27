@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
@@ -231,5 +232,14 @@ namespace IndiaTango.Models
                 _windowManager.ShowDialog(specify);
             }
         }
+
+        public static List<string> GenerateSamplingCaps()
+        {
+            var samplingCaps = new List<string> {"1000", "5000", "10000", "15000", "20000", "30000", "40000", "All"};
+
+            return samplingCaps;
+        }
+
+
     }
 }

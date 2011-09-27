@@ -19,18 +19,27 @@ namespace IndiaTango.ViewModels
         private readonly SimpleContainer _container;
         private readonly IWindowManager _windowManager;
         private Sensor _sensor;
-    	private int _zoomLevel = 100;
-		private List<DateTime> _missingValues = new List<DateTime>();
-		private List<DateTime> _selectedValues = new List<DateTime>();
+        private int _zoomLevel = 100;
+        private List<DateTime> _missingValues = new List<DateTime>();
+        private List<DateTime> _selectedValues = new List<DateTime>();
         private Dataset _ds;
-		private Cursor _viewCursor = Cursors.Arrow;
+        private Cursor _viewCursor = Cursors.Arrow;
 
         private List<LineSeries> _chartSeries = new List<LineSeries>();
         private BehaviourManager _behaviour;
-        private DoubleRange _range;
         private int _sampleRate;
         private GraphableSensor _graphableSensor;
         private Canvas _backgroundCanvas;
+
+        private DoubleRange _range;
+        private double _minimum;
+        private double _minimumMinimum;
+        private double _maximumMinimum;
+        private double _maximum;
+        private double _minimumMaximum;
+        private double _maximumMaximum;
+        private List<String> _samplingCaps = new List<string>();
+        private int _samplingCapIndex;
 
         public MissingValuesViewModel(IWindowManager windowManager, SimpleContainer container)
         {
@@ -39,13 +48,13 @@ namespace IndiaTango.ViewModels
 
             _backgroundCanvas = new Canvas { Visibility = Visibility.Collapsed };
 
-            _behaviour = new BehaviourManager{AllowMultipleEnabled = true};
+            _behaviour = new BehaviourManager { AllowMultipleEnabled = true };
 
             var backgroundBehaviour = new GraphBackgroundBehaviour(_backgroundCanvas) { IsEnabled = true };
 
             _behaviour.Behaviours.Add(backgroundBehaviour);
 
-            var zoomBehaviour = new CustomZoomBehaviour{ IsEnabled = true};
+            var zoomBehaviour = new CustomZoomBehaviour { IsEnabled = true };
             zoomBehaviour.ZoomRequested += (o, e) =>
             {
                 var startTime = (DateTime)e.FirstPoint.X;
@@ -63,15 +72,18 @@ namespace IndiaTango.ViewModels
             _behaviour.Behaviours.Add(zoomBehaviour);
 
             Behaviour = _behaviour;
+
+            SamplingCaps = new List<string>(Common.GenerateSamplingCaps());
+            SelectedSamplingCapIndex = 3;
         }
 
-		#region View Properties
+        #region View Properties
 
-		public Cursor ViewCursor
-		{
-			get { return _viewCursor; }
-			set { _viewCursor = value; NotifyOfPropertyChange(() => ViewCursor); }
-		}
+        public Cursor ViewCursor
+        {
+            get { return _viewCursor; }
+            set { _viewCursor = value; NotifyOfPropertyChange(() => ViewCursor); }
+        }
 
         public bool RedoButtonEnabled
         {
@@ -83,41 +95,21 @@ namespace IndiaTango.ViewModels
             get { return SelectedSensor != null && SelectedSensor.UndoStates.Count > 1; }
         }
 
-		public int ZoomLevel
-		{
-			get { return _zoomLevel; }
-			set
-			{
-				_zoomLevel = Math.Max(100, value);
-				_zoomLevel = Math.Min(1000, _zoomLevel);
-
-				NotifyOfPropertyChange(() => ZoomLevel);
-				NotifyOfPropertyChange(() => ZoomText);
-
-				//TODO: Actually zoom
-			}
-		}
-
         public Dataset Dataset { get { return _ds; } set { _ds = value; } }
-
-		public string ZoomText
-		{
-			get { return ZoomLevel + "%"; }
-		}
 
         public String SensorName
         {
-			get { return SelectedSensor == null ? "" : SelectedSensor.Name; }
+            get { return SelectedSensor == null ? "" : SelectedSensor.Name; }
         }
 
         public List<DateTime> MissingValues
         {
             get { return _missingValues; }
-			set
-			{
-				_missingValues = value;
-				NotifyOfPropertyChange(() => MissingValues);
-			}
+            set
+            {
+                _missingValues = value;
+                NotifyOfPropertyChange(() => MissingValues);
+            }
         }
 
         public int MissingCount
@@ -126,42 +118,42 @@ namespace IndiaTango.ViewModels
             set { var i = value; }
         }
 
-		public List<Sensor> SensorList
-		{
-			get { return _ds.Sensors; }
-			set
-			{
-				_ds.Sensors = value;
-				NotifyOfPropertyChange(() => SensorList);
-			}
-		}
+        public List<Sensor> SensorList
+        {
+            get { return _ds.Sensors; }
+            set
+            {
+                _ds.Sensors = value;
+                NotifyOfPropertyChange(() => SensorList);
+            }
+        }
 
-		public Sensor SelectedSensor
-		{
-			get { return _sensor; }
-			set
-			{
-				_sensor = value;
-				NotifyOfPropertyChange(() => SelectedSensor);
-				MissingValues = _sensor.CurrentState.GetMissingTimes(15,_ds.StartTimeStamp,_ds.EndTimeStamp);
-				NotifyOfPropertyChange(() => SensorName);
-				NotifyOfPropertyChange(() => MissingCount);
+        public Sensor SelectedSensor
+        {
+            get { return _sensor; }
+            set
+            {
+                _sensor = value;
+                NotifyOfPropertyChange(() => SelectedSensor);
+                MissingValues = _sensor.CurrentState.GetMissingTimes(15, _ds.StartTimeStamp, _ds.EndTimeStamp);
+                NotifyOfPropertyChange(() => SensorName);
+                NotifyOfPropertyChange(() => MissingCount);
                 NotifyOfPropertyChange(() => RedoButtonEnabled);
                 NotifyOfPropertyChange(() => UndoButtonEnabled);
-			    _graphableSensor = _sensor != null ? new GraphableSensor(_sensor) : null;
-			    UpdateGraph();
-			}
-		}
+                _graphableSensor = _sensor != null ? new GraphableSensor(_sensor) : null;
+                UpdateGraph();
+            }
+        }
 
-    	public List<DateTime> SelectedValues
-    	{
-    		get { return _selectedValues; } 
-			set
-			{
-				_selectedValues = value;
-				NotifyOfPropertyChange(() => SelectedValues);
-			}
-    	}
+        public List<DateTime> SelectedValues
+        {
+            get { return _selectedValues; }
+            set
+            {
+                _selectedValues = value;
+                NotifyOfPropertyChange(() => SelectedValues);
+            }
+        }
 
         public List<LineSeries> ChartSeries { get { return _chartSeries; } set { _chartSeries = value; NotifyOfPropertyChange(() => ChartSeries); } }
 
@@ -171,85 +163,178 @@ namespace IndiaTango.ViewModels
 
         public string YAxisTitle { get { return (SelectedSensor == null) ? string.Empty : SelectedSensor.Unit; } }
 
-        public DoubleRange Range { get { return _range; } set { _range = value; NotifyOfPropertyChange(() => Range); } }
+        public DoubleRange Range
+        {
+            get { return _range; }
+            set
+            {
+                _range = value; NotifyOfPropertyChange(() => Range);
+            }
+        }
 
-		#endregion
+        public List<String> SamplingCaps { get { return _samplingCaps; } set { _samplingCaps = value; NotifyOfPropertyChange(() => SamplingCaps); } }
 
-		#region Event Handlers
+        public int SelectedSamplingCapIndex
+        {
+            get { return _samplingCapIndex; }
+            set
+            {
+                _samplingCapIndex = value;
+                NotifyOfPropertyChange(() => SelectedSamplingCapIndex);
+            }
+        }
 
-		public void SelectionChanged(SelectionChangedEventArgs e)
-		{
-			foreach (DateTime item in e.RemovedItems)
-			{
-				SelectedValues.Remove(item);
-			}
+        #endregion
 
-			foreach (DateTime item in e.AddedItems)
-			{
-				SelectedValues.Add(item);
-			}
+        #region YAxisControls
+
+        /// <summary>
+        /// The value of the lower Y Axis range
+        /// </summary>
+        public double Minimum { get { return _minimum; } set { _minimum = value; NotifyOfPropertyChange(() => Minimum); NotifyOfPropertyChange(() => MinimumValue); MinimumMaximum = Minimum; Range = new DoubleRange(Minimum, Maximum); if (Math.Abs(Maximum - Minimum) < 0.001) Minimum -= 1; } }
+
+        /// <summary>
+        /// The minimum value as a readable string
+        /// </summary>
+        public string MinimumValue
+        {
+            get { return string.Format("{0:N2}", Minimum); }
+            set
+            {
+                var old = Minimum;
+                try
+                {
+                    Minimum = double.Parse(value);
+                }
+                catch (Exception e)
+                {
+                    Minimum = old;
+                }
+            }
+        }
+
+        /// <summary>
+        /// The highest value the bottom range can reach
+        /// </summary>
+        public double MaximumMinimum { get { return _maximumMinimum; } set { _maximumMinimum = value; NotifyOfPropertyChange(() => MaximumMinimum); } }
+
+        /// <summary>
+        /// The lowest value the bottom range can reach
+        /// </summary>
+        public double MinimumMinimum { get { return _minimumMinimum; } set { _minimumMinimum = value; NotifyOfPropertyChange(() => MinimumMinimum); } }
+
+        /// <summary>
+        /// The value of the high Y Axis range
+        /// </summary>
+        public double Maximum { get { return _maximum; } set { _maximum = value; NotifyOfPropertyChange(() => Maximum); NotifyOfPropertyChange(() => MaximumValue); MaximumMinimum = Maximum; Range = new DoubleRange(Minimum, Maximum); if (Math.Abs(Maximum - Minimum) < 0.001) Maximum += 1; } }
+
+        /// <summary>
+        /// The maximum value as a readable string
+        /// </summary>
+        public string MaximumValue
+        {
+            get { return string.Format("{0:N2}", Maximum); }
+            set
+            {
+                var old = Maximum;
+                try
+                {
+                    Maximum = double.Parse(value);
+                }
+                catch (Exception e)
+                {
+                    Maximum = old;
+                }
+            }
+        }
+
+        /// <summary>
+        /// The highest value the top range can reach
+        /// </summary>
+        public double MaximumMaximum { get { return _maximumMaximum; } set { _maximumMaximum = value; NotifyOfPropertyChange(() => MaximumMaximum); } }
+
+        /// <summary>
+        /// The lowest value the top range can reach
+        /// </summary>
+        public double MinimumMaximum { get { return _minimumMaximum; } set { _minimumMaximum = value; NotifyOfPropertyChange(() => MinimumMaximum); } }
+
+        #endregion
+
+        #region Event Handlers
+
+        public void SelectionChanged(SelectionChangedEventArgs e)
+        {
+            foreach (DateTime item in e.RemovedItems)
+            {
+                SelectedValues.Remove(item);
+            }
+
+            foreach (DateTime item in e.AddedItems)
+            {
+                SelectedValues.Add(item);
+            }
             NotifyOfPropertyChange(() => UndoButtonEnabled);
-            
-		}
 
-		public void btnUndo()
-		{
-			_sensor.Undo();
-			MissingValues = _sensor.CurrentState.GetMissingTimes(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp);
-			RefreshGraph();
-			NotifyOfPropertyChange(() => UndoButtonEnabled);
-			NotifyOfPropertyChange(() => RedoButtonEnabled);
-		}
+        }
 
-		public void btnRedo()
-		{
-			_sensor.Redo();
-			MissingValues = _sensor.CurrentState.GetMissingTimes(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp);
-			RefreshGraph();
-			NotifyOfPropertyChange(() => UndoButtonEnabled);
-			NotifyOfPropertyChange(() => RedoButtonEnabled);
-		}
+        public void btnUndo()
+        {
+            _sensor.Undo();
+            MissingValues = _sensor.CurrentState.GetMissingTimes(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp);
+            RefreshGraph();
+            NotifyOfPropertyChange(() => UndoButtonEnabled);
+            NotifyOfPropertyChange(() => RedoButtonEnabled);
+        }
+
+        public void btnRedo()
+        {
+            _sensor.Redo();
+            MissingValues = _sensor.CurrentState.GetMissingTimes(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp);
+            RefreshGraph();
+            NotifyOfPropertyChange(() => UndoButtonEnabled);
+            NotifyOfPropertyChange(() => RedoButtonEnabled);
+        }
 
 
-		public void btnDone()
-		{
-			this.TryClose();
-		}
+        public void btnDone()
+        {
+            this.TryClose();
+        }
 
         public void btnMakeZero()
         {
             EventLogger.LogInfo(GetType().ToString(), "Value updation started.");
 
-            if(_selectedValues.Count == 0)
+            if (_selectedValues.Count == 0)
                 return;
 
             _sensor.AddState(_sensor.CurrentState.MakeZero(SelectedValues));
 
             Finalise("Selected values set to 0.");
 
-			Common.ShowMessageBox("Values Updated", "The selected values have been set to 0.", false, false);
+            Common.ShowMessageBox("Values Updated", "The selected values have been set to 0.", false, false);
             RefreshGraph();
             NotifyOfPropertyChange(() => UndoButtonEnabled);
             NotifyOfPropertyChange(() => RedoButtonEnabled);
         }
 
-        
+
 
         public void btnSpecify()
         {
-			//TODO refactor
+            //TODO refactor
             EventLogger.LogInfo(GetType().ToString(), "Value updation started.");
 
-			if (_selectedValues.Count == 0)
-				return;
+            if (_selectedValues.Count == 0)
+                return;
 
             var value = float.MinValue;
-            
-			while (value.Equals(float.MinValue))
+
+            while (value.Equals(float.MinValue))
             {
                 try
                 {
-                    var specifyVal = _container.GetInstance(typeof (SpecifyValueViewModel), "SpecifyValueViewModel") as SpecifyValueViewModel;
+                    var specifyVal = _container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel") as SpecifyValueViewModel;
                     _windowManager.ShowDialog(specifyVal);
                     //cancel
                     if (specifyVal.Text == null)
@@ -258,12 +343,12 @@ namespace IndiaTango.ViewModels
                 }
                 catch (FormatException f)
                 {
-                	var exit = Common.ShowMessageBox("An Error Occured", "Please enter a valid number.", true, true);
-					if (exit) return;
+                    var exit = Common.ShowMessageBox("An Error Occured", "Please enter a valid number.", true, true);
+                    if (exit) return;
                 }
             }
 
-        	ViewCursor = Cursors.Wait;
+            ViewCursor = Cursors.Wait;
             _sensor.AddState(_sensor.CurrentState.MakeValue(SelectedValues, value));
 
             Finalise("Selected values has been set to " + value + ".");
@@ -272,7 +357,7 @@ namespace IndiaTango.ViewModels
             RefreshGraph();
             NotifyOfPropertyChange(() => UndoButtonEnabled);
             NotifyOfPropertyChange(() => RedoButtonEnabled);
-        	ViewCursor = Cursors.Arrow;
+            ViewCursor = Cursors.Arrow;
         }
 
         private void Finalise(string taskPerformed)
@@ -295,7 +380,7 @@ namespace IndiaTango.ViewModels
                 return;
             }
 
-            if(SelectedValues.Count == 0)
+            if (SelectedValues.Count == 0)
             {
                 Common.ShowMessageBox("No values selected", "Please select one or more data points before performing extrapolation.",
                                       false, true);
@@ -305,7 +390,7 @@ namespace IndiaTango.ViewModels
             if (!Common.ShowMessageBox("Extrapolate", "This will find the first and last value in the current range and extrapolate between them.\r\n\r\nAre you sure you want to do this?", true, false))
                 return;
 
-        	ViewCursor = Cursors.Wait;
+            ViewCursor = Cursors.Wait;
 
             try
             {
@@ -320,30 +405,30 @@ namespace IndiaTango.ViewModels
             {
                 Common.ShowMessageBoxWithException("Error", "An error occured during extrapolation. Ensure you have selected a sensor and one or more data points, and try again.",
                                       false, true, e);
-				ViewCursor = Cursors.Arrow;
+                ViewCursor = Cursors.Arrow;
             }
             RefreshGraph();
             NotifyOfPropertyChange(() => UndoButtonEnabled);
             NotifyOfPropertyChange(() => RedoButtonEnabled);
-        	ViewCursor = Cursors.Arrow;
+            ViewCursor = Cursors.Arrow;
         }
 
-		public void btnZoomIn()
-		{
-			//TODO: Implement zoom
-			ZoomLevel += 100;
-		}
+        public void SamplingCapChanged(SelectionChangedEventArgs e)
+        {
+            try
+            {
+                Common.MaximumGraphablePoints = int.Parse((string)e.AddedItems[0]);
+            }
+            catch (Exception)
+            {
+                Common.MaximumGraphablePoints = int.MaxValue;
+            }
 
-		public void btnZoomOut()
-		{
-			ZoomLevel -= 100;
-		}
+            if(_graphableSensor != null)
+                SampleValues(Common.MaximumGraphablePoints, new Collection<GraphableSensor> { _graphableSensor });
+        }
 
-		public void sldZoom(object sender, RoutedPropertyChangedEventArgs<double> e)
-		{
-			ZoomLevel = (int)e.NewValue;
-		}
-		#endregion
+        #endregion
 
         private void RefreshGraph()
         {
@@ -354,10 +439,10 @@ namespace IndiaTango.ViewModels
 
         private void UpdateGraph()
         {
-            if(SelectedSensor != null)
-                SampleValues(Common.MaximumGraphablePoints, new Collection<GraphableSensor>{_graphableSensor});
+            if (SelectedSensor != null)
+                SampleValues(Common.MaximumGraphablePoints, new Collection<GraphableSensor> { _graphableSensor });
             else
-                ChartSeries =  new List<LineSeries>();
+                ChartSeries = new List<LineSeries>();
             NotifyOfPropertyChange(() => ChartTitle);
             NotifyOfPropertyChange(() => YAxisTitle);
         }
@@ -379,6 +464,58 @@ namespace IndiaTango.ViewModels
             }
 
             ChartSeries = generatedSeries;
+
+            MaximumMaximum = MaximumY().Y + 10;
+            MinimumMinimum = MinimumY().Y - 10;
+
+            Maximum = MaximumMaximum;
+            Minimum = MinimumMinimum;
+        }
+
+        /// <summary>
+        /// Calculates the maximum Y value in the graph
+        /// </summary>
+        /// <returns>The point containing the maximum Y value</returns>
+        private DataPoint<DateTime, float> MaximumY()
+        {
+            DataPoint<DateTime, float> maxY = null;
+
+            foreach (var series in ChartSeries)
+            {
+                foreach (var value in (DataSeries<DateTime, float>)series.DataSeries)
+                {
+                    if (maxY == null)
+                        maxY = value;
+                    else if (value.Y > maxY.Y)
+                        maxY = value;
+                }
+            }
+            if (maxY == null)
+                return new DataPoint<DateTime, float>(DateTime.Now, 10);
+            return maxY;
+        }
+
+        /// <summary>
+        /// Calculates the minimum Y value in the graph
+        /// </summary>
+        /// <returns>The point containing the minimum Y value</returns>
+        private DataPoint<DateTime, float> MinimumY()
+        {
+            DataPoint<DateTime, float> minY = null;
+
+            foreach (var series in ChartSeries)
+            {
+                foreach (var value in (DataSeries<DateTime, float>)series.DataSeries)
+                {
+                    if (minY == null)
+                        minY = value;
+                    else if (value.Y < minY.Y)
+                        minY = value;
+                }
+            }
+            if (minY == null)
+                return new DataPoint<DateTime, float>(DateTime.Now, 0);
+            return minY;
         }
 
         private void HideBackground()
