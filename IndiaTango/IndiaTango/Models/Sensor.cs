@@ -114,6 +114,7 @@ namespace IndiaTango.Models
                 throw new ArgumentOutOfRangeException("Upper limit for this sensor must be greater than the lower limit.");
 
             _name = name;
+            RawName = name;
             Description = description;
             UpperLimit = upperLimit;
             LowerLimit = lowerLimit;
@@ -202,6 +203,12 @@ namespace IndiaTango.Models
                 _calibrationDates = value;
             }
         }
+
+        /// <summary>
+        /// Gets the first name this sensor was given (i.e. the name used to import)
+        /// </summary>
+        [DataMember]
+        public string RawName { get; private set; }
 
         /// <summary>
         /// Gets or sets the name of this sensor. The sensor name cannot be null.

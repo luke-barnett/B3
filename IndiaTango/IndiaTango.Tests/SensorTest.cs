@@ -766,5 +766,26 @@ namespace IndiaTango.Tests
             Assert.AreEqual(s.CurrentState, original);
         }
         #endregion
+
+        #region RawNameTests
+
+        [Test]
+        public void EnsureRawNameNeverChanges()
+        {
+            var rawName = _sensor1.RawName;
+            Assert.AreEqual(rawName, _sensor1.Name);
+
+            _sensor1.Name = "Testing";
+
+            Assert.AreNotEqual(_sensor1.Name, _sensor1.RawName);
+            Assert.AreEqual(rawName, _sensor1.RawName);
+
+            _sensor1.Name = "And Again";
+
+            Assert.AreNotEqual(_sensor1.Name, _sensor1.RawName);
+            Assert.AreEqual(rawName, _sensor1.RawName);
+        }
+
+        #endregion
     }
 }
