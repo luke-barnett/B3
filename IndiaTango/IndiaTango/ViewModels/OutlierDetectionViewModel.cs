@@ -24,8 +24,8 @@ namespace IndiaTango.ViewModels
         private int _zoomLevel = 100;
         private Sensor _sensor;
         private bool _minMaxMode = true;
-        private int _numStdDev;
-        private int _smoothingPeriod;
+        private float _numStdDev = 1;
+        private int _smoothingPeriod = 4;
 		private Cursor _viewCursor = Cursors.Arrow;
 
         private List<LineSeries> _chartSeries = new List<LineSeries>();
@@ -152,7 +152,7 @@ namespace IndiaTango.ViewModels
                                                                                _sensor.UpperLimit, _sensor.LowerLimit,
                                                                                _sensor.MaxRateOfChange)
                                : _sensor.CurrentState.GetOutliersFromStdDev(_ds.DataInterval, _ds.StartTimeStamp,
-                                                                            _ds.EndTimeStamp, NumStdDev, SmoothingPeriod);
+                                                                            _ds.EndTimeStamp, NumStdDev, _smoothingPeriod);
                 NotifyOfPropertyChange(() => SelectedSensor);
                 NotifyOfPropertyChange(() => SensorName);
                 NotifyOfPropertyChange(() => OutliersStrings);
@@ -200,7 +200,7 @@ namespace IndiaTango.ViewModels
             }
         }
 
-        public int NumStdDev
+        public float NumStdDev
         {
             get { return _numStdDev; }
             set
@@ -219,11 +219,11 @@ namespace IndiaTango.ViewModels
 
         public int SmoothingPeriod
         {
-            get { return _smoothingPeriod/(60/_ds.DataInterval); }
+            get{return (int)Math.Ceiling(_smoothingPeriod / (60d / _ds.DataInterval));}
             set
             {
-                
-                _smoothingPeriod= value*(60/_ds.DataInterval);
+
+                _smoothingPeriod = value*(60/_ds.DataInterval);
                 NotifyOfPropertyChange(() => SmoothingPeriod);
                 NotifyOfPropertyChange(() => SelectedSensor);
             }
@@ -319,7 +319,7 @@ namespace IndiaTango.ViewModels
                                                                            _sensor.UpperLimit, _sensor.LowerLimit,
                                                                            _sensor.MaxRateOfChange)
                            : _sensor.CurrentState.GetOutliersFromStdDev(_ds.DataInterval, _ds.StartTimeStamp,
-                                                                        _ds.EndTimeStamp,NumStdDev,SmoothingPeriod);
+                                                                        _ds.EndTimeStamp,NumStdDev,_smoothingPeriod);
             NotifyOfPropertyChange(() => Outliers);
             NotifyOfPropertyChange(() => OutliersStrings);
 
@@ -376,7 +376,7 @@ namespace IndiaTango.ViewModels
                                                                            _sensor.UpperLimit, _sensor.LowerLimit,
                                                                            _sensor.MaxRateOfChange)
                            : _sensor.CurrentState.GetOutliersFromStdDev(_ds.DataInterval, _ds.StartTimeStamp,
-                                                                        _ds.EndTimeStamp,NumStdDev,SmoothingPeriod);
+                                                                        _ds.EndTimeStamp,NumStdDev,_smoothingPeriod);
             RefreshGraph();
 			NotifyOfPropertyChange(() => UndoButtonEnabled);
 			NotifyOfPropertyChange(() => RedoButtonEnabled);
@@ -391,7 +391,7 @@ namespace IndiaTango.ViewModels
                                                                            _sensor.UpperLimit, _sensor.LowerLimit,
                                                                            _sensor.MaxRateOfChange)
                            : _sensor.CurrentState.GetOutliersFromStdDev(_ds.DataInterval, _ds.StartTimeStamp,
-                                                                        _ds.EndTimeStamp, NumStdDev, SmoothingPeriod);
+                                                                        _ds.EndTimeStamp, NumStdDev, _smoothingPeriod);
             RefreshGraph();
 			NotifyOfPropertyChange(() => UndoButtonEnabled);
 			NotifyOfPropertyChange(() => RedoButtonEnabled);
@@ -434,9 +434,10 @@ namespace IndiaTango.ViewModels
             generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour) });
             if (_sampleRate > 1) ShowBackground();
 
-            generatedSeries.Add(new LineSeries { DataSeries = new DataSeries<DateTime, float>("Upper Limit") { new DataPoint<DateTime, float>((sensor.BoundsSet) ? sensor.LowerBound : sensor.Sensor.Owner.StartTimeStamp, sensor.Sensor.UpperLimit), new DataPoint<DateTime, float>((sensor.BoundsSet) ? sensor.UpperBound : sensor.Sensor.Owner.EndTimeStamp, sensor.Sensor.UpperLimit) }, LineStroke = Brushes.OrangeRed });
-            generatedSeries.Add(new LineSeries { DataSeries = new DataSeries<DateTime, float>("Lower Limit") { new DataPoint<DateTime, float>((sensor.BoundsSet) ? sensor.LowerBound : sensor.Sensor.Owner.StartTimeStamp, sensor.Sensor.LowerLimit), new DataPoint<DateTime, float>((sensor.BoundsSet) ? sensor.UpperBound : sensor.Sensor.Owner.EndTimeStamp, sensor.Sensor.LowerLimit) }, LineStroke = Brushes.OrangeRed });
-
+            var upperLimit = (_sampleRate > 1 && StdDevMode) ? new DataSeries<DateTime, float>("Upper Limit", sensor.UpperLine.Where((x, index) => index % _sampleRate == 0)) : new DataSeries<DateTime, float>("Upper Limit", sensor.UpperLine);
+            generatedSeries.Add(new LineSeries { DataSeries = upperLimit, LineStroke = Brushes.OrangeRed });           
+            var lowerLimit = (_sampleRate > 1 && StdDevMode) ? new DataSeries<DateTime, float>("Lower Limit", sensor.LowerLine.Where((x, index) => index % _sampleRate == 0)) : new DataSeries<DateTime, float>("Lower Limit", sensor.LowerLine);
+            generatedSeries.Add(new LineSeries { DataSeries = lowerLimit, LineStroke = Brushes.OrangeRed });
             ChartSeries = generatedSeries;
         }
 

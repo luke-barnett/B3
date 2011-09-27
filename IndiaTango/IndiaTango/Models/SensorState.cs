@@ -16,6 +16,8 @@ namespace IndiaTango.Models
         private DateTime _editTimestamp;
         private Dictionary<DateTime, float> _valueList;
         private string _reason = "";
+        private Dictionary<DateTime, float> _upperLine;
+        private Dictionary<DateTime, float> _lowerLine; 
 
         public SensorState Clone()
         {
@@ -127,6 +129,9 @@ namespace IndiaTango.Models
         public List<DateTime> GetOutliersFromMaxAndMin(int timeGap,DateTime start, DateTime end,float upperLimit, float lowerLimit, float maxRateChange)
         {
             var outliers = new List<DateTime>();
+            _upperLine = new Dictionary<DateTime, float> {{start, upperLimit}, {end, upperLimit}};
+            _lowerLine = new Dictionary<DateTime, float> {{start, lowerLimit},{end,lowerLimit}};
+            
             var prev = 0f;
             for(var time = start;time<=end;time = time.AddMinutes(timeGap))
             {
@@ -150,23 +155,24 @@ namespace IndiaTango.Models
         /// <param name="numStdDev">the numnber of standard deviations from the mean that the outliers begin</param>
         /// <param name="smoothingPeriod">the number of points used to calculate the standard deviation</param>
         /// <returns></returns>
-        public List<DateTime> GetOutliersFromStdDev(int timeGap, DateTime start, DateTime end, int numStdDev, int smoothingPeriod)
+        public List<DateTime> GetOutliersFromStdDev(int timeGap, DateTime start, DateTime end, float numStdDev, int smoothingPeriod)
         {
             var outliers = new List<DateTime>();
             var values = new LinkedList<float>();
-            var prevVal = 0f;
-            prevVal = (Values.TryGetValue(start, out prevVal)? prevVal:float.NaN);
+            _upperLine = new Dictionary<DateTime, float> ();
+            _lowerLine = new Dictionary<DateTime, float> ();
             for (var i = start; i > start.AddMinutes(-(timeGap * smoothingPeriod)); i = i.AddMinutes(-timeGap))
             {
                 values.AddFirst(float.NaN);
             }
-            for (var time = start.AddMinutes(timeGap); time <= end;time = time.AddMinutes(timeGap) )
+            for (var time = start; time <= end;time = time.AddMinutes(timeGap) )
             {
                 values.RemoveFirst();
                 var value = 0f;
                 value = (Values.TryGetValue(time, out value) ? value : float.NaN);
-                values.AddLast(prevVal);
+                values.AddLast(value);
                 var avg = GetAverage(values);
+                
                 var sum = GetSquaresSum(values,avg);
                 var stdDev = (float)Math.Sqrt((sum) / (GetCount(values) - 1));
                 var top = avg + (numStdDev*stdDev);
@@ -175,14 +181,19 @@ namespace IndiaTango.Models
                 {
                     outliers.Add(time);
                 }
-                prevVal = value;
+                //Debug.WriteLine("avg " + avg + " stddev " + stdDev + " top " + top + " bottom " + bottom);
+                if (!float.IsNaN(top) && !float.IsNaN(bottom))
+                {
+                    _upperLine.Add(time, top);
+                    _lowerLine.Add(time, bottom);
+                }
             }
             return outliers;
         }
 
         private float GetSquaresSum(IEnumerable<float> values, float average)
         {
-            return values.Where(value => !float.IsNaN(value)).Sum(value => (float) Math.Pow(value - average, 2));
+            return values.Where(value => !float.IsNaN(value)).Sum(v => (float) Math.Pow((v - average), 2));
         }
 
         private int GetCount(IEnumerable<float> values)
@@ -338,5 +349,15 @@ namespace IndiaTango.Models
         {
             return EventLogger.LogSensorInfo(sensorName, taskPerformed + " Reason: " + Reason);
         }
+
+        public Dictionary<DateTime, float> UpperLine
+        {
+            get { return _upperLine; }
+        } 
+
+        public Dictionary<DateTime, float> LowerLine
+        {
+            get { return _lowerLine; }
+        } 
     }
 }

@@ -37,7 +37,7 @@
                     <TextBox Grid.ColumnSpan="2" Text="{Binding SmoothingPeriod}" Grid.Column="1" Width="171" />
                     <Label Grid.Column="2" Content="Hours" />
                     </Grid>
-                    <Slider Value="{Binding SmoothingPeriod}" Maximum="200" Minimum="1"/>
+                    <Slider Value="{Binding SmoothingPeriod}" Maximum="{Binding MaxHours}" Minimum="1"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -46,7 +46,7 @@
                         <Label Grid.Column="0" Content="Standard Deviations"/>
                         <TextBox Grid.Column="1" Grid.ColumnSpan="2"  Text="{Binding NumStdDev}"/>
                     </Grid>
-                    <Slider Value="{Binding NumStdDev}" Maximum="5" Minimum="1"/>
+                    <Slider Value="{Binding NumStdDev}" Maximum="5" Minimum="1" TickFrequency="0.5" />
                 </StackPanel>
             </GroupBox>
             <GroupBox Grid.Row="2" Header="Select A Sensor" BorderBrush="OrangeRed" Margin="10 5 5 5">
