@@ -22,6 +22,7 @@ namespace IndiaTango.Views
         {
             InitializeComponent();
         }
+
         private void MaximumValue_KeyUp(object sender, KeyEventArgs e)
         {
             MaximumValue.GetBindingExpression(TextBox.TextProperty).UpdateSource();

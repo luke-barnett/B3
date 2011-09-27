@@ -35,6 +35,15 @@ namespace IndiaTango.ViewModels
         private GraphableSensor _graphableSensor;
         private Canvas _backgroundCanvas;
 
+        private double _minimum;
+        private double _minimumMinimum;
+        private double _maximumMinimum;
+        private double _maximum;
+        private double _minimumMaximum;
+        private double _maximumMaximum;
+        private List<String> _samplingCaps = new List<string>();
+        private int _samplingCapIndex;
+
         public OutlierDetectionViewModel(IWindowManager manager, SimpleContainer container)
         {
             _windowManager = manager;
@@ -66,9 +75,24 @@ namespace IndiaTango.ViewModels
             _behaviour.Behaviours.Add(zoomBehaviour);
 
             Behaviour = _behaviour;
+
+            SamplingCaps = new List<string>(Common.GenerateSamplingCaps());
+            SelectedSamplingCapIndex = 3;
         }
 
         #region View Properties
+
+        public List<String> SamplingCaps { get { return _samplingCaps; } set { _samplingCaps = value; NotifyOfPropertyChange(() => SamplingCaps); } }
+
+        public int SelectedSamplingCapIndex
+        {
+            get { return _samplingCapIndex; }
+            set
+            {
+                _samplingCapIndex = value;
+                NotifyOfPropertyChange(() => SelectedSamplingCapIndex);
+            }
+        }
 
 		public Cursor ViewCursor
 		{
@@ -439,6 +463,58 @@ namespace IndiaTango.ViewModels
             var lowerLimit = (_sampleRate > 1 && StdDevMode) ? new DataSeries<DateTime, float>("Lower Limit", sensor.LowerLine.Where((x, index) => index % _sampleRate == 0)) : new DataSeries<DateTime, float>("Lower Limit", sensor.LowerLine);
             generatedSeries.Add(new LineSeries { DataSeries = lowerLimit, LineStroke = Brushes.OrangeRed });
             ChartSeries = generatedSeries;
+
+            MaximumMaximum = MaximumY().Y + 10;
+            MinimumMinimum = MinimumY().Y - 10;
+
+            Maximum = MaximumMaximum;
+            Minimum = MinimumMinimum;
+        }
+
+        /// <summary>
+        /// Calculates the maximum Y value in the graph
+        /// </summary>
+        /// <returns>The point containing the maximum Y value</returns>
+        private DataPoint<DateTime, float> MaximumY()
+        {
+            DataPoint<DateTime, float> maxY = null;
+
+            foreach (var series in ChartSeries)
+            {
+                foreach (var value in (DataSeries<DateTime, float>)series.DataSeries)
+                {
+                    if (maxY == null)
+                        maxY = value;
+                    else if (value.Y > maxY.Y)
+                        maxY = value;
+                }
+            }
+            if (maxY == null)
+                return new DataPoint<DateTime, float>(DateTime.Now, 10);
+            return maxY;
+        }
+
+        /// <summary>
+        /// Calculates the minimum Y value in the graph
+        /// </summary>
+        /// <returns>The point containing the minimum Y value</returns>
+        private DataPoint<DateTime, float> MinimumY()
+        {
+            DataPoint<DateTime, float> minY = null;
+
+            foreach (var series in ChartSeries)
+            {
+                foreach (var value in (DataSeries<DateTime, float>)series.DataSeries)
+                {
+                    if (minY == null)
+                        minY = value;
+                    else if (value.Y < minY.Y)
+                        minY = value;
+                }
+            }
+            if (minY == null)
+                return new DataPoint<DateTime, float>(DateTime.Now, 0);
+            return minY;
         }
 
         private void HideBackground()
@@ -452,5 +528,93 @@ namespace IndiaTango.ViewModels
         }
         #endregion
 
+        #region YAxisControls
+
+        /// <summary>
+        /// The value of the lower Y Axis range
+        /// </summary>
+        public double Minimum { get { return _minimum; } set { _minimum = value; NotifyOfPropertyChange(() => Minimum); NotifyOfPropertyChange(() => MinimumValue); MinimumMaximum = Minimum; Range = new DoubleRange(Minimum, Maximum); if (Math.Abs(Maximum - Minimum) < 0.001) Minimum -= 1; } }
+
+        /// <summary>
+        /// The minimum value as a readable string
+        /// </summary>
+        public string MinimumValue
+        {
+            get { return string.Format("{0:N2}", Minimum); }
+            set
+            {
+                var old = Minimum;
+                try
+                {
+                    Minimum = double.Parse(value);
+                }
+                catch (Exception e)
+                {
+                    Minimum = old;
+                }
+            }
+        }
+
+        /// <summary>
+        /// The highest value the bottom range can reach
+        /// </summary>
+        public double MaximumMinimum { get { return _maximumMinimum; } set { _maximumMinimum = value; NotifyOfPropertyChange(() => MaximumMinimum); } }
+
+        /// <summary>
+        /// The lowest value the bottom range can reach
+        /// </summary>
+        public double MinimumMinimum { get { return _minimumMinimum; } set { _minimumMinimum = value; NotifyOfPropertyChange(() => MinimumMinimum); } }
+
+        /// <summary>
+        /// The value of the high Y Axis range
+        /// </summary>
+        public double Maximum { get { return _maximum; } set { _maximum = value; NotifyOfPropertyChange(() => Maximum); NotifyOfPropertyChange(() => MaximumValue); MaximumMinimum = Maximum; Range = new DoubleRange(Minimum, Maximum); if (Math.Abs(Maximum - Minimum) < 0.001) Maximum += 1; } }
+
+        /// <summary>
+        /// The maximum value as a readable string
+        /// </summary>
+        public string MaximumValue
+        {
+            get { return string.Format("{0:N2}", Maximum); }
+            set
+            {
+                var old = Maximum;
+                try
+                {
+                    Maximum = double.Parse(value);
+                }
+                catch (Exception e)
+                {
+                    Maximum = old;
+                }
+            }
+        }
+
+        /// <summary>
+        /// The highest value the top range can reach
+        /// </summary>
+        public double MaximumMaximum { get { return _maximumMaximum; } set { _maximumMaximum = value; NotifyOfPropertyChange(() => MaximumMaximum); } }
+
+        /// <summary>
+        /// The lowest value the top range can reach
+        /// </summary>
+        public double MinimumMaximum { get { return _minimumMaximum; } set { _minimumMaximum = value; NotifyOfPropertyChange(() => MinimumMaximum); } }
+
+        #endregion
+
+        public void SamplingCapChanged(SelectionChangedEventArgs e)
+        {
+            try
+            {
+                Common.MaximumGraphablePoints = int.Parse((string)e.AddedItems[0]);
+            }
+            catch (Exception)
+            {
+                Common.MaximumGraphablePoints = int.MaxValue;
+            }
+
+            if (_graphableSensor != null)
+                SampleValues(Common.MaximumGraphablePoints, _graphableSensor);
+        }
     }
 }
