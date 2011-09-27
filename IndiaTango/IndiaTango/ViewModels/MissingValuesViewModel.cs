@@ -75,12 +75,12 @@ namespace IndiaTango.ViewModels
 
         public bool RedoButtonEnabled
         {
-            get { return SelectedSensor != null && SelectedSensor.RedoStack.Count > 0; }
+            get { return SelectedSensor != null && SelectedSensor.RedoStates.Count > 0; }
         }
 
         public bool UndoButtonEnabled
         {
-            get { return SelectedSensor != null && SelectedSensor.UndoStack.Count > 1; }
+            get { return SelectedSensor != null && SelectedSensor.UndoStates.Count > 1; }
         }
 
 		public int ZoomLevel

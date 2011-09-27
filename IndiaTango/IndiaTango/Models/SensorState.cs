@@ -332,9 +332,11 @@ namespace IndiaTango.Models
             return newState;
         }
 
+        // TODO: test this!
         public override string ToString()
         {
-            return _editTimestamp.ToString() + " " + Values.First().Key + " " + Values.First().Value;
+            var title = (Values.Count > 0) ? Values.First().Key + " " + Values.First().Value : "Unknown";
+            return _editTimestamp.ToString() + " " + title;
         }
 
         public string LogChange(string sensorName, string taskPerformed)

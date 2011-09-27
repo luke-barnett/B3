@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Collections;
 
 namespace IndiaTango.Models
 {
@@ -129,12 +131,35 @@ namespace IndiaTango.Models
         #endregion
 
         #region Properties
+        public ReadOnlyCollection<SensorState> UndoStates
+        {
+            get
+            {
+                // Return a stack that cannot be modified externally
+                // Since it going to be iterated over in order anyway (and there'll only be approx. 5 times at any one time)...
+                var UStack = _undoStack.ToList().AsReadOnly();
+
+                return UStack;
+            }
+        }
+
+        public ReadOnlyCollection<SensorState> RedoStates
+        {
+            get
+            {
+                // Return a stack that cannot be modified externally
+                // Since it going to be iterated over in order anyway (and there'll only be approx. 5 times at any one time)...
+                var UStack = _redoStack.ToList().AsReadOnly();
+
+                return UStack;
+            }
+        }
 
         /// <summary>
-        /// Gets or sets the undo stack for this sensor. The undo stack contains a list of previous states this sensor was in before its current state. This stack cannot be null.
+        /// Gets the undo stack for this sensor. The undo stack contains a list of previous states this sensor was in before its current state. This stack cannot be null.
         /// </summary>
         [DataMember]
-        public Stack<SensorState> UndoStack
+        private Stack<SensorState> UndoStack
         {
             get { return _undoStack; }
             set
@@ -147,10 +172,10 @@ namespace IndiaTango.Models
         }
 
         /// <summary>
-        /// Gets or sets the redo stack for this sensor. The redo stack contains a list of previous states this sensor can be in after the current state. This stack cannot be null.
+        /// Gets the redo stack for this sensor. The redo stack contains a list of previous states this sensor can be in after the current state. This stack cannot be null.
         /// </summary>
         [DataMember]
-        public Stack<SensorState> RedoStack
+        private Stack<SensorState> RedoStack
         {
             get { return _redoStack; }
             set
