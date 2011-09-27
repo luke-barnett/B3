@@ -138,9 +138,7 @@ namespace IndiaTango.Models
             {
                 // Return a stack that cannot be modified externally
                 // Since it going to be iterated over in order anyway (and there'll only be approx. 5 times at any one time)...
-                var UStack = _undoStack.ToList().AsReadOnly();
-
-                return UStack;
+                return _undoStack.ToList().AsReadOnly();
             }
         }
 
@@ -376,7 +374,8 @@ namespace IndiaTango.Models
         /// </summary>
         public void Undo()
         {
-            if(UndoStack.Count == 0)
+            // This is because the undo stack has to have at least one item on it - the current state
+            if(UndoStack.Count <= 1)
                 throw new InvalidOperationException("Undo is not possible at this stage. There are no more possible states to undo to.");
 
             RedoStack.Push(UndoStack.Pop());
@@ -399,15 +398,23 @@ namespace IndiaTango.Models
         /// <param name="newState"></param>
         public void AddState(SensorState newState)
         {
+            if(UndoStack.Count == 5)
+            {
+                // Remove from the bottom, so reverse and pop, then reverse again
+                var reverse = new Stack<SensorState>();
+
+                while(_undoStack.Count > 0)
+                    reverse.Push(_undoStack.Pop());
+
+                reverse.Pop();
+
+                while(reverse.Count > 0)
+                    UndoStack.Push(reverse.Pop());
+            }
+
             UndoStack.Push(newState);
             RedoStack.Clear();
         }
-
-        public override string ToString()
-        {
-            return this.Name;
-        }
-        #endregion
 
         public void RevertToRaw()
         {
@@ -415,5 +422,11 @@ namespace IndiaTango.Models
             RedoStack.Clear();
             UndoStack.Push(RawData);
         }
+
+        public override string ToString()
+        {
+            return this.Name;
+        }
+        #endregion
     }
 }
