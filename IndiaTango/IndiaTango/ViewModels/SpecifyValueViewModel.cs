@@ -49,12 +49,6 @@ namespace IndiaTango.ViewModels
             }
         }
 
-        public string ComboBoxText
-        {
-            get { return _text; }
-            set { _text = value; }
-        }
-
         public Visibility ComboBoxVisible
         {
             get { return _showComboBox ? Visibility.Visible : Visibility.Collapsed; }

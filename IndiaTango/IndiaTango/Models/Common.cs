@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
@@ -224,7 +225,7 @@ namespace IndiaTango.Models
                 specify.Title = "Log Reason";
                 specify.Message = "Please specify a reason for this change:";
                 specify.ShowComboBox = true;
-                specify.ComboBoxItems = ChangeReasons;
+                specify.ComboBoxItems = GetChangeReasons();
                 specify.Deactivated += (o, e) =>
                                            {
                                                // Specify reason
@@ -232,11 +233,11 @@ namespace IndiaTango.Models
 
                                                // Log this change to the file!
                                                state.LogChange(sensor.Name, taskPerformed);
+
+											   //Add the change to the list
+											   AddChangeReason(specify.Text);
                                            };
                 _windowManager.ShowDialog(specify);
-                
-                if(!ChangeReasons.Contains(specify.Text))
-                    ChangeReasons.Add(specify.Text);
             }
         }
 
@@ -247,50 +248,41 @@ namespace IndiaTango.Models
             return samplingCaps;
         }
 
-        public static List<string> ChangeReasons
+        public static List<string> GetChangeReasons()
         {
-            get
-            {
-                if(_changeReasons == null)
-                    ImportChangeReasons();
+			if(_changeReasons == null)
+			{
+				_changeReasons = new List<string>();
 
-                return _changeReasons;
-            }
+				if (File.Exists(ChangeReasonsPath))
+				{
+					using (StreamReader reader = new StreamReader(ChangeReasonsPath))
+					{
+						string line;
+						while ((line = reader.ReadLine()) != null)
+							_changeReasons.Add(line);
+					}
+				}
+			}
 
-            set
-            {
-                _changeReasons = value;
-                _changeReasons.Sort();
-                ExportChangeReasons();
-            }
+			return _changeReasons;
         }
 
-        public static void ImportChangeReasons()
+        public static void AddChangeReason(string reason)
         {
-            if(!File.Exists(ChangeReasonsPath))
-            {
-                _changeReasons = new List<string>();
-                return;
-            }
+			if (String.IsNullOrWhiteSpace(reason) || _changeReasons.Contains(reason))
+				return;
 
-            using(StreamReader reader = new StreamReader(ChangeReasonsPath))
-            {
-                _changeReasons = new List<string>();
-                string line;
-
-                while ((line = reader.ReadLine()) != null)
-                    _changeReasons.Add(line);
-            }
-        }
-
-        public static void ExportChangeReasons()
-        {
-            using (StreamWriter writer = new StreamWriter(ChangeReasonsPath))
+			_changeReasons.Add(reason);
+			_changeReasons.Sort();
+			
+			using (StreamWriter writer = new StreamWriter(ChangeReasonsPath))
             {
                 foreach (string changeReason in _changeReasons)
                     writer.WriteLine(changeReason);
             }
-        }
 
+			Debug.WriteLine("Added change reason: '" + reason + "'");
+        }
     }
 }

@@ -27,5 +27,14 @@ namespace IndiaTango.Views
         {
 
         }
+
+		private void Window_Loaded(object sender, RoutedEventArgs e)
+		{
+			//Stupid damn tab order.
+			if (txtValue.Visibility == Visibility.Visible)
+				txtValue.Focus();
+			else
+				comboValue.Focus();
+		}
     }
 }
