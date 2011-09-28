@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Collections;
 
 namespace IndiaTango.Models
 {
@@ -113,6 +115,7 @@ namespace IndiaTango.Models
                 throw new ArgumentOutOfRangeException("Upper limit for this sensor must be greater than the lower limit.");
 
             _name = name;
+            RawName = name;
             Description = description;
             UpperLimit = upperLimit;
             LowerLimit = lowerLimit;
@@ -131,12 +134,33 @@ namespace IndiaTango.Models
         #endregion
 
         #region Properties
+        public ReadOnlyCollection<SensorState> UndoStates
+        {
+            get
+            {
+                // Return a stack that cannot be modified externally
+                // Since it going to be iterated over in order anyway (and there'll only be approx. 5 times at any one time)...
+                return _undoStack.ToList().AsReadOnly();
+            }
+        }
+
+        public ReadOnlyCollection<SensorState> RedoStates
+        {
+            get
+            {
+                // Return a stack that cannot be modified externally
+                // Since it going to be iterated over in order anyway (and there'll only be approx. 5 times at any one time)...
+                var UStack = _redoStack.ToList().AsReadOnly();
+
+                return UStack;
+            }
+        }
 
         /// <summary>
-        /// Gets or sets the undo stack for this sensor. The undo stack contains a list of previous states this sensor was in before its current state. This stack cannot be null.
+        /// Gets the undo stack for this sensor. The undo stack contains a list of previous states this sensor was in before its current state. This stack cannot be null.
         /// </summary>
         [DataMember]
-        public Stack<SensorState> UndoStack
+        private Stack<SensorState> UndoStack
         {
             get { return _undoStack; }
             set
@@ -149,10 +173,10 @@ namespace IndiaTango.Models
         }
 
         /// <summary>
-        /// Gets or sets the redo stack for this sensor. The redo stack contains a list of previous states this sensor can be in after the current state. This stack cannot be null.
+        /// Gets the redo stack for this sensor. The redo stack contains a list of previous states this sensor can be in after the current state. This stack cannot be null.
         /// </summary>
         [DataMember]
-        public Stack<SensorState> RedoStack
+        private Stack<SensorState> RedoStack
         {
             get { return _redoStack; }
             set
@@ -179,6 +203,12 @@ namespace IndiaTango.Models
                 _calibrationDates = value;
             }
         }
+
+        /// <summary>
+        /// Gets the first name this sensor was given (i.e. the name used to import)
+        /// </summary>
+        [DataMember]
+        public string RawName { get; private set; }
 
         /// <summary>
         /// Gets or sets the name of this sensor. The sensor name cannot be null.
@@ -296,6 +326,8 @@ namespace IndiaTango.Models
 
         public Dataset Owner { get; private set; }
 
+        public SensorState RawData { get; set; }
+
         /// <summary>
         /// Gets a value indicating whether or not this sensor shows signs of physical failure.
         /// </summary>
@@ -344,7 +376,8 @@ namespace IndiaTango.Models
         /// </summary>
         public void Undo()
         {
-            if(UndoStack.Count == 0)
+            // This is because the undo stack has to have at least one item on it - the current state
+            if(UndoStack.Count <= 1)
                 throw new InvalidOperationException("Undo is not possible at this stage. There are no more possible states to undo to.");
 
             RedoStack.Push(UndoStack.Pop());
@@ -367,8 +400,29 @@ namespace IndiaTango.Models
         /// <param name="newState"></param>
         public void AddState(SensorState newState)
         {
+            if(UndoStack.Count == 5)
+            {
+                // Remove from the bottom, so reverse and pop, then reverse again
+                var reverse = new Stack<SensorState>();
+
+                while(_undoStack.Count > 0)
+                    reverse.Push(_undoStack.Pop());
+
+                reverse.Pop();
+
+                while(reverse.Count > 0)
+                    UndoStack.Push(reverse.Pop());
+            }
+
             UndoStack.Push(newState);
             RedoStack.Clear();
+        }
+
+        public void RevertToRaw()
+        {
+            UndoStack.Clear();
+            RedoStack.Clear();
+            UndoStack.Push(RawData);
         }
 
         public override string ToString()

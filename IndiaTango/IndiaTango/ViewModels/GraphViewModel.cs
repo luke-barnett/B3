@@ -110,7 +110,7 @@ namespace IndiaTango.ViewModels
 
             Behaviour = behaviourManager;
 
-            GenerateSampmplingCaps();
+            SamplingCaps = new List<string>(Common.GenerateSamplingCaps());
             SelectedSamplingCapIndex = 3;
         }
 
@@ -455,20 +455,6 @@ namespace IndiaTango.ViewModels
             StartTime = minimum;
             EndTime = maximum;
             Debug.WriteLine("As a result start {0} and end {1}", StartTime, EndTime);
-        }
-
-        private void GenerateSampmplingCaps()
-        {
-            SamplingCaps.Add("1000");
-            SamplingCaps.Add("5000");
-            SamplingCaps.Add("10000");
-            SamplingCaps.Add("15000");
-            SamplingCaps.Add("20000");
-            SamplingCaps.Add("30000");
-            SamplingCaps.Add("40000");
-            SamplingCaps.Add("All");
-
-            SamplingCaps = new List<string>(SamplingCaps);
         }
 
         #endregion

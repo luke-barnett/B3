@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows;
 using System.Windows.Forms;
@@ -383,7 +384,10 @@ namespace IndiaTango.ViewModels
                     }
                     else
                     {
-                        _ds.Sensors = readSensors;
+                        if (_ds.Sensors.Count == 0)
+                            _ds.Sensors = readSensors;
+                        else
+                            AddValuesToSensors(readSensors);
 
                         // Loaded successfully
                         ActionButtonsEnabled = true;
@@ -724,5 +728,47 @@ namespace IndiaTango.ViewModels
             _windowManager.ShowDialog(editor);
         }
         #endregion
+
+        // TODO: make this change raw data?
+        private void AddValuesToSensors(IEnumerable<Sensor> sensors)
+        {
+            //For all the sensors we have imported
+            foreach (var newSensor in sensors)
+            {
+                //Check to see if we match a current sensor
+                var matchingSensor = (from sensor in _ds.Sensors where sensor.RawName == newSensor.RawName select sensor).DefaultIfEmpty(null).FirstOrDefault();
+
+                if(matchingSensor == null)
+                {
+                    //If we don't  then add it as a new sensor
+                    _ds.Sensors.Add(newSensor);
+                    EventLogger.LogInfo("Importer", "Added new sensor: " + newSensor.Name);
+                }
+                else
+                {
+                    //Otherwise clone the current state
+                    var newState = matchingSensor.CurrentState.Clone();
+                    //Check to see if values are inserted
+                    var insertedValues = false;
+
+                    //And add values for any new dates we want (keep edited values TODO: Make this a users choice)
+                    foreach (var value in newSensor.CurrentState.Values.Where(value => !newState.Values.ContainsKey(value.Key)))
+                    {
+                        newState.Values.Add(value.Key, value.Value);
+                        insertedValues = true;
+                    }
+                    //Give a reason
+                    newState.Reason = "Imported new values on " + DateTime.Now;
+                    if (insertedValues)
+                    {
+                        //Insert new state
+                        matchingSensor.AddState(newState);
+                        EventLogger.LogSensorInfo(matchingSensor.Name, "Added values from new import");
+                    }
+                    else
+                        EventLogger.LogSensorInfo(matchingSensor.Name, "Matched to imported sensor but no new values found");
+                }
+            }
+        }
     }
 }

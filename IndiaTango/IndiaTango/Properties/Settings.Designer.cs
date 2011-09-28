@@ -58,5 +58,17 @@ namespace IndiaTango.Properties {
                 this["EvaluateFormulaOnKeyUp"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("5")]
+        public int UndoStatesToRemember {
+            get {
+                return ((int)(this["UndoStatesToRemember"]));
+            }
+            set {
+                this["UndoStatesToRemember"] = value;
+            }
+        }
     }
 }

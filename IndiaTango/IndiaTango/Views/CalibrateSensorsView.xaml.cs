@@ -27,5 +27,15 @@ namespace IndiaTango.Views
         {
             txtFormula.GetBindingExpression(TextBox.TextProperty).UpdateSource();
         }
+        
+        private void MaximumValue_KeyUp(object sender, KeyEventArgs e)
+        {
+            MaximumValue.GetBindingExpression(TextBox.TextProperty).UpdateSource();
+        }
+
+        private void MinimumValue_KeyUp(object sender, KeyEventArgs e)
+        {
+            MinimumValue.GetBindingExpression(TextBox.TextProperty).UpdateSource();
+        }
     }
 }

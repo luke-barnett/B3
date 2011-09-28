@@ -70,6 +70,7 @@ namespace IndiaTango.Models
 
                         sensors[i - startOffset] = new Sensor(sensorNames[i], null, owner);
                         sensors[i - startOffset].AddState(new SensorState(DateTime.Now));
+                        sensors[i - startOffset].RawData = new SensorState(DateTime.Now);
                     }
 
 
@@ -133,6 +134,7 @@ namespace IndiaTango.Models
 								try
 								{
 									sensors[i - startOffset].CurrentState.Values.Add(timeStamp, float.Parse(values[i]));
+								    sensors[i - startOffset].RawData.Values.Add(timeStamp, float.Parse(values[i]));
 								}
 								catch (Exception e)
 								{

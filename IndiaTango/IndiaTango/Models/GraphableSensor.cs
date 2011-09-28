@@ -13,6 +13,8 @@ namespace IndiaTango.Models
     public class GraphableSensor
     {
         private IEnumerable<DataPoint<DateTime, float>> _dataPoints;
+        private IEnumerable<DataPoint<DateTime, float>> _upperLimit;
+        private IEnumerable<DataPoint<DateTime, float>> _lowerLimit; 
 
         /// <summary>
         /// Creates a new GraphableSensor based on the given sensor
@@ -63,6 +65,10 @@ namespace IndiaTango.Models
         /// </summary>
         public IEnumerable<DataPoint<DateTime, float>> DataPoints { get { if (_dataPoints == null) { RefreshDataPoints(); } return _dataPoints; } private set { _dataPoints = value; } }
 
+        public IEnumerable<DataPoint<DateTime, float>> LowerLine { get { if (_lowerLimit == null) { RefreshDataPoints(); } return _lowerLimit; } private set { _lowerLimit = value; } }
+
+        public IEnumerable<DataPoint<DateTime, float>> UpperLine { get { if (_upperLimit == null) { RefreshDataPoints(); } return _upperLimit; } private set { _upperLimit = value; } }
+
         /// <summary>
         /// Reflects back on itself
         /// </summary>
@@ -74,6 +80,9 @@ namespace IndiaTango.Models
         public void RefreshDataPoints()
         {
             DataPoints = !BoundsSet ? (from dataValue in Sensor.CurrentState.Values select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value)).OrderBy(dataPoint => dataPoint.X) : (from dataValue in Sensor.CurrentState.Values where dataValue.Key >= LowerBound && dataValue.Key <= UpperBound select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value)).OrderBy(dataPoint => dataPoint.X);
+            if (Sensor.CurrentState.UpperLine == null ) return;
+            LowerLine = !BoundsSet ? (from dataValue in Sensor.CurrentState.LowerLine select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value)).OrderBy(dataPoint => dataPoint.X) : (from dataValue in Sensor.CurrentState.LowerLine where dataValue.Key >= LowerBound && dataValue.Key <= UpperBound select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value)).OrderBy(dataPoint => dataPoint.X);
+            UpperLine = !BoundsSet ? (from dataValue in Sensor.CurrentState.UpperLine select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value)).OrderBy(dataPoint => dataPoint.X) : (from dataValue in Sensor.CurrentState.UpperLine where dataValue.Key >= LowerBound && dataValue.Key <= UpperBound select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value)).OrderBy(dataPoint => dataPoint.X);
         }
 
         /// <summary>

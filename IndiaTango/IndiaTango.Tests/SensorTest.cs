@@ -20,8 +20,8 @@ namespace IndiaTango.Tests
         private string _testManufacturer = "Synergy Corp";
         private string _testSerial = "XX3323211";
 
-        private Stack<SensorState> _testUndoStack;
-        private Stack<SensorState> _secondUndoStack;
+        private Stack<SensorState> _testUndoStates;
+        private Stack<SensorState> _secondUndoStates;
         private Stack<SensorState> _blankStack = new Stack<SensorState>();
         private List<DateTime> _blankCalibrationDates = new List<DateTime>();
 
@@ -42,17 +42,17 @@ namespace IndiaTango.Tests
         [SetUp]
         public void Setup()
         {
-            _testUndoStack = new Stack<SensorState>();
+            _testUndoStates = new Stack<SensorState>();
 
             var testState = new SensorState(new DateTime(2010, 5, 7, 18, 42, 0));
             var secondaryTestState = new SensorState(new DateTime(2010, 12, 18, 5, 22, 0));
 
-            _testUndoStack.Push(testState);
-            _testUndoStack.Push(secondaryTestState);
+            _testUndoStates.Push(testState);
+            _testUndoStates.Push(secondaryTestState);
 
-            _secondUndoStack = new Stack<SensorState>();
-            _secondUndoStack.Push(new SensorState(new DateTime(2005, 4, 3, 2, 1, 0)));
-            _secondUndoStack.Push(new SensorState(new DateTime(2005, 4, 4, 2, 1, 0)));
+            _secondUndoStates = new Stack<SensorState>();
+            _secondUndoStates.Push(new SensorState(new DateTime(2005, 4, 3, 2, 1, 0)));
+            _secondUndoStates.Push(new SensorState(new DateTime(2005, 4, 4, 2, 1, 0)));
 
             
 
@@ -60,22 +60,18 @@ namespace IndiaTango.Tests
 
             // Initialise sensors for undo testing
             _undoSensor = new Sensor("Temperature", "C");
-            _undoSensor.UndoStack = new Stack<SensorState>();
-            _undoSensor.UndoStack.Push(new SensorState(new DateTime(2011, 8, 11),
+            _undoSensor.AddState(new SensorState(new DateTime(2011, 8, 11),
                                                        new Dictionary<DateTime, float>{{new DateTime(2011, 8, 12), 66.77f}}));
-            _undoSensor.UndoStack.Push(new SensorState(new DateTime(2011, 8, 12),
+            _undoSensor.AddState(new SensorState(new DateTime(2011, 8, 12),
                                             new Dictionary<DateTime, float>{{new DateTime(2011, 8, 12), 66.77f}}));
 
             _secondUndoSensor = new Sensor("Temperature", "C");
-            _secondUndoSensor.UndoStack = new Stack<SensorState>();
-            _secondUndoSensor.UndoStack.Push(new SensorState(new DateTime(2011, 3, 11),
+            _secondUndoSensor.AddState(new SensorState(new DateTime(2011, 3, 11),
                                                        new Dictionary<DateTime, float>{{ new DateTime(2011, 8, 12), 66.77f} }));
-            _secondUndoSensor.UndoStack.Push(new SensorState(new DateTime(2011, 3, 12),
+            _secondUndoSensor.AddState(new SensorState(new DateTime(2011, 3, 12),
                                             new Dictionary<DateTime, float>{{new DateTime(2011, 8, 12), 66.77f}}));
 
             _sensorEmpty = new Sensor("Temperature", "C");
-            _sensorEmpty.UndoStack = new Stack<SensorState>();
-
             _ds = new Dataset(new Site(10, "Lake", "Bob Smith", contact, contact, contact, new GPSCoords(50, 50)));
             _ds2 = new Dataset(new Site(10, "Lake Awesome", "Andy Smith", contact, contact, contact, new GPSCoords(70, 30)));
 
@@ -85,94 +81,75 @@ namespace IndiaTango.Tests
 
         #region Undo Stack Tests
         [Test]
-        public void GetUndoStack()
+        public void GetUndoStates()
         {
-            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _blankStack, _blankCalibrationDates, _ds);
+            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStates, _blankStack, _blankCalibrationDates, _ds);
 
-            Assert.AreEqual(_testUndoStack, testSensor.UndoStack);
+            Assert.AreEqual(_testUndoStates, testSensor.UndoStates);
         }
 
         [Test]
-        public void SetUndoStack()
+        public void SetUndoStates()
         {
-            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _blankStack, _blankCalibrationDates, _ds);
+            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, new Stack<SensorState>(), _blankStack, _blankCalibrationDates, _ds);
 
-            testSensor.UndoStack = _secondUndoStack;
-            Assert.AreEqual(_secondUndoStack, testSensor.UndoStack);
+            var secondStates = _secondUndoStates.Reverse();
 
-            testSensor.UndoStack = _testUndoStack;
-            Assert.AreEqual(_testUndoStack, testSensor.UndoStack);
-        }
+            foreach(SensorState s in secondStates)
+                testSensor.AddState(s);
 
-        [Test]
-        [ExpectedException(typeof(FormatException))]
-        public void SetUndoStackToNull()
-        {
-            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _blankStack, _blankCalibrationDates, _ds);
-            testSensor.UndoStack = null;
-        }
+            Assert.AreEqual(_secondUndoStates, testSensor.UndoStates);
 
-        [Test]
-        [ExpectedException(typeof(FormatException))]
-        public void SetRedoStackToNull()
-        {
-            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _blankStack, _blankCalibrationDates, _ds);
-            testSensor.RedoStack = null;
+            // Reset
+            testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStates, _blankStack, _blankCalibrationDates, _ds);
+
+            var testUndo = _testUndoStates.Reverse();
+
+            foreach (SensorState s in testUndo)
+                testSensor.AddState(s);
+
+            Assert.AreEqual(_testUndoStates, testSensor.UndoStates);
         }
 
         [Test]
         [ExpectedException(typeof(FormatException))]
         public void SetCalibrationDatesListToNull()
         {
-            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _blankStack, _blankCalibrationDates, _ds);
+            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStates, _blankStack, _blankCalibrationDates, _ds);
             testSensor.CalibrationDates = null;
         }
         #endregion
 
         #region Redo Stack Tests
         [Test]
-        public void GetRedoStack()
+        public void GetRedoStates()
         {
-            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _secondUndoStack, _blankCalibrationDates, _ds);
+            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStates, _secondUndoStates, _blankCalibrationDates, _ds);
 
-            Assert.AreEqual(_secondUndoStack, testSensor.RedoStack);
-        }
-
-        [Test]
-        public void SetRedoStack()
-        {
-            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _secondUndoStack, _blankCalibrationDates, _ds);
-            testSensor.RedoStack = _testUndoStack;
-
-            Assert.AreEqual(_testUndoStack, testSensor.RedoStack);
-
-            testSensor.RedoStack = _secondUndoStack;
-            
-            Assert.AreEqual(_secondUndoStack, testSensor.RedoStack);
-            // TODO: test values with Equals
+            Assert.AreEqual(_secondUndoStates, testSensor.RedoStates);
         }
         #endregion
 
         #region Construction Tests
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void NullRedoButNotUndoStack()
+        public void NullRedoButNotUndoStates()
         {
-            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, null, _blankCalibrationDates, _ds);
+            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStates, null, _blankCalibrationDates, _ds);
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void NullUndoAndRedoStack()
+        public void NullUndoAndRedoStates()
         {
             var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, null, null, _blankCalibrationDates, _ds);
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void NullUndoButNotRedoStack()
+        public void NullUndoButNotRedoStates()
         {
-            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, null, _testUndoStack, _blankCalibrationDates, _ds);
+            var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, null, _testUndoStates, _blankCalibrationDates, _ds);
         }
 
         [Test]
@@ -180,17 +157,17 @@ namespace IndiaTango.Tests
         {
             var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _ds);
 
-            Assert.IsNotNull(testSensor.UndoStack);
-            Assert.IsNotNull(testSensor.RedoStack);
+            Assert.IsNotNull(testSensor.UndoStates);
+            Assert.IsNotNull(testSensor.RedoStates);
             Assert.IsNotNull(testSensor.CalibrationDates);
-            Assert.IsTrue(testSensor.UndoStack.Count == 0 && testSensor.RedoStack.Count == 0 && testSensor.CalibrationDates.Count == 0);
+            Assert.IsTrue(testSensor.UndoStates.Count == 0 && testSensor.RedoStates.Count == 0 && testSensor.CalibrationDates.Count == 0);
 
             testSensor = new Sensor(_testName, _testUnit);
 
-            Assert.IsNotNull(testSensor.UndoStack);
-            Assert.IsNotNull(testSensor.RedoStack);
+            Assert.IsNotNull(testSensor.UndoStates);
+            Assert.IsNotNull(testSensor.RedoStates);
             Assert.IsNotNull(testSensor.CalibrationDates);
-            Assert.IsTrue(testSensor.UndoStack.Count == 0 && testSensor.RedoStack.Count == 0 && testSensor.CalibrationDates.Count == 0);
+            Assert.IsTrue(testSensor.UndoStates.Count == 0 && testSensor.RedoStates.Count == 0 && testSensor.CalibrationDates.Count == 0);
         }
         #endregion
 
@@ -204,7 +181,7 @@ namespace IndiaTango.Tests
             calibrationDatesTest.Add(new DateTime(2011, 7, 4, 21, 45, 0));
             calibrationDatesTest.Add(new DateTime(2011, 7, 4, 22, 0, 0));
 
-            Sensor testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _secondUndoStack, calibrationDatesTest, _ds);
+            Sensor testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStates, _secondUndoStates, calibrationDatesTest, _ds);
 
             Assert.AreEqual(calibrationDatesTest, testSensor.CalibrationDates);
         }
@@ -218,7 +195,7 @@ namespace IndiaTango.Tests
             calibrationDatesTest.Add(new DateTime(2011, 7, 4, 21, 45, 0));
             calibrationDatesTest.Add(new DateTime(2011, 7, 4, 22, 0, 0));
 
-            Sensor testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _secondUndoStack, calibrationDatesTest, _ds);
+            Sensor testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStates, _secondUndoStates, calibrationDatesTest, _ds);
 
             List<DateTime> secondCalibrationTest = new List<DateTime>();
             secondCalibrationTest.Add(new DateTime(2010, 7, 3, 21, 15, 0));
@@ -412,80 +389,87 @@ namespace IndiaTango.Tests
 
         #region Undo Method Tests
         [Test]
-        public void ValidUndoStackAfterUndo()
+        public void ValidUndoStatesAfterUndo()
         {
             var correctStack = new Stack<SensorState>();
             correctStack.Push(new SensorState(new DateTime(2011, 8, 11),
                                            new Dictionary<DateTime, float>{{new DateTime(2011, 8, 12), 66.77f}}));
+
             _undoSensor.Undo();
-            Assert.AreEqual(correctStack, _undoSensor.UndoStack);
+            Assert.AreEqual(correctStack, _undoSensor.UndoStates);
 
             var correctStackTwo = new Stack<SensorState>();
             correctStackTwo.Push(new SensorState(new DateTime(2011, 3, 11),
                                            new Dictionary<DateTime, float>{{ new DateTime(2011, 8, 12), 66.77f} }));
             _secondUndoSensor.Undo();
-            Assert.AreEqual(correctStackTwo, _secondUndoSensor.UndoStack);
-
-            var emptyStack = new Stack<SensorState>();
-            _secondUndoSensor.Undo();
-            Assert.AreEqual(emptyStack, _sensorEmpty.UndoStack);
+            Assert.AreEqual(correctStackTwo, _secondUndoSensor.UndoStates);
         }
 
         [Test]
-        public void ValidRedoStackAfterUndo()
+        public void ValidRedoStatesAfterUndo()
         {
             var correctStack = new Stack<SensorState>();
             correctStack.Push(new SensorState(new DateTime(2011, 8, 12),
                                            new Dictionary<DateTime, float>{{new DateTime(2011, 8, 12), 66.77f}}));
+            correctStack.Push(new SensorState(new DateTime(2011, 8, 13),
+                                           new Dictionary<DateTime, float> { { new DateTime(2011, 8, 12), 66.77f } }));
 
             _undoSensor.Undo();
-            Assert.AreEqual(correctStack, _undoSensor.RedoStack);
+            Assert.AreEqual(correctStack.ElementAt(1), _undoSensor.RedoStates[0]);
 
             var correctStackTwo = new Stack<SensorState>();
             correctStackTwo.Push(new SensorState(new DateTime(2011, 3, 12),
                                            new Dictionary<DateTime, float>{{new DateTime(2011, 8, 12), 66.77f}}));
+            correctStackTwo.Push(new SensorState(new DateTime(2011, 3, 15),
+                               new Dictionary<DateTime, float> { { new DateTime(2011, 8, 12), 66.77f } }));
 
             _secondUndoSensor.Undo();
-            Assert.AreEqual(correctStackTwo, _secondUndoSensor.RedoStack);
-
-            var emptyStack = new Stack<SensorState>();
-            _secondUndoSensor.Undo();
-            Assert.AreEqual(emptyStack, _sensorEmpty.RedoStack);
+            Assert.AreEqual(correctStackTwo.ElementAt(1), _secondUndoSensor.RedoStates[0]);
         }
 
         [Test]
-        public void ValidUndoStackAfterRedo()
+        public void ValidUndoStatesAfterRedo()
         {
             var redoSensor = new Sensor("Temperature", "C");
-            redoSensor.UndoStack = new Stack<SensorState>();
 
-            var correctStack = new Stack<SensorState>(new SensorState[] { new SensorState(new DateTime(2011, 7, 5, 22, 47, 0), new Dictionary<DateTime, float> { { new DateTime(2010, 5, 5, 22, 00, 0), 22.5f }, { new DateTime(2010, 5, 5, 22, 15, 0), 21.4f }, { new DateTime(2010, 5, 5, 22, 30, 0), 22.0f } }) });
+            var correctStackItem = new SensorState(new DateTime(2011, 7, 5, 22, 47, 0), new Dictionary<DateTime, float> { { new DateTime(2010, 5, 5, 22, 00, 0), 22.5f }, { new DateTime(2010, 5, 5, 22, 15, 0), 21.4f }, { new DateTime(2010, 5, 5, 22, 30, 0), 22.0f } });
+            var correctStackItemTwo = new SensorState(new DateTime(2011, 7, 9, 22, 47, 0), new Dictionary<DateTime, float> { { new DateTime(2010, 5, 5, 22, 00, 0), 22.5f }, { new DateTime(2010, 5, 5, 22, 15, 0), 21.4f }, { new DateTime(2010, 5, 5, 22, 30, 0), 22.0f } });
 
-            redoSensor.RedoStack = new Stack<SensorState>(new SensorState[] { new SensorState(new DateTime(2011, 7, 5, 22, 47, 0), new Dictionary<DateTime, float>{ { new DateTime(2010, 5, 5, 22, 00, 0), 22.5f }, { new DateTime(2010, 5, 5, 22, 15, 0), 21.4f }, { new DateTime(2010, 5, 5, 22, 30, 0), 22.0f } }) });
+            redoSensor.AddState(correctStackItem);
+            redoSensor.AddState(correctStackItemTwo);
+
+            redoSensor.Undo();
+
+            Assert.AreEqual(correctStackItem, redoSensor.UndoStates[0]);
+
             redoSensor.Redo();
 
-            Assert.AreEqual(correctStack, redoSensor.UndoStack);
+            Assert.AreEqual(2, redoSensor.UndoStates.Count);
         }
 
         [Test]
-        public void ValidRedoStackAfterRedo()
+        public void ValidRedoStatesAfterRedo()
         {
             var redoSensor = new Sensor("Temperature", "C");
-            redoSensor.UndoStack = new Stack<SensorState>();
 
-            var correctStack = new Stack<SensorState>();
+            var correctStackItem = new SensorState(new DateTime(2011, 7, 5, 22, 47, 0), new Dictionary<DateTime, float> { { new DateTime(2010, 5, 5, 22, 00, 0), 22.5f }, { new DateTime(2010, 5, 5, 22, 15, 0), 21.4f }, { new DateTime(2010, 5, 5, 22, 30, 0), 22.0f } });
 
-            redoSensor.RedoStack = new Stack<SensorState>(new SensorState[] { new SensorState(new DateTime(2011, 7, 5, 22, 47, 0), new Dictionary<DateTime, float> { { new DateTime(2010, 5, 5, 22, 00, 0), 22.5f }, { new DateTime(2010, 5, 5, 22, 15, 0), 21.4f }, { new DateTime(2010, 5, 5, 22, 30, 0), 22.0f } }) });
+            redoSensor.AddState(correctStackItem);
+            redoSensor.AddState(correctStackItem);
+
+            redoSensor.Undo();
+
+            Assert.AreEqual(1, redoSensor.RedoStates.Count);
+
             redoSensor.Redo();
 
-            Assert.AreEqual(correctStack, redoSensor.RedoStack);
+            Assert.AreEqual(0, redoSensor.RedoStates.Count);
         }
 
         [Test]
         [ExpectedException(typeof(InvalidOperationException), ExpectedMessage="Undo is not possible at this stage. There are no more possible states to undo to.")]
         public void ExceptionWhenUndoNotPossible()
         {
-            _undoSensor.Undo();
             _undoSensor.Undo();
             _undoSensor.Undo(); // Should trigger the exception
         }
@@ -494,102 +478,170 @@ namespace IndiaTango.Tests
         [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Redo is not possible at this stage. There are no more possible states to redo to.")]
         public void ExceptionWhenRedoNotPossible()
         {
-            _undoSensor.Undo();
+            // Undo stack has to have at least one element on it (current state)
             _undoSensor.Undo();
 
             _undoSensor.Redo();
-            _undoSensor.Redo();
             _undoSensor.Redo(); // Should trigger the exception
+        }
+
+        [Test]
+        public void AddStateMaximumFiveEntries()
+        {
+            var s = new Sensor("Temperature", "C");
+            s.AddState(new SensorState(DateTime.Now));
+            s.AddState(new SensorState(DateTime.Now));
+            s.AddState(new SensorState(DateTime.Now));
+            s.AddState(new SensorState(DateTime.Now));
+            s.AddState(new SensorState(DateTime.Now));
+            s.AddState(new SensorState(DateTime.Now));
+            s.AddState(new SensorState(DateTime.Now));
+
+            Assert.AreEqual(5, s.UndoStates.Count);
+        }
+
+        [Test]
+        public void UndoRedoStackMaximumFiveEntries()
+        {
+            var s = new Sensor("Temperature", "C");
+
+            s.AddState(new SensorState(DateTime.Now));
+            s.AddState(new SensorState(DateTime.Now));
+            s.AddState(new SensorState(DateTime.Now));
+            s.AddState(new SensorState(DateTime.Now));
+            s.AddState(new SensorState(DateTime.Now));
+            s.AddState(new SensorState(DateTime.Now));
+            s.AddState(new SensorState(DateTime.Now));
+
+            Assert.AreEqual(5, s.UndoStates.Count);
+            Assert.AreEqual(0, s.RedoStates.Count);
+
+            s.Undo();
+            s.Undo();
+            s.Undo();
+            s.Undo();
+
+            // Since the top of the undo stack is the current state, we must have at least one item left on the undo stack...
+            Assert.AreEqual(1, s.UndoStates.Count); // This is the real test
+            Assert.AreEqual(4, s.RedoStates.Count);
+
+            s.Redo();
+            s.Redo();
+            s.Redo();
+            s.Redo();
+
+            Assert.AreEqual(5, s.UndoStates.Count); // This is the real test
+            Assert.AreEqual(0, s.RedoStates.Count);
+        }
+
+        [Test]
+        public void UndoStackPushesCorrectEntriesAndMaxFive()
+        {
+            var s = new Sensor("Temperature", "C");
+            var baseDate = new DateTime(2011, 7, 7, 12, 15, 0);
+
+            s.AddState(new SensorState(baseDate));
+            Assert.AreEqual(baseDate, s.UndoStates[0].EditTimestamp);
+
+            s.AddState(new SensorState(baseDate.AddMinutes(15)));
+            Assert.AreEqual(baseDate.AddMinutes(15), s.UndoStates[0].EditTimestamp);
+
+            s.AddState(new SensorState(baseDate.AddMinutes(30)));
+            Assert.AreEqual(baseDate.AddMinutes(30), s.UndoStates[0].EditTimestamp);
+
+            s.AddState(new SensorState(baseDate.AddMinutes(45)));
+            Assert.AreEqual(baseDate.AddMinutes(45), s.UndoStates[0].EditTimestamp);
+
+            s.AddState(new SensorState(baseDate.AddMinutes(60)));
+            Assert.AreEqual(baseDate.AddMinutes(60), s.UndoStates[0].EditTimestamp);
+
+            // Now, for the real test of the method...
+            s.AddState(new SensorState(baseDate.AddMinutes(75)));
+            Assert.AreEqual(baseDate.AddMinutes(75), s.UndoStates[0].EditTimestamp);
+            Assert.AreEqual(baseDate.AddMinutes(15), s.UndoStates[4].EditTimestamp);
+
+            s.AddState(new SensorState(baseDate.AddMinutes(90)));
+            Assert.AreEqual(baseDate.AddMinutes(90), s.UndoStates[0].EditTimestamp);
+            Assert.AreEqual(baseDate.AddMinutes(30), s.UndoStates[4].EditTimestamp);
         }
 
         #endregion
 
         #region Multi Level Undo Tests
         [Test]
-        public void ValidUndoStackAfterMultilevelUndo()
+        public void ValidUndoStatesAfterMultilevelUndo()
         {
-            var emptyUndoStack = new Stack<SensorState>();
-
             // Undo twice to get empty stack in this case
+            _undoSensor.AddState(new SensorState(DateTime.Now));
+
             _undoSensor.Undo();
             _undoSensor.Undo();
 
-            Assert.AreEqual(emptyUndoStack, _undoSensor.UndoStack);
+            Assert.AreEqual(1, _undoSensor.UndoStates.Count);
         }
 
         [Test]
-        public void ValidRedoStackAfterMultilevelUndo()
+        public void ValidRedoStatesAfterMultilevelUndo()
         {
-            var correctRedoStack = new Stack<SensorState>();
-            correctRedoStack.Push(new SensorState(new DateTime(2011, 8, 12),
+            var correctRedoStates = new Stack<SensorState>();
+            correctRedoStates.Push(new SensorState(new DateTime(2011, 8, 12),
                                                        new Dictionary<DateTime, float> {{new DateTime(2011, 8, 12), 66.77f}}));
-            correctRedoStack.Push(new SensorState(new DateTime(2011, 8, 11),
+            correctRedoStates.Push(new SensorState(new DateTime(2011, 8, 11),
                                             new Dictionary<DateTime, float>{{new DateTime(2011, 8, 12), 66.77f}}));
 
-            _undoSensor.Undo();
-            _undoSensor.Undo();
+            _undoSensor.Undo(); // At least 1 item must be on undo stack (current state)
 
-            Assert.AreEqual(correctRedoStack, _undoSensor.RedoStack);
+            Assert.AreEqual(correctRedoStates.ElementAt(1), _undoSensor.RedoStates[0]);
         }
         #endregion
 
         #region Multi Level Redo Tests
         [Test]
-        public void ValidUndoStackAfterMultilevelRedo()
+        public void ValidUndoStatesAfterMultilevelRedo()
         {
+            _undoSensor = new Sensor("Temperature", "C");
+
             var correctStack = new Stack<SensorState>();
             correctStack.Push(new SensorState(new DateTime(2011, 8, 12),
                                                        new Dictionary<DateTime, float>{{new DateTime(2011, 8, 12), 66.77f}}));
             correctStack.Push(new SensorState(new DateTime(2011, 8, 11),
                                             new Dictionary<DateTime, float>{{new DateTime(2011, 8, 12), 66.77f}}));
+            correctStack.Push(new SensorState(new DateTime(2011, 8, 12),
+                                new Dictionary<DateTime, float> { { new DateTime(2011, 8, 12), 64.77f } }));
 
-            _undoSensor.UndoStack = new Stack<SensorState>();
-            _undoSensor.RedoStack.Push(new SensorState(new DateTime(2011, 8, 11),
+            _undoSensor.AddState(new SensorState(new DateTime(2011, 8, 11),
                                                        new Dictionary<DateTime, float>{{new DateTime(2011, 8, 12), 66.77f}}));
-            _undoSensor.RedoStack.Push(new SensorState(new DateTime(2011, 8, 12),
+            _undoSensor.AddState(new SensorState(new DateTime(2011, 8, 12),
                                             new Dictionary<DateTime, float>{{new DateTime(2011, 8, 12), 66.77f}}));
+            _undoSensor.AddState(new SensorState(new DateTime(2011, 8, 12),
+                                new Dictionary<DateTime, float> { { new DateTime(2011, 8, 12), 64.77f } }));
+
+            _undoSensor.Undo();
+            _undoSensor.Undo();
+
+            Assert.AreEqual(2, _undoSensor.RedoStates.Count);
+            Assert.AreEqual(1, _undoSensor.UndoStates.Count);
 
             _undoSensor.Redo();
             _undoSensor.Redo();
 
-            Assert.AreEqual(correctStack, _undoSensor.UndoStack);
-        }
-
-        [Test]
-        public void ValidRedoStackAfterMultilevelRedo()
-        {
-            _undoSensor.UndoStack = new Stack<SensorState>();
-            _undoSensor.RedoStack.Push(new SensorState(new DateTime(2011, 8, 11),
-                                                       new Dictionary<DateTime, float>{{ new DateTime(2011, 8, 12), 66.77f}}));
-            _undoSensor.RedoStack.Push(new SensorState(new DateTime(2011, 8, 12),
-                                            new Dictionary<DateTime, float>{{new DateTime(2011, 8, 12), 66.77f}}));
-
-            _undoSensor.Redo();
-            _undoSensor.Redo();
-
-            Assert.AreEqual(new Stack<SensorState>(), _undoSensor.RedoStack);
+            Assert.AreEqual(0, _undoSensor.RedoStates.Count);
+            Assert.AreEqual(3, _undoSensor.UndoStates.Count);
+            
         }
         #endregion
 
         #region Current State Tests
         [Test]
-        public void GetCurrentStateTest()
-        {
-            _testUndoStack.Push(new SensorState(DateTime.Now));
-            _sensor1.UndoStack = _testUndoStack;
-            Assert.AreEqual(_testUndoStack.Peek(), _sensor1.CurrentState);
-        }
-
-        [Test]
         public void AddStateTest()
         {
-            _testUndoStack.Clear();
-            _sensor1.RedoStack.Push(new SensorState(DateTime.Now));
-            _testUndoStack.Push(new SensorState(DateTime.Now));
+            _testUndoStates.Clear();
+            _testUndoStates.Push(new SensorState(DateTime.Now));
             _sensor1.AddState(new SensorState(DateTime.Now));
-            Assert.AreEqual(_testUndoStack.Peek(), _sensor1.CurrentState);
-            Assert.AreEqual(_testUndoStack, _sensor1.UndoStack);
-            Assert.IsEmpty(_sensor1.RedoStack);
+
+            Assert.AreEqual(_testUndoStates.Peek(), _sensor1.CurrentState);
+            Assert.AreEqual(_testUndoStates, _sensor1.UndoStates);
+            Assert.IsEmpty(_sensor1.RedoStates);
         }
 #endregion
 
@@ -598,12 +650,12 @@ namespace IndiaTango.Tests
         public void GetAcceptableSensorThresholds()
         {
             var sensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit,
-                                    _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _testUndoStack,
+                                    _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStates, _testUndoStates,
                                     new List<DateTime>(), 4, _ds);
             Assert.AreEqual(4, sensor.ErrorThreshold);
 
             var sensorTwo = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit,
-                                    _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _testUndoStack,
+                                    _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStates, _testUndoStates,
                                     new List<DateTime>(), 6, _ds);
             Assert.AreEqual(6, sensorTwo.ErrorThreshold);
         }
@@ -623,7 +675,7 @@ namespace IndiaTango.Tests
         public void ConstructWithZeroErrorThreshold()
         {
             var sensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit,
-                                     _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _testUndoStack,
+                                     _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStates, _testUndoStates,
                                      new List<DateTime>(), 0, _ds);
         }
 
@@ -632,7 +684,7 @@ namespace IndiaTango.Tests
         public void ConstructWithNegativeErrorThreshold()
         {
              var sensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit,
-                                     _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStack, _testUndoStack,
+                                     _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStates, _testUndoStates,
                                      new List<DateTime>(), -9, _ds);
         }
 
@@ -765,6 +817,56 @@ namespace IndiaTango.Tests
 
         #endregion
 
-       
+        #region Revert To Raw Tests
+        [Test]
+        public void SetRawData()
+        {
+            var s = new Sensor("Temperature", "C");
+            var baseDate = new DateTime(2011, 5, 5, 12, 15, 0);
+            var original = new SensorState(new Dictionary<DateTime, float>() { { baseDate.AddMinutes(15), 20 }, { baseDate.AddMinutes(30), 40 }, { baseDate.AddMinutes(45), 60 }, { baseDate.AddMinutes(60), 80 } });
+
+            s.RawData = original;
+
+            Assert.AreEqual(s.RawData, original);
+        }
+
+        [Test]
+        public void RevertToRaw()
+        {
+            var s = new Sensor("Temperature", "C");
+            var baseDate = new DateTime(2011, 5, 5, 12, 15, 0);
+            var original = new SensorState(new Dictionary<DateTime, float>() { { baseDate.AddMinutes(15), 20 }, { baseDate.AddMinutes(30), 40 }, { baseDate.AddMinutes(45), 60 }, { baseDate.AddMinutes(60), 80 } });
+
+            var newValues = new SensorState(new Dictionary<DateTime, float>() { { baseDate.AddMinutes(15), 20 }, { baseDate.AddMinutes(30), 40 }, { baseDate.AddMinutes(45), 60 }, { baseDate.AddMinutes(60), 1000 } });
+
+            s.RawData = original;
+
+            s.AddState(newValues);
+            s.RevertToRaw();
+
+            Assert.AreEqual(s.CurrentState, original);
+        }
+        #endregion
+
+        #region RawNameTests
+
+        [Test]
+        public void EnsureRawNameNeverChanges()
+        {
+            var rawName = _sensor1.RawName;
+            Assert.AreEqual(rawName, _sensor1.Name);
+
+            _sensor1.Name = "Testing";
+
+            Assert.AreNotEqual(_sensor1.Name, _sensor1.RawName);
+            Assert.AreEqual(rawName, _sensor1.RawName);
+
+            _sensor1.Name = "And Again";
+
+            Assert.AreNotEqual(_sensor1.Name, _sensor1.RawName);
+            Assert.AreEqual(rawName, _sensor1.RawName);
+        }
+
+        #endregion
     }
 }
