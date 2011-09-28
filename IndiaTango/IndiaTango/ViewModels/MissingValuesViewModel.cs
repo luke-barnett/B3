@@ -569,5 +569,13 @@ namespace IndiaTango.ViewModels
         {
             _backgroundCanvas.Visibility = Visibility.Visible;
         }
+
+        public void changedUndoStep(SelectionChangedEventArgs e)
+        {
+            if(e.AddedItems.Count > 0 && e.AddedItems[0] != null)
+            {
+                
+            }
+        }
     }
 }
