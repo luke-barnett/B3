@@ -364,11 +364,14 @@ namespace IndiaTango.ViewModels
         {
         	string message = "";
 
-        	message = "The program applies the formula entered across all data points within the specified range. " +
+        	message = "The program applies the formula entered across all sensors data points within the specified range.\n" +
         	          "The following gives an indication of the operations and syntax.\n\n" +
 					  "Mathematical operations\t [ -, +, *, ^, % ]\n" +
         	          "Mathematical functions\t [ Sin(y), Cos(y), Tan(y), Pi ]\n\n" +
-        	          "To set a data points value, use 'x = ' followed by the value.\n\n" +
+        	          "To set a data points value for a particular sensor, use that sensors variable followed an equals sign, then by the value.\n" +
+        	          "   eg: To set the values of the sensor Temperatue1 to 5 for all points, use 'a = 5' \n\n" +
+        	          "To use a sensors values in a calculation, use that sesnors variable.\n" +
+        	          "   eg: To make all the values of the sensor Temperature1 equal to Temperature2, use a = b\n\n" +
         	          "To use the data points time stamp in calculations use 't.' followed by the time part desired.\n" +
         	          "   eg: t.Year, t.Month, t.Day, t.Hour, t.Minute, t.Second\n\n" +
         	          "Examples:\n" +
@@ -434,6 +437,7 @@ namespace IndiaTango.ViewModels
 		}
 		#endregion
 
+#region Graph stuffs
        private void RefreshGraph()
        {
            if (SensorToGraph != null && SensorToGraph.DataPoints != null)
@@ -481,4 +485,8 @@ namespace IndiaTango.ViewModels
            _backgroundCanvas.Visibility = Visibility.Visible;
        }
     }
+
+#endregion
+
+    
 }

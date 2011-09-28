@@ -24,6 +24,7 @@ namespace IndiaTango.Models
         private float _upperLimit;
         #endregion
 
+
         #region Constructors
         /// <summary>
         /// Creates a new sensor, with the specified sensor name and measurement unit.
@@ -126,6 +127,7 @@ namespace IndiaTango.Models
             ErrorThreshold = errorThreshold;
             Owner = owner;
         }
+
         #endregion
 
         #region Properties

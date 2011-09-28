@@ -18,7 +18,7 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <GroupBox Grid.Row="0" Header="Select A Sensor" BorderBrush="OrangeRed" Margin="10 5 5 5">
+            <GroupBox Grid.Row="0" Header="Select A Sensor To Graph" BorderBrush="OrangeRed" Margin="10 5 5 5">
                 <ListBox ItemsSource="{Binding SensorList}"  SelectionMode="Single" Margin="5" SelectedItem="{Binding SelectedSensor}">
                 </ListBox>
             </GroupBox>
