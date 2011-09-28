@@ -56,7 +56,15 @@
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                             <ext:SplitButton.DropDownContent>
-                                <ListBox Name="undoStates" ItemsSource="{Binding UndoStates}"></ListBox>
+                                <ListBox Name="undoStates" ItemsSource="{Binding UndoStates}" SelectionMode="Single">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="SelectionChanged">
+                                            <cal:ActionMessage MethodName="changedUndoStep">
+                                                <cal:Parameter Value="$eventArgs" />
+                                            </cal:ActionMessage>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </ListBox>
                             </ext:SplitButton.DropDownContent>
                         </ext:SplitButton>
 
@@ -71,7 +79,7 @@
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                             <ext:SplitButton.DropDownContent>
-                                <ListBox Name="redoStates" ItemsSource="{Binding RedoStates}"></ListBox>
+                                <ListBox Name="redoStates" ItemsSource="{Binding RedoStates}" SelectionMode="Single"></ListBox>
                             </ext:SplitButton.DropDownContent>
                         </ext:SplitButton>
 
