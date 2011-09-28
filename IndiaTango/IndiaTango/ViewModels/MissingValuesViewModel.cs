@@ -570,11 +570,35 @@ namespace IndiaTango.ViewModels
             _backgroundCanvas.Visibility = Visibility.Visible;
         }
 
-        public void changedUndoStep(SelectionChangedEventArgs e)
+        public void UndoPathSelected(SelectionChangedEventArgs e)
         {
             if(e.AddedItems.Count > 0 && e.AddedItems[0] != null)
             {
-                
+                var item = (SensorStateListObject) e.AddedItems[0];
+
+                if(SelectedSensor != null && item != null)
+                    SelectedSensor.Undo(item.State.EditTimestamp);
+
+                NotifyOfPropertyChange(() => UndoStates);
+                NotifyOfPropertyChange(() => RedoStates);
+                NotifyOfPropertyChange(() => UndoButtonEnabled);
+                NotifyOfPropertyChange(() => RedoButtonEnabled);
+            }
+        }
+
+        public void RedoPathSelected(SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count > 0 && e.AddedItems[0] != null)
+            {
+                var item = (SensorStateListObject)e.AddedItems[0];
+
+                if (SelectedSensor != null && item != null)
+                    SelectedSensor.Redo(item.State.EditTimestamp);
+
+                NotifyOfPropertyChange(() => UndoStates);
+                NotifyOfPropertyChange(() => RedoStates);
+                NotifyOfPropertyChange(() => UndoButtonEnabled);
+                NotifyOfPropertyChange(() => RedoButtonEnabled);
             }
         }
     }
