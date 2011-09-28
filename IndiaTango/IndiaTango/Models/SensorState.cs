@@ -162,25 +162,33 @@ namespace IndiaTango.Models
         {
             var outliers = new List<DateTime>();
             var values = new LinkedList<float>();
-            _upperLine = new Dictionary<DateTime, float> ();
-            _lowerLine = new Dictionary<DateTime, float> ();
-            for (var i = start; i > start.AddMinutes(-(timeGap * smoothingPeriod)); i = i.AddMinutes(-timeGap))
+            _upperLine = new Dictionary<DateTime, float>();
+            _lowerLine = new Dictionary<DateTime, float>();
+            for (var i = start.AddMinutes(-(timeGap*(smoothingPeriod/2)));
+                 i < start.AddMinutes((timeGap*(smoothingPeriod/2)));
+                 i = i.AddMinutes(timeGap))
             {
-                values.AddFirst(float.NaN);
+                var value = 0f;
+                value = (Values.TryGetValue(i, out value) ? value : float.NaN);
+                values.AddLast(value);
             }
-            for (var time = start; time <= end;time = time.AddMinutes(timeGap) )
+            for (var time = start; time <= end; time = time.AddMinutes(timeGap))
             {
                 values.RemoveFirst();
+                var next = 0f;
+                next = (Values.TryGetValue(time.AddMinutes(timeGap*(smoothingPeriod/2)), out next) ? next : float.NaN);
+                values.AddLast(next);
                 var value = 0f;
                 value = (Values.TryGetValue(time, out value) ? value : float.NaN);
-                values.AddLast(value);
+
+                if (float.IsNaN(value)) continue;
+
                 var avg = GetAverage(values);
-                
-                var sum = GetSquaresSum(values,avg);
-                var stdDev = (float)Math.Sqrt((sum) / (GetCount(values) - 1));
+                var sum = GetSquaresSum(values, avg);
+                var stdDev = (float) Math.Sqrt((sum)/(GetCount(values) - 1));
                 var top = avg + (numStdDev*stdDev);
                 var bottom = avg - (numStdDev*stdDev);
-                if(value > top || value < bottom)
+                if (value > top || value < bottom)
                 {
                     outliers.Add(time);
                 }
