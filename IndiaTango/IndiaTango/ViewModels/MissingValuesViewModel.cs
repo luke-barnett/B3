@@ -279,20 +279,62 @@ namespace IndiaTango.ViewModels
 
         public void btnUndo()
         {
-            _sensor.Undo();
-            MissingValues = _sensor.CurrentState.GetMissingTimes(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp);
-            RefreshGraph();
-            NotifyOfPropertyChange(() => UndoButtonEnabled);
-            NotifyOfPropertyChange(() => RedoButtonEnabled);
+            if (_sensor != null)
+            {
+                _sensor.Undo();
+
+                MissingValues = _sensor.CurrentState.GetMissingTimes(_ds.DataInterval, _ds.StartTimeStamp,
+                                                                     _ds.EndTimeStamp);
+                RefreshGraph();
+                NotifyOfPropertyChange(() => UndoButtonEnabled);
+                NotifyOfPropertyChange(() => RedoButtonEnabled);
+                NotifyOfPropertyChange(() => UndoStates);
+                NotifyOfPropertyChange(() => RedoStates);
+            }
         }
 
         public void btnRedo()
         {
-            _sensor.Redo();
-            MissingValues = _sensor.CurrentState.GetMissingTimes(_ds.DataInterval, _ds.StartTimeStamp, _ds.EndTimeStamp);
-            RefreshGraph();
-            NotifyOfPropertyChange(() => UndoButtonEnabled);
-            NotifyOfPropertyChange(() => RedoButtonEnabled);
+            if (_sensor != null)
+            {
+                _sensor.Redo();
+
+                MissingValues = _sensor.CurrentState.GetMissingTimes(_ds.DataInterval, _ds.StartTimeStamp,
+                                                                     _ds.EndTimeStamp);
+                RefreshGraph();
+                NotifyOfPropertyChange(() => UndoButtonEnabled);
+                NotifyOfPropertyChange(() => RedoButtonEnabled);
+                NotifyOfPropertyChange(() => UndoStates);
+                NotifyOfPropertyChange(() => RedoStates);
+            }
+        }
+
+        public ReadOnlyCollection<SensorStateListObject> UndoStates
+        {
+            get
+            {
+                var ss = new List<SensorStateListObject>();
+
+                foreach (var obj in _sensor.UndoStates)
+                    ss.Add(new SensorStateListObject(obj, false));
+
+                ss.Add(new SensorStateListObject(_sensor.RawData, true));
+
+                return new ReadOnlyCollection<SensorStateListObject>(ss);
+            }
+        }
+
+        public ReadOnlyCollection<SensorStateListObject> RedoStates
+        {
+            get
+            {
+                var ss = new List<SensorStateListObject>();
+
+                foreach (var obj in _sensor.RedoStates)
+                    ss.Add(new SensorStateListObject(obj, false));
+
+                return new ReadOnlyCollection<SensorStateListObject>(ss);
+            }
         }
 
 

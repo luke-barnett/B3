@@ -729,6 +729,7 @@ namespace IndiaTango.ViewModels
         }
         #endregion
 
+        // TODO: make this change raw data?
         private void AddValuesToSensors(IEnumerable<Sensor> sensors)
         {
             //For all the sensors we have imported
