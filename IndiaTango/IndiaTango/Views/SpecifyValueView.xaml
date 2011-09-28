@@ -15,6 +15,7 @@
         <Button Content="OK" Margin="5" Name="btnOK" VerticalAlignment="Top" Grid.Column="1" Grid.Row="1" IsDefault="True" />
         <TextBlock Text="{Binding Message}" HorizontalAlignment="Left" Margin="10" VerticalAlignment="Top" Grid.ColumnSpan="2" />
         
-        <TextBox Grid.Column="0" Grid.Row="1" Name="txtValue" VerticalAlignment="Top" Text="{Binding Text}" Margin="10 5" />
+        <TextBox Grid.Column="0" Grid.Row="1" Name="txtValue" VerticalAlignment="Top" Text="{Binding Text}" Margin="10 5" Visibility="{Binding TextBoxVisible}" />
+        <ComboBox Grid.Column="0" Grid.Row="1" Name="comboValue" VerticalAlignment="Center" Margin="10,5" IsEditable="True" ItemsSource="{Binding ComboBoxItems}" Visibility="{Binding ComboBoxVisible}" Text="{Binding ComboBoxText, Mode=TwoWay} "/>
     </Grid>
 </Window>

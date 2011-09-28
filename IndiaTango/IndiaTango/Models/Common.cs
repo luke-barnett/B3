@@ -31,7 +31,9 @@ namespace IndiaTango.Models
         public static int MaximumGraphablePoints = 15000;
 
         public static bool HasInitdTaskDlgs = false;
+        private static List<string> _changeReasons;
 
+        public static string ChangeReasonsPath { get { return Path.Combine(AppDataPath,"ChangeReasons.txt"); } }
         public static string Icon { get { return "/IndiaTango;component/Images/icon.ico"; } }
 		public static string TestDataPath { get { return "../../Test Data/"; } }
         public static string AppDataPath
@@ -214,13 +216,15 @@ namespace IndiaTango.Models
             }
         }
 
-        public static void requestReason(Sensor sensor, SimpleContainer _container, IWindowManager _windowManager, SensorState state, string taskPerformed)
+        public static void RequestReason(Sensor sensor, SimpleContainer _container, IWindowManager _windowManager, SensorState state, string taskPerformed)
         {
             if(state != null)
             {
                 var specify = (SpecifyValueViewModel)_container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel");
                 specify.Title = "Log Reason";
                 specify.Message = "Please specify a reason for this change:";
+                specify.ShowComboBox = true;
+                specify.ComboBoxItems = ChangeReasons;
                 specify.Deactivated += (o, e) =>
                                            {
                                                // Specify reason
@@ -230,6 +234,9 @@ namespace IndiaTango.Models
                                                state.LogChange(sensor.Name, taskPerformed);
                                            };
                 _windowManager.ShowDialog(specify);
+                
+                if(!ChangeReasons.Contains(specify.Text))
+                    ChangeReasons.Add(specify.Text);
             }
         }
 
@@ -240,6 +247,50 @@ namespace IndiaTango.Models
             return samplingCaps;
         }
 
+        public static List<string> ChangeReasons
+        {
+            get
+            {
+                if(_changeReasons == null)
+                    ImportChangeReasons();
+
+                return _changeReasons;
+            }
+
+            set
+            {
+                _changeReasons = value;
+                _changeReasons.Sort();
+                ExportChangeReasons();
+            }
+        }
+
+        public static void ImportChangeReasons()
+        {
+            if(!File.Exists(ChangeReasonsPath))
+            {
+                _changeReasons = new List<string>();
+                return;
+            }
+
+            using(StreamReader reader = new StreamReader(ChangeReasonsPath))
+            {
+                _changeReasons = new List<string>();
+                string line;
+
+                while ((line = reader.ReadLine()) != null)
+                    _changeReasons.Add(line);
+            }
+        }
+
+        public static void ExportChangeReasons()
+        {
+            using (StreamWriter writer = new StreamWriter(ChangeReasonsPath))
+            {
+                foreach (string changeReason in _changeReasons)
+                    writer.WriteLine(changeReason);
+            }
+        }
 
     }
 }

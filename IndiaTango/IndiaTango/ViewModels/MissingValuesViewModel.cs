@@ -408,7 +408,7 @@ namespace IndiaTango.ViewModels
             NotifyOfPropertyChange(() => MissingValues);
             NotifyOfPropertyChange(() => MissingCount);
 
-            Common.requestReason(_sensor, _container, _windowManager, _sensor.CurrentState, taskPerformed);
+            Common.RequestReason(_sensor, _container, _windowManager, _sensor.CurrentState, taskPerformed);
         }
 
         public void btnExtrapolate()
