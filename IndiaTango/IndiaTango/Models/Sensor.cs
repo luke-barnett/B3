@@ -442,11 +442,33 @@ namespace IndiaTango.Models
             if (sensor != null)
             {
                 // Exists
-                while(UndoStack.Peek() != null)
+                while(UndoStack.Count > 0)
                 {
                     // Keep undoing until at desired state
                     if (UndoStack.Peek() != sensor)
                         Undo();
+                    else
+                        break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Advances this sensor's values so that the state represented by the timestamp specified is the current state (i.e. top of the Undo stack). If the timestamp does not exist, does nothing.
+        /// </summary>
+        /// <param name="dateTime">The timestamp representing the state to make the current state.</param>
+        public void Redo(DateTime dateTime)
+        {
+            var sensor = (from selectedSensor in RedoStack where selectedSensor.EditTimestamp == dateTime select selectedSensor).DefaultIfEmpty(null).FirstOrDefault();
+
+            if (sensor != null)
+            {
+                // Exists
+                while (RedoStack.Count > 0)
+                {
+                    // Keep undoing until at desired state
+                    if (UndoStack.Peek() != sensor)
+                        Redo();
                     else
                         break;
                 }
