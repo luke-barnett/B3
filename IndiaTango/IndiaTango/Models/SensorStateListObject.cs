@@ -26,7 +26,7 @@ namespace IndiaTango.Models
             if (_isRaw)
                 return "Revert to Raw Data";
 
-            return (_object != null) ? _object.EditTimestamp.ToString() : "Unknown Date";
+            return ((_object != null) ? _object.EditTimestamp.ToString() : "Unknown Date") + " - " + (_object != null ? _object.Reason : "");
         }
     }
 }

@@ -358,6 +358,8 @@ namespace IndiaTango.ViewModels
             RefreshGraph();
             NotifyOfPropertyChange(() => UndoButtonEnabled);
             NotifyOfPropertyChange(() => RedoButtonEnabled);
+            NotifyOfPropertyChange(() => UndoStates);
+            NotifyOfPropertyChange(() => RedoStates);
         }
 
 
@@ -399,6 +401,8 @@ namespace IndiaTango.ViewModels
             RefreshGraph();
             NotifyOfPropertyChange(() => UndoButtonEnabled);
             NotifyOfPropertyChange(() => RedoButtonEnabled);
+            NotifyOfPropertyChange(() => UndoStates);
+            NotifyOfPropertyChange(() => RedoStates);
             ViewCursor = Cursors.Arrow;
         }
 
@@ -452,6 +456,8 @@ namespace IndiaTango.ViewModels
             RefreshGraph();
             NotifyOfPropertyChange(() => UndoButtonEnabled);
             NotifyOfPropertyChange(() => RedoButtonEnabled);
+            NotifyOfPropertyChange(() => UndoStates);
+            NotifyOfPropertyChange(() => RedoStates);
             ViewCursor = Cursors.Arrow;
         }
 
@@ -579,10 +585,17 @@ namespace IndiaTango.ViewModels
                 if(SelectedSensor != null && item != null)
                     SelectedSensor.Undo(item.State.EditTimestamp);
 
-                NotifyOfPropertyChange(() => UndoStates);
-                NotifyOfPropertyChange(() => RedoStates);
+                MissingValues = _sensor.CurrentState.GetMissingTimes(_ds.DataInterval, _ds.StartTimeStamp,
+                                                                     _ds.EndTimeStamp);
+                RefreshGraph();
+
+                ShowUndoStates = false;
+
                 NotifyOfPropertyChange(() => UndoButtonEnabled);
                 NotifyOfPropertyChange(() => RedoButtonEnabled);
+                NotifyOfPropertyChange(() => UndoStates);
+                NotifyOfPropertyChange(() => RedoStates);
+                NotifyOfPropertyChange(() => ShowUndoStates);
             }
         }
 
@@ -595,11 +608,22 @@ namespace IndiaTango.ViewModels
                 if (SelectedSensor != null && item != null)
                     SelectedSensor.Redo(item.State.EditTimestamp);
 
-                NotifyOfPropertyChange(() => UndoStates);
-                NotifyOfPropertyChange(() => RedoStates);
+                MissingValues = _sensor.CurrentState.GetMissingTimes(_ds.DataInterval, _ds.StartTimeStamp,
+                                                                     _ds.EndTimeStamp);
+                RefreshGraph();
+
+                ShowRedoStates = false;
+
                 NotifyOfPropertyChange(() => UndoButtonEnabled);
                 NotifyOfPropertyChange(() => RedoButtonEnabled);
+                NotifyOfPropertyChange(() => UndoStates);
+                NotifyOfPropertyChange(() => RedoStates);
+                NotifyOfPropertyChange(() => ShowRedoStates);
             }
         }
+
+        public bool ShowUndoStates { get; set; }
+
+        public bool ShowRedoStates { get; set; }
     }
 }
