@@ -595,6 +595,11 @@ namespace IndiaTango.ViewModels
                 SelectedSensor.AddState(newState);
 
                 ViewCursor = Cursors.Arrow;
+
+                Common.RequestReason(SelectedSensor, _container, _windowManager, SelectedSensor.CurrentState, "Formula '" + FormulaText + "' successfully applied to the sensor.");
+
+                Common.ShowMessageBox("Formula applied", "The formula was successfully applied to the selected sensor.",
+                                      false, false);
             }
             else
             {
