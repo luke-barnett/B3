@@ -337,13 +337,14 @@ namespace IndiaTango.ViewModels
 
         private void Finalise(string taskPerformed)
         {
-            Outliers = (_minMaxMode)
+            UpdateUndoRedo();
+            /*Outliers = (_minMaxMode)
                            ? _sensor.CurrentState.GetOutliersFromMaxAndMin(_ds.DataInterval, _ds.StartTimeStamp,
                                                                            _ds.EndTimeStamp,
                                                                            _sensor.UpperLimit, _sensor.LowerLimit,
                                                                            _sensor.MaxRateOfChange)
                            : _sensor.CurrentState.GetOutliersFromStdDev(_ds.DataInterval, _ds.StartTimeStamp,
-                                                                        _ds.EndTimeStamp,NumStdDev,_smoothingPeriod);
+                                                                        _ds.EndTimeStamp,NumStdDev,_smoothingPeriod);*/
             NotifyOfPropertyChange(() => Outliers);
             NotifyOfPropertyChange(() => OutliersStrings);
 
@@ -394,31 +395,13 @@ namespace IndiaTango.ViewModels
         public void btnUndo()
         {
             _sensor.Undo();
-            Outliers = (_minMaxMode)
-                           ? _sensor.CurrentState.GetOutliersFromMaxAndMin(_ds.DataInterval, _ds.StartTimeStamp,
-                                                                           _ds.EndTimeStamp,
-                                                                           _sensor.UpperLimit, _sensor.LowerLimit,
-                                                                           _sensor.MaxRateOfChange)
-                           : _sensor.CurrentState.GetOutliersFromStdDev(_ds.DataInterval, _ds.StartTimeStamp,
-                                                                        _ds.EndTimeStamp,NumStdDev,_smoothingPeriod);
-            RefreshGraph();
-			NotifyOfPropertyChange(() => UndoButtonEnabled);
-			NotifyOfPropertyChange(() => RedoButtonEnabled);
+            UpdateUndoRedo();
         }
 
         public void btnRedo()
         {
             _sensor.Redo();
-            Outliers = (_minMaxMode)
-                           ? _sensor.CurrentState.GetOutliersFromMaxAndMin(_ds.DataInterval, _ds.StartTimeStamp,
-                                                                           _ds.EndTimeStamp,
-                                                                           _sensor.UpperLimit, _sensor.LowerLimit,
-                                                                           _sensor.MaxRateOfChange)
-                           : _sensor.CurrentState.GetOutliersFromStdDev(_ds.DataInterval, _ds.StartTimeStamp,
-                                                                        _ds.EndTimeStamp, NumStdDev, _smoothingPeriod);
-            RefreshGraph();
-			NotifyOfPropertyChange(() => UndoButtonEnabled);
-			NotifyOfPropertyChange(() => RedoButtonEnabled);
+            UpdateUndoRedo();
         }
 
         public void btnDone()
@@ -616,5 +599,98 @@ namespace IndiaTango.ViewModels
             if (_graphableSensor != null)
                 SampleValues(Common.MaximumGraphablePoints, _graphableSensor);
         }
+
+        #region Multi-level Undo/Redo handling
+        public void UndoPathSelected(SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count > 0 && e.AddedItems[0] != null)
+            {
+                var item = (SensorStateListObject)e.AddedItems[0];
+
+                if (SelectedSensor != null && item != null)
+                    SelectedSensor.Undo(item.State.EditTimestamp);
+
+                ShowUndoStates = false;
+
+                UpdateUndoRedo();
+            }
+        }
+
+        public void RedoPathSelected(SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count > 0 && e.AddedItems[0] != null)
+            {
+                var item = (SensorStateListObject)e.AddedItems[0];
+
+                if (SelectedSensor != null && item != null)
+                    SelectedSensor.Redo(item.State.EditTimestamp);
+
+                ShowRedoStates = false;
+
+                UpdateUndoRedo();
+            }
+        }
+
+        public bool ShowUndoStates { get; set; }
+
+        public bool ShowRedoStates { get; set; }
+
+        public ReadOnlyCollection<SensorStateListObject> UndoStates
+        {
+            get
+            {
+                var ss = new List<SensorStateListObject>();
+
+                var atStart = true;
+
+                foreach (var obj in _sensor.UndoStates)
+                {
+                    if (atStart)
+                    {
+                        atStart = false;
+                        continue; // Initial state should NOT be listed - it is the current state
+                    }
+
+                    ss.Add(new SensorStateListObject(obj, false));
+                }
+
+                ss.Add(new SensorStateListObject(_sensor.RawData, true));
+
+                return new ReadOnlyCollection<SensorStateListObject>(ss);
+            }
+        }
+
+        public ReadOnlyCollection<SensorStateListObject> RedoStates
+        {
+            get
+            {
+                var ss = new List<SensorStateListObject>();
+
+                foreach (var obj in _sensor.RedoStates)
+                    ss.Add(new SensorStateListObject(obj, false));
+
+                return new ReadOnlyCollection<SensorStateListObject>(ss);
+            }
+        }
+
+        private void UpdateUndoRedo()
+        {
+            Outliers = (_minMaxMode)
+                           ? _sensor.CurrentState.GetOutliersFromMaxAndMin(_ds.DataInterval, _ds.StartTimeStamp,
+                                                                           _ds.EndTimeStamp,
+                                                                           _sensor.UpperLimit, _sensor.LowerLimit,
+                                                                           _sensor.MaxRateOfChange)
+                           : _sensor.CurrentState.GetOutliersFromStdDev(_ds.DataInterval, _ds.StartTimeStamp,
+                                                                        _ds.EndTimeStamp, NumStdDev, _smoothingPeriod);
+            RefreshGraph();
+
+            NotifyOfPropertyChange(() => UndoButtonEnabled);
+            NotifyOfPropertyChange(() => RedoButtonEnabled);
+            NotifyOfPropertyChange(() => UndoStates);
+            NotifyOfPropertyChange(() => RedoStates);
+            NotifyOfPropertyChange(() => ShowUndoStates);
+            NotifyOfPropertyChange(() => ShowRedoStates);
+        }
+        #endregion
     }
 }
