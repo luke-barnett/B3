@@ -272,10 +272,6 @@ namespace IndiaTango.ViewModels
         public string YAxisTitle { get { return (SelectedSensor == null) ? string.Empty : SelectedSensor.Unit; } }
 
         public DoubleRange Range { get { return _range; } set { _range = value; NotifyOfPropertyChange(() => Range); } }
-
-
-
-
         #endregion
 
         #region button event handlers
@@ -682,6 +678,9 @@ namespace IndiaTango.ViewModels
                                                                            _sensor.MaxRateOfChange)
                            : _sensor.CurrentState.GetOutliersFromStdDev(_ds.DataInterval, _ds.StartTimeStamp,
                                                                         _ds.EndTimeStamp, NumStdDev, _smoothingPeriod);
+            NotifyOfPropertyChange(() => Outliers);
+            NotifyOfPropertyChange(() => OutliersStrings);
+
             RefreshGraph();
 
             NotifyOfPropertyChange(() => UndoButtonEnabled);
