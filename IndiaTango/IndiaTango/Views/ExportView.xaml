@@ -1,7 +1,7 @@
 ﻿<Window x:Class="IndiaTango.Views.ExportView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="{Binding Title}" Height="310" Width="480" WindowStartupLocation="CenterOwner" Icon="{Binding Icon}">
+        Title="{Binding Title}" Height="345" Width="480" WindowStartupLocation="CenterOwner" Icon="{Binding Icon}">
     <Grid Name="grdMain">
         <Grid.RowDefinitions>
             <RowDefinition Height="45" />
@@ -19,6 +19,7 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -42,8 +43,11 @@
 
             <TextBlock Margin="7" TextAlignment="Right" Text="Include Modifications Log:" Grid.Row="4" Grid.Column="0" />
             <CheckBox Grid.Column="1" Grid.Row="4" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" IsChecked="{Binding IncludeChangeLog, Mode=TwoWay}" />
-            
-            <Grid Grid.Column="0" Grid.Row="7" Grid.ColumnSpan="3">
+
+            <TextBlock Margin="7" TextAlignment="Right" Text="Export Raw Data:" Grid.Row="5" Grid.Column="0" />
+            <CheckBox Grid.Column="1" Grid.Row="5" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" IsChecked="{Binding ExportRawData, Mode=TwoWay}" />
+
+            <Grid Grid.Column="0" Grid.Row="8" Grid.ColumnSpan="3">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
