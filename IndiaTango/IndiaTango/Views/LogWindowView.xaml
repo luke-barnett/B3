@@ -8,6 +8,6 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <ComboBox Grid.Row="0" Margin="5" Name="comboBox1"/>
-        <TextBox Grid.Row="1" Margin="5" Name="textBoxLog" Text="{Binding LogText}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" DataContext="{Binding}" IsReadOnly="True" Se/>
+        <TextBox Grid.Row="1" Margin="5" Name="textBoxLog" Text="{Binding LogText}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" DataContext="{Binding}" IsReadOnly="True" />
     </Grid>
 </Window>
