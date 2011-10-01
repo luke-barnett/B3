@@ -478,7 +478,7 @@ namespace IndiaTango.ViewModels
                 (_container.GetInstance(typeof(OutlierDetectionViewModel), "OutlierDetectionViewModel") as
                  OutlierDetectionViewModel);
             outlierView.Dataset = _ds;
-            _windowManager.ShowDialog(outlierView);
+            _windowManager.ShowWindow(outlierView);
         }
 
         public void btnMissingValues()
@@ -487,7 +487,7 @@ namespace IndiaTango.ViewModels
                 (_container.GetInstance(typeof(MissingValuesViewModel), "MissingValuesViewModel") as MissingValuesViewModel);
             MissingValuesView.Dataset = _ds;
             MissingValuesView.SensorList = SensorList;
-            _windowManager.ShowDialog(MissingValuesView);
+            _windowManager.ShowWindow(MissingValuesView);
         }
 
         public void btnEditPoints()
@@ -499,7 +499,7 @@ namespace IndiaTango.ViewModels
         {
             var calibrateView = (_container.GetInstance(typeof(CalibrateSensorsViewModel), "CalibrateSensorsViewModel") as CalibrateSensorsViewModel);
             calibrateView.Dataset = _ds;
-            _windowManager.ShowDialog(calibrateView);
+            _windowManager.ShowWindow(calibrateView);
         }
 
         public void btnSiteCreate()

@@ -8,6 +8,19 @@ using System.Threading;
 
 namespace IndiaTango.Models
 {
+    public delegate void EventLoggedEventHandler(object sender, EventLoggedArgs e);
+
+    public class EventLoggedArgs : EventArgs
+    {
+        public readonly string EventLog;
+
+        public EventLoggedArgs(string eventLog)
+        {
+            EventLog = eventLog;
+        }
+
+    }
+
     public static class EventLogger
     {
         #region PrivateMembers
@@ -18,6 +31,8 @@ namespace IndiaTango.Models
         private static StreamWriter _writer;
         private readonly static object Mutex = new object();
         #endregion
+
+        public static event EventLoggedEventHandler Changed;
 
         #region Properties
         /// <summary>
@@ -80,7 +95,15 @@ namespace IndiaTango.Models
             
             WriteLogToFile(logString, destFile);
 
+            OnLogEvent(null,new EventLoggedArgs(logString));
+
             return logString;
+        }
+
+        static void OnLogEvent(object o, EventLoggedArgs e)
+        {
+            if (Changed != null)
+                Changed(o, e);
         }
         #endregion
 

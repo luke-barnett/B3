@@ -26,6 +26,7 @@ namespace IndiaTango
             _container.RegisterPerRequest(typeof(OutlierDetectionViewModel),"OutlierDetectionViewModel",typeof(OutlierDetectionViewModel));
             _container.RegisterPerRequest(typeof(CalibrateSensorsViewModel), "CalibrateSensorsViewModel", typeof(CalibrateSensorsViewModel));
             _container.RegisterPerRequest(typeof(SettingsViewModel), "SettingsViewModel", typeof(SettingsViewModel));
+            _container.RegisterSingleton(typeof(LogWindowViewModel), "LogWindowViewModel", typeof(LogWindowViewModel));
 
             _container.RegisterInstance(typeof(IWindowManager), null, new WindowManager());
             _container.RegisterInstance(typeof(SimpleContainer), null, _container);
