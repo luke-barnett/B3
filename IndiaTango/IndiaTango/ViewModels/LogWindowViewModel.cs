@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Controls;
@@ -20,7 +21,7 @@ namespace IndiaTango.ViewModels
             _windowManager = windowManager;
             _container = container;
             EventLogger.Changed += EventLogged;
-            _logText = "";
+            _logText = EventLogger.GetLast20();
         }
 
         public string LogText

@@ -151,6 +151,22 @@ namespace IndiaTango.Models
         {
             return LogBase(Info, sensorName, eventDetails, GetSensorLogPath(sensorName));
         }
+
+        public static string GetLast20()
+        {
+            var q = new Queue<String>();
+            for (var i = 0; i < 20; i++)
+                q.Enqueue("");
+            using (var sr = new StreamReader(EventLogger.LogFilePath))
+            {
+                while (sr.Peek() != -1)
+                {
+                    q.Dequeue();
+                    q.Enqueue(sr.ReadLine() + "\n");
+                }
+            }
+            return q.Aggregate("", (current, s) => current + s);
+        }
         #endregion
     }
 }
