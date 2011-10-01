@@ -27,7 +27,7 @@ namespace IndiaTango.Models
         private const string Info = "INFO";
         private const string Warning = "WARNING";
         private const string Error = "ERROR";
-        private const string _timeFormatString = "dd/MM/yyyy HH:MM:ss";
+        private const string _timeFormatString = "dd/MM/yyyy HH:mm:ss";
         private static StreamWriter _writer;
         private readonly static object Mutex = new object();
         #endregion
