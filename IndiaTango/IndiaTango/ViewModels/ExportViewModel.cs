@@ -17,6 +17,7 @@ namespace IndiaTango.ViewModels
         private bool _includeEmptyLines = true;
         private bool _includeMetaData = false;
         private bool _includeChangeLog = false;
+        private bool _exportRaw = false;
         private DateColumnFormat _dateColumnFormat;
         private ExportedPoints _exportedPoints;
 
@@ -79,6 +80,13 @@ namespace IndiaTango.ViewModels
             set { _includeChangeLog = value; NotifyOfPropertyChange(() => IncludeChangeLog);}
         }
 
+        public bool ExportRawData
+        {
+            get { return _exportRaw; }
+            set { _exportRaw = value; NotifyOfPropertyChange(() => ExportRawData); }
+        }
+
+
         public Dataset Dataset
         {
             get { return _dataset; }
@@ -97,7 +105,7 @@ namespace IndiaTango.ViewModels
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 DatasetExporter exporter = new DatasetExporter(Dataset);
-                exporter.Export(dialog.FileName, ExportFormat.CSV, IncludeEmptyLines, IncludeMetaData, IncludeChangeLog, ExportedPoints, DateColumnFormat);
+                exporter.Export(dialog.FileName, ExportFormat.CSV, IncludeEmptyLines, IncludeMetaData, IncludeChangeLog, ExportedPoints, DateColumnFormat, ExportRawData);
                 this.TryClose();
             }
         }

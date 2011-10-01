@@ -42,7 +42,23 @@ namespace IndiaTango.Models
         /// <param name="includeChangeLog">Wether to include a seperate log file that details the changes made to the data.</param>
         public void Export(string filePath, ExportFormat format, bool includeEmptyLines, bool addMetaDataFile, bool includeChangeLog)
         {
-            Export(filePath,format,includeEmptyLines,addMetaDataFile,includeChangeLog,ExportedPoints.AllPoints,DateColumnFormat.TwoDateColumn);
+            Export(filePath,format,includeEmptyLines,addMetaDataFile,includeChangeLog,ExportedPoints.AllPoints,DateColumnFormat.TwoDateColumn, false);
+        }
+
+        /// <summary>
+        /// Exports a data set to a CSV file.
+        /// The file is saved in the same format as the original CSV files.
+        /// </summary>
+        /// <param name="filePath">The desired path and file name of the file to be saved. No not include an extension.</param>
+        /// <param name="format">The format to save the file in.</param>
+        /// <param name="includeEmptyLines">Wether to export the file with empty lines or not.</param>
+        /// <param name="addMetaDataFile">Wether to export the file with embedded site meta data.</param>
+        /// <param name="includeChangeLog">Wether to include a seperate log file that details the changes made to the data.</param>
+        /// <param name="exportedPoints">What points to export.</param>
+        /// <param name="dateColumnFormat">Wether to split the two date/time columns into five seperate columns</param>
+		public void Export(string filePath, ExportFormat format,bool includeEmptyLines, bool addMetaDataFile, bool includeChangeLog, ExportedPoints exportedPoints, DateColumnFormat dateColumnFormat)
+        {
+            Export(filePath, format, includeEmptyLines, addMetaDataFile, includeChangeLog, exportedPoints, dateColumnFormat, false);
         }
 
 	    /// <summary>
@@ -56,7 +72,8 @@ namespace IndiaTango.Models
         /// <param name="includeChangeLog">Wether to include a seperate log file that details the changes made to the data.</param>
         /// <param name="exportedPoints">What points to export.</param>
         /// <param name="dateColumnFormat">Wether to split the two date/time columns into five seperate columns</param>
-		public void Export(string filePath, ExportFormat format,bool includeEmptyLines, bool addMetaDataFile, bool includeChangeLog, ExportedPoints exportedPoints, DateColumnFormat dateColumnFormat)
+        /// <param name="exportRaw">Whether to export the raw data within this dataset, or the data represented in the current state.</param>
+		public void Export(string filePath, ExportFormat format,bool includeEmptyLines, bool addMetaDataFile, bool includeChangeLog, ExportedPoints exportedPoints, DateColumnFormat dateColumnFormat, bool exportRaw)
 		{
             EventLogger.LogInfo(GetType().ToString(), "Data export started.");
 
@@ -88,6 +105,8 @@ namespace IndiaTango.Models
 
                     foreach (Sensor sensor in Data.Sensors)
                     {
+                        var stateToUse = (exportRaw) ? sensor.RawData : sensor.CurrentState;
+
                         //Construct the column headings (Sensor names)
                         columnHeadings += del + sensor.Name;
                         var i = Data.StartTimeStamp;
@@ -97,7 +116,7 @@ namespace IndiaTango.Models
                             for (var j = 0; j < numOfPointsToAverage; j++,i = i.AddMinutes(15))
                             {
                                 float value;
-                                if (sensor.CurrentState.Values.TryGetValue(i, out value))
+                                if (stateToUse.Values.TryGetValue(i, out value))
                                     if (sum.Equals(float.MinValue))
                                         sum = value;
                                     else
