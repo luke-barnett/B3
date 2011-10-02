@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -245,16 +246,30 @@ namespace IndiaTango.Models
                 throw new ArgumentNullException("You must specify the containing data set for this sensor.");
 
             var first = keys[0];
-            var startValue = FindPrevValue(first, ds);
+            DateTime startValue;
+            try
+            {
+                startValue = FindPrevValue(first, ds);
+            }
+            catch(Exception e)
+            {
+                throw new DataException("No start value");
+            }
             var endValue = DateTime.MinValue;
             var time = 0;
-
-            while (endValue == DateTime.MinValue)
+            try
             {
-                endValue = (Values.ContainsKey(first.AddMinutes(time))
-                                ? first.AddMinutes(time)
-                                : DateTime.MinValue);
-                time += ds.DataInterval;
+                while (endValue == DateTime.MinValue)
+                {
+                    endValue = (Values.ContainsKey(first.AddMinutes(time))
+                                    ? first.AddMinutes(time)
+                                    : DateTime.MinValue);
+                    time += ds.DataInterval;
+                }
+            }
+            catch(Exception e)
+            {
+                throw new DataException("No end value");
             }
 
             var timeDiff = endValue.Subtract(startValue).TotalMinutes;
