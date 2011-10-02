@@ -79,6 +79,8 @@ namespace IndiaTango.ViewModels
 
         #region View Properties
 
+        private bool IsAtRaw = false;
+
         public Cursor ViewCursor
         {
             get { return _viewCursor; }
@@ -92,7 +94,7 @@ namespace IndiaTango.ViewModels
 
         public bool UndoButtonEnabled
         {
-            get { return SelectedSensor != null && SelectedSensor.UndoStates.Count > 1; }
+            get { return SelectedSensor != null && !SelectedSensor.CurrentState.IsRaw; }
         }
 
         public Dataset Dataset { get { return _ds; } set { _ds = value; } }
@@ -534,8 +536,13 @@ namespace IndiaTango.ViewModels
             {
                 var item = (SensorStateListObject) e.AddedItems[0];
 
-                if(SelectedSensor != null && item != null)
-                    SelectedSensor.Undo(item.State.EditTimestamp);
+                if (SelectedSensor != null && item != null)
+                {
+                    if(item.IsRaw)
+                        SelectedSensor.RevertToRaw();
+                    else
+                        SelectedSensor.Undo(item.State.EditTimestamp);
+                }
 
                 ShowUndoStates = false;
                 UpdateUndoRedo();
@@ -587,7 +594,7 @@ namespace IndiaTango.ViewModels
                     if (atStart)
                     {
                         atStart = false;
-                        continue; // Initial state should NOT be listed - it is the current state
+                        continue;
                     }
 
                     ss.Add(new SensorStateListObject(obj, false));
