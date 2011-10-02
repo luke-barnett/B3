@@ -61,7 +61,11 @@ namespace IndiaTango.ViewModels
         public void SaveImage()
         {
             if (string.IsNullOrWhiteSpace(_filename))
+            {
+                Common.ShowMessageBox("Filename is not set", "Please set a filename for the image and try again", false,
+                                      false);
                 return;
+            }
 
             Common.RenderChartToImage(Chart, SelectedSensors, _width, _height, _renderAllPoints, Filename);
             TryClose();
