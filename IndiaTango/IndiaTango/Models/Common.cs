@@ -203,10 +203,11 @@ namespace IndiaTango.Models
         {
             if (elementToRender == null)
                 return;
-            Debug.Write(elementToRender.RenderSize);
+            Debug.WriteLine("Turning on immediate invalidate");
             //Force immediate invalidation
             InvalidationHandler.ForceImmediateInvalidate = true;
 
+            Debug.WriteLine("Creating new chart");
             var clone = new Chart();
             
             clone.Width = clone.Height = double.NaN;
@@ -240,14 +241,12 @@ namespace IndiaTango.Models
                 clone.Series.Add(lineSeries);
             }
 
-
             var size = new Size(width, height);
-
+            
+            Debug.WriteLine("Rendering new chart of size {0}",size);
             clone.Measure(size);
             clone.Arrange(new Rect(size));
             clone.UpdateLayout();
-
-            Debug.Write(clone.RenderSize);
 
             var renderer = new RenderTargetBitmap(width, height, 96d, 96d, PixelFormats.Pbgra32);
 
@@ -256,13 +255,17 @@ namespace IndiaTango.Models
             var pngEncoder = new PngBitmapEncoder();
             pngEncoder.Frames.Add(BitmapFrame.Create(renderer));
 
+            Debug.WriteLine("Saving to file");
             using (var file = File.Create(filename))
             {
                 pngEncoder.Save(file);
             }
 
+            Debug.WriteLine("Turning off immediate invalidate");
             //Reset the invalidation handler
             InvalidationHandler.ForceImmediateInvalidate = false;
+
+            EventLogger.LogInfo("Image Exporter", "Saved graph as image to: " + filename);
         }
 
         public static void RequestReason(Sensor sensor, SimpleContainer _container, IWindowManager _windowManager, SensorState state, string taskPerformed)
