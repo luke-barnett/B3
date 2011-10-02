@@ -497,22 +497,27 @@ namespace IndiaTango.ViewModels
         /// <param name="chart"></param>
         public void ExportGraph(Chart chart)
         {
-            EventLogger.LogInfo(GetType().ToString(), "Graph export started.");
-            var fileDialog = new SaveFileDialog
-                                 {
-                                     AddExtension = true,
-                                     Filter = @"Images|*.png"
-                                 };
-
-            var result = fileDialog.ShowDialog();
-
-            if (result == DialogResult.OK)
+            if(_selectedSensors.Count == 0)
             {
-                Common.RenderChartToImage(chart, _selectedSensors.ToArray(), 1600, 1200, true, fileDialog.FileName);
-                EventLogger.LogInfo(GetType().ToString(), "Graph export complete. File saved to: " + fileDialog.FileName);
+                Common.ShowMessageBox("No Graph Showing",
+                                      "You haven't selected a sensor to graph so there is nothing to export!", false,
+                                      false);
+                return;
             }
-            else
-                EventLogger.LogInfo(GetType().ToString(), "Graph export complete. File wasn't saved");
+
+            var exportView = (_container.GetInstance(typeof (ExportToImageViewModel), "ExportToImageViewModel") as ExportToImageViewModel);
+            if(exportView == null)
+            {
+                EventLogger.LogError("Image Exporter","Failed to get a export image view");
+                return;
+            }
+
+            //Set up the view
+            exportView.Chart = chart;
+            exportView.SelectedSensors = _selectedSensors.ToArray();
+
+            //Show the dialog
+            _windowManager.ShowDialog(exportView);
         }
 
         /// <summary>
