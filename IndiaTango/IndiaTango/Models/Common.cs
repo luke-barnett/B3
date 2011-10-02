@@ -215,8 +215,8 @@ namespace IndiaTango.Models
             clone.Margin = new Thickness();
 
             clone.Title = elementToRender.Title;
-            clone.XAxis = new DateTimeAxis();
-            clone.YAxis = new LinearAxis() { Range = (IRange<double>)elementToRender.YAxis.Range };
+            clone.XAxis = new DateTimeAxis { Title = "Date"};
+            clone.YAxis = new LinearAxis { Range = (IRange<double>)elementToRender.YAxis.Range, Title = elementToRender.YAxis.Title };
 
             for (var i = 0; i < elementToRender.Series.Count; i++)
             {
