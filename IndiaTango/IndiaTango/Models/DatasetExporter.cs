@@ -42,7 +42,23 @@ namespace IndiaTango.Models
         /// <param name="includeChangeLog">Wether to include a seperate log file that details the changes made to the data.</param>
         public void Export(string filePath, ExportFormat format, bool includeEmptyLines, bool addMetaDataFile, bool includeChangeLog)
         {
-            Export(filePath,format,includeEmptyLines,addMetaDataFile,includeChangeLog,ExportedPoints.AllPoints,DateColumnFormat.TwoDateColumn);
+            Export(filePath,format,includeEmptyLines,addMetaDataFile,includeChangeLog,ExportedPoints.AllPoints,DateColumnFormat.TwoDateColumn, false);
+        }
+
+        /// <summary>
+        /// Exports a data set to a CSV file.
+        /// The file is saved in the same format as the original CSV files.
+        /// </summary>
+        /// <param name="filePath">The desired path and file name of the file to be saved. No not include an extension.</param>
+        /// <param name="format">The format to save the file in.</param>
+        /// <param name="includeEmptyLines">Wether to export the file with empty lines or not.</param>
+        /// <param name="addMetaDataFile">Wether to export the file with embedded site meta data.</param>
+        /// <param name="includeChangeLog">Wether to include a seperate log file that details the changes made to the data.</param>
+        /// <param name="exportedPoints">What points to export.</param>
+        /// <param name="dateColumnFormat">Wether to split the two date/time columns into five seperate columns</param>
+		public void Export(string filePath, ExportFormat format,bool includeEmptyLines, bool addMetaDataFile, bool includeChangeLog, ExportedPoints exportedPoints, DateColumnFormat dateColumnFormat)
+        {
+            Export(filePath, format, includeEmptyLines, addMetaDataFile, includeChangeLog, exportedPoints, dateColumnFormat, false);
         }
 
 	    /// <summary>
@@ -56,7 +72,8 @@ namespace IndiaTango.Models
         /// <param name="includeChangeLog">Wether to include a seperate log file that details the changes made to the data.</param>
         /// <param name="exportedPoints">What points to export.</param>
         /// <param name="dateColumnFormat">Wether to split the two date/time columns into five seperate columns</param>
-		public void Export(string filePath, ExportFormat format,bool includeEmptyLines, bool addMetaDataFile, bool includeChangeLog, ExportedPoints exportedPoints, DateColumnFormat dateColumnFormat)
+        /// <param name="exportRaw">Whether to export the raw data or the current state.</param>
+		public void Export(string filePath, ExportFormat format,bool includeEmptyLines, bool addMetaDataFile, bool includeChangeLog, ExportedPoints exportedPoints, DateColumnFormat dateColumnFormat, bool exportRaw)
 		{
             EventLogger.LogInfo(GetType().ToString(), "Data export started.");
 
@@ -71,72 +88,13 @@ namespace IndiaTango.Models
             string metaDataFilePath = filePath + " Site Meta Data.txt";
             string changeLogFilePath = filePath + " Change Log.txt";
 	        var numOfPointsToAverage = 1;
+
             if(exportedPoints.NumberOfMinutes!=0)
-            {
                 numOfPointsToAverage = exportedPoints.NumberOfMinutes/15;
-            }
+
             if (format.Equals(ExportFormat.CSV))
 			{
-				using(StreamWriter writer = File.CreateText(filePath))
-				{
-					char del = ',';
-                    string columnHeadings = dateColumnFormat.Equals(DateColumnFormat.SplitDateColumn) ? "dd" + del + "mm" + del + "yyyy" + del + "hh" + del + "nn" : "dd/mm/yyyy" + del + "hhnn";  //Not a typo
-				    int currentSensorIndex = 0;
-				    var outputData = new string[Data.Sensors.Count, (Data.ExpectedDataPointCount / numOfPointsToAverage)+1];
-				    DateTime rowDate = Data.StartTimeStamp;
-
-
-                    foreach (Sensor sensor in Data.Sensors)
-                    {
-                        //Construct the column headings (Sensor names)
-                        columnHeadings += del + sensor.Name;
-                        var i = Data.StartTimeStamp;
-                        while( i <= Data.EndTimeStamp )
-                        {
-                            var sum = float.MinValue;
-                            for (var j = 0; j < numOfPointsToAverage; j++,i = i.AddMinutes(15))
-                            {
-                                float value;
-                                if (sensor.CurrentState.Values.TryGetValue(i, out value))
-                                    if (sum.Equals(float.MinValue))
-                                        sum = value;
-                                    else
-                                        sum += value;
-                            }
-                            
-                            if (!sum.Equals(float.MinValue))
-                            {
-                                outputData[
-                                    currentSensorIndex,
-                                    GetArrayRowFromTime(Data.StartTimeStamp, i.AddMinutes((-15)*numOfPointsToAverage), numOfPointsToAverage)] =
-                                    Math.Round((sum/numOfPointsToAverage), 2).ToString();
-                            }
-                        }
-                        currentSensorIndex++;
-                    }
-
-				    //Strip the last delimiter from the headings and write the line
-					writer.WriteLine(columnHeadings);
-
-                    //write the data here...
-                    for (int row = 0; row < Data.ExpectedDataPointCount/numOfPointsToAverage; row++)
-                    {
-                        string line = "";
-
-                        for (int col = 0; col < Data.Sensors.Count; col++)
-                            line += del + outputData[col, row];
-
-                        if(includeEmptyLines || line.Length != Data.Sensors.Count)
-                        {
-                            line = dateColumnFormat.Equals(DateColumnFormat.SplitDateColumn) ? rowDate.ToString("dd") + del + rowDate.ToString("MM") + del + rowDate.ToString("yyyy") + del + rowDate.ToString("HH") + del + rowDate.ToString("mm") + line : rowDate.ToString("dd/MM/yyyy") + del + rowDate.ToString("HH:mm") + line;
-                            writer.WriteLine(line);
-                        }
-
-                        rowDate = rowDate.AddMinutes(15*numOfPointsToAverage);
-                    }
-
-				    writer.Close();
-				}
+				ExportCSV(filePath, includeEmptyLines, dateColumnFormat, exportRaw, numOfPointsToAverage);
                 
                 if (addMetaDataFile && Data.Site != null)
                     ExportMetaData(filePath, metaDataFilePath);
@@ -150,8 +108,84 @@ namespace IndiaTango.Models
 			{
 				throw new NotImplementedException("Cannot export as XLSX yet.");
 			}
+			else
+			{
+				throw new NotImplementedException("File format not supported.");
+			}
 		}
-	    private void ExportChangesFile(string filePath, string changeLogFilePath)
+
+		private void ExportCSV(string filePath, bool includeEmptyLines, DateColumnFormat dateColumnFormat, bool exportRaw, int numOfPointsToAverage)
+		{
+			using (StreamWriter writer = File.CreateText(filePath))
+			{
+				char del = ',';
+				string columnHeadings = dateColumnFormat.Equals(DateColumnFormat.SplitDateColumn)
+				                        	? "dd" + del + "mm" + del + "yyyy" + del + "hh" + del + "nn"
+				                        	: "dd/mm/yyyy" + del + "hhnn"; //Not a typo
+				int currentSensorIndex = 0;
+				var outputData = new string[Data.Sensors.Count,(Data.ExpectedDataPointCount/numOfPointsToAverage) + 1];
+				DateTime rowDate = Data.StartTimeStamp;
+
+
+				foreach (Sensor sensor in Data.Sensors)
+				{
+					var stateToUse = (exportRaw) ? sensor.RawData : sensor.CurrentState;
+
+					//Construct the column headings (Sensor names)
+					columnHeadings += del + sensor.Name;
+					var i = Data.StartTimeStamp;
+					while (i <= Data.EndTimeStamp)
+					{
+						var sum = float.MinValue;
+						for (var j = 0; j < numOfPointsToAverage; j++,i = i.AddMinutes(15))
+						{
+							float value;
+							if (stateToUse.Values.TryGetValue(i, out value))
+								if (sum.Equals(float.MinValue))
+									sum = value;
+								else
+									sum += value;
+						}
+
+						if (!sum.Equals(float.MinValue))
+						{
+							outputData[
+								currentSensorIndex,
+								GetArrayRowFromTime(Data.StartTimeStamp, i.AddMinutes((-15)*numOfPointsToAverage), numOfPointsToAverage)] =
+								Math.Round((sum/numOfPointsToAverage), 2).ToString();
+						}
+					}
+					currentSensorIndex++;
+				}
+
+				//Strip the last delimiter from the headings and write the line
+				writer.WriteLine(columnHeadings);
+
+				//write the data here...
+				for (int row = 0; row < Data.ExpectedDataPointCount/numOfPointsToAverage; row++)
+				{
+					string line = "";
+
+					for (int col = 0; col < Data.Sensors.Count; col++)
+						line += del + outputData[col, row];
+
+					if (includeEmptyLines || line.Length != Data.Sensors.Count)
+					{
+						line = dateColumnFormat.Equals(DateColumnFormat.SplitDateColumn)
+						       	? rowDate.ToString("dd") + del + rowDate.ToString("MM") + del + rowDate.ToString("yyyy") + del +
+						       	  rowDate.ToString("HH") + del + rowDate.ToString("mm") + line
+						       	: rowDate.ToString("dd/MM/yyyy") + del + rowDate.ToString("HH:mm") + line;
+						writer.WriteLine(line);
+					}
+
+					rowDate = rowDate.AddMinutes(15*numOfPointsToAverage);
+				}
+
+				writer.Close();
+			}
+		}
+
+		private void ExportChangesFile(string filePath, string changeLogFilePath)
 	    {
 	        
 	    }

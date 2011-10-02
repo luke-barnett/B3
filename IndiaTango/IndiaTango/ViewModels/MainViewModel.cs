@@ -15,12 +15,13 @@ namespace IndiaTango.ViewModels
         private bool _buttonsEnabled = true;
         private Dataset dataset { get; set; }
         private bool datasetLoaded = true;
+        private LogWindowViewModel _logWindow;
 
         public MainViewModel(IWindowManager windowManager, SimpleContainer container)
         {
             _windowManager = windowManager;
             _container = container;
-            
+            //_logWindow = LogWindowViewModel();
         }
 
         public string Title { get { return ApplicationTitle; } }
@@ -34,7 +35,7 @@ namespace IndiaTango.ViewModels
             EventLogger.LogInfo(GetType().ToString(), "Starting a new session...");
             System.Diagnostics.Debug.Print("Window manager null {0}", _windowManager == null);
             System.Diagnostics.Debug.Print("container null {0}", _container == null);
-            _windowManager.ShowDialog(_container.GetInstance(typeof(SessionViewModel), "SessionViewModel"));
+            _windowManager.ShowWindow(_container.GetInstance(typeof(SessionViewModel), "SessionViewModel"));
         }
         
         public void BtnLoad()
@@ -64,7 +65,7 @@ namespace IndiaTango.ViewModels
                                                  ApplicationCursor = Cursors.Arrow;
                                                  ButtonsEnabled = true;
                                                  EventLogger.LogInfo(GetType().ToString(), "Loading Session View");
-                                                 _windowManager.ShowDialog(sessionView);
+                                                 _windowManager.ShowWindow(sessionView);
                                              };
                 bw.RunWorkerAsync();
             }
@@ -85,6 +86,13 @@ namespace IndiaTango.ViewModels
         public void OnUnloaded()
         {
             EventLogger.LogInfo(GetType().ToString(), "Program exited.");
+        }
+
+        public void BtnLog()
+        {
+            var logWindowView =
+                (LogWindowViewModel) _container.GetInstance(typeof (LogWindowViewModel), "LogWindowViewModel");
+            _windowManager.ShowWindow(logWindowView);
         }
     }
 }

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows;
+using System.Windows.Controls;
 using Caliburn.Micro;
 using IndiaTango.Models;
 
@@ -12,6 +14,9 @@ namespace IndiaTango.ViewModels
         private readonly SimpleContainer _container;
         private readonly IWindowManager _windowManager;
         private string _title = "Specify value";
+        private List<string> _comboBoxItems;
+        private bool _showComboBox = false;
+        private bool _showTextBox = true;
 
         public SpecifyValueViewModel(IWindowManager windowManager, SimpleContainer container)
         {
@@ -30,6 +35,34 @@ namespace IndiaTango.ViewModels
         public void btnOK()
         {
             this.TryClose();
+        }
+
+        public bool ShowComboBox
+        {
+            get { return _showComboBox; }
+            set
+            {
+                _showComboBox = value;
+
+                NotifyOfPropertyChange(() => ComboBoxVisible);
+                NotifyOfPropertyChange(() => TextBoxVisible);
+            }
+        }
+
+        public Visibility ComboBoxVisible
+        {
+            get { return _showComboBox ? Visibility.Visible : Visibility.Collapsed; }
+        }
+
+        public Visibility TextBoxVisible
+        {
+            get { return _showComboBox ? Visibility.Collapsed : Visibility.Visible; }
+        }
+
+        public List<string> ComboBoxItems
+        {
+            get { return _comboBoxItems; }
+            set { _comboBoxItems = value; NotifyOfPropertyChange(() => ComboBoxItems); }
         }
     }
 }

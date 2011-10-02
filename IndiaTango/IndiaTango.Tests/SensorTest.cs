@@ -565,6 +565,55 @@ namespace IndiaTango.Tests
             Assert.AreEqual(baseDate.AddMinutes(30), s.UndoStates[4].EditTimestamp);
         }
 
+        [Test]
+        public void UndoToParticularState()
+        {
+            var s = new Sensor("Temperature", "C");
+            var baseDate = new DateTime(2011, 7, 7, 12, 15, 0);
+
+            s.AddState(new SensorState(baseDate));
+            s.AddState(new SensorState(baseDate.AddMinutes(15)));
+            s.AddState(new SensorState(baseDate.AddMinutes(30)));
+            s.AddState(new SensorState(baseDate.AddMinutes(45)));
+            s.AddState(new SensorState(baseDate.AddMinutes(60)));
+            s.AddState(new SensorState(baseDate.AddMinutes(75)));
+            s.AddState(new SensorState(baseDate.AddMinutes(90)));
+            s.AddState(new SensorState(baseDate.AddMinutes(105)));
+
+            s.Undo(baseDate.AddMinutes(75));
+
+            Assert.AreEqual(2, s.RedoStates.Count);
+            Assert.AreEqual(baseDate.AddMinutes(90), s.RedoStates[0].EditTimestamp);
+            Assert.AreEqual(baseDate.AddMinutes(105), s.RedoStates[1].EditTimestamp);
+        }
+
+        [Test]
+        public void RedoToParticularState()
+        {
+            var s = new Sensor("Temperature", "C");
+            var baseDate = new DateTime(2011, 7, 7, 12, 15, 0);
+
+            s.AddState(new SensorState(baseDate));
+            s.AddState(new SensorState(baseDate.AddMinutes(15)));
+            s.AddState(new SensorState(baseDate.AddMinutes(30)));
+            s.AddState(new SensorState(baseDate.AddMinutes(45)));
+            s.AddState(new SensorState(baseDate.AddMinutes(60)));
+            s.AddState(new SensorState(baseDate.AddMinutes(75)));
+            s.AddState(new SensorState(baseDate.AddMinutes(90)));
+            s.AddState(new SensorState(baseDate.AddMinutes(105)));
+
+            s.Undo(baseDate.AddMinutes(60)); // Redo stack - 105, 90, 75
+
+            s.Redo(baseDate.AddMinutes(90));
+
+            Assert.AreEqual(1, s.RedoStates.Count);
+            Assert.AreEqual(baseDate.AddMinutes(105), s.RedoStates[0].EditTimestamp);
+
+            s.Redo(baseDate.AddMinutes(105));
+
+            Assert.AreEqual(0, s.RedoStates.Count);
+        }
+
         #endregion
 
         #region Multi Level Undo Tests

@@ -398,23 +398,19 @@ namespace IndiaTango.Tests
             var date4 = new DateTime(2011, 1, 1, 0, 45, 0);
             var date5 = new DateTime(2011, 1, 1, 1, 0, 0);
             var date6 = new DateTime(2011, 1, 1, 1, 15, 0);
-            var date7 = new DateTime(2011, 1, 1, 1, 30, 0);
             testSensorState.Values.Add(date1, 1f);
             testSensorState.Values.Add(date2, 7f);
             testSensorState.Values.Add(date3, 3f);
-            testSensorState.Values.Add(date4, 7f);
-            //mean=4.5,stddev=3
-            var outliers = testSensorState.GetOutliersFromStdDev(15, date1, date4, 2, 4);
+            testSensorState.Values.Add(date4, 15f);
+            var outliers = testSensorState.GetOutliersFromStdDev(15, date1, date4, 1, 4);
             Assert.IsEmpty(outliers);
             testSensorState.Values.Add(date5, 11f);
-            outliers = testSensorState.GetOutliersFromStdDev(15, date1, date5, 2, 4);
-            Assert.Contains(date5, outliers);
+            outliers = testSensorState.GetOutliersFromStdDev(15, date1, date5, 1, 4);
+            Assert.Contains(date3, outliers);
             testSensorState.Values.Add(date6, 2);
             outliers = testSensorState.GetOutliersFromStdDev(15, date1, date6, 1, 4);
-            Assert.Contains(date6,outliers);
-            testSensorState.Values.Add(date7, 10);
-            outliers = testSensorState.GetOutliersFromStdDev(15, date1, date7, 1, 4);
-            Assert.Contains(date7, outliers);
+            Assert.Contains(date4,outliers);
+            
         }
 
         #endregion

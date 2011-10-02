@@ -108,6 +108,7 @@
     <Compile Include="ViewModels\EditSensorViewModel.cs" />
     <Compile Include="ViewModels\ExportViewModel.cs" />
     <Compile Include="ViewModels\GraphViewModel.cs" />
+    <Compile Include="ViewModels\LogWindowViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\MissingValuesViewModel.cs" />
     <Compile Include="ViewModels\OutlierDetectionViewModel.cs" />
@@ -132,6 +133,9 @@
     </Compile>
     <Compile Include="Views\GraphView.xaml.cs">
       <DependentUpon>GraphView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\LogWindowView.xaml.cs">
+      <DependentUpon>LogWindowView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MainView.xaml.cs">
       <DependentUpon>MainView.xaml</DependentUpon>
@@ -217,6 +221,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\LogWindowView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\MainView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -272,7 +280,6 @@
     <Resource Include="Images\open2.png" />
     <Resource Include="Images\open3.png" />
     <Resource Include="Images\redo.png" />
-    <Resource Include="Images\sensors.png" />
     <Resource Include="Images\delete_32.png" />
     <Resource Include="Images\edit_32.png" />
     <Resource Include="Images\undo.png" />
@@ -325,6 +332,13 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\settings_64.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\log_64.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\sensor_32.png" />
+    <Resource Include="Images\sensor_64.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

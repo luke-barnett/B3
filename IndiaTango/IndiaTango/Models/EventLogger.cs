@@ -8,16 +8,31 @@ using System.Threading;
 
 namespace IndiaTango.Models
 {
+    public delegate void EventLoggedEventHandler(object sender, EventLoggedArgs e);
+
+    public class EventLoggedArgs : EventArgs
+    {
+        public readonly string EventLog;
+
+        public EventLoggedArgs(string eventLog)
+        {
+            EventLog = eventLog;
+        }
+
+    }
+
     public static class EventLogger
     {
         #region PrivateMembers
         private const string Info = "INFO";
         private const string Warning = "WARNING";
         private const string Error = "ERROR";
-        private const string _timeFormatString = "dd/MM/yyyy HH:MM:ss";
+        private const string _timeFormatString = "dd/MM/yyyy HH:mm:ss";
         private static StreamWriter _writer;
         private readonly static object Mutex = new object();
         #endregion
+
+        public static event EventLoggedEventHandler Changed;
 
         #region Properties
         /// <summary>
@@ -80,7 +95,15 @@ namespace IndiaTango.Models
             
             WriteLogToFile(logString, destFile);
 
+            OnLogEvent(null,new EventLoggedArgs(logString));
+
             return logString;
+        }
+
+        static void OnLogEvent(object o, EventLoggedArgs e)
+        {
+            if (Changed != null)
+                Changed(o, e);
         }
         #endregion
 
@@ -127,6 +150,22 @@ namespace IndiaTango.Models
         public static string LogSensorInfo(string sensorName, string eventDetails)
         {
             return LogBase(Info, sensorName, eventDetails, GetSensorLogPath(sensorName));
+        }
+
+        public static string GetLast20()
+        {
+            var q = new Queue<String>();
+            for (var i = 0; i < 20; i++)
+                q.Enqueue("");
+            using (var sr = new StreamReader(EventLogger.LogFilePath))
+            {
+                while (sr.Peek() != -1)
+                {
+                    q.Dequeue();
+                    q.Enqueue(sr.ReadLine() + "\n");
+                }
+            }
+            return q.Aggregate("", (current, s) => current + s);
         }
         #endregion
     }

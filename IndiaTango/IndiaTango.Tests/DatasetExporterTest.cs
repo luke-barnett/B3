@@ -115,5 +115,26 @@ namespace IndiaTango.Tests
         }
 		#endregion
 
+        [Test]
+        public void ExportsRawDataWhenRequested()
+        {
+            CSVReader reader = new CSVReader(_inputFilePath);
+            _data.Sensors = reader.ReadSensors();
+
+            Assert.AreNotEqual(0, _data.Sensors[0].CurrentState.Values[new DateTime(2009, 1, 10, 7, 45, 0)]);
+
+            // Make some changes to check the raw comes out
+            var newState = _data.Sensors[0].CurrentState.Clone();
+            newState.Values[new DateTime(2009, 1, 10, 7, 45, 0)] = 0;
+            _data.Sensors[0].AddState(newState);
+
+            _exporter = new DatasetExporter(_data);
+            _exporter.Export(_outputFilePath, ExportFormat.CSV, true, false, false, ExportedPoints.AllPoints, DateColumnFormat.TwoDateColumn, true);
+
+            reader = new CSVReader(_outputFilePath);
+            _data.Sensors = reader.ReadSensors();
+
+            Assert.AreNotEqual(0, _data.Sensors[0].CurrentState.Values[new DateTime(2009, 1, 10, 7, 45, 0)]);
+        }
     }
 }

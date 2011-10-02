@@ -35,7 +35,9 @@ namespace IndiaTango.Models
         public static int MaximumGraphablePoints = 15000;
 
         public static bool HasInitdTaskDlgs = false;
+        private static List<string> _changeReasons;
 
+        public static string ChangeReasonsPath { get { return Path.Combine(AppDataPath,"ChangeReasons.txt"); } }
         public static string Icon { get { return "/IndiaTango;component/Images/icon.ico"; } }
         public static string TestDataPath { get { return "../../Test Data/"; } }
         public static string AppDataPath
@@ -263,13 +265,15 @@ namespace IndiaTango.Models
             InvalidationHandler.ForceImmediateInvalidate = false;
         }
 
-        public static void requestReason(Sensor sensor, SimpleContainer _container, IWindowManager _windowManager, SensorState state, string taskPerformed)
+        public static void RequestReason(Sensor sensor, SimpleContainer _container, IWindowManager _windowManager, SensorState state, string taskPerformed)
         {
             if (state != null)
             {
                 var specify = (SpecifyValueViewModel)_container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel");
                 specify.Title = "Log Reason";
                 specify.Message = "Please specify a reason for this change:";
+                specify.ShowComboBox = true;
+                specify.ComboBoxItems = GetChangeReasons();
                 specify.Deactivated += (o, e) =>
                                            {
                                                // Specify reason
@@ -277,6 +281,9 @@ namespace IndiaTango.Models
 
                                                // Log this change to the file!
                                                state.LogChange(sensor.Name, taskPerformed);
+
+											   //Add the change to the list
+											   AddChangeReason(specify.Text);
                                            };
                 _windowManager.ShowDialog(specify);
             }
@@ -289,6 +296,41 @@ namespace IndiaTango.Models
             return samplingCaps;
         }
 
+        public static List<string> GetChangeReasons()
+        {
+			if(_changeReasons == null)
+			{
+				_changeReasons = new List<string>();
 
+				if (File.Exists(ChangeReasonsPath))
+				{
+					using (StreamReader reader = new StreamReader(ChangeReasonsPath))
+					{
+						string line;
+						while ((line = reader.ReadLine()) != null)
+							_changeReasons.Add(line);
+					}
+				}
+			}
+
+			return _changeReasons;
+        }
+
+        public static void AddChangeReason(string reason)
+        {
+			if (String.IsNullOrWhiteSpace(reason) || _changeReasons.Contains(reason))
+				return;
+
+			_changeReasons.Add(reason);
+			_changeReasons.Sort();
+			
+			using (StreamWriter writer = new StreamWriter(ChangeReasonsPath))
+            {
+                foreach (string changeReason in _changeReasons)
+                    writer.WriteLine(changeReason);
+            }
+
+			Debug.WriteLine("Added change reason: '" + reason + "'");
+        }
     }
 }

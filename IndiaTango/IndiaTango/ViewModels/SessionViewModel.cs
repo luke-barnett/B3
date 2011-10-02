@@ -7,10 +7,14 @@ using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows;
 using System.Windows.Forms;
+using System.Windows.Input;
+using System.Windows.Media.Imaging;
 using Caliburn.Micro;
 using IndiaTango.Models;
 using System.Windows.Controls;
 using Cursors = System.Windows.Input.Cursors;
+using HorizontalAlignment = System.Windows.HorizontalAlignment;
+using Orientation = System.Windows.Controls.Orientation;
 
 namespace IndiaTango.ViewModels
 {
@@ -94,6 +98,53 @@ namespace IndiaTango.ViewModels
         #region View Properties
         //TODO: Make a gloabl 'editing/creating/viewing site' state that the properties reference
         private Visibility _sensorWarningVis = Visibility.Collapsed;
+
+    	public List<StackPanel> SiteImages
+    	{
+    		get
+    		{
+    			List<StackPanel> list = new List<StackPanel>();
+
+				if (_ds != null && _ds.Site != null && _ds.Site.Images != null)
+				{
+					foreach (var image in _ds.Site.Images)
+							list.Add(MakeImageItem(image));
+				}
+				
+				//Testing
+				list.Add(MakeImageItem(Path.Combine(Common.AppDataPath,"Images","9.jpg")));
+    			return list;
+    		}
+    	}
+
+		private StackPanel MakeImageItem(string filepath)
+		{
+			if (File.Exists(filepath))
+			{
+				StackPanel panel = new StackPanel();
+				panel.Orientation = Orientation.Horizontal;
+				Image image = new Image();
+				image.Source = new BitmapImage(new Uri(filepath, UriKind.Absolute));
+				image.Height = 50;
+				image.Width = 50;
+				image.MouseLeftButtonUp += delegate { System.Diagnostics.Process.Start(filepath); };
+				image.Cursor = Cursors.Hand;
+				TextBlock text = new TextBlock();
+				text.Text = Path.GetFileName(filepath);
+				text.Margin = new Thickness(10, 0, 0, 0);
+				text.VerticalAlignment = VerticalAlignment.Center;
+				panel.Children.Add(image);
+				panel.Children.Add(text);
+
+				return panel;
+			}
+			else
+			{
+				Console.WriteLine("File not found:" + filepath);
+				return null;
+			}
+		}
+
 
         public Visibility SensorWarningVisible
         {
@@ -337,6 +388,7 @@ namespace IndiaTango.ViewModels
                 NotifyOfPropertyChange(() => SecondaryContact);
                 NotifyOfPropertyChange(() => UniversityContact);
                 NotifyOfPropertyChange(() => EditDeleteEnabled);
+				NotifyOfPropertyChange(() => SiteImages);
             }
         }
         #endregion
@@ -427,6 +479,11 @@ namespace IndiaTango.ViewModels
             ProgressBarPercent = e.Progress;
         }
 
+		public void imgListDoubleClick(object sender, MouseButtonEventArgs e)
+		{
+			Console.WriteLine("Test");
+		}
+
         public void btnGraph()
         {
             var graphView = (_container.GetInstance(typeof(GraphViewModel), "GraphViewModel") as GraphViewModel);
@@ -478,7 +535,7 @@ namespace IndiaTango.ViewModels
                 (_container.GetInstance(typeof(OutlierDetectionViewModel), "OutlierDetectionViewModel") as
                  OutlierDetectionViewModel);
             outlierView.Dataset = _ds;
-            _windowManager.ShowDialog(outlierView);
+            _windowManager.ShowWindow(outlierView);
         }
 
         public void btnMissingValues()
@@ -487,7 +544,7 @@ namespace IndiaTango.ViewModels
                 (_container.GetInstance(typeof(MissingValuesViewModel), "MissingValuesViewModel") as MissingValuesViewModel);
             MissingValuesView.Dataset = _ds;
             MissingValuesView.SensorList = SensorList;
-            _windowManager.ShowDialog(MissingValuesView);
+            _windowManager.ShowWindow(MissingValuesView);
         }
 
         public void btnEditPoints()
@@ -499,8 +556,24 @@ namespace IndiaTango.ViewModels
         {
             var calibrateView = (_container.GetInstance(typeof(CalibrateSensorsViewModel), "CalibrateSensorsViewModel") as CalibrateSensorsViewModel);
             calibrateView.Dataset = _ds;
-            _windowManager.ShowDialog(calibrateView);
+            _windowManager.ShowWindow(calibrateView);
         }
+
+		public void btnRevert()
+		{
+			string changes = "The following sensors would be reverted:\n";
+
+			foreach (var sensor in _ds.Sensors)
+				if (sensor.UndoStates.Count > 1)
+					changes += sensor.Name + "\n";
+
+			if (Common.ShowMessageBoxWithExpansion("Confirm Revert", "Are you sure you wish to revert all sensors back to their original state?\n" +
+																	 "Modified data will still be available within the redo states for each sensor.", true, false, changes))
+			{
+				foreach (var sensor in _ds.Sensors)
+					sensor.RevertToRaw();
+			}
+		}
 
         public void btnSiteCreate()
         {

@@ -4,7 +4,7 @@
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:cal="http://www.caliburnproject.org"
         xmlns:charts="clr-namespace:Visiblox.Charts;assembly=Visiblox.Charts"
         xmlns:multiseries="clr-namespace:IndiaTango.MultiSeriesBinding"
-        xmlns:extToolkit="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit/extended"
+        xmlns:ext="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit/extended"
         Title="{Binding Title}" Icon="{Binding Icon}" Height="700" Width="950" WindowStartupLocation="CenterScreen" Cursor="{Binding ViewCursor}">
     <Grid>
         <Grid.ColumnDefinitions>
@@ -18,7 +18,7 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <GroupBox Grid.Row="0" Header="Select A Sensor" BorderBrush="OrangeRed" Margin="10 5 5 5">
+            <GroupBox Grid.Row="0" Header="Select A Sensor To Graph" BorderBrush="OrangeRed" Margin="10 5 5 5">
                 <ListBox ItemsSource="{Binding SensorList}"  SelectionMode="Single" Margin="5" SelectedItem="{Binding SelectedSensor}">
                 </ListBox>
             </GroupBox>
@@ -26,19 +26,51 @@
             <GroupBox Grid.Row="1" Header="Actions" BorderBrush="OrangeRed" Margin="10 5 5 10">
                 <StackPanel>
                     <WrapPanel Margin="0">
-                        <Button Name="btnUndo" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding UndoButtonEnabled}">
+                        <ext:SplitButton Name="btnUndo" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding UndoButtonEnabled}" IsOpen="{Binding ShowUndoStates, Mode=TwoWay}">
                             <StackPanel Orientation="Vertical">
                                 <Image Source="/IndiaTango;component/Images/undo.png" Width="64" Height="64" />
                                 <TextBlock Text="Undo" HorizontalAlignment="Center" />
                             </StackPanel>
-                        </Button>
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <cal:ActionMessage MethodName="btnUndo" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <ext:SplitButton.DropDownContent>
+                                <ListBox Name="undoStates" ItemsSource="{Binding UndoStates}" SelectionMode="Single">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="SelectionChanged">
+                                            <cal:ActionMessage MethodName="UndoPathSelected">
+                                                <cal:Parameter Value="$eventArgs" />
+                                            </cal:ActionMessage>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </ListBox>
+                            </ext:SplitButton.DropDownContent>
+                        </ext:SplitButton>
 
-                        <Button Name="btnRedo" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding RedoButtonEnabled}">
+                        <ext:SplitButton Name="btnRedo" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding RedoButtonEnabled}" IsOpen="{Binding ShowRedoStates, Mode=TwoWay}">
                             <StackPanel Orientation="Vertical">
                                 <Image Source="/IndiaTango;component/Images/redo.png" Width="64" Height="64" />
                                 <TextBlock Text="Redo" HorizontalAlignment="Center" />
                             </StackPanel>
-                        </Button>
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <cal:ActionMessage MethodName="btnRedo" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <ext:SplitButton.DropDownContent>
+                                <ListBox Name="redoStates" ItemsSource="{Binding RedoStates}" SelectionMode="Single">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="SelectionChanged">
+                                            <cal:ActionMessage MethodName="RedoPathSelected">
+                                                <cal:Parameter Value="$eventArgs" />
+                                            </cal:ActionMessage>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </ListBox>
+                            </ext:SplitButton.DropDownContent>
+                        </ext:SplitButton>
 
                         <Button Name="btnDone" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" >
                             <StackPanel Orientation="Vertical">
@@ -52,7 +84,7 @@
 
                     <StackPanel Orientation="Horizontal" Margin="5 5 5 0">
                         <TextBlock Text="Range:" VerticalAlignment="Center" Margin="0 0 10 0" />
-                        <extToolkit:DateTimePicker Width="125" Value="{Binding StartTime, Mode=TwoWay}" Format="Custom" FormatString="dd/MM/yy HH:mm" IsEnabled="{Binding CanEditDates}">
+                        <ext:DateTimePicker Width="125" Value="{Binding StartTime, Mode=TwoWay}" Format="Custom" FormatString="dd/MM/yy HH:mm" IsEnabled="{Binding CanEditDates}">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="ValueChanged">
                                     <cal:ActionMessage MethodName="StartTimeChanged">
@@ -60,9 +92,9 @@
                                     </cal:ActionMessage>
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
-                        </extToolkit:DateTimePicker>
+                        </ext:DateTimePicker>
                         <TextBlock Text=" - to - " VerticalAlignment="Center" />
-                        <extToolkit:DateTimePicker Width="125" Value="{Binding EndTime, Mode=TwoWay}" Format="Custom" FormatString="dd/MM/yy HH:mm" IsEnabled="{Binding CanEditDates}">
+                        <ext:DateTimePicker Width="125" Value="{Binding EndTime, Mode=TwoWay}" Format="Custom" FormatString="dd/MM/yy HH:mm" IsEnabled="{Binding CanEditDates}">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="ValueChanged">
                                     <cal:ActionMessage MethodName="EndTimeChanged">
@@ -70,7 +102,7 @@
                                     </cal:ActionMessage>
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
-                        </extToolkit:DateTimePicker>
+                        </ext:DateTimePicker>
                     </StackPanel>
                     
                     <TextBlock Text="Enter Formula Below:" Margin="5"/>

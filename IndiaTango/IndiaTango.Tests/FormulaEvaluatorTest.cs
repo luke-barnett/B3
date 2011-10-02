@@ -136,5 +136,18 @@ namespace IndiaTango.Tests
                 Assert.AreEqual(Math.Cos(pair.Key.Day), pair.Value,delta);
             }
         }
+
+        [Test]
+        public void SensorVariableTest()
+        {
+            string expected = "a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,aa";
+            string actual = "";
+            List<SensorVariable> variables = SensorVariable.CreateSensorVariablesFromSensors(_ds.Sensors);
+            foreach (SensorVariable sensorVariable in variables)
+                actual += sensorVariable.VariableName + ",";
+
+            actual = actual.Remove(actual.Length - 1);
+            Assert.AreEqual(expected,actual);
+        }
 	}
 }

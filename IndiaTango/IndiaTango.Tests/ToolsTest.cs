@@ -14,8 +14,12 @@ namespace IndiaTango.Tests
 		[Test]
 		public void MD5HasherTest()
 		{
+			//The hashes should be:
+			//e7b91a4f4b504c924c354a8f9e6bc54e
+			//and
+			//da841fa9b49c4dd4a0ee7a8c73ea77fc
 			Assert.AreEqual("e7b91a4f4b504c924c354a8f9e6bc54e", Tools.GenerateMD5HashFromFile(Path.Combine(Common.TestDataPath, "data.txt")));
-            Assert.AreEqual("fe88e7c801c79e414732d540e7460205", Tools.GenerateMD5HashFromFile(Path.Combine(Common.TestDataPath, "pocket.txt")));
+			Assert.AreEqual("da841fa9b49c4dd4a0ee7a8c73ea77fc", Tools.GenerateMD5HashFromFile(Path.Combine(Common.TestDataPath, "pocket.txt")));
 		}
 	}
 }

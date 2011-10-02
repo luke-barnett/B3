@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:cal="http://www.caliburnproject.org"
         xmlns:charts="clr-namespace:Visiblox.Charts;assembly=Visiblox.Charts"
+        xmlns:ext="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit/extended"
         xmlns:multiseries="clr-namespace:IndiaTango.MultiSeriesBinding" Title="{Binding SensorName}" Icon="{Binding Icon}" Height="900" Width="1500" WindowStartupLocation="CenterScreen" Cursor="{Binding ViewCursor}">
     <Grid>
         <Grid.ColumnDefinitions>
@@ -76,19 +77,51 @@
             <GroupBox Grid.Row="4" Header="Actions" BorderBrush="OrangeRed" Margin="10 5 5 10">
                 <StackPanel>
                     <WrapPanel Margin="5">
-                        <Button Name="btnUndo" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding UndoButtonEnabled}">
+                        <ext:SplitButton Name="btnUndo" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding UndoButtonEnabled}" IsOpen="{Binding ShowUndoStates, Mode=TwoWay}">
                             <StackPanel Orientation="Vertical">
                                 <Image Source="/IndiaTango;component/Images/undo.png" Width="64" Height="64" />
                                 <TextBlock Text="Undo" HorizontalAlignment="Center" />
                             </StackPanel>
-                        </Button>
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <cal:ActionMessage MethodName="btnUndo" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <ext:SplitButton.DropDownContent>
+                                <ListBox Name="undoStates" ItemsSource="{Binding UndoStates}" SelectionMode="Single">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="SelectionChanged">
+                                            <cal:ActionMessage MethodName="UndoPathSelected">
+                                                <cal:Parameter Value="$eventArgs" />
+                                            </cal:ActionMessage>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </ListBox>
+                            </ext:SplitButton.DropDownContent>
+                        </ext:SplitButton>
 
-                        <Button Name="btnRedo" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding RedoButtonEnabled}">
+                        <ext:SplitButton Name="btnRedo" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding RedoButtonEnabled}" IsOpen="{Binding ShowRedoStates, Mode=TwoWay}">
                             <StackPanel Orientation="Vertical">
                                 <Image Source="/IndiaTango;component/Images/redo.png" Width="64" Height="64" />
                                 <TextBlock Text="Redo" HorizontalAlignment="Center" />
                             </StackPanel>
-                        </Button>
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <cal:ActionMessage MethodName="btnRedo" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <ext:SplitButton.DropDownContent>
+                                <ListBox Name="redoStates" ItemsSource="{Binding RedoStates}" SelectionMode="Single">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="SelectionChanged">
+                                            <cal:ActionMessage MethodName="RedoPathSelected">
+                                                <cal:Parameter Value="$eventArgs" />
+                                            </cal:ActionMessage>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </ListBox>
+                            </ext:SplitButton.DropDownContent>
+                        </ext:SplitButton>
 
                         <Button Name="btnDone" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" >
                             <StackPanel Orientation="Vertical">

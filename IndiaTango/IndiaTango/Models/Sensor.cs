@@ -26,6 +26,7 @@ namespace IndiaTango.Models
         private float _upperLimit;
         #endregion
 
+
         #region Constructors
         /// <summary>
         /// Creates a new sensor, with the specified sensor name and measurement unit.
@@ -129,6 +130,7 @@ namespace IndiaTango.Models
             ErrorThreshold = errorThreshold;
             Owner = owner;
         }
+
         #endregion
 
         #region Properties
@@ -148,9 +150,7 @@ namespace IndiaTango.Models
             {
                 // Return a stack that cannot be modified externally
                 // Since it going to be iterated over in order anyway (and there'll only be approx. 5 times at any one time)...
-                var UStack = _redoStack.ToList().AsReadOnly();
-
-                return UStack;
+				return _redoStack.ToList().AsReadOnly();
             }
         }
 
@@ -324,6 +324,7 @@ namespace IndiaTango.Models
 
         public Dataset Owner { get; private set; }
 
+		//Should the rawdata have a private setter?
         public SensorState RawData { get; set; }
 
         /// <summary>
@@ -418,9 +419,17 @@ namespace IndiaTango.Models
 
         public void RevertToRaw()
         {
-            UndoStack.Clear();
-            RedoStack.Clear();
-            UndoStack.Push(RawData);
+			while(UndoStack.Count > 1)
+				RedoStack.Push(UndoStack.Pop());
+
+			//If the current state is not the raw data
+			//(it might be if the undo stack had never been truncated due to the undo limit)
+			if(!CurrentState.Equals(RawData))
+			{
+				//Pop the last item, and push on the raw data
+				RedoStack.Push(UndoStack.Pop());
+				UndoStack.Push(RawData);
+			}
         }
 
         public override string ToString()
@@ -428,5 +437,49 @@ namespace IndiaTango.Models
             return this.Name;
         }
         #endregion
+
+        /// <summary>
+        /// Undoes this sensor's values so that the state represented by the timestamp specified is the current state (i.e. top of the Undo stack). If the timestamp does not exist, does nothing.
+        /// </summary>
+        /// <param name="dateTime">The timestamp representing the state to make the current state.</param>
+        public void Undo(DateTime dateTime)
+        {
+            var sensor = (from selectedSensor in UndoStack where selectedSensor.EditTimestamp == dateTime select selectedSensor).DefaultIfEmpty(null).FirstOrDefault();
+
+            if (sensor != null)
+            {
+                // Exists
+                while(UndoStack.Count > 0)
+                {
+                    // Keep undoing until at desired state
+                    if (UndoStack.Peek() != sensor)
+                        Undo();
+                    else
+                        break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Advances this sensor's values so that the state represented by the timestamp specified is the current state (i.e. top of the Undo stack). If the timestamp does not exist, does nothing.
+        /// </summary>
+        /// <param name="dateTime">The timestamp representing the state to make the current state.</param>
+        public void Redo(DateTime dateTime)
+        {
+            var sensor = (from selectedSensor in RedoStack where selectedSensor.EditTimestamp == dateTime select selectedSensor).DefaultIfEmpty(null).FirstOrDefault();
+
+            if (sensor != null)
+            {
+                // Exists
+                while (RedoStack.Count > 0)
+                {
+                    // Keep undoing until at desired state
+                    if (UndoStack.Peek() != sensor)
+                        Redo();
+                    else
+                        break;
+                }
+            }
+        }
     }
 }

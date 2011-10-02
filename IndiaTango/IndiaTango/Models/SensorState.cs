@@ -17,16 +17,16 @@ namespace IndiaTango.Models
         private Dictionary<DateTime, float> _valueList;
         private string _reason = "";
         private Dictionary<DateTime, float> _upperLine;
-        private Dictionary<DateTime, float> _lowerLine; 
+        private Dictionary<DateTime, float> _lowerLine;
 
         public SensorState Clone()
         {
             var d = _valueList.ToDictionary(v => v.Key, v => v.Value);
-            var s = new SensorState(DateTime.Now,d);
+            var s = new SensorState(DateTime.Now, d);
             return s;
         }
 
-        public SensorState(Dictionary<DateTime, float> valueList) : this(DateTime.Now, valueList) {}
+        public SensorState(Dictionary<DateTime, float> valueList) : this(DateTime.Now, valueList) { }
         public SensorState(Dictionary<DateTime, float> valueList, string reason) : this(DateTime.Now, valueList, reason) { }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace IndiaTango.Models
         /// </summary>
         /// <param name="editTimestamp">A DateTime object representing the last edit date and time for this sensor state.</param>
         /// <param name="valueList">A list of data values, representing values recorded in this sensor state.</param>
-        public SensorState(DateTime editTimestamp, Dictionary<DateTime, float> valueList) : this(editTimestamp, valueList, "") {}
+        public SensorState(DateTime editTimestamp, Dictionary<DateTime, float> valueList) : this(editTimestamp, valueList, "") { }
 
         /// <summary>
         /// Creates a new sensor state with the specified timestamp representing the date it was last edited, a list of values representing data values recorded in this state, and a reason for the changes stored in this state.
@@ -129,14 +129,14 @@ namespace IndiaTango.Models
             return missing;
         }
 
-        public List<DateTime> GetOutliersFromMaxAndMin(int timeGap,DateTime start, DateTime end,float upperLimit, float lowerLimit, float maxRateChange)
+        public List<DateTime> GetOutliersFromMaxAndMin(int timeGap, DateTime start, DateTime end, float upperLimit, float lowerLimit, float maxRateChange)
         {
             var outliers = new List<DateTime>();
-            _upperLine = new Dictionary<DateTime, float> {{start, upperLimit}, {end, upperLimit}};
-            _lowerLine = new Dictionary<DateTime, float> {{start, lowerLimit},{end,lowerLimit}};
-            
+            _upperLine = new Dictionary<DateTime, float> { { start, upperLimit }, { end, upperLimit } };
+            _lowerLine = new Dictionary<DateTime, float> { { start, lowerLimit }, { end, lowerLimit } };
+
             var prev = 0f;
-            for(var time = start;time<=end;time = time.AddMinutes(timeGap))
+            for (var time = start; time <= end; time = time.AddMinutes(timeGap))
             {
                 var value = 0f;
                 if (!Values.TryGetValue(time, out value)) continue;
@@ -162,25 +162,33 @@ namespace IndiaTango.Models
         {
             var outliers = new List<DateTime>();
             var values = new LinkedList<float>();
-            _upperLine = new Dictionary<DateTime, float> ();
-            _lowerLine = new Dictionary<DateTime, float> ();
-            for (var i = start; i > start.AddMinutes(-(timeGap * smoothingPeriod)); i = i.AddMinutes(-timeGap))
+            _upperLine = new Dictionary<DateTime, float>();
+            _lowerLine = new Dictionary<DateTime, float>();
+            for (var i = start.AddMinutes(-(timeGap * (smoothingPeriod / 2)));
+                 i < start.AddMinutes((timeGap * (smoothingPeriod / 2)));
+                 i = i.AddMinutes(timeGap))
             {
-                values.AddFirst(float.NaN);
+                var value = 0f;
+                value = (Values.TryGetValue(i, out value) ? value : float.NaN);
+                values.AddLast(value);
             }
-            for (var time = start; time <= end;time = time.AddMinutes(timeGap) )
+            for (var time = start; time <= end; time = time.AddMinutes(timeGap))
             {
                 values.RemoveFirst();
+                var next = 0f;
+                next = (Values.TryGetValue(time.AddMinutes(timeGap * (smoothingPeriod / 2)), out next) ? next : float.NaN);
+                values.AddLast(next);
                 var value = 0f;
                 value = (Values.TryGetValue(time, out value) ? value : float.NaN);
-                values.AddLast(value);
+
+                if (float.IsNaN(value)) continue;
+
                 var avg = GetAverage(values);
-                
-                var sum = GetSquaresSum(values,avg);
+                var sum = GetSquaresSum(values, avg);
                 var stdDev = (float)Math.Sqrt((sum) / (GetCount(values) - 1));
-                var top = avg + (numStdDev*stdDev);
-                var bottom = avg - (numStdDev*stdDev);
-                if(value > top || value < bottom)
+                var top = avg + (numStdDev * stdDev);
+                var bottom = avg - (numStdDev * stdDev);
+                if (value > top || value < bottom)
                 {
                     outliers.Add(time);
                 }
@@ -196,7 +204,7 @@ namespace IndiaTango.Models
 
         private float GetSquaresSum(IEnumerable<float> values, float average)
         {
-            return values.Where(value => !float.IsNaN(value)).Sum(v => (float) Math.Pow((v - average), 2));
+            return values.Where(value => !float.IsNaN(value)).Sum(v => (float)Math.Pow((v - average), 2));
         }
 
         private int GetCount(IEnumerable<float> values)
@@ -213,7 +221,7 @@ namespace IndiaTango.Models
                 count++;
                 sum += value;
             }
-            return sum/count;
+            return sum / count;
         }
 
 
@@ -227,7 +235,7 @@ namespace IndiaTango.Models
         {
             EventLogger.LogInfo(GetType().ToString(), "Starting extrapolation process");
 
-            if(keys == null)
+            if (keys == null)
                 throw new ArgumentNullException("You must specify a list of keys.");
 
             if (keys.Count == 0)
@@ -296,7 +304,7 @@ namespace IndiaTango.Models
 
         public SensorState MakeValue(List<DateTime> values, float value)
         {
-            if(values == null)
+            if (values == null)
                 throw new ArgumentNullException("A non-null list of keys to set as " + value + " must be specified.");
 
             var newState = Clone();
@@ -309,29 +317,29 @@ namespace IndiaTango.Models
             return newState;
         }
 
-        public SensorState ChangeToZero(List<DateTime> values )
+        public SensorState ChangeToZero(List<DateTime> values)
         {
             return ChangeToValue(values, 0);
         }
 
-        public SensorState ChangeToValue(List<DateTime> values, float value )
-        {           
-            if(values == null)
+        public SensorState ChangeToValue(List<DateTime> values, float value)
+        {
+            if (values == null)
                 throw new ArgumentNullException("A non-null list of keys to set as " + value + " must be specified.");
 
             var newState = Clone();
 
             foreach (var time in values)
             {
-                newState.Values[time]= value;
+                newState.Values[time] = value;
             }
 
             return newState;
         }
 
-        public SensorState removeValues(List<DateTime> values )
+        public SensorState removeValues(List<DateTime> values)
         {
-            if(values == null)
+            if (values == null)
                 throw new ArgumentException("A non-null list to be removed must be specified");
 
             var newState = Clone();
@@ -358,11 +366,11 @@ namespace IndiaTango.Models
         public Dictionary<DateTime, float> UpperLine
         {
             get { return _upperLine; }
-        } 
+        }
 
         public Dictionary<DateTime, float> LowerLine
         {
             get { return _lowerLine; }
-        } 
+        }
     }
 }
