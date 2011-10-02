@@ -4,6 +4,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
 using Caliburn.Micro;
 using IndiaTango.Models;
+using IndiaTango.Views;
 using Cursors = System.Windows.Input.Cursors;
 
 namespace IndiaTango.ViewModels
@@ -21,6 +22,8 @@ namespace IndiaTango.ViewModels
         {
             _windowManager = windowManager;
             _container = container;
+            _logWindow =
+                (LogWindowViewModel)_container.GetInstance(typeof(LogWindowViewModel), "LogWindowViewModel");
             //_logWindow = LogWindowViewModel();
         }
 
@@ -90,9 +93,10 @@ namespace IndiaTango.ViewModels
 
         public void BtnLog()
         {
-            var logWindowView =
-                (LogWindowViewModel) _container.GetInstance(typeof (LogWindowViewModel), "LogWindowViewModel");
-            _windowManager.ShowWindow(logWindowView);
-        }
+            if (!_logWindow.IsActive)
+                _windowManager.ShowWindow(_logWindow);
+            else
+                ((LogWindowView) _logWindow.GetView()).Focus();
+        }   
     }
 }

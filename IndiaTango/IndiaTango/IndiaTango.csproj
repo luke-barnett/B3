@@ -107,6 +107,7 @@
     <Compile Include="ViewModels\ContactEditorViewModel.cs" />
     <Compile Include="ViewModels\CalibrateSensorsViewModel.cs" />
     <Compile Include="ViewModels\EditSensorViewModel.cs" />
+    <Compile Include="ViewModels\ExportToImageViewModel.cs" />
     <Compile Include="ViewModels\ExportViewModel.cs" />
     <Compile Include="ViewModels\GraphViewModel.cs" />
     <Compile Include="ViewModels\LogWindowViewModel.cs" />
@@ -125,6 +126,9 @@
     </Compile>
     <Compile Include="Views\CalibrateSensorsView.xaml.cs">
       <DependentUpon>CalibrateSensorsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ExportToImageView.xaml.cs">
+      <DependentUpon>ExportToImageView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ExportView.xaml.cs">
       <DependentUpon>ExportView.xaml</DependentUpon>
@@ -209,6 +213,10 @@
     <Page Include="Views\CalibrateSensorsView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\ExportToImageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\ExportView.xaml">
       <Generator>MSBuild:Compile</Generator>

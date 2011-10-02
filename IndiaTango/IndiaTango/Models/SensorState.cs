@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -27,7 +28,7 @@ namespace IndiaTango.Models
         }
 
         public SensorState(Dictionary<DateTime, float> valueList) : this(DateTime.Now, valueList) { }
-        public SensorState(Dictionary<DateTime, float> valueList, string reason) : this(DateTime.Now, valueList, reason) { }
+        public SensorState(Dictionary<DateTime, float> valueList, string reason) : this(DateTime.Now, valueList, reason, false) { }
 
         /// <summary>
         /// Creates a new sensor state with the specified timestamp representing the date it was last edited.
@@ -43,7 +44,7 @@ namespace IndiaTango.Models
         /// </summary>
         /// <param name="editTimestamp">A DateTime object representing the last edit date and time for this sensor state.</param>
         /// <param name="valueList">A list of data values, representing values recorded in this sensor state.</param>
-        public SensorState(DateTime editTimestamp, Dictionary<DateTime, float> valueList) : this(editTimestamp, valueList, "") { }
+        public SensorState(DateTime editTimestamp, Dictionary<DateTime, float> valueList) : this(editTimestamp, valueList, "", false) { }
 
         /// <summary>
         /// Creates a new sensor state with the specified timestamp representing the date it was last edited, a list of values representing data values recorded in this state, and a reason for the changes stored in this state.
@@ -51,7 +52,8 @@ namespace IndiaTango.Models
         /// <param name="editTimestamp">A DateTime object representing the last edit date and time for this sensor state.</param>
         /// <param name="valueList">A list of data values, representing values recorded in this sensor state.</param>
         /// <param name="reason">A string indicating the reason for the changes made in this state.</param>
-        public SensorState(DateTime editTimestamp, Dictionary<DateTime, float> valueList, string reason)
+        /// <param name="isRaw">Whether or not this represents the sensors raw data.</param>
+        public SensorState(DateTime editTimestamp, Dictionary<DateTime, float> valueList, string reason, bool isRaw)
         {
             if (valueList == null)
                 throw new ArgumentNullException("The list of values in this state cannot be null.");
@@ -59,6 +61,16 @@ namespace IndiaTango.Models
             _reason = reason;
             _editTimestamp = editTimestamp;
             _valueList = valueList;
+            _isRaw = isRaw;
+        }
+
+        private bool _isRaw = false;
+
+        [DataMember]
+        public bool IsRaw
+        {
+            get { return _isRaw; }
+            private set { _isRaw = value; }
         }
 
         /// <summary>
@@ -245,16 +257,30 @@ namespace IndiaTango.Models
                 throw new ArgumentNullException("You must specify the containing data set for this sensor.");
 
             var first = keys[0];
-            var startValue = FindPrevValue(first, ds);
+            DateTime startValue;
+            try
+            {
+                startValue = FindPrevValue(first, ds);
+            }
+            catch(Exception e)
+            {
+                throw new DataException("No start value");
+            }
             var endValue = DateTime.MinValue;
             var time = 0;
-
-            while (endValue == DateTime.MinValue)
+            try
             {
-                endValue = (Values.ContainsKey(first.AddMinutes(time))
-                                ? first.AddMinutes(time)
-                                : DateTime.MinValue);
-                time += ds.DataInterval;
+                while (endValue == DateTime.MinValue)
+                {
+                    endValue = (Values.ContainsKey(first.AddMinutes(time))
+                                    ? first.AddMinutes(time)
+                                    : DateTime.MinValue);
+                    time += ds.DataInterval;
+                }
+            }
+            catch(Exception e)
+            {
+                throw new DataException("No end value");
             }
 
             var timeDiff = endValue.Subtract(startValue).TotalMinutes;
