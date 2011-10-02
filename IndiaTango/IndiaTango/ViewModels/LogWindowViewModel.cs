@@ -22,6 +22,7 @@ namespace IndiaTango.ViewModels
             _container = container;
             EventLogger.Changed += EventLogged;
             _logText = EventLogger.GetLast20();
+            _mode = null;
         }
 
         public string LogText
@@ -29,26 +30,30 @@ namespace IndiaTango.ViewModels
             get
             {
                 var returnString = "";
-                if(_mode!=null && (string)_mode.Content!="All" && _logText != "")
+                if (_mode != null && (string) _mode.Content != "All" && _logText != "")
                 {
                     var lines = _logText.Split('\n');
                     foreach (var line in lines)
                     {
                         if (line == "") continue;
                         var parts = line.Split(' ');
-                        if (parts[5] == (string)_mode.Content)
+                        if (parts[5] == (string) _mode.Content)
                             returnString += line + "\n";
                     }
                     return returnString;
                 }
                 return _logText;
             }
-            set { _logText = value + "\n";NotifyOfPropertyChange(()=>LogText);}
+            set
+            {
+                _logText = value + "\n";
+                NotifyOfPropertyChange(() => LogText);
+            }
         }
 
         public void EventLogged(object sender, EventLoggedArgs e)
         {
-            LogText += e.EventLog;
+            LogText = _logText + e.EventLog;
         }
 
         public ComboBoxItem Mode

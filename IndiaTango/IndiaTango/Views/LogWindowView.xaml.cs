@@ -22,5 +22,10 @@ namespace IndiaTango.Views
         {
             InitializeComponent();
         }
+
+        private void textBoxLog_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            textBoxLog.ScrollToEnd();
+        }
     }
 }
