@@ -502,6 +502,22 @@ namespace IndiaTango.ViewModels
             _windowManager.ShowWindow(calibrateView);
         }
 
+		public void btnRevert()
+		{
+			string changes = "The following sensors would be reverted:\n";
+
+			foreach (var sensor in _ds.Sensors)
+				if (sensor.UndoStates.Count > 1)
+					changes += sensor.Name + "\n";
+
+			if (Common.ShowMessageBoxWithExpansion("Confirm Revert", "Are you sure you wish to revert all sensors back to their original state?\n" +
+																	 "Modified data will still be available within the redo states for each sensor.", true, false, changes))
+			{
+				foreach (var sensor in _ds.Sensors)
+					sensor.RevertToRaw();
+			}
+		}
+
         public void btnSiteCreate()
         {
             CreateEditDeleteVisible = Visibility.Collapsed;

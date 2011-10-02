@@ -180,6 +180,8 @@ namespace IndiaTango.ViewModels
                 NotifyOfPropertyChange(() => SelectedSensor);
                 NotifyOfPropertyChange(() => SensorName);
                 NotifyOfPropertyChange(() => OutliersStrings);
+				NotifyOfPropertyChange(() => UndoButtonEnabled);
+				NotifyOfPropertyChange(() => RedoButtonEnabled);
                 _graphableSensor = _sensor != null ? new GraphableSensor(_sensor) : null;
                 UpdateGraph();
             }

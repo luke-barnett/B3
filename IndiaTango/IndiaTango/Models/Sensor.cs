@@ -150,9 +150,7 @@ namespace IndiaTango.Models
             {
                 // Return a stack that cannot be modified externally
                 // Since it going to be iterated over in order anyway (and there'll only be approx. 5 times at any one time)...
-                var UStack = _redoStack.ToList().AsReadOnly();
-
-                return UStack;
+				return _redoStack.ToList().AsReadOnly();
             }
         }
 
@@ -326,6 +324,7 @@ namespace IndiaTango.Models
 
         public Dataset Owner { get; private set; }
 
+		//Should the rawdata have a private setter?
         public SensorState RawData { get; set; }
 
         /// <summary>
@@ -420,9 +419,17 @@ namespace IndiaTango.Models
 
         public void RevertToRaw()
         {
-            UndoStack.Clear();
-            RedoStack.Clear();
-            UndoStack.Push(RawData);
+			while(UndoStack.Count > 1)
+				RedoStack.Push(UndoStack.Pop());
+
+			//If the current state is not the raw data
+			//(it might be if the undo stack had never been truncated due to the undo limit)
+			if(!CurrentState.Equals(RawData))
+			{
+				//Pop the last item, and push on the raw data
+				RedoStack.Push(UndoStack.Pop());
+				UndoStack.Push(RawData);
+			}
         }
 
         public override string ToString()

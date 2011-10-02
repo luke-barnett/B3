@@ -242,6 +242,13 @@
                             </Button>
                             <TextBlock Text="Calibrate Sensors" FontSize="15" VerticalAlignment="Center" Margin="5" />
                         </WrapPanel>
+
+                        <WrapPanel>
+                            <Button Name="btnRevert" FontSize="15" Width="100" Height="100" Margin="5" IsEnabled="{Binding ActionButtonsEnabled}">
+                                <Image Source="/IndiaTango;component/Images/undo.png" Width="64" Height="64" />
+                            </Button>
+                            <TextBlock Text="Revert All Data" FontSize="15" VerticalAlignment="Center" Margin="5" />
+                        </WrapPanel>
                     </StackPanel>
                 </ScrollViewer>
             </Grid>
