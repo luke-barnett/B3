@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
@@ -24,6 +25,9 @@ namespace IndiaTango.Models
 {
     public static class Common
     {
+        [DllImport("gdi32")]
+        public static extern int DeleteObject(IntPtr hObject);
+
 		public static string TagLine { get { return "[Buoys Buoys Boys]"; } }
     	public static string ApplicationTitle { get { return "Codename B3"; } }
         public static string Version { get { return string.Format("alpha version {0}", Assembly.GetExecutingAssembly().GetName().Version); } }
@@ -47,6 +51,18 @@ namespace IndiaTango.Models
                 });
 
                 if (!Directory.Exists(path)) // Creates directory if it doesn't exist, no need to create beforehand
+                    Directory.CreateDirectory(path);
+
+                return path;
+            }
+        }
+
+        public static string TempDataPath
+        {
+            get
+            {
+                string path = Path.Combine(Path.GetTempPath(), "IndiaTango");
+                if (!Directory.Exists(path))
                     Directory.CreateDirectory(path);
 
                 return path;
@@ -283,6 +299,20 @@ namespace IndiaTango.Models
             }
 
 			Debug.WriteLine("Added change reason: '" + reason + "'");
+        }
+
+        public static ImageSource BitmapToImageSource(Bitmap bitmap)
+        {
+            var hbitmap = bitmap.GetHbitmap();
+            try
+            {
+                return Imaging.CreateBitmapSourceFromHBitmap(hbitmap, IntPtr.Zero, 
+                    Int32Rect.Empty, BitmapSizeOptions.FromWidthAndHeight(bitmap.Width, bitmap.Height));
+            }
+            finally
+            {
+                DeleteObject(hbitmap);
+            }
         }
     }
 }

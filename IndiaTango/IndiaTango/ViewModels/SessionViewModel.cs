@@ -2,18 +2,21 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Caliburn.Micro;
 using IndiaTango.Models;
 using System.Windows.Controls;
 using Cursors = System.Windows.Input.Cursors;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
+using Image = System.Windows.Controls.Image;
 using Orientation = System.Windows.Controls.Orientation;
 
 namespace IndiaTango.ViewModels
@@ -44,6 +47,7 @@ namespace IndiaTango.ViewModels
         private Contact _universityContact;
         private ObservableCollection<Site> _allSites = new ObservableCollection<Site>();
         private ObservableCollection<Contact> _allContacts = new ObservableCollection<Contact>();
+        private List<NamedBitmap> _siteImages = new List<NamedBitmap>();
 
         #endregion
 
@@ -105,44 +109,41 @@ namespace IndiaTango.ViewModels
     		{
     			List<StackPanel> list = new List<StackPanel>();
 
-				if (_ds != null && _ds.Site != null && _ds.Site.Images != null)
-				{
-					foreach (var image in _ds.Site.Images)
-							list.Add(MakeImageItem(image));
-				}
-				
-				//Testing
-				list.Add(MakeImageItem(Path.Combine(Common.AppDataPath,"Images","9.jpg")));
-    			return list;
+                if (_siteImages != null)
+                {
+                    foreach (var bitmap in _siteImages)
+                        list.Add(MakeImageItem(bitmap));
+                }
+
+    		    return list;
     		}
     	}
 
-		private StackPanel MakeImageItem(string filepath)
+		private StackPanel MakeImageItem(NamedBitmap bitmap)
 		{
-			if (File.Exists(filepath))
-			{
-				StackPanel panel = new StackPanel();
-				panel.Orientation = Orientation.Horizontal;
-				Image image = new Image();
-				image.Source = new BitmapImage(new Uri(filepath, UriKind.Absolute));
-				image.Height = 50;
-				image.Width = 50;
-				image.MouseLeftButtonUp += delegate { System.Diagnostics.Process.Start(filepath); };
-				image.Cursor = Cursors.Hand;
-				TextBlock text = new TextBlock();
-				text.Text = Path.GetFileName(filepath);
-				text.Margin = new Thickness(10, 0, 0, 0);
-				text.VerticalAlignment = VerticalAlignment.Center;
-				panel.Children.Add(image);
-				panel.Children.Add(text);
+			StackPanel panel = new StackPanel();
+			panel.Orientation = Orientation.Horizontal;
+			Image image = new Image();
+		    image.Source = Common.BitmapToImageSource(bitmap.Bitmap);
+			image.Height = 50;
+			image.Width = 50;
+			image.MouseLeftButtonUp += delegate
+			                               {
+			                                   string path = Path.Combine(Common.TempDataPath, (string) bitmap.Name);
+                                               if(!File.Exists(path))
+                                                    bitmap.Bitmap.Save(path);
+			                                   System.Diagnostics.Process.Start(path);
+			                               };
+			image.Cursor = Cursors.Hand;
+            image.Margin = new Thickness(3);
+			TextBlock text = new TextBlock();
+			text.Text = (string)bitmap.Name;
+			text.Margin = new Thickness(5, 0, 0, 0);
+			text.VerticalAlignment = VerticalAlignment.Center;
+			panel.Children.Add(image);
+			panel.Children.Add(text);
 
-				return panel;
-			}
-			else
-			{
-				Console.WriteLine("File not found:" + filepath);
-				return null;
-			}
+			return panel;
 		}
 
 
@@ -367,6 +368,7 @@ namespace IndiaTango.ViewModels
                     PrimaryContact = _ds.Site.PrimaryContact;
                     SecondaryContact = _ds.Site.SecondaryContact;
                     UniversityContact = _ds.Site.UniversityContact;
+                    _siteImages = _ds.Site.Images;
                 }
                 else
                 {
@@ -377,6 +379,7 @@ namespace IndiaTango.ViewModels
                     PrimaryContact = null;
                     SecondaryContact = null;
                     UniversityContact = null;
+                    _siteImages = new List<NamedBitmap>();
                 }
 
                 NotifyOfPropertyChange(() => SelectedSite);
@@ -627,12 +630,14 @@ namespace IndiaTango.ViewModels
                     SelectedSite.SecondaryContact = SecondaryContact;
                     SelectedSite.Name = SiteName;
                     SelectedSite.UniversityContact = UniversityContact;
+                    SelectedSite.Images = _siteImages;
                     EventLogger.LogInfo(GetType().ToString(), "Site saved. Site name: " + SelectedSite.Name);
                 }
                 //else if creating a new one
                 else
                 {
                     Site b = new Site(Site.NextID, SiteName, Owner, PrimaryContact, SecondaryContact, UniversityContact, GPSCoords.Parse(Latitude, Longitude));
+                    b.Images = _siteImages;
                     _allSites.Add(b);
                     Site.ExportAll(_allSites);
                     SelectedSite = b;
@@ -675,6 +680,37 @@ namespace IndiaTango.ViewModels
             editSensor.Dataset = _ds;
 
             _windowManager.ShowWindow(editSensor);
+        }
+
+        public void btnNewImage()
+        {
+            OpenFileDialog dlg = new OpenFileDialog();
+            dlg.Filter = "Image Files|*.jpeg;*.jpg;*.png;*.gif;*.bmp|" +
+                "JPEG Files (*.jpeg)|*.jpeg|JPG Files (*.jpg)|*.jpg|PNG Files (*.png)|*.png|GIF Files (*.gif)|*.gif|Bitmap Files|*.bmp";
+            dlg.Title = "Select images to add";
+            dlg.Multiselect = true;
+
+            if(dlg.ShowDialog() == DialogResult.OK)
+            {
+                if(_siteImages == null)
+                    _siteImages = new List<NamedBitmap>();
+
+                foreach (string fileName in dlg.FileNames)
+                {
+                    if (File.Exists(fileName))
+                    {
+                        NamedBitmap img = new NamedBitmap(new Bitmap(fileName),Path.GetFileName(fileName));
+                        _siteImages.Add(img);
+                    }
+                }
+
+                NotifyOfPropertyChange(() => SiteImages);
+            }
+        }
+
+        public void btnDeleteImage()
+        {
+            //Delete images
         }
 
         public void btnCancel()

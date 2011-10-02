@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Runtime.Serialization;
 
@@ -18,7 +19,7 @@ namespace IndiaTango.Models
         private Contact _secondaryContact;
         private Contact _universityContact;
         private GPSCoords _gpsLocation;
-    	private List<string> _images; 
+    	private List<NamedBitmap> _images; 
 
         public static string ExportPath
         {
@@ -163,7 +164,8 @@ namespace IndiaTango.Models
             }
         }
 
-    	public List<string> Images
+        [DataMember]
+    	public List<NamedBitmap> Images
     	{
     		get { return _images; }
 			set { _images = value; }

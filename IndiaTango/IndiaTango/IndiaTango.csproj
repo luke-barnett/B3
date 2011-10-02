@@ -96,6 +96,7 @@
     <Compile Include="Models\CustomZoomBehaviour.cs" />
     <Compile Include="Models\GraphBackgroundBehaviour.cs" />
     <Compile Include="Models\ListedSensor.cs" />
+    <Compile Include="Models\NamedBitmap.cs" />
     <Compile Include="Models\SensorStateListObject.cs" />
     <Compile Include="Models\SensorTemplate.cs" />
     <Compile Include="Models\Tools.cs" />
