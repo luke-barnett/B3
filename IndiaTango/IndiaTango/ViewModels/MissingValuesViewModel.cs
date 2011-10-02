@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -108,7 +109,20 @@ namespace IndiaTango.ViewModels
             set
             {
                 _missingValues = value;
-                NotifyOfPropertyChange(() => MissingValues);
+                NotifyOfPropertyChange(() => MissingValuesStrings);
+            }
+        }
+
+        public List<string> MissingValuesStrings
+        {
+            get
+            {
+                var list = new List<string>();
+                foreach (var value in _missingValues)
+                {
+                    list.Add(value.ToString());
+                }
+                return list;
             }
         }
 
@@ -264,14 +278,14 @@ namespace IndiaTango.ViewModels
 
         public void SelectionChanged(SelectionChangedEventArgs e)
         {
-            foreach (DateTime item in e.RemovedItems)
+            foreach (string item in e.RemovedItems)
             {
-                SelectedValues.Remove(item);
+                SelectedValues.Remove(DateTime.Parse(item));
             }
 
-            foreach (DateTime item in e.AddedItems)
+            foreach (string item in e.AddedItems)
             {
-                SelectedValues.Add(item);
+                SelectedValues.Add(DateTime.Parse(item));
             }
             NotifyOfPropertyChange(() => UndoButtonEnabled);
 
@@ -382,12 +396,16 @@ namespace IndiaTango.ViewModels
 
             if (SelectedValues.Count == 0)
             {
-                Common.ShowMessageBox("No values selected", "Please select one or more data points before performing extrapolation.",
+                Common.ShowMessageBox("No values selected",
+                                      "Please select one or more data points before performing extrapolation.",
                                       false, true);
                 return;
             }
 
-            if (!Common.ShowMessageBox("Extrapolate", "This will find the first and last value in the current range and extrapolate between them.\r\n\r\nAre you sure you want to do this?", true, false))
+            if (
+                !Common.ShowMessageBox("Extrapolate",
+                                       "This will find the first and last value in the current range and extrapolate between them.\r\n\r\nAre you sure you want to do this?",
+                                       true, false))
                 return;
 
             ViewCursor = Cursors.Wait;
@@ -401,14 +419,71 @@ namespace IndiaTango.ViewModels
 
                 Common.ShowMessageBox("Values updated", "The values have been extrapolated successfully.", false, false);
             }
+            catch (DataException de)
+            {
+                if (de.Message == "No end value")
+                {
+                    Common.ShowMessageBox("Extrapolation", "There was no end value found, please specify a value", false,
+                                          true);
+                    _selectedValues.Clear();
+                    _selectedValues.Add(_ds.EndTimeStamp);
+                    SpecifyValueForExtrapolation();
+                    _selectedValues.Clear();
+                    _selectedValues.Add(_ds.EndTimeStamp.AddMinutes(-(_ds.DataInterval)));
+                    btnExtrapolate();
+                }
+                else if (de.Message == "No start value")
+                {
+                    Common.ShowMessageBox("Extrapolation", "There was no start value found, please specify a value",
+                                          false, true);
+                    _selectedValues.Clear();
+                    _selectedValues.Add(_ds.StartTimeStamp);
+                    SpecifyValueForExtrapolation();
+                    _selectedValues.Clear();
+                    _selectedValues.Add(_ds.StartTimeStamp.AddMinutes(_ds.DataInterval));
+                    btnExtrapolate();
+                }
+
+            }
             catch (Exception e)
             {
-                Common.ShowMessageBoxWithException("Error", "An error occured during extrapolation. Ensure you have selected a sensor and one or more data points, and try again.",
-                                      false, true, e);
+                Common.ShowMessageBoxWithException("Error",
+                                                   "An error occured during extrapolation. Ensure you have selected a sensor and one or more data points, and try again.",
+                                                   false, true, e);
                 ViewCursor = Cursors.Arrow;
             }
 
             UpdateUndoRedo();
+            ViewCursor = Cursors.Arrow;
+        }
+
+        private void SpecifyValueForExtrapolation()
+        {
+            var value = float.MinValue;
+
+            while (value.Equals(float.MinValue))
+            {
+                try
+                {
+                    var specifyVal = _container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel") as SpecifyValueViewModel;
+                    _windowManager.ShowDialog(specifyVal);
+                    //cancel
+                    if (specifyVal.Text == null)
+                        return;
+                    value = float.Parse(specifyVal.Text);
+                }
+                catch (FormatException f)
+                {
+                    var exit = Common.ShowMessageBox("An Error Occured", "Please enter a valid number.", true, true);
+                    if (exit) return;
+                }
+            }
+
+            ViewCursor = Cursors.Wait;
+            _sensor.AddState(_sensor.CurrentState.MakeValue(SelectedValues, value));
+
+            UpdateUndoRedo();
+
             ViewCursor = Cursors.Arrow;
         }
 
