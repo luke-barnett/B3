@@ -67,8 +67,18 @@ namespace IndiaTango.ViewModels
                 return;
             }
 
-            Common.RenderChartToImage(Chart, SelectedSensors, _width, _height, _renderAllPoints, Filename);
-            TryClose();
+            try
+            {
+                Common.RenderChartToImage(Chart, SelectedSensors, _width, _height, _renderAllPoints, Filename);
+                TryClose();
+            }
+            catch(Exception e)
+            {
+                Common.ShowMessageBoxWithException("Exporting Image Failed",
+                                                   "Sorry something went wrong when we where exporting to an image",
+                                                   false, true, e);
+                EventLogger.LogError("Image Exporter", e.Message);
+            }
         }
 
         public void ShowFileDialog()
