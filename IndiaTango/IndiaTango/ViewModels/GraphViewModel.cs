@@ -508,7 +508,7 @@ namespace IndiaTango.ViewModels
 
             if (result == DialogResult.OK)
             {
-                Common.RenderImage((Chart)chart, fileDialog.FileName);
+                Common.RenderChartToImage(chart, _selectedSensors.ToArray(), 1600, 1200, true, fileDialog.FileName);
                 EventLogger.LogInfo(GetType().ToString(), "Graph export complete. File saved to: " + fileDialog.FileName);
             }
             else
