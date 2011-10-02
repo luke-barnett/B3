@@ -7,10 +7,14 @@ using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows;
 using System.Windows.Forms;
+using System.Windows.Input;
+using System.Windows.Media.Imaging;
 using Caliburn.Micro;
 using IndiaTango.Models;
 using System.Windows.Controls;
 using Cursors = System.Windows.Input.Cursors;
+using HorizontalAlignment = System.Windows.HorizontalAlignment;
+using Orientation = System.Windows.Controls.Orientation;
 
 namespace IndiaTango.ViewModels
 {
@@ -94,6 +98,53 @@ namespace IndiaTango.ViewModels
         #region View Properties
         //TODO: Make a gloabl 'editing/creating/viewing site' state that the properties reference
         private Visibility _sensorWarningVis = Visibility.Collapsed;
+
+    	public List<StackPanel> SiteImages
+    	{
+    		get
+    		{
+    			List<StackPanel> list = new List<StackPanel>();
+
+				if (_ds != null && _ds.Site != null && _ds.Site.Images != null)
+				{
+					foreach (var image in _ds.Site.Images)
+							list.Add(MakeImageItem(image));
+				}
+				
+				//Testing
+				list.Add(MakeImageItem(Path.Combine(Common.AppDataPath,"Images","9.jpg")));
+    			return list;
+    		}
+    	}
+
+		private StackPanel MakeImageItem(string filepath)
+		{
+			if (File.Exists(filepath))
+			{
+				StackPanel panel = new StackPanel();
+				panel.Orientation = Orientation.Horizontal;
+				Image image = new Image();
+				image.Source = new BitmapImage(new Uri(filepath, UriKind.Absolute));
+				image.Height = 50;
+				image.Width = 50;
+				image.MouseLeftButtonUp += delegate { System.Diagnostics.Process.Start(filepath); };
+				image.Cursor = Cursors.Hand;
+				TextBlock text = new TextBlock();
+				text.Text = Path.GetFileName(filepath);
+				text.Margin = new Thickness(10, 0, 0, 0);
+				text.VerticalAlignment = VerticalAlignment.Center;
+				panel.Children.Add(image);
+				panel.Children.Add(text);
+
+				return panel;
+			}
+			else
+			{
+				Console.WriteLine("File not found:" + filepath);
+				return null;
+			}
+		}
+
 
         public Visibility SensorWarningVisible
         {
@@ -337,6 +388,7 @@ namespace IndiaTango.ViewModels
                 NotifyOfPropertyChange(() => SecondaryContact);
                 NotifyOfPropertyChange(() => UniversityContact);
                 NotifyOfPropertyChange(() => EditDeleteEnabled);
+				NotifyOfPropertyChange(() => SiteImages);
             }
         }
         #endregion
@@ -426,6 +478,11 @@ namespace IndiaTango.ViewModels
         {
             ProgressBarPercent = e.Progress;
         }
+
+		public void imgListDoubleClick(object sender, MouseButtonEventArgs e)
+		{
+			Console.WriteLine("Test");
+		}
 
         public void btnGraph()
         {

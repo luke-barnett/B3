@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:caliburn="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro"
-        Title="{Binding Title}" Icon="{Binding Icon}" Height="570" Width="950" WindowStartupLocation="CenterScreen" Loaded="OnLoaded" Cursor="{Binding ApplicationCursor}">
+        Title="{Binding Title}" Icon="{Binding Icon}" Height="702" Width="950" WindowStartupLocation="CenterScreen" Loaded="OnLoaded" Cursor="{Binding ApplicationCursor}">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
             <caliburn:ActionMessage MethodName="OnLoaded" />
@@ -46,7 +46,7 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="100*"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -118,27 +118,33 @@
                     <TextBox Name="Longitude" Grid.Column="3" Grid.Row="0" Margin="3" Text="{Binding Longitude}" ToolTip="Enter longitude in Degrees Minutes Seconds or Decimal Degrees" IsEnabled="{Binding SiteControlsEnabled}"/>
                 </Grid>
 
-                <StackPanel  Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="5" Orientation="Horizontal" FlowDirection="RightToLeft">
-                    <Button Name="btnSensors" FontSize="15" Width="100" Height="100" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Padding="0" IsEnabled="{Binding ActionButtonsEnabled}">
-                        <StackPanel Orientation="Vertical">
-                            <Image Source="/IndiaTango;component/Images/sensors.png" Width="64" Height="64" />
-                            <TextBlock Text="Sensors" HorizontalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-                    
-                    <TextBlock Visibility="{Binding SensorWarningVisible}" Margin="20 10 10 10" Height="70" Width="250" Padding="10" Background="Orange" TextWrapping="Wrap" HorizontalAlignment="Right" TextAlignment="Left" Text="One or more of the sensors you imported shows signs of failure. Click 'Sensors' to identify them" />
-                </StackPanel>
+                <TextBlock Text="Images:" TextAlignment="Right" Grid.Column="0" Grid.Row="9" Margin="7"></TextBlock>
                 
-                <Rectangle Height="3" Fill="OrangeRed" Margin="0,5" Grid.Row="10" Grid.ColumnSpan="5" SnapsToDevicePixels="True" Stroke="White" />
+                <ListBox Name="imgList" Grid.Column="1" Grid.Row="9" ItemsSource="{Binding SiteImages}" Margin="5">
+                </ListBox>
 
-                <Button Name="btnSiteCreate" Grid.Row="11" Grid.Column="0" FontSize="15" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Visibility="{Binding CreateEditDeleteVisible}">
+                <Button Name="btnSensors" Grid.Column="0" Grid.Row="10" FontSize="15" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding ActionButtonsEnabled}" VerticalAlignment="Top">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="/IndiaTango;component/Images/sensor_32.png" Width="32" Height="32" SnapsToDevicePixels="True" HorizontalAlignment="Left"/>
+                        <TextBlock Text="Sensors" HorizontalAlignment="Center" Margin="5" />
+                    </StackPanel>
+                </Button>
+                
+                <TextBlock Grid.Row="10" Grid.Column="1" Visibility="{Binding SensorWarningVisible}" Margin="5" Padding="5" Background="Orange" TextWrapping="Wrap" TextAlignment="Left" Text="One or more of the sensors you imported shows signs of failure. Click 'Sensors' to identify them" />
+               
+                
+                
+                
+                <Rectangle Height="3" Fill="OrangeRed" Margin="0,5" Grid.Row="11" Grid.ColumnSpan="5" SnapsToDevicePixels="True" Stroke="White" />
+
+                <Button Name="btnSiteCreate" Grid.Row="12" Grid.Column="0" FontSize="15" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Visibility="{Binding CreateEditDeleteVisible}">
                     <StackPanel Orientation="Horizontal">
                         <Image Source="/IndiaTango;component/Images/new_site.png" Width="32" Height="32" VerticalAlignment="Top" SnapsToDevicePixels="True" HorizontalAlignment="Left" />
                         <TextBlock Text="New Site" VerticalAlignment="Center" Margin="5" />
                     </StackPanel>
                 </Button>
                 
-                <StackPanel  Grid.Row="11" Grid.Column="1" Grid.ColumnSpan="5" Orientation="Horizontal" HorizontalAlignment="Right">
+                <StackPanel  Grid.Row="12" Grid.Column="1" Grid.ColumnSpan="5" Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Name="btnSiteDone" FontSize="15" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Visibility="{Binding DoneCancelVisible}" VerticalAlignment="Bottom" SnapsToDevicePixels="True">
                         <StackPanel Orientation="Horizontal">
                             <Image Source="/IndiaTango;component/Images/save_32.png" Width="32" Height="32" />

@@ -280,7 +280,6 @@
     <Resource Include="Images\open2.png" />
     <Resource Include="Images\open3.png" />
     <Resource Include="Images\redo.png" />
-    <Resource Include="Images\sensors.png" />
     <Resource Include="Images\delete_32.png" />
     <Resource Include="Images\edit_32.png" />
     <Resource Include="Images\undo.png" />
@@ -336,6 +335,10 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\log_64.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\sensor_32.png" />
+    <Resource Include="Images\sensor_64.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

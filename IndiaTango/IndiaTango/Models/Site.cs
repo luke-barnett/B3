@@ -18,6 +18,7 @@ namespace IndiaTango.Models
         private Contact _secondaryContact;
         private Contact _universityContact;
         private GPSCoords _gpsLocation;
+    	private List<string> _images; 
 
         public static string ExportPath
         {
@@ -161,6 +162,12 @@ namespace IndiaTango.Models
                 _universityContact.ID = value;
             }
         }
+
+    	public List<string> Images
+    	{
+    		get { return _images; }
+			set { _images = value; }
+    	}
 
         /// <summary>
         /// Sets and gets the details of the primary contact for this Site
