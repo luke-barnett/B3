@@ -344,7 +344,33 @@ namespace IndiaTango.ViewModels
 
         public void BtnSpecify()
         {
+            EventLogger.LogInfo(GetType().ToString(), "Value updation started.");
 
+            if (_selectedMissingValues.Count == 0)
+                return;
+
+            var specifyVal = _container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel") as SpecifyValueViewModel;
+            _windowManager.ShowDialog(specifyVal);
+
+            if(specifyVal == null || specifyVal.Text == null)
+                return;
+            try
+            {
+                var value = float.Parse(specifyVal.Text);
+
+                var dates = (from values in _selectedMissingValues select values.TimeStamp).ToList();
+
+                _selectedSensor.Sensor.AddState(_selectedSensor.Sensor.CurrentState.MakeValue(dates, value));
+
+                Finalise("Selected values has been set to " + value + ".");
+
+                Common.ShowMessageBox("Values Updated", "The selected values have been set to " + value + ".", false, false);
+            }
+            catch (Exception)
+            {
+                var exit = Common.ShowMessageBox("An Error Occured", "Please enter a valid number.", true, true);
+                if (exit) return;
+            }
         }
 
         #endregion
