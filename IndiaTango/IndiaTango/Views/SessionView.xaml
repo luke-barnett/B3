@@ -120,7 +120,7 @@
 
                 <TextBlock Text="Images:" TextAlignment="Right" Grid.Column="0" Grid.Row="9" Margin="7"></TextBlock>
                 
-                <ListBox Name="imgList" Grid.Column="1" Grid.Row="9" ItemsSource="{Binding SiteImages}" Margin="5">
+                <ListBox Name="imgList" Grid.Column="1" Grid.Row="9" ItemsSource="{Binding SiteImages}" Margin="5" SelectedIndex="{Binding SelectedImage, Mode=TwoWay}">
                 </ListBox>
                 
                 <StackPanel Grid.Column="2" Grid.Row="9" Grid.ColumnSpan="3">

@@ -48,6 +48,7 @@ namespace IndiaTango.ViewModels
         private ObservableCollection<Site> _allSites = new ObservableCollection<Site>();
         private ObservableCollection<Contact> _allContacts = new ObservableCollection<Contact>();
         private List<NamedBitmap> _siteImages = new List<NamedBitmap>();
+    	private int _selectedImage = -1;
 
         #endregion
 
@@ -103,6 +104,11 @@ namespace IndiaTango.ViewModels
         //TODO: Make a gloabl 'editing/creating/viewing site' state that the properties reference
         private Visibility _sensorWarningVis = Visibility.Collapsed;
 
+    	public int SelectedImage
+    	{
+			get { return _selectedImage; }
+			set { _selectedImage = value; NotifyOfPropertyChange(() => SelectedImage); }
+    	}
     	public List<StackPanel> SiteImages
     	{
     		get
@@ -368,7 +374,7 @@ namespace IndiaTango.ViewModels
                     PrimaryContact = _ds.Site.PrimaryContact;
                     SecondaryContact = _ds.Site.SecondaryContact;
                     UniversityContact = _ds.Site.UniversityContact;
-                    _siteImages = _ds.Site.Images;
+                    _siteImages = _ds.Site.Images.ToList();
                 }
                 else
                 {
@@ -641,14 +647,14 @@ namespace IndiaTango.ViewModels
                     SelectedSite.SecondaryContact = SecondaryContact;
                     SelectedSite.Name = SiteName;
                     SelectedSite.UniversityContact = UniversityContact;
-                    SelectedSite.Images = _siteImages;
+					SelectedSite.Images = _siteImages.ToList();
                     EventLogger.LogInfo(GetType().ToString(), "Site saved. Site name: " + SelectedSite.Name);
                 }
                 //else if creating a new one
                 else
                 {
                     Site b = new Site(Site.NextID, SiteName, Owner, PrimaryContact, SecondaryContact, UniversityContact, GPSCoords.Parse(Latitude, Longitude));
-                    b.Images = _siteImages;
+					b.Images = _siteImages.ToList();
                     _allSites.Add(b);
                     Site.ExportAll(_allSites);
                     SelectedSite = b;
@@ -721,7 +727,12 @@ namespace IndiaTango.ViewModels
 
         public void btnDeleteImage()
         {
-            //Delete images
+			//Confirm really needed? User can just hit the cancel edit button to revert all changes
+            if(SelectedImage != -1)// && Common.ShowMessageBox("Confirm Delete","Are you sure you wish to delete this image?",true,false))
+            {
+            	_siteImages.RemoveAt(SelectedImage);
+				NotifyOfPropertyChange(() => SiteImages);
+            }
         }
 
         public void btnCancel()
