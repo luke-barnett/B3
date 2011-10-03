@@ -2,19 +2,24 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Caliburn.Micro;
 using IndiaTango.Models;
 using System.Windows.Controls;
 using Cursors = System.Windows.Input.Cursors;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
+using Image = System.Windows.Controls.Image;
 using Orientation = System.Windows.Controls.Orientation;
+using DragEventArgs = System.Windows.DragEventArgs;
+using DataFormats = System.Windows.DataFormats;
 
 namespace IndiaTango.ViewModels
 {
@@ -44,6 +49,8 @@ namespace IndiaTango.ViewModels
         private Contact _universityContact;
         private ObservableCollection<Site> _allSites = new ObservableCollection<Site>();
         private ObservableCollection<Contact> _allContacts = new ObservableCollection<Contact>();
+        private List<NamedBitmap> _siteImages = new List<NamedBitmap>();
+    	private int _selectedImage = -1;
 
         #endregion
 
@@ -99,50 +106,52 @@ namespace IndiaTango.ViewModels
         //TODO: Make a gloabl 'editing/creating/viewing site' state that the properties reference
         private Visibility _sensorWarningVis = Visibility.Collapsed;
 
+    	public int SelectedImage
+    	{
+			get { return _selectedImage; }
+			set { _selectedImage = value; NotifyOfPropertyChange(() => SelectedImage); }
+    	}
     	public List<StackPanel> SiteImages
     	{
     		get
     		{
     			List<StackPanel> list = new List<StackPanel>();
 
-				if (_ds != null && _ds.Site != null && _ds.Site.Images != null)
-				{
-					foreach (var image in _ds.Site.Images)
-							list.Add(MakeImageItem(image));
-				}
-				
-				//Testing
-				list.Add(MakeImageItem(Path.Combine(Common.AppDataPath,"Images","9.jpg")));
-    			return list;
+                if (_siteImages != null)
+                {
+                    foreach (var bitmap in _siteImages)
+                        list.Add(MakeImageItem(bitmap));
+                }
+
+    		    return list;
     		}
     	}
 
-		private StackPanel MakeImageItem(string filepath)
+		private StackPanel MakeImageItem(NamedBitmap bitmap)
 		{
-			if (File.Exists(filepath))
-			{
-				StackPanel panel = new StackPanel();
-				panel.Orientation = Orientation.Horizontal;
-				Image image = new Image();
-				image.Source = new BitmapImage(new Uri(filepath, UriKind.Absolute));
-				image.Height = 50;
-				image.Width = 50;
-				image.MouseLeftButtonUp += delegate { System.Diagnostics.Process.Start(filepath); };
-				image.Cursor = Cursors.Hand;
-				TextBlock text = new TextBlock();
-				text.Text = Path.GetFileName(filepath);
-				text.Margin = new Thickness(10, 0, 0, 0);
-				text.VerticalAlignment = VerticalAlignment.Center;
-				panel.Children.Add(image);
-				panel.Children.Add(text);
+			StackPanel panel = new StackPanel();
+			panel.Orientation = Orientation.Horizontal;
+			Image image = new Image();
+		    image.Source = Common.BitmapToImageSource(bitmap.Bitmap);
+			image.Height = 50;
+			image.Width = 50;
+			image.MouseLeftButtonUp += delegate
+			                               {
+			                                   string path = Path.Combine(Common.TempDataPath, (string) bitmap.Name);
+                                               if(!File.Exists(path))
+                                                    bitmap.Bitmap.Save(path);
+			                                   System.Diagnostics.Process.Start(path);
+			                               };
+			image.Cursor = Cursors.Hand;
+            image.Margin = new Thickness(3);
+			TextBlock text = new TextBlock();
+			text.Text = (string)bitmap.Name;
+			text.Margin = new Thickness(5, 0, 0, 0);
+			text.VerticalAlignment = VerticalAlignment.Center;
+			panel.Children.Add(image);
+			panel.Children.Add(text);
 
-				return panel;
-			}
-			else
-			{
-				Console.WriteLine("File not found:" + filepath);
-				return null;
-			}
+			return panel;
 		}
 
 
@@ -271,6 +280,7 @@ namespace IndiaTango.ViewModels
                 _doneCancelVisible = value;
                 NotifyOfPropertyChange(() => DoneCancelVisible);
                 NotifyOfPropertyChange(() => SiteListEnabled);
+                NotifyOfPropertyChange(() => CanDragDropImages);
             }
         }
 
@@ -367,6 +377,9 @@ namespace IndiaTango.ViewModels
                     PrimaryContact = _ds.Site.PrimaryContact;
                     SecondaryContact = _ds.Site.SecondaryContact;
                     UniversityContact = _ds.Site.UniversityContact;
+
+                    if(_ds.Site.Images != null)
+                        _siteImages = _ds.Site.Images.ToList();
                 }
                 else
                 {
@@ -377,6 +390,7 @@ namespace IndiaTango.ViewModels
                     PrimaryContact = null;
                     SecondaryContact = null;
                     UniversityContact = null;
+                    _siteImages = new List<NamedBitmap>();
                 }
 
                 NotifyOfPropertyChange(() => SelectedSite);
@@ -575,6 +589,17 @@ namespace IndiaTango.ViewModels
 			}
 		}
 
+        public void btnErroneousValues()
+        {
+            var erroneousValuesView =
+                (_container.GetInstance(typeof (ErroneousValuesDetectionViewModel), "ErroneousValuesDetectionViewModel")
+                 as ErroneousValuesDetectionViewModel);
+            if(erroneousValuesView == null)
+                return;
+            erroneousValuesView.DataSet = _ds;
+            _windowManager.ShowWindow(erroneousValuesView);
+        }
+
         public void btnSiteCreate()
         {
             CreateEditDeleteVisible = Visibility.Collapsed;
@@ -627,12 +652,14 @@ namespace IndiaTango.ViewModels
                     SelectedSite.SecondaryContact = SecondaryContact;
                     SelectedSite.Name = SiteName;
                     SelectedSite.UniversityContact = UniversityContact;
+					SelectedSite.Images = _siteImages.ToList();
                     EventLogger.LogInfo(GetType().ToString(), "Site saved. Site name: " + SelectedSite.Name);
                 }
                 //else if creating a new one
                 else
                 {
                     Site b = new Site(Site.NextID, SiteName, Owner, PrimaryContact, SecondaryContact, UniversityContact, GPSCoords.Parse(Latitude, Longitude));
+					b.Images = _siteImages.ToList();
                     _allSites.Add(b);
                     Site.ExportAll(_allSites);
                     SelectedSite = b;
@@ -675,6 +702,47 @@ namespace IndiaTango.ViewModels
             editSensor.Dataset = _ds;
 
             _windowManager.ShowWindow(editSensor);
+        }
+
+        public void btnNewImage()
+        {
+            OpenFileDialog dlg = new OpenFileDialog();
+            dlg.Filter = "Image Files|*.jpeg;*.jpg;*.png;*.gif;*.bmp|" +
+                "JPEG Files (*.jpeg)|*.jpeg|JPG Files (*.jpg)|*.jpg|PNG Files (*.png)|*.png|GIF Files (*.gif)|*.gif|Bitmap Files|*.bmp";
+            dlg.Title = "Select images to add";
+            dlg.Multiselect = true;
+
+            if(dlg.ShowDialog() == DialogResult.OK)
+            {
+                InsertImagesForSite(dlg.FileNames);
+            }
+        }
+
+        public void InsertImagesForSite(string[] fileNames)
+        {
+            if (_siteImages == null)
+                _siteImages = new List<NamedBitmap>();
+
+            foreach (string fileName in fileNames)
+            {
+                if (File.Exists(fileName))
+                {
+                    NamedBitmap img = new NamedBitmap(new Bitmap(fileName), Path.GetFileName(fileName));
+                    _siteImages.Add(img);
+                }
+            }
+
+            NotifyOfPropertyChange(() => SiteImages);
+        }
+
+        public void btnDeleteImage()
+        {
+			//Confirm really needed? User can just hit the cancel edit button to revert all changes
+            if(SelectedImage != -1)// && Common.ShowMessageBox("Confirm Delete","Are you sure you wish to delete this image?",true,false))
+            {
+            	_siteImages.RemoveAt(SelectedImage);
+				NotifyOfPropertyChange(() => SiteImages);
+            }
         }
 
         public void btnCancel()
@@ -842,6 +910,33 @@ namespace IndiaTango.ViewModels
                         EventLogger.LogSensorInfo(matchingSensor.Name, "Matched to imported sensor but no new values found");
                 }
             }
+        }
+
+        public bool CanDragDropImages
+        {
+            get { return DoneCancelVisible == Visibility.Visible; }
+        }
+
+        public void StartImageDrag(DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+                e.Effects = System.Windows.DragDropEffects.Copy;
+            else
+                e.Effects = System.Windows.DragDropEffects.None;
+        }
+
+        public void DoImageDrag(DragEventArgs e)
+        {
+            var data = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+            var acceptedFiles = new List<string>();
+            var acceptedExtensions = new List<string> { ".jpeg", ".jpg", ".png", ".gif", ".bmp" };
+
+            foreach (string file in data)
+                if (acceptedExtensions.Contains(Path.GetExtension(file).ToLower()))
+                    acceptedFiles.Add(file);
+
+            InsertImagesForSite(acceptedFiles.ToArray());
         }
     }
 }

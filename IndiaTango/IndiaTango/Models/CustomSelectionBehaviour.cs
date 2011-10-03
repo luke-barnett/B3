@@ -18,7 +18,7 @@ namespace IndiaTango.Models
 
         protected override void Init()
         {
-            _selectionRectangle.Visibility = Visibility.Collapsed;
+            _selectionRectangle.Visibility = Visibility.Visible;
             BehaviourContainer.Children.Add(_selectionRectangle);
         }
 

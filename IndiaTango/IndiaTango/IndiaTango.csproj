@@ -87,6 +87,8 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Models\ErroneousValue.cs" />
+    <Compile Include="Models\IDetectionMethod.cs" />
     <Compile Include="Models\FormulaEvaluator.cs" />
     <Compile Include="Models\CustomSelectionBehaviour.cs" />
     <Compile Include="Models\DatasetExporter.cs" />
@@ -96,6 +98,8 @@
     <Compile Include="Models\CustomZoomBehaviour.cs" />
     <Compile Include="Models\GraphBackgroundBehaviour.cs" />
     <Compile Include="Models\ListedSensor.cs" />
+    <Compile Include="Models\MissingValuesDetector.cs" />
+    <Compile Include="Models\NamedBitmap.cs" />
     <Compile Include="Models\SensorStateListObject.cs" />
     <Compile Include="Models\SensorTemplate.cs" />
     <Compile Include="Models\Tools.cs" />
@@ -106,6 +110,7 @@
     <Compile Include="ViewModels\ContactEditorViewModel.cs" />
     <Compile Include="ViewModels\CalibrateSensorsViewModel.cs" />
     <Compile Include="ViewModels\EditSensorViewModel.cs" />
+    <Compile Include="ViewModels\ErroneousValuesDetectionViewModel.cs" />
     <Compile Include="ViewModels\ExportToImageViewModel.cs" />
     <Compile Include="ViewModels\ExportViewModel.cs" />
     <Compile Include="ViewModels\GraphViewModel.cs" />
@@ -125,6 +130,9 @@
     </Compile>
     <Compile Include="Views\CalibrateSensorsView.xaml.cs">
       <DependentUpon>CalibrateSensorsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ErroneousValuesDetectionView.xaml.cs">
+      <DependentUpon>ErroneousValuesDetectionView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ExportToImageView.xaml.cs">
       <DependentUpon>ExportToImageView.xaml</DependentUpon>
@@ -212,6 +220,10 @@
     <Page Include="Views\CalibrateSensorsView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\ErroneousValuesDetectionView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\ExportToImageView.xaml">
       <SubType>Designer</SubType>

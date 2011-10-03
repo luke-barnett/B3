@@ -1,0 +1,201 @@
+﻿<Window x:Class="IndiaTango.Views.ErroneousValuesDetectionView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:cal="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro"
+        xmlns:charts="clr-namespace:Visiblox.Charts;assembly=Visiblox.Charts"
+        xmlns:toolkit="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit/extended"
+        xmlns:multiseries="clr-namespace:IndiaTango.MultiSeriesBinding"
+        Title="{Binding ViewTitle}" Icon="{Binding Icon}" Cursor="{Binding ViewCursor}" Height="700" Width="950" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="370" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="{Binding DetectionSettingsHeight}" />
+                <RowDefinition Height="2*" />
+                <RowDefinition Height="2*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <GroupBox Grid.Row="0" Header="Select Detection Methods" BorderBrush="OrangeRed" Margin="10,5,5,0">
+                <ListBox ItemsSource="{Binding DetectionMethods}" SelectedItem="{Binding SelectedDetectionMethod, Mode=TwoWay}" SelectionMode="Single" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                    <ListBox.ItemTemplate>
+                        <HierarchicalDataTemplate>
+                            <CheckBox Content="{Binding This}" Margin="5">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="Checked">
+                                        <cal:ActionMessage MethodName="DetectionMethodChecked">
+                                            <cal:Parameter Value="$eventArgs" />
+                                        </cal:ActionMessage>
+                                    </i:EventTrigger>
+                                    <i:EventTrigger EventName="Unchecked">
+                                        <cal:ActionMessage MethodName="DetectionMethodUnChecked">
+                                            <cal:Parameter Value="$eventArgs" />
+                                        </cal:ActionMessage>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </CheckBox>
+                        </HierarchicalDataTemplate>
+                    </ListBox.ItemTemplate>
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                </ListBox>
+            </GroupBox>
+
+            <GroupBox Visibility="{Binding DetectionSettingsVisibility}" Content="{Binding DetectionSettingsGrid}" Grid.Row="1" Header="Selected Detection Modes Settings" BorderBrush="OrangeRed" Margin="10,5,5,0" />
+
+            <GroupBox Grid.Row="2" Header="Select Sensor" BorderBrush="OrangeRed" Margin="10,5,5,0">
+                <ListBox ItemsSource="{Binding SensorList}" SelectedItem="{Binding SelectedSensor, Mode=TwoWay}" SelectionMode="Single" />
+            </GroupBox>
+
+            <GroupBox Grid.Row="3" Header="Readings Found" BorderBrush="OrangeRed" Margin="10 5 5 0">
+                <ListBox ItemsSource="{Binding MissingValues}" SelectionMode="Extended">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectionChanged">
+                            <cal:ActionMessage MethodName="MissingValuesSelectionChanged">
+                                <cal:Parameter Value="$eventArgs" />
+                            </cal:ActionMessage>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </ListBox>
+            </GroupBox>
+
+            <GroupBox Grid.Row="4" Header="Actions" BorderBrush="OrangeRed" Margin="10,5,5,0">
+                <StackPanel>
+                    <WrapPanel Margin="5">
+                        <toolkit:SplitButton FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding UndoButtonEnabled}" IsOpen="{Binding ShowUndoStates, Mode=TwoWay}">
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="/IndiaTango;component/Images/undo.png" Width="64" Height="64" />
+                                <TextBlock Text="Undo" HorizontalAlignment="Center" />
+                            </StackPanel>
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <cal:ActionMessage MethodName="BtnUndo" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <toolkit:SplitButton.DropDownContent>
+                                <ListBox Name="undoStates" ItemsSource="{Binding UndoStates}" SelectionMode="Single">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="SelectionChanged">
+                                            <cal:ActionMessage MethodName="UndoPathSelected">
+                                                <cal:Parameter Value="$eventArgs" />
+                                            </cal:ActionMessage>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </ListBox>
+                            </toolkit:SplitButton.DropDownContent>
+                        </toolkit:SplitButton>
+
+                        <toolkit:SplitButton FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding RedoButtonEnabled}" IsOpen="{Binding ShowRedoStates, Mode=TwoWay}">
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="/IndiaTango;component/Images/redo.png" Width="64" Height="64" />
+                                <TextBlock Text="Redo" HorizontalAlignment="Center" />
+                            </StackPanel>
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <cal:ActionMessage MethodName="BtnRedo" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <toolkit:SplitButton.DropDownContent>
+                                <ListBox Name="redoStates" ItemsSource="{Binding RedoStates}" SelectionMode="Single">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="SelectionChanged">
+                                            <cal:ActionMessage MethodName="RedoPathSelected">
+                                                <cal:Parameter Value="$eventArgs" />
+                                            </cal:ActionMessage>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </ListBox>
+                            </toolkit:SplitButton.DropDownContent>
+                        </toolkit:SplitButton>
+
+                        <Button Name="BtnDone" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" >
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="/IndiaTango;component/Images/done_64.png" Width="64" Height="64" />
+                                <TextBlock Text="Done" HorizontalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                    </WrapPanel>
+
+                    <Rectangle Height="3" Fill="OrangeRed" Margin="10 0" Grid.Row="1" Grid.ColumnSpan="5" SnapsToDevicePixels="True" Stroke="White" />
+
+                    <WrapPanel Margin="5">
+                        <Button IsEnabled="{Binding ActionButtonsEnabled}" Name="BtnExtrapolate" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom">
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="/IndiaTango;component/Images/graph_extrapolate.png" Width="64" Height="64" />
+                                <TextBlock Text="Extrapolate" HorizontalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+
+                        <Button IsEnabled="{Binding ActionButtonsEnabled}" Name="BtnMakeZero" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom">
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="/IndiaTango;component/Images/graph_zero.png" Width="64" Height="64" />
+                                <TextBlock Text="Make Zero" HorizontalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+
+                        <Button IsEnabled="{Binding ActionButtonsEnabled}" Name="BtnSpecify" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom">
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="/IndiaTango;component/Images/graph_specify.png" Width="64" Height="64" />
+                                <TextBlock Text="Specify Value" HorizontalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                    </WrapPanel>
+                </StackPanel>
+            </GroupBox>
+        </Grid>
+        <Grid Grid.Column="1" Margin="5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="100" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Sampling Options: " VerticalAlignment="Center" HorizontalAlignment="Right" />
+                <ComboBox ItemsSource="{Binding SamplingCapOptions}" SelectedIndex="{Binding SelectedSamplingCapIndex, Mode=TwoWay}" Grid.Column="1">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectionChanged">
+                            <cal:ActionMessage MethodName="SamplingCapChanged">
+                                <cal:Parameter Value="$eventArgs" />
+                            </cal:ActionMessage>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </ComboBox>
+            </Grid>
+            <charts:Chart Title="{Binding ChartTitle}" Behaviour="{Binding ChartBehaviour}" multiseries:MultiSeries.Source="{Binding ChartSeries}" Grid.Row="1" Margin="10,10,10,0">
+                <charts:Chart.YAxis>
+                    <charts:LinearAxis Title="{Binding YAxisTitle}" Range="{Binding YAxisRange}" />
+                </charts:Chart.YAxis>
+                <charts:Chart.XAxis>
+                    <charts:DateTimeAxis Title="Date" />
+                </charts:Chart.XAxis>
+            </charts:Chart>
+            <Grid Grid.Row="2">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Stretch">
+                    <Slider Width="100" Minimum="{Binding MinimumMinimum}" Maximum="{Binding MaximumMinimum}" Value="{Binding Minimum, Mode=TwoWay}" TickPlacement="BottomRight" VerticalAlignment="Center" Margin="10" IsSnapToTickEnabled="True" TickFrequency="10" />
+                    <TextBox Name="MinimumValue" Text="{Binding MinimumValue, Mode=TwoWay, UpdateSourceTrigger=Explicit}"  VerticalAlignment="Center" Margin="0" FontSize="15" Width="50" TextChanged="MinimumValueTextChanged" />
+
+                    <Slider Width="100" Minimum="{Binding MinimumMaximum}" Maximum="{Binding MaximumMaximum}" Value="{Binding Maximum, Mode=TwoWay}" TickPlacement="BottomRight" VerticalAlignment="Center"  Margin="10" IsSnapToTickEnabled="True" TickFrequency="10" />
+                    <TextBox Name="MaximumValue" Text="{Binding MaximumValue, Mode=TwoWay, UpdateSourceTrigger=Explicit}" VerticalAlignment="Center" Margin="0" FontSize="15" Width="50" TextChanged="MaximumValueTextChanged" />
+                </StackPanel>
+                <Grid HorizontalAlignment="Right">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding WaitReason}" Visibility="{Binding WaitReasonVisibility}" VerticalAlignment="Center" />
+                        <ProgressBar Visibility="{Binding WaitReasonVisibility}" IsIndeterminate="True" VerticalAlignment="Center" Width="50" Height="15" Margin="5,0,0,0" />
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>

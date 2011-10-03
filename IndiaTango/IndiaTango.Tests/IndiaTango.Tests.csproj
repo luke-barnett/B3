@@ -37,7 +37,9 @@
       <HintPath>..\..\Externals\NUnit\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
     <Reference Include="Visiblox.Charts, Version=2.0.8.5757, Culture=neutral, PublicKeyToken=1543c03f04c4461b, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -46,7 +48,9 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ErroneousValueTests.cs" />
     <Compile Include="FormulaEvaluatorTest.cs" />
+    <Compile Include="MissingValuesDetectorTests.cs" />
     <Compile Include="SensorTemplateTest.cs" />
     <Compile Include="SiteExportTest.cs" />
     <Compile Include="SiteTest.cs" />
@@ -64,7 +68,6 @@
     <Compile Include="SensorFailureDetectionTests.cs" />
     <Compile Include="SensorStateTest.cs" />
     <Compile Include="SensorTest.cs" />
-    <Compile Include="ToolsTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\IndiaTango\IndiaTango.csproj">

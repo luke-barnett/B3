@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
@@ -27,8 +29,11 @@ namespace IndiaTango.Models
 {
     public static class Common
     {
-        public static string TagLine { get { return "[Buoys Buoys Boys]"; } }
-        public static string ApplicationTitle { get { return "Codename B3"; } }
+        [DllImport("gdi32")]
+        public static extern int DeleteObject(IntPtr hObject);
+
+		public static string TagLine { get { return "[Buoys Buoys Boys]"; } }
+    	public static string ApplicationTitle { get { return "Codename B3"; } }
         public static string Version { get { return string.Format("alpha version {0}", Assembly.GetExecutingAssembly().GetName().Version); } }
         public static string Creators { get { return "Developed by:\r\nSteven McTainsh\r\nLuke Barnett\r\nMichael Baumberger\r\nKerry Arts"; } }
 
@@ -56,9 +61,21 @@ namespace IndiaTango.Models
             }
         }
 
-        public static bool CanUseGlass = WindowsFormsAero.OsSupport.IsVistaOrBetter &&
-                                         WindowsFormsAero.OsSupport.IsCompositionEnabled;
+        public static string TempDataPath
+        {
+            get
+            {
+                string path = Path.Combine(Path.GetTempPath(), "IndiaTango");
+                if (!Directory.Exists(path))
+                    Directory.CreateDirectory(path);
 
+                return path;
+            }
+        }
+
+    	public static bool CanUseGlass = WindowsFormsAero.OsSupport.IsVistaOrBetter &&
+    	                                 WindowsFormsAero.OsSupport.IsCompositionEnabled;
+    	                                 
         public static string AddIcon { get { return "/IndiaTango;component/Images/plus.png"; } }
         public static string EditIcon { get { return "/IndiaTango;component/Images/pencil.png"; } }
         public static string DeleteIcon { get { return "/IndiaTango;component/Images/cross-script.png"; } }
@@ -334,6 +351,20 @@ namespace IndiaTango.Models
             }
 
 			Debug.WriteLine("Added change reason: '" + reason + "'");
+        }
+
+        public static ImageSource BitmapToImageSource(Bitmap bitmap)
+        {
+            var hbitmap = bitmap.GetHbitmap();
+            try
+            {
+                return Imaging.CreateBitmapSourceFromHBitmap(hbitmap, IntPtr.Zero, 
+                    Int32Rect.Empty, BitmapSizeOptions.FromWidthAndHeight(bitmap.Width, bitmap.Height));
+            }
+            finally
+            {
+                DeleteObject(hbitmap);
+            }
         }
     }
 }

@@ -471,6 +471,7 @@ namespace IndiaTango.Tests
         public void ExceptionWhenUndoNotPossible()
         {
             _undoSensor.Undo();
+            _undoSensor.Undo(); 
             _undoSensor.Undo(); // Should trigger the exception
         }
 
@@ -753,15 +754,6 @@ namespace IndiaTango.Tests
 
         [Test]
         [ExpectedException(typeof(NullReferenceException))]
-        public void NullSensorStateWithOperation()
-        {
-            var dataset =
-                new Dataset(new Site(50, "Lake Rotorua", "Bob Smith", contact, contact, contact, new GPSCoords(50, 50)), new List<Sensor> { { _sensor1 } });
-            var t = _sensor1.IsFailing(dataset);
-        }
-
-        [Test]
-        [ExpectedException(typeof(NullReferenceException))]
         public void NullDatasetPassedToIsFailing()
         {
             var t = _sensor1.IsFailing(null);
@@ -874,7 +866,8 @@ namespace IndiaTango.Tests
             var baseDate = new DateTime(2011, 5, 5, 12, 15, 0);
             var original = new SensorState(new Dictionary<DateTime, float>() { { baseDate.AddMinutes(15), 20 }, { baseDate.AddMinutes(30), 40 }, { baseDate.AddMinutes(45), 60 }, { baseDate.AddMinutes(60), 80 } });
 
-            s.RawData = original;
+            foreach (KeyValuePair<DateTime, float> kv in original.Values)
+                s.RawData.Values.Add(kv.Key, kv.Value);
 
             Assert.AreEqual(s.RawData, original);
         }
@@ -888,12 +881,20 @@ namespace IndiaTango.Tests
 
             var newValues = new SensorState(new Dictionary<DateTime, float>() { { baseDate.AddMinutes(15), 20 }, { baseDate.AddMinutes(30), 40 }, { baseDate.AddMinutes(45), 60 }, { baseDate.AddMinutes(60), 1000 } });
 
-            s.RawData = original;
+            foreach (KeyValuePair<DateTime, float> kv in original.Values)
+                s.RawData.Values.Add(kv.Key, kv.Value);
 
             s.AddState(newValues);
             s.RevertToRaw();
 
             Assert.AreEqual(s.CurrentState, original);
+        }
+
+        [Test]
+        public void RawNeverNull()
+        {
+            var s = new Sensor("Temperature", "C");
+            Assert.IsNotNull(s.RawData);
         }
         #endregion
 

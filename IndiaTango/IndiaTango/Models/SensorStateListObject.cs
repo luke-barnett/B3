@@ -21,6 +21,11 @@ namespace IndiaTango.Models
             get { return _object; }
         }
 
+        public bool IsRaw
+        {
+            get { return _isRaw; }
+        }
+
         public override string ToString()
         {
             if (_isRaw)

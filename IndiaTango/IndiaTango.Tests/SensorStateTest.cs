@@ -102,6 +102,16 @@ namespace IndiaTango.Tests
         }
 
         [Test]
+        public void SetsRawCorrectlyOnConstruction()
+        {
+            SensorState testState = new SensorState(DateTime.Now, new Dictionary<DateTime, float>(), "", true);
+            Assert.IsTrue(testState.IsRaw);
+
+            testState = new SensorState(DateTime.Now, new Dictionary<DateTime, float>(), "", false);
+            Assert.IsTrue(!testState.IsRaw);
+        }
+
+        [Test]
         public void ConstructionWithOnlyEditTimestampCreatesNewList()
         {
             SensorState testState = new SensorState(DateTime.Now.AddDays(20));
@@ -159,7 +169,7 @@ namespace IndiaTango.Tests
         {
             
             var s = new SensorState(DateTime.Now,
-                                    new Dictionary<DateTime, float> { { new DateTime(2011, 5, 7, 12, 20, 0), 200} }, _reason);
+                                    new Dictionary<DateTime, float> { { new DateTime(2011, 5, 7, 12, 20, 0), 200} }, _reason, true);
             Assert.AreEqual(_reason, s.Reason);
         }
 

@@ -308,7 +308,7 @@ namespace IndiaTango.Models
 
         public SensorState CurrentState
         {
-            get { return (UndoStack.Count != 0) ? UndoStack.Peek() : null; }
+            get { return (UndoStack.Count != 0) ? UndoStack.Peek() : RawData; }
         }
 
         [DataMember]
@@ -326,8 +326,19 @@ namespace IndiaTango.Models
 
         public Dataset Owner { get; private set; }
 
-		//Should the rawdata have a private setter?
-        public SensorState RawData { get; set; }
+        private SensorState _rawData = null;
+        public SensorState RawData
+        {
+            get
+            {
+                if(_rawData == null)
+                    _rawData = new SensorState(DateTime.Now, new Dictionary<DateTime, float>(), "", true);
+
+                return _rawData;
+            }
+
+            private set { _rawData = value; }
+        }
 
         /// <summary>
         /// Gets a value indicating whether or not this sensor shows signs of physical failure.
@@ -339,14 +350,14 @@ namespace IndiaTango.Models
             if (IndiaTango.Properties.Settings.Default.IgnoreSensorErrorDetection)
                 return false;
 
+            if (dataset == null)
+                throw new NullReferenceException("You must provide a non-null dataset.");
+
             if(CurrentState == null)
                 throw new NullReferenceException("No active sensor state exists for this sensor, so you can't detect whether it is failing or not.");
 
             if (CurrentState.Values.Count == 0)
                 return false;
-
-            if(dataset == null)
-                throw new NullReferenceException("You must provide a non-null dataset.");
 
             var baseTime = CurrentState.Values.ElementAt(0).Key;
             var incidence = 0;
@@ -378,7 +389,7 @@ namespace IndiaTango.Models
         public void Undo()
         {
             // This is because the undo stack has to have at least one item on it - the current state
-            if(UndoStack.Count <= 1)
+            if(UndoStack.Count < 1)
                 throw new InvalidOperationException("Undo is not possible at this stage. There are no more possible states to undo to.");
 
             RedoStack.Push(UndoStack.Pop());
@@ -421,17 +432,10 @@ namespace IndiaTango.Models
 
         public void RevertToRaw()
         {
-			while(UndoStack.Count > 1)
+			while(UndoStack.Count > 0)
 				RedoStack.Push(UndoStack.Pop());
 
-			//If the current state is not the raw data
-			//(it might be if the undo stack had never been truncated due to the undo limit)
-			if(!CurrentState.Equals(RawData))
-			{
-				//Pop the last item, and push on the raw data
-				RedoStack.Push(UndoStack.Pop());
-				UndoStack.Push(RawData);
-			}
+            UndoStack.Clear();
         }
 
         public override string ToString()
@@ -472,6 +476,8 @@ namespace IndiaTango.Models
 
             if (sensor != null)
             {
+                Redo();
+
                 // Exists
                 while (RedoStack.Count > 0)
                 {

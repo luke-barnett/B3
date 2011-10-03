@@ -20,7 +20,7 @@ namespace IndiaTango.Models
         protected override void Init()
         {
             //Set up the zoom rectangle for use
-            _zoomRectangle.Visibility = Visibility.Collapsed;
+            _zoomRectangle.Visibility = Visibility.Visible;
             //Add it to the container
             BehaviourContainer.Children.Add(_zoomRectangle);
         }

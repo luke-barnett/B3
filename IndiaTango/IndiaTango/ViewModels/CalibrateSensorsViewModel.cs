@@ -184,7 +184,7 @@ namespace IndiaTango.ViewModels
 
         public bool UndoButtonEnabled
         {
-            get { return SelectedSensor != null && SelectedSensor.UndoStates.Count > 1; }
+            get { return SelectedSensor != null && !SelectedSensor.CurrentState.IsRaw; }
         }
 
         public bool ApplyButtonEnabled
@@ -755,10 +755,14 @@ namespace IndiaTango.ViewModels
                 var item = (SensorStateListObject)e.AddedItems[0];
 
                 if (SelectedSensor != null && item != null)
-                    SelectedSensor.Undo(item.State.EditTimestamp);
+                {
+                    if (item.IsRaw)
+                        SelectedSensor.RevertToRaw();
+                    else
+                        SelectedSensor.Undo(item.State.EditTimestamp);
+                }
 
                 ShowUndoStates = false;
-
                 UpdateUndoRedo();
             }
         }

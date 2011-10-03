@@ -120,8 +120,36 @@
 
                 <TextBlock Text="Images:" TextAlignment="Right" Grid.Column="0" Grid.Row="9" Margin="7"></TextBlock>
                 
-                <ListBox Name="imgList" Grid.Column="1" Grid.Row="9" ItemsSource="{Binding SiteImages}" Margin="5">
+                <ListBox Name="imgList" Grid.Column="1" Grid.Row="9" ItemsSource="{Binding SiteImages}" Margin="5" SelectedIndex="{Binding SelectedImage, Mode=TwoWay}" AllowDrop="{Binding CanDragDropImages}">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="DragEnter">
+                            <caliburn:ActionMessage MethodName="StartImageDrag">
+                                <caliburn:Parameter Value="$eventArgs" />
+                            </caliburn:ActionMessage>
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="Drop">
+                            <caliburn:ActionMessage MethodName="DoImageDrag">
+                                <caliburn:Parameter Value="$eventArgs" />
+                            </caliburn:ActionMessage>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
                 </ListBox>
+                
+                <StackPanel Grid.Column="2" Grid.Row="9" Grid.ColumnSpan="3">
+                    <Button Name="btnNewImage"  Margin="3,5,3,3" Height="24" VerticalAlignment="Top" ToolTip="Add a new image associated with this site" Visibility="{Binding DoneCancelVisible}" HorizontalAlignment="Left">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/IndiaTango;component/Images/new_16.png" Width="16" Height="16" Margin="3,0" />
+                            <TextBlock Text="Add Image" HorizontalAlignment="Left" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Name="btnDeleteImage" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="Delete the currently selected image" Visibility="{Binding DoneCancelVisible}" HorizontalAlignment="Left">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/IndiaTango;component/Images/delete_16.png" Width="16" Height="16" Margin="3,0" />
+                            <TextBlock Text="Delete Image"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
 
                 <Button Name="btnSensors" Grid.Column="0" Grid.Row="10" FontSize="15" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding ActionButtonsEnabled}" VerticalAlignment="Top">
                     <StackPanel Orientation="Horizontal">
@@ -131,10 +159,11 @@
                 </Button>
                 
                 <TextBlock Grid.Row="10" Grid.Column="1" Visibility="{Binding SensorWarningVisible}" Margin="5" Padding="5" Background="Orange" TextWrapping="Wrap" TextAlignment="Left" Text="One or more of the sensors you imported shows signs of failure. Click 'Sensors' to identify them" />
-               
+
                 
-                
-                
+
+
+
                 <Rectangle Height="3" Fill="OrangeRed" Margin="0,5" Grid.Row="11" Grid.ColumnSpan="5" SnapsToDevicePixels="True" Stroke="White" />
 
                 <Button Name="btnSiteCreate" Grid.Row="12" Grid.Column="0" FontSize="15" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Visibility="{Binding CreateEditDeleteVisible}">
@@ -254,6 +283,12 @@
                                 <Image Source="/IndiaTango;component/Images/undo.png" Width="64" Height="64" />
                             </Button>
                             <TextBlock Text="Revert All Data" FontSize="15" VerticalAlignment="Center" Margin="5" />
+                        </WrapPanel>
+                        <WrapPanel>
+                            <Button Name="btnErroneousValues" FontSize="15" Width="100" Height="100" Margin="5" IsEnabled="{Binding ActionButtonsEnabled}" >
+                                <Image Source="/IndiaTango;component/Images/find_range.png" Width="64" Height="64" />
+                            </Button>
+                            <TextBlock  Text="Find Erroneous Values" FontSize="15" VerticalAlignment="Center" Margin="5" />
                         </WrapPanel>
                     </StackPanel>
                 </ScrollViewer>
