@@ -23,7 +23,7 @@
                 <ItemsControl ItemsSource="{Binding DetectionMethods}">
                     <ItemsControl.ItemTemplate>
                         <HierarchicalDataTemplate>
-                            <CheckBox Content="{Binding This}">
+                            <CheckBox Content="{Binding This}" Margin="0,5,0,5">
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="Checked">
                                         <cal:ActionMessage MethodName="DetectionMethodChecked">
@@ -39,6 +39,11 @@
                             </CheckBox>
                         </HierarchicalDataTemplate>
                     </ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
                 </ItemsControl>
             </GroupBox>
 
