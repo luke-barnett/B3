@@ -120,7 +120,19 @@
 
                 <TextBlock Text="Images:" TextAlignment="Right" Grid.Column="0" Grid.Row="9" Margin="7"></TextBlock>
                 
-                <ListBox Name="imgList" Grid.Column="1" Grid.Row="9" ItemsSource="{Binding SiteImages}" Margin="5" SelectedIndex="{Binding SelectedImage, Mode=TwoWay}">
+                <ListBox Name="imgList" Grid.Column="1" Grid.Row="9" ItemsSource="{Binding SiteImages}" Margin="5" SelectedIndex="{Binding SelectedImage, Mode=TwoWay}" AllowDrop="{Binding CanDragDropImages}">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="DragEnter">
+                            <caliburn:ActionMessage MethodName="StartImageDrag">
+                                <caliburn:Parameter Value="$eventArgs" />
+                            </caliburn:ActionMessage>
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="Drop">
+                            <caliburn:ActionMessage MethodName="DoImageDrag">
+                                <caliburn:Parameter Value="$eventArgs" />
+                            </caliburn:ActionMessage>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
                 </ListBox>
                 
                 <StackPanel Grid.Column="2" Grid.Row="9" Grid.ColumnSpan="3">

@@ -18,6 +18,8 @@ using Cursors = System.Windows.Input.Cursors;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
 using Image = System.Windows.Controls.Image;
 using Orientation = System.Windows.Controls.Orientation;
+using DragEventArgs = System.Windows.DragEventArgs;
+using DataFormats = System.Windows.DataFormats;
 
 namespace IndiaTango.ViewModels
 {
@@ -278,6 +280,7 @@ namespace IndiaTango.ViewModels
                 _doneCancelVisible = value;
                 NotifyOfPropertyChange(() => DoneCancelVisible);
                 NotifyOfPropertyChange(() => SiteListEnabled);
+                NotifyOfPropertyChange(() => CanDragDropImages);
             }
         }
 
@@ -374,7 +377,9 @@ namespace IndiaTango.ViewModels
                     PrimaryContact = _ds.Site.PrimaryContact;
                     SecondaryContact = _ds.Site.SecondaryContact;
                     UniversityContact = _ds.Site.UniversityContact;
-                    _siteImages = _ds.Site.Images.ToList();
+
+                    if(_ds.Site.Images != null)
+                        _siteImages = _ds.Site.Images.ToList();
                 }
                 else
                 {
@@ -709,20 +714,25 @@ namespace IndiaTango.ViewModels
 
             if(dlg.ShowDialog() == DialogResult.OK)
             {
-                if(_siteImages == null)
-                    _siteImages = new List<NamedBitmap>();
-
-                foreach (string fileName in dlg.FileNames)
-                {
-                    if (File.Exists(fileName))
-                    {
-                        NamedBitmap img = new NamedBitmap(new Bitmap(fileName),Path.GetFileName(fileName));
-                        _siteImages.Add(img);
-                    }
-                }
-
-                NotifyOfPropertyChange(() => SiteImages);
+                InsertImagesForSite(dlg.FileNames);
             }
+        }
+
+        public void InsertImagesForSite(string[] fileNames)
+        {
+            if (_siteImages == null)
+                _siteImages = new List<NamedBitmap>();
+
+            foreach (string fileName in fileNames)
+            {
+                if (File.Exists(fileName))
+                {
+                    NamedBitmap img = new NamedBitmap(new Bitmap(fileName), Path.GetFileName(fileName));
+                    _siteImages.Add(img);
+                }
+            }
+
+            NotifyOfPropertyChange(() => SiteImages);
         }
 
         public void btnDeleteImage()
@@ -900,6 +910,33 @@ namespace IndiaTango.ViewModels
                         EventLogger.LogSensorInfo(matchingSensor.Name, "Matched to imported sensor but no new values found");
                 }
             }
+        }
+
+        public bool CanDragDropImages
+        {
+            get { return DoneCancelVisible == Visibility.Visible; }
+        }
+
+        public void StartImageDrag(DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+                e.Effects = System.Windows.DragDropEffects.Copy;
+            else
+                e.Effects = System.Windows.DragDropEffects.None;
+        }
+
+        public void DoImageDrag(DragEventArgs e)
+        {
+            var data = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+            var acceptedFiles = new List<string>();
+            var acceptedExtensions = new List<string> { ".jpeg", ".jpg", ".png", ".gif", ".bmp" };
+
+            foreach (string file in data)
+                if (acceptedExtensions.Contains(Path.GetExtension(file).ToLower()))
+                    acceptedFiles.Add(file);
+
+            InsertImagesForSite(acceptedFiles.ToArray());
         }
     }
 }
