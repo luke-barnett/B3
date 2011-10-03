@@ -1,26 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+﻿using System.Windows.Controls;
 
 namespace IndiaTango.Views
 {
     /// <summary>
     /// Interaction logic for ErroneousValuesDetectionView.xaml
     /// </summary>
-    public partial class ErroneousValuesDetectionView : Window
+    public partial class ErroneousValuesDetectionView
     {
         public ErroneousValuesDetectionView()
         {
             InitializeComponent();
+        }
+
+        private void MinimumValueTextChanged(object sender, TextChangedEventArgs e)
+        {
+            var bindingExpression = MinimumValue.GetBindingExpression(TextBox.TextProperty);
+            if (bindingExpression != null)
+                bindingExpression.UpdateSource();
+        }
+
+        private void MaximumValueTextChanged(object sender, TextChangedEventArgs e)
+        {
+            var bindingExpression = MaximumValue.GetBindingExpression(TextBox.TextProperty);
+            if (bindingExpression != null)
+                bindingExpression.UpdateSource();
         }
     }
 }

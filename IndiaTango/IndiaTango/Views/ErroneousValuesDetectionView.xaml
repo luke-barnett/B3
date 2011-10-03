@@ -155,6 +155,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
@@ -180,6 +181,21 @@
                     <charts:DateTimeAxis Title="Date" />
                 </charts:Chart.XAxis>
             </charts:Chart>
+            <Grid Grid.Row="2">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Stretch">
+                    <Slider Width="100" Minimum="{Binding MinimumMinimum}" Maximum="{Binding MaximumMinimum}" Value="{Binding Minimum, Mode=TwoWay}" TickPlacement="BottomRight" VerticalAlignment="Center" Margin="10" IsSnapToTickEnabled="True" TickFrequency="10" />
+                    <TextBox Name="MinimumValue" Text="{Binding MinimumValue, Mode=TwoWay, UpdateSourceTrigger=Explicit}"  VerticalAlignment="Center" Margin="0" FontSize="15" Width="50" TextChanged="MinimumValueTextChanged" />
+
+                    <Slider Width="100" Minimum="{Binding MinimumMaximum}" Maximum="{Binding MaximumMaximum}" Value="{Binding Maximum, Mode=TwoWay}" TickPlacement="BottomRight" VerticalAlignment="Center"  Margin="10" IsSnapToTickEnabled="True" TickFrequency="10" />
+                    <TextBox Name="MaximumValue" Text="{Binding MaximumValue, Mode=TwoWay, UpdateSourceTrigger=Explicit}" VerticalAlignment="Center" Margin="0" FontSize="15" Width="50" TextChanged="MaximumValueTextChanged" />
+                </StackPanel>
+                <Grid HorizontalAlignment="Right">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding WaitReason}" Visibility="{Binding WaitReasonVisibility}" VerticalAlignment="Center" />
+                        <ProgressBar Visibility="{Binding WaitReasonVisibility}" IsIndeterminate="True" VerticalAlignment="Center" Width="50" Height="15" Margin="5,0,0,0" />
+                    </StackPanel>
+                </Grid>
+            </Grid>
         </Grid>
     </Grid>
 </Window>

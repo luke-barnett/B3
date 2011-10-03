@@ -85,6 +85,15 @@ namespace IndiaTango.ViewModels
         private List<string> _samplingCapOptions = new List<string>();
         private int _selectedSamplingCapIndex;
 
+        private double _minimum;
+        private double _minimumMinimum;
+        private double _maximumMinimum;
+        private double _maximum;
+        private double _minimumMaximum;
+        private double _maximumMaximum;
+
+        private string _waitReason = string.Empty;
+
         #endregion
 
         #region Constants
@@ -102,6 +111,10 @@ namespace IndiaTango.ViewModels
         public Grid DetectionSettingsGrid { get { return _detectionSettingsGrid; } set { _detectionSettingsGrid = value; NotifyOfPropertyChange(() => DetectionSettingsGrid); } }
 
         public GridLength DetectionSettingsHeight { get { return _detectionSettingsHeight; } set { _detectionSettingsHeight = value; NotifyOfPropertyChange(() => DetectionSettingsHeight); } }
+
+        public string WaitReason { get { return _waitReason; } set { _waitReason = value; NotifyOfPropertyChange(() => WaitReason); NotifyOfPropertyChange(() => WaitReasonVisibility); } }
+
+        public Visibility WaitReasonVisibility { get { return (string.IsNullOrWhiteSpace(WaitReason)) ? Visibility.Collapsed : Visibility.Visible; } }
 
         #endregion
 
@@ -212,6 +225,80 @@ namespace IndiaTango.ViewModels
 
         #endregion
 
+        #region YAxisControls
+
+        /// <summary>
+        /// The value of the lower Y Axis range
+        /// </summary>
+        public double Minimum { get { return _minimum; } set { _minimum = value; NotifyOfPropertyChange(() => Minimum); NotifyOfPropertyChange(() => MinimumValue); MinimumMaximum = Minimum; YAxisRange = new DoubleRange(Minimum, Maximum); if (Math.Abs(Maximum - Minimum) < 0.001) Minimum -= 1; } }
+
+        /// <summary>
+        /// The minimum value as a readable string
+        /// </summary>
+        public string MinimumValue
+        {
+            get { return string.Format("{0:N2}", Minimum); }
+            set
+            {
+                var old = Minimum;
+                try
+                {
+                    Minimum = double.Parse(value);
+                }
+                catch (Exception)
+                {
+                    Minimum = old;
+                }
+            }
+        }
+
+        /// <summary>
+        /// The highest value the bottom range can reach
+        /// </summary>
+        public double MaximumMinimum { get { return _maximumMinimum; } set { _maximumMinimum = value; NotifyOfPropertyChange(() => MaximumMinimum); } }
+
+        /// <summary>
+        /// The lowest value the bottom range can reach
+        /// </summary>
+        public double MinimumMinimum { get { return _minimumMinimum; } set { _minimumMinimum = value; NotifyOfPropertyChange(() => MinimumMinimum); } }
+
+        /// <summary>
+        /// The value of the high Y Axis range
+        /// </summary>
+        public double Maximum { get { return _maximum; } set { _maximum = value; NotifyOfPropertyChange(() => Maximum); NotifyOfPropertyChange(() => MaximumValue); MaximumMinimum = Maximum; YAxisRange = new DoubleRange(Minimum, Maximum); if (Math.Abs(Maximum - Minimum) < 0.001) Maximum += 1; } }
+
+        /// <summary>
+        /// The maximum value as a readable string
+        /// </summary>
+        public string MaximumValue
+        {
+            get { return string.Format("{0:N2}", Maximum); }
+            set
+            {
+                var old = Maximum;
+                try
+                {
+                    Maximum = double.Parse(value);
+                }
+                catch (Exception)
+                {
+                    Maximum = old;
+                }
+            }
+        }
+
+        /// <summary>
+        /// The highest value the top range can reach
+        /// </summary>
+        public double MaximumMaximum { get { return _maximumMaximum; } set { _maximumMaximum = value; NotifyOfPropertyChange(() => MaximumMaximum); } }
+
+        /// <summary>
+        /// The lowest value the top range can reach
+        /// </summary>
+        public double MinimumMaximum { get { return _minimumMaximum; } set { _minimumMaximum = value; NotifyOfPropertyChange(() => MinimumMaximum); } }
+
+        #endregion
+
         #region Sampling Cap
 
         public List<string> SamplingCapOptions { get { return _samplingCapOptions; } set { _samplingCapOptions = value; NotifyOfPropertyChange(() => SamplingCapOptions); } }
@@ -282,9 +369,9 @@ namespace IndiaTango.ViewModels
 
         public void BtnUndo()
         {
-            if(_selectedSensor == null)
+            if (_selectedSensor == null)
                 return;
-            
+
             _selectedSensor.Sensor.Undo();
 
             UpdateUndoRedo();
@@ -514,8 +601,13 @@ namespace IndiaTango.ViewModels
 
             ChartSeries = generatedSeries;
 
-            YAxisRange = new DoubleRange(MinimumY() - 10, MaximumY() + 10);
             YAxisTitle = sensor.Sensor.Unit;
+
+            MaximumMaximum = MaximumY() + 10;
+            MinimumMinimum = MinimumY() - 10;
+
+            Maximum = MaximumMaximum;
+            Minimum = MinimumMinimum;
         }
 
         #region GraphBackground Modifiers
@@ -598,6 +690,7 @@ namespace IndiaTango.ViewModels
                              {
                                  foreach (var detectionMethod in methods)
                                  {
+                                     StartWaiting(string.Format("Checking {0}", detectionMethod.Name));
                                      AddToMissingValues(detectionMethod.GetDetectedValues(SelectedSensor.Sensor));
                                  }
                              };
@@ -607,12 +700,10 @@ namespace IndiaTango.ViewModels
                                              Debug.WriteLine("There are {0} items in Missing Values", MissingValues.Count);
                                              MissingValues = new List<ErroneousValue>(MissingValues);
 
-                                             Debug.WriteLine("Resetting cursor");
-                                             ViewCursor = Cursors.Arrow;
+                                             StopWaiting();
                                          };
 
-            Debug.WriteLine("Setting cursor to wait");
-            ViewCursor = Cursors.Wait;
+            StartWaiting("Looking for values...");
             Debug.WriteLine("Starting check");
             bw.RunWorkerAsync();
         }
@@ -629,6 +720,18 @@ namespace IndiaTango.ViewModels
             NotifyOfPropertyChange(() => RedoStates);
             NotifyOfPropertyChange(() => ShowUndoStates);
             NotifyOfPropertyChange(() => ShowRedoStates);
+        }
+
+        private void StartWaiting(string waitReason)
+        {
+            ViewCursor = Cursors.Wait;
+            WaitReason = waitReason;
+        }
+
+        private void StopWaiting()
+        {
+            ViewCursor = Cursors.Arrow;
+            WaitReason = string.Empty;
         }
     }
 }
