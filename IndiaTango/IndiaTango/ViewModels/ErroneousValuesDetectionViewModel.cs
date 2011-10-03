@@ -71,8 +71,8 @@ namespace IndiaTango.ViewModels
         private GraphableSensor _selectedSensor;
         private IDetectionMethod _selectedDetectionMethod;
         private Sensor Sensor { get { return (_selectedSensor == null) ? null : _selectedSensor.Sensor; } }
-        private List<IDetectionMethod> _selectedMethods = new List<IDetectionMethod>();
-        private List<ErroneousValue> _selectedMissingValues = new List<ErroneousValue>();
+        private readonly List<IDetectionMethod> _selectedMethods = new List<IDetectionMethod>();
+        private readonly List<ErroneousValue> _selectedMissingValues = new List<ErroneousValue>();
         private Visibility _detectionSettingsVisibility = Visibility.Collapsed;
         private Grid _detectionSettingsGrid;
         private GridLength _detectionSettingsHeight = new GridLength(0);
@@ -549,6 +549,9 @@ namespace IndiaTango.ViewModels
 
         private void CheckTheseMethods(IEnumerable<IDetectionMethod> methods)
         {
+            //Go to list to make sure it's not re-enumerating
+            methods = methods.ToList();
+
             if (methods.Count() == 0 || SelectedSensor == null)
                 return;
 
