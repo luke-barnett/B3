@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Caliburn.Micro;
@@ -37,6 +38,7 @@ namespace IndiaTango.ViewModels
 
         private Dataset _dataset;
         private GraphableSensor _selectedSensor;
+        private IDetectionMethod _selectedDetectionMethod;
         private Sensor Sensor { get { return (_selectedSensor == null) ? null : _selectedSensor.Sensor; } }
         private List<IDetectionMethod> _selectedMethods = new List<IDetectionMethod>();
         private List<string> _selectedMissingValues = new List<string>();
@@ -68,6 +70,8 @@ namespace IndiaTango.ViewModels
         }
 
         public GraphableSensor SelectedSensor { get { return _selectedSensor; } set { _selectedSensor = value; NotifyOfPropertyChange(() => SelectedSensor); FindErroneousValues(); } }
+
+        public IDetectionMethod SelectedDetectionMethod { get { return _selectedDetectionMethod; } set { _selectedDetectionMethod = value; NotifyOfPropertyChange(() => SelectedDetectionMethod); } }
 
         #region Public Lists
 
@@ -138,17 +142,29 @@ namespace IndiaTango.ViewModels
 
         #region Detection Methods
 
-        public void DetectionMethodChecked(IDetectionMethod method)
+        public void DetectionMethodChecked(RoutedEventArgs eventArgs)
         {
+            var checkBox = eventArgs.Source as CheckBox;
+            if (checkBox == null) return;
+
+            var method = (checkBox.Content as IDetectionMethod);
             Debug.WriteLine("Adding {0} to selected detection methods", method);
             _selectedMethods.Add(method);
+
+            SelectedDetectionMethod = method;
         }
 
-        public void DetectionMethodUnChecked(IDetectionMethod method)
+        public void DetectionMethodUnChecked(RoutedEventArgs eventArgs)
         {
+            var checkBox = eventArgs.Source as CheckBox;
+            if (checkBox == null) return;
+
+            var method = (checkBox.Content as IDetectionMethod);
             Debug.WriteLine("Removing {0} from selected detection methods", method);
             if (_selectedMethods.Contains(method))
                 _selectedMethods.Remove(method);
+
+            SelectedDetectionMethod = method;
         }
 
         #endregion
@@ -224,8 +240,10 @@ namespace IndiaTango.ViewModels
 
         private void FindErroneousValues()
         {
-            if(SelectedSensor == null)
+            if (SelectedSensor == null)
                 return;
+
+            MissingValues.Clear();
 
             foreach (var detectionMethod in _selectedMethods)
             {

@@ -20,10 +20,10 @@
             </Grid.RowDefinitions>
 
             <GroupBox Grid.Row="0" Header="Select Detection Methods" BorderBrush="OrangeRed" Margin="10 5 5 0">
-                <ItemsControl ItemsSource="{Binding DetectionMethods}">
-                    <ItemsControl.ItemTemplate>
+                <ListBox ItemsSource="{Binding DetectionMethods}" SelectedItem="{Binding SelectedDetectionMethod, Mode=TwoWay}" SelectionMode="Single" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                    <ListBox.ItemTemplate>
                         <HierarchicalDataTemplate>
-                            <CheckBox Content="{Binding This}" Margin="0,5,0,5">
+                            <CheckBox Content="{Binding This}" Margin="5,0,5,5">
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="Checked">
                                         <cal:ActionMessage MethodName="DetectionMethodChecked">
@@ -38,17 +38,17 @@
                                 </i:Interaction.Triggers>
                             </CheckBox>
                         </HierarchicalDataTemplate>
-                    </ItemsControl.ItemTemplate>
-                    <ItemsControl.ItemsPanel>
+                    </ListBox.ItemTemplate>
+                    <ListBox.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel Orientation="Horizontal" />
                         </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                </ItemsControl>
+                    </ListBox.ItemsPanel>
+                </ListBox>
             </GroupBox>
 
             <GroupBox Grid.Row="1" Header="Select Sensor" BorderBrush="OrangeRed" Margin="10 5 5 0">
-                <ListBox ItemsSource="{Binding SensorList}" SelectedItem="{Binding SelectedSensor}" SelectionMode="Single" />
+                <ListBox ItemsSource="{Binding SensorList}" SelectedItem="{Binding SelectedSensor, Mode=TwoWay}" SelectionMode="Single" />
             </GroupBox>
 
             <GroupBox Grid.Row="2" Header="Readings Found" BorderBrush="OrangeRed" Margin="10 5 5 0">
