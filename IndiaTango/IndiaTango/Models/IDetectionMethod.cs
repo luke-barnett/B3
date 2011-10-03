@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Windows.Controls;
 
 namespace IndiaTango.Models
@@ -36,5 +37,13 @@ namespace IndiaTango.Models
         /// Does this method give anything to graph?
         /// </summary>
         bool HasGraphableSeries { get; }
+
+        /// <summary>
+        /// Checks if a single value passes the detection method or not
+        /// </summary>
+        /// <param name="sensor">The sensor to use</param>
+        /// <param name="timeStamp">The timestamp of the value</param>
+        /// <returns>If the value gets past the detection method or not</returns>
+        bool CheckIndividualValue(Sensor sensor, DateTime timeStamp);
     }
 }

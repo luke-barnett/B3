@@ -15,12 +15,12 @@ namespace IndiaTango.ViewModels
 {
     class ErroneousValuesDetectionViewModel : BaseViewModel
     {
-        public ErroneousValuesDetectionViewModel(WindowManager windowManager, SimpleContainer container)
+        public ErroneousValuesDetectionViewModel(IWindowManager windowManager, SimpleContainer container)
         {
             _windowManager = windowManager;
             _container = container;
 
-            DetectionMethods = new List<IDetectionMethod> { new MissingValuesDetector(), new MissingValuesDetector(), new MissingValuesDetector(), new MissingValuesDetector() };
+            DetectionMethods = new List<IDetectionMethod> { new MissingValuesDetector() };
 
             var behaviours = new BehaviourManager { AllowMultipleEnabled = true };
 
@@ -53,7 +53,7 @@ namespace IndiaTango.ViewModels
 
         #region Private Variables
 
-        private readonly WindowManager _windowManager;
+        private readonly IWindowManager _windowManager;
         private readonly SimpleContainer _container;
 
         private Cursor _cursor = Cursors.Arrow;
@@ -132,7 +132,14 @@ namespace IndiaTango.ViewModels
             }
         }
 
-        public GraphableSensor SelectedSensor { get { return _selectedSensor; } set { _selectedSensor = value; NotifyOfPropertyChange(() => SelectedSensor); FindErroneousValues(); } }
+        public GraphableSensor SelectedSensor
+        {
+            get { return _selectedSensor; }
+            set
+            {
+                _selectedSensor = value; NotifyOfPropertyChange(() => SelectedSensor); FindErroneousValues();
+            }
+        }
 
         public IDetectionMethod SelectedDetectionMethod { get { return _selectedDetectionMethod; } set { _selectedDetectionMethod = value; NotifyOfPropertyChange(() => SelectedDetectionMethod); UpdateDetectionMethodsSettings(); } }
 
@@ -235,7 +242,7 @@ namespace IndiaTango.ViewModels
                     erroneousValue.Detectors.Add(method);
                     break;
                 }
-                if(!found)
+                if (!found)
                     MissingValues.Add(value);
             }
 
@@ -254,7 +261,7 @@ namespace IndiaTango.ViewModels
 
             SelectedDetectionMethod = method;
 
-            if(_selectedMethods.Count == 0)
+            if (_selectedMethods.Count == 0)
             {
                 MissingValues = new List<ErroneousValue>();
                 return;
@@ -321,7 +328,18 @@ namespace IndiaTango.ViewModels
 
         public void BtnMakeZero()
         {
+            EventLogger.LogInfo(GetType().ToString(), "Value updation started.");
 
+            if (_selectedMissingValues.Count == 0)
+                return;
+
+            var dates = (from values in _selectedMissingValues select values.TimeStamp).ToList();
+
+            _selectedSensor.Sensor.AddState(_selectedSensor.Sensor.CurrentState.MakeZero(dates));
+
+            Finalise("Selected values set to 0.");
+
+            Common.ShowMessageBox("Values Updated", "The selected values have been set to 0.", false, false);
         }
 
         public void BtnSpecify()
@@ -344,6 +362,8 @@ namespace IndiaTango.ViewModels
             {
                 _selectedMissingValues.Remove(removedItem);
             }
+
+            ActionButtonsEnabled = _selectedMissingValues.Count != 0;
         }
 
         public void SamplingCapChanged(SelectionChangedEventArgs e)
@@ -393,6 +413,27 @@ namespace IndiaTango.ViewModels
             DetectionSettingsHeight = (SelectedDetectionMethod == null || !SelectedDetectionMethod.HasSettings)
                                           ? new GridLength(0)
                                           : new GridLength(1, GridUnitType.Star);
+        }
+
+        private void Finalise(string taskPerformed)
+        {
+            foreach (var value in _selectedMissingValues)
+            {
+                var notErroneous = true;
+                foreach (var method in DetectionMethods)
+                {
+                    notErroneous = !method.CheckIndividualValue(_selectedSensor.Sensor, value.TimeStamp);
+                }
+                if (notErroneous)
+                    MissingValues.Remove(value);
+            }
+            MissingValues = new List<ErroneousValue>(MissingValues);
+
+            _selectedSensor.RefreshDataPoints();
+
+            UpdateGraph();
+
+            Common.RequestReason(_selectedSensor.Sensor, _container, _windowManager, _selectedSensor.Sensor.CurrentState, taskPerformed);
         }
 
         #region Graphing Methods

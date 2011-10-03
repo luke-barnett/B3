@@ -58,5 +58,10 @@ namespace IndiaTango.Models
         {
             get { return false; }
         }
+
+        public bool CheckIndividualValue(Sensor sensor, DateTime timeStamp)
+        {
+            return !sensor.CurrentState.Values.ContainsKey(timeStamp);
+        }
     }
 }
