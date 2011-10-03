@@ -42,6 +42,9 @@ namespace IndiaTango.ViewModels
         private Sensor Sensor { get { return (_selectedSensor == null) ? null : _selectedSensor.Sensor; } }
         private List<IDetectionMethod> _selectedMethods = new List<IDetectionMethod>();
         private List<string> _selectedMissingValues = new List<string>();
+        private Visibility _detectionSettingsVisibility = Visibility.Collapsed;
+        private Grid _detectionSettingsGrid;
+        private GridLength _detectionSettingsHeight = new GridLength(0);
 
         #endregion
 
@@ -54,6 +57,12 @@ namespace IndiaTango.ViewModels
         public Cursor ViewCursor { get { return _cursor; } set { _cursor = value; NotifyOfPropertyChange(() => ViewCursor); } }
 
         public bool ActionButtonsEnabled { get { return _actionButtonsEnabled; } set { _actionButtonsEnabled = value; NotifyOfPropertyChange(() => ActionButtonsEnabled); } }
+
+        public Visibility DetectionSettingsVisibility { get { return _detectionSettingsVisibility; } set { _detectionSettingsVisibility = value; NotifyOfPropertyChange(() => DetectionSettingsVisibility); } }
+
+        public Grid DetectionSettingsGrid { get { return _detectionSettingsGrid; } set { _detectionSettingsGrid = value; NotifyOfPropertyChange(() => DetectionSettingsGrid); } }
+
+        public GridLength DetectionSettingsHeight { get { return _detectionSettingsHeight; } set { _detectionSettingsHeight = value; NotifyOfPropertyChange(() => DetectionSettingsHeight); } }
 
         #endregion
 
@@ -71,7 +80,7 @@ namespace IndiaTango.ViewModels
 
         public GraphableSensor SelectedSensor { get { return _selectedSensor; } set { _selectedSensor = value; NotifyOfPropertyChange(() => SelectedSensor); FindErroneousValues(); } }
 
-        public IDetectionMethod SelectedDetectionMethod { get { return _selectedDetectionMethod; } set { _selectedDetectionMethod = value; NotifyOfPropertyChange(() => SelectedDetectionMethod); } }
+        public IDetectionMethod SelectedDetectionMethod { get { return _selectedDetectionMethod; } set { _selectedDetectionMethod = value; NotifyOfPropertyChange(() => SelectedDetectionMethod); UpdateDetectionMethodsSettings(); } }
 
         #region Public Lists
 
@@ -251,6 +260,21 @@ namespace IndiaTango.ViewModels
             }
 
             MissingValues = new List<string>(MissingValues);
+        }
+
+        private void UpdateDetectionMethodsSettings()
+        {
+            DetectionSettingsGrid = (SelectedDetectionMethod == null || !SelectedDetectionMethod.HasSettings)
+                                        ? null
+                                        : SelectedDetectionMethod.SettingsGrid;
+
+            DetectionSettingsVisibility = (SelectedDetectionMethod == null || !SelectedDetectionMethod.HasSettings)
+                                              ? Visibility.Collapsed
+                                              : Visibility.Visible;
+
+            DetectionSettingsHeight = (SelectedDetectionMethod == null || !SelectedDetectionMethod.HasSettings)
+                                          ? new GridLength(0)
+                                          : new GridLength(1, GridUnitType.Star);
         }
     }
 }

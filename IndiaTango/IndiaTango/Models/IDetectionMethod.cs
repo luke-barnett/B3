@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Windows.Controls;
 
 namespace IndiaTango.Models
 {
@@ -7,5 +8,9 @@ namespace IndiaTango.Models
         IDetectionMethod This { get; }
 
         List<string> GetDetectedValues();
+
+        bool HasSettings { get; }
+
+        Grid SettingsGrid { get; }
     }
 }

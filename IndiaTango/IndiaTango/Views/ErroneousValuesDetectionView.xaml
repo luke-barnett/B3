@@ -14,12 +14,13 @@
         <Grid Grid.Column="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
+                <RowDefinition Height="{Binding DetectionSettingsHeight}" />
                 <RowDefinition Height="2*" />
                 <RowDefinition Height="2*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <GroupBox Grid.Row="0" Header="Select Detection Methods" BorderBrush="OrangeRed" Margin="10 5 5 0">
+            <GroupBox Grid.Row="0" Header="Select Detection Methods" BorderBrush="OrangeRed" Margin="10,5,5,0">
                 <ListBox ItemsSource="{Binding DetectionMethods}" SelectedItem="{Binding SelectedDetectionMethod, Mode=TwoWay}" SelectionMode="Single" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                     <ListBox.ItemTemplate>
                         <HierarchicalDataTemplate>
@@ -47,11 +48,13 @@
                 </ListBox>
             </GroupBox>
 
-            <GroupBox Grid.Row="1" Header="Select Sensor" BorderBrush="OrangeRed" Margin="10 5 5 0">
+            <GroupBox Visibility="{Binding DetectionSettingsVisibility}" Content="{Binding DetectionSettingsGrid}" Grid.Row="1" Header="Selected Detection Modes Settings" BorderBrush="OrangeRed" Margin="10,5,5,0" />
+
+            <GroupBox Grid.Row="2" Header="Select Sensor" BorderBrush="OrangeRed" Margin="10,5,5,0">
                 <ListBox ItemsSource="{Binding SensorList}" SelectedItem="{Binding SelectedSensor, Mode=TwoWay}" SelectionMode="Single" />
             </GroupBox>
 
-            <GroupBox Grid.Row="2" Header="Readings Found" BorderBrush="OrangeRed" Margin="10 5 5 0">
+            <GroupBox Grid.Row="3" Header="Readings Found" BorderBrush="OrangeRed" Margin="10 5 5 0">
                 <ListBox ItemsSource="{Binding MissingValues}" SelectionMode="Multiple">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="SelectionChanged">
@@ -63,7 +66,7 @@
                 </ListBox>
             </GroupBox>
 
-            <GroupBox Grid.Row="3" Header="Actions" BorderBrush="OrangeRed" Margin="10 5 5 10">
+            <GroupBox Grid.Row="4" Header="Actions" BorderBrush="OrangeRed" Margin="10,5,5,0">
                 <StackPanel>
                     <WrapPanel Margin="5">
                         <toolkit:SplitButton FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding UndoButtonEnabled}" IsOpen="{Binding ShowUndoStates, Mode=TwoWay}">
