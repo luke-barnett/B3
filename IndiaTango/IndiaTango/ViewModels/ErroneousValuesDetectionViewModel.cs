@@ -21,6 +21,34 @@ namespace IndiaTango.ViewModels
             _container = container;
 
             DetectionMethods = new List<IDetectionMethod> { new MissingValuesDetector(), new MissingValuesDetector(), new MissingValuesDetector(), new MissingValuesDetector() };
+
+            var behaviours = new BehaviourManager { AllowMultipleEnabled = true };
+
+            var samplingBackground = new GraphBackgroundBehaviour(_samplingBackground) { IsEnabled = true };
+
+            behaviours.Behaviours.Add(samplingBackground);
+
+            var zooming = new CustomZoomBehaviour { IsEnabled = true };
+
+            zooming.ZoomRequested += (o, e) =>
+                                         {
+                                             var startTime = (DateTime)e.FirstPoint.X;
+                                             var endTime = (DateTime)e.SecondPoint.X;
+                                             _selectedSensor.SetUpperAndLowerBounds(startTime, endTime);
+                                             UpdateGraph();
+                                         };
+            zooming.ZoomResetRequested += o =>
+                                              {
+                                                  _selectedSensor.RemoveBounds();
+                                                  UpdateGraph();
+                                              };
+
+            behaviours.Behaviours.Add(zooming);
+
+            ChartBehaviour = behaviours;
+
+            SamplingCapOptions = new List<string>(Common.GenerateSamplingCaps());
+            SelectedSamplingCapIndex = 3;
         }
 
         #region Private Variables
@@ -53,6 +81,10 @@ namespace IndiaTango.ViewModels
         private List<LineSeries> _chartSeries = new List<LineSeries>();
         private string _yAxisTitle = string.Empty;
         private DoubleRange _yAxisRange = new DoubleRange(0, 0);
+
+        private readonly Canvas _samplingBackground = new Canvas { Visibility = Visibility.Collapsed };
+        private List<string> _samplingCapOptions = new List<string>();
+        private int _selectedSamplingCapIndex;
 
         #endregion
 
@@ -169,6 +201,14 @@ namespace IndiaTango.ViewModels
 
         #endregion
 
+        #region Sampling Cap
+
+        public List<string> SamplingCapOptions { get { return _samplingCapOptions; } set { _samplingCapOptions = value; NotifyOfPropertyChange(() => SamplingCapOptions); } }
+
+        public int SelectedSamplingCapIndex { get { return _selectedSamplingCapIndex; } set { _selectedSamplingCapIndex = value; NotifyOfPropertyChange(() => SelectedSamplingCapIndex); } }
+
+        #endregion
+
         #region Event Handlers
 
         #region Detection Methods
@@ -267,6 +307,21 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        public void SamplingCapChanged(SelectionChangedEventArgs e)
+        {
+            try
+            {
+                Common.MaximumGraphablePoints = int.Parse((string)e.AddedItems[0]);
+            }
+            catch (Exception)
+            {
+                Common.MaximumGraphablePoints = int.MaxValue;
+            }
+
+            if (_selectedSensor != null)
+                SampleValues(_selectedSensor, Common.MaximumGraphablePoints);
+        }
+
         #endregion
 
         private void FindErroneousValues()
@@ -301,13 +356,20 @@ namespace IndiaTango.ViewModels
                                           : new GridLength(1, GridUnitType.Star);
         }
 
+        #region Graphing Methods
+
         private void UpdateGraph()
         {
-
+            if (SelectedSensor == null)
+                ChartSeries = new List<LineSeries>();
+            else
+                SampleValues(SelectedSensor, Common.MaximumGraphablePoints);
         }
 
         private void SampleValues(GraphableSensor sensor, int maxPointCount)
         {
+            HideBackground();
+
             var generatedSeries = new List<LineSeries>();
 
             var sampleRate = sensor.DataPoints.Count() / maxPointCount;
@@ -316,22 +378,65 @@ namespace IndiaTango.ViewModels
 
             var series = (sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints.Where((x, index) => index % sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints);
 
-            generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour)});
+            generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour) });
 
-            if(sampleRate > 1)
+            if (sampleRate > 1)
                 ShowBackground();
 
             ChartSeries = generatedSeries;
+
+            YAxisRange = new DoubleRange(MinimumY() - 10, MaximumY() + 10);
+            YAxisTitle = sensor.Sensor.Unit;
         }
+
+        #region GraphBackground Modifiers
 
         private void HideBackground()
         {
-
+            _samplingBackground.Visibility = Visibility.Collapsed;
         }
 
         private void ShowBackground()
         {
-
+            _samplingBackground.Visibility = Visibility.Visible;
         }
+
+        #endregion
+
+        #region Range End Point Calculators
+
+        private float MaximumY()
+        {
+            DataPoint<DateTime, float> maxY = null;
+
+            foreach (var value in _selectedSensor.DataPoints)
+            {
+                if (maxY == null)
+                    maxY = value;
+                else if (value.Y > maxY.Y)
+                    maxY = value;
+            }
+
+            return maxY == null ? 10 : maxY.Y;
+        }
+
+        private float MinimumY()
+        {
+            DataPoint<DateTime, float> minY = null;
+
+            foreach (var value in _selectedSensor.DataPoints)
+            {
+                if (minY == null)
+                    minY = value;
+                else if (value.Y < minY.Y)
+                    minY = value;
+            }
+
+            return minY == null ? new DataPoint<DateTime, float>(DateTime.Now, 0).Y : minY.Y;
+        }
+
+        #endregion
+
+        #endregion
     }
 }

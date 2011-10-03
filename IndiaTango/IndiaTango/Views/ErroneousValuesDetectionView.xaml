@@ -25,7 +25,7 @@
                 <ListBox ItemsSource="{Binding DetectionMethods}" SelectedItem="{Binding SelectedDetectionMethod, Mode=TwoWay}" SelectionMode="Single" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                     <ListBox.ItemTemplate>
                         <HierarchicalDataTemplate>
-                            <CheckBox Content="{Binding This}" Margin="5,0,5,5">
+                            <CheckBox Content="{Binding This}" Margin="5">
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="Checked">
                                         <cal:ActionMessage MethodName="DetectionMethodChecked">
@@ -152,7 +152,27 @@
             </GroupBox>
         </Grid>
         <Grid Grid.Column="1" Margin="5">
-            <charts:Chart Title="{Binding ChartTitle}" Behaviour="{Binding ChartBehaviour}" multiseries:MultiSeries.Source="{Binding ChartSeries}" Margin="10,10,10,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="100" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Sampling Options: " VerticalAlignment="Center" HorizontalAlignment="Right" />
+                <ComboBox ItemsSource="{Binding SamplingCapOptions}" SelectedIndex="{Binding SelectedSamplingCapIndex, Mode=TwoWay}" Grid.Column="1">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectionChanged">
+                            <cal:ActionMessage MethodName="SamplingCapChanged">
+                                <cal:Parameter Value="$eventArgs" />
+                            </cal:ActionMessage>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </ComboBox>
+            </Grid>
+            <charts:Chart Title="{Binding ChartTitle}" Behaviour="{Binding ChartBehaviour}" multiseries:MultiSeries.Source="{Binding ChartSeries}" Grid.Row="1" Margin="10,10,10,0">
                 <charts:Chart.YAxis>
                     <charts:LinearAxis Title="{Binding YAxisTitle}" Range="{Binding YAxisRange}" />
                 </charts:Chart.YAxis>
