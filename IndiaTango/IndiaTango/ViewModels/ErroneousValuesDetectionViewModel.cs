@@ -59,7 +59,7 @@ namespace IndiaTango.ViewModels
         private Cursor _cursor = Cursors.Arrow;
         private List<IDetectionMethod> _detectionMethods = new List<IDetectionMethod>();
         private List<GraphableSensor> _sensorList = new List<GraphableSensor>();
-        private List<String> _missingValues = new List<string>();
+        private List<ErroneousValue> _missingValues = new List<ErroneousValue>();
         private bool _showUndoStates;
         private bool _showRedoStates;
         private bool _undoButtonEnabled;
@@ -71,7 +71,7 @@ namespace IndiaTango.ViewModels
         private IDetectionMethod _selectedDetectionMethod;
         private Sensor Sensor { get { return (_selectedSensor == null) ? null : _selectedSensor.Sensor; } }
         private List<IDetectionMethod> _selectedMethods = new List<IDetectionMethod>();
-        private List<string> _selectedMissingValues = new List<string>();
+        private List<ErroneousValue> _selectedMissingValues = new List<ErroneousValue>();
         private Visibility _detectionSettingsVisibility = Visibility.Collapsed;
         private Grid _detectionSettingsGrid;
         private GridLength _detectionSettingsHeight = new GridLength(0);
@@ -142,7 +142,7 @@ namespace IndiaTango.ViewModels
 
         public List<GraphableSensor> SensorList { get { return _sensorList; } set { _sensorList = value; NotifyOfPropertyChange(() => SensorList); } }
 
-        public List<string> MissingValues { get { return _missingValues; } set { _missingValues = value; NotifyOfPropertyChange(() => MissingValues); } }
+        public List<ErroneousValue> MissingValues { get { return _missingValues; } set { _missingValues = value; NotifyOfPropertyChange(() => MissingValues); } }
 
         #endregion
 
@@ -223,6 +223,23 @@ namespace IndiaTango.ViewModels
             _selectedMethods.Add(method);
 
             SelectedDetectionMethod = method;
+
+            if (_selectedSensor == null || method == null)
+                return;
+            foreach (var value in method.GetDetectedValues(_selectedSensor.Sensor))
+            {
+                var found = false;
+                foreach (var erroneousValue in MissingValues.Where(erroneousValue => value.Equals(erroneousValue)))
+                {
+                    found = true;
+                    erroneousValue.Detectors.Add(method);
+                    break;
+                }
+                if(!found)
+                    MissingValues.Add(value);
+            }
+
+            MissingValues = new List<ErroneousValue>(MissingValues);
         }
 
         public void DetectionMethodUnChecked(RoutedEventArgs eventArgs)
@@ -236,6 +253,28 @@ namespace IndiaTango.ViewModels
                 _selectedMethods.Remove(method);
 
             SelectedDetectionMethod = method;
+
+            if(_selectedMethods.Count == 0)
+            {
+                MissingValues = new List<ErroneousValue>();
+                return;
+            }
+
+            for (var i = 0; i < MissingValues.Count; i++)
+            {
+                var value = MissingValues[i];
+
+                if (!value.Detectors.Contains(method)) continue;
+
+                value.Detectors.Remove(method);
+
+                if (value.Detectors.Count == 0)
+                {
+                    MissingValues.Remove(value);
+                }
+            }
+
+            MissingValues = new List<ErroneousValue>(MissingValues);
         }
 
         #endregion
@@ -297,11 +336,11 @@ namespace IndiaTango.ViewModels
             //Add all new values
             foreach (var addedItem in e.AddedItems)
             {
-                _selectedMissingValues.Add((string)addedItem);
+                _selectedMissingValues.Add((ErroneousValue)addedItem);
             }
 
             //Remove any removed values
-            foreach (var removedItem in e.RemovedItems.Cast<string>().Where(removedItem => _selectedMissingValues.Contains(removedItem)))
+            foreach (var removedItem in e.RemovedItems.Cast<ErroneousValue>().Where(removedItem => _selectedMissingValues.Contains(removedItem)))
             {
                 _selectedMissingValues.Remove(removedItem);
             }
@@ -333,10 +372,10 @@ namespace IndiaTango.ViewModels
 
             foreach (var detectionMethod in _selectedMethods)
             {
-                MissingValues.AddRange(detectionMethod.GetDetectedValues());
+                MissingValues.AddRange(detectionMethod.GetDetectedValues(SelectedSensor.Sensor));
             }
 
-            MissingValues = new List<string>(MissingValues);
+            MissingValues = new List<ErroneousValue>(MissingValues);
 
             UpdateGraph();
         }

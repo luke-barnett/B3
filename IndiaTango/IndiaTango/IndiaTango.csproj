@@ -87,6 +87,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Models\ErroneousValue.cs" />
     <Compile Include="Models\IDetectionMethod.cs" />
     <Compile Include="Models\FormulaEvaluator.cs" />
     <Compile Include="Models\CustomSelectionBehaviour.cs" />

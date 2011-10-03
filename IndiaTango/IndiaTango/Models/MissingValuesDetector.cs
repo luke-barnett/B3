@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Windows.Controls;
 
 namespace IndiaTango.Models
@@ -10,14 +12,31 @@ namespace IndiaTango.Models
             return "Missing Values";
         }
 
+        public string Name
+        {
+            get { return ToString(); }
+        }
+
         public IDetectionMethod This
         {
             get { return this; }
         }
 
-        public List<string> GetDetectedValues()
+        public List<ErroneousValue> GetDetectedValues(Sensor sensorToCheck)
         {
-            return new List<string> { "This is a bad bad value" };
+            Debug.WriteLine("Checking for missing values");
+
+            var detectedValues = new List<ErroneousValue>();
+            
+            for (var time = sensorToCheck.Owner.StartTimeStamp; time <= sensorToCheck.Owner.EndTimeStamp; time = time.AddMinutes(sensorToCheck.Owner.DataInterval))
+            {
+                if (!sensorToCheck.CurrentState.Values.ContainsKey(time))
+                {
+                    detectedValues.Add(new ErroneousValue(time, this));
+                }
+            }
+
+            return detectedValues;
         }
 
         public bool HasSettings
