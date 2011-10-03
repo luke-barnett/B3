@@ -87,6 +87,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Models\IDetectionMethod.cs" />
     <Compile Include="Models\FormulaEvaluator.cs" />
     <Compile Include="Models\CustomSelectionBehaviour.cs" />
     <Compile Include="Models\DatasetExporter.cs" />
@@ -96,6 +97,7 @@
     <Compile Include="Models\CustomZoomBehaviour.cs" />
     <Compile Include="Models\GraphBackgroundBehaviour.cs" />
     <Compile Include="Models\ListedSensor.cs" />
+    <Compile Include="Models\MissingValuesDetector.cs" />
     <Compile Include="Models\NamedBitmap.cs" />
     <Compile Include="Models\SensorStateListObject.cs" />
     <Compile Include="Models\SensorTemplate.cs" />
