@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
@@ -137,7 +138,12 @@ namespace IndiaTango.ViewModels
             get { return _selectedSensor; }
             set
             {
-                _selectedSensor = value; NotifyOfPropertyChange(() => SelectedSensor); FindErroneousValues();
+                if (ViewCursor != Cursors.Wait)
+                {
+                    _selectedSensor = value;
+                    FindErroneousValues();
+                }
+                NotifyOfPropertyChange(() => SelectedSensor);
             }
         }
 
@@ -233,20 +239,8 @@ namespace IndiaTango.ViewModels
 
             if (_selectedSensor == null || method == null)
                 return;
-            foreach (var value in method.GetDetectedValues(_selectedSensor.Sensor))
-            {
-                var found = false;
-                foreach (var erroneousValue in MissingValues.Where(erroneousValue => value.Equals(erroneousValue)))
-                {
-                    found = true;
-                    erroneousValue.Detectors.Add(method);
-                    break;
-                }
-                if (!found)
-                    MissingValues.Add(value);
-            }
 
-            MissingValues = new List<ErroneousValue>(MissingValues);
+            CheckTheseMethods(new Collection<IDetectionMethod> { method });
         }
 
         public void DetectionMethodUnChecked(RoutedEventArgs eventArgs)
@@ -352,7 +346,7 @@ namespace IndiaTango.ViewModels
             var specifyVal = _container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel") as SpecifyValueViewModel;
             _windowManager.ShowDialog(specifyVal);
 
-            if(specifyVal == null || specifyVal.Text == null)
+            if (specifyVal == null || specifyVal.Text == null)
                 return;
             try
             {
@@ -416,12 +410,7 @@ namespace IndiaTango.ViewModels
 
             MissingValues.Clear();
 
-            foreach (var detectionMethod in _selectedMethods)
-            {
-                MissingValues.AddRange(detectionMethod.GetDetectedValues(SelectedSensor.Sensor));
-            }
-
-            MissingValues = new List<ErroneousValue>(MissingValues);
+            CheckTheseMethods(_selectedMethods);
 
             UpdateGraph();
         }
@@ -544,5 +533,51 @@ namespace IndiaTango.ViewModels
         #endregion
 
         #endregion
+
+        private void AddToMissingValues(IEnumerable<ErroneousValue> values)
+        {
+            foreach (var erroneousValue in values)
+            {
+                var item = MissingValues.Where(x => x != null && x.Equals(erroneousValue)).DefaultIfEmpty(null).FirstOrDefault();
+
+                if (item == null)
+                    MissingValues.Add(erroneousValue);
+                else
+                    item.Detectors.AddRange(erroneousValue.Detectors);
+            }
+        }
+
+        private void CheckTheseMethods(IEnumerable<IDetectionMethod> methods)
+        {
+            if (methods.Count() == 0 || SelectedSensor == null)
+                return;
+
+            Debug.WriteLine("We are checking these methods {0}", methods);
+            Debug.WriteLine("For this sensor {0}", SelectedSensor);
+
+            var bw = new BackgroundWorker();
+
+            bw.DoWork += (o, e) =>
+                             {
+                                 foreach (var detectionMethod in methods)
+                                 {
+                                     AddToMissingValues(detectionMethod.GetDetectedValues(SelectedSensor.Sensor));
+                                 }
+                             };
+
+            bw.RunWorkerCompleted += (o, e) =>
+                                         {
+                                             Debug.WriteLine("There are {0} items in Missing Values", MissingValues.Count);
+                                             MissingValues = new List<ErroneousValue>(MissingValues);
+
+                                             Debug.WriteLine("Resetting cursor");
+                                             ViewCursor = Cursors.Arrow;
+                                         };
+
+            Debug.WriteLine("Setting cursor to wait");
+            ViewCursor = Cursors.Wait;
+            Debug.WriteLine("Starting check");
+            bw.RunWorkerAsync();
+        }
     }
 }
