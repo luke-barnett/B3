@@ -272,6 +272,12 @@
                             </Button>
                             <TextBlock Text="Revert All Data" FontSize="15" VerticalAlignment="Center" Margin="5" />
                         </WrapPanel>
+                        <WrapPanel>
+                            <Button Name="btnErroneousValues" FontSize="15" Width="100" Height="100" Margin="5" IsEnabled="{Binding ActionButtonsEnabled}" >
+                                <Image Source="/IndiaTango;component/Images/find_range.png" Width="64" Height="64" />
+                            </Button>
+                            <TextBlock  Text="Find Erroneous Values" FontSize="15" VerticalAlignment="Center" Margin="5" />
+                        </WrapPanel>
                     </StackPanel>
                 </ScrollViewer>
             </Grid>

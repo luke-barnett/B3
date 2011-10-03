@@ -578,6 +578,17 @@ namespace IndiaTango.ViewModels
 			}
 		}
 
+        public void btnErroneousValues()
+        {
+            var erroneousValuesView =
+                (_container.GetInstance(typeof (ErroneousValuesDetectionViewModel), "ErroneousValuesDetectionViewModel")
+                 as ErroneousValuesDetectionViewModel);
+            if(erroneousValuesView == null)
+                return;
+            erroneousValuesView.DataSet = _ds;
+            _windowManager.ShowWindow(erroneousValuesView);
+        }
+
         public void btnSiteCreate()
         {
             CreateEditDeleteVisible = Visibility.Collapsed;
