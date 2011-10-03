@@ -48,11 +48,19 @@
             </GroupBox>
 
             <GroupBox Grid.Row="1" Header="Select Sensor" BorderBrush="OrangeRed" Margin="10 5 5 0">
-                <ListBox ItemsSource="{Binding SensorList}" />
+                <ListBox ItemsSource="{Binding SensorList}" SelectedItem="{Binding SelectedSensor}" SelectionMode="Single" />
             </GroupBox>
 
             <GroupBox Grid.Row="2" Header="Readings Found" BorderBrush="OrangeRed" Margin="10 5 5 0">
-                <ListBox ItemsSource="{Binding MissingValues}" />
+                <ListBox ItemsSource="{Binding MissingValues}" SelectionMode="Multiple">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectionChanged">
+                            <cal:ActionMessage MethodName="MissingValuesSelectionChanged">
+                                <cal:Parameter Value="$eventArgs" />
+                            </cal:ActionMessage>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </ListBox>
             </GroupBox>
 
             <GroupBox Grid.Row="3" Header="Actions" BorderBrush="OrangeRed" Margin="10 5 5 10">

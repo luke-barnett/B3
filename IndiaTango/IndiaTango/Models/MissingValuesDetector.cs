@@ -1,4 +1,6 @@
-﻿namespace IndiaTango.Models
+﻿using System.Collections.Generic;
+
+namespace IndiaTango.Models
 {
     public class MissingValuesDetector : IDetectionMethod
     {
@@ -10,6 +12,11 @@
         public IDetectionMethod This
         {
             get { return this; }
+        }
+
+        public List<string> GetDetectedValues()
+        {
+            return new List<string> {"This is a bad bad value"};
         }
     }
 }

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
+using System.Windows.Controls;
 using System.Windows.Input;
 using Caliburn.Micro;
 using IndiaTango.Models;
@@ -36,6 +38,8 @@ namespace IndiaTango.ViewModels
         private Dataset _dataset;
         private GraphableSensor _selectedSensor;
         private Sensor Sensor { get { return (_selectedSensor == null) ? null : _selectedSensor.Sensor; } }
+        private List<IDetectionMethod> _selectedMethods = new List<IDetectionMethod>();
+        private List<string> _selectedMissingValues = new List<string>();
 
         #endregion
 
@@ -63,13 +67,15 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        public GraphableSensor SelectedSensor { get { return _selectedSensor; } set { _selectedSensor = value; NotifyOfPropertyChange(() => SelectedSensor); FindErroneousValues(); } }
+
         #region Public Lists
 
         public List<IDetectionMethod> DetectionMethods { get { return _detectionMethods; } set { _detectionMethods = value; NotifyOfPropertyChange(() => DetectionMethods); } }
 
         public List<GraphableSensor> SensorList { get { return _sensorList; } set { _sensorList = value; NotifyOfPropertyChange(() => SensorList); } }
 
-        public List<String> MissingValues { get { return _missingValues; } set { _missingValues = value; NotifyOfPropertyChange(() => MissingValues); } }
+        public List<string> MissingValues { get { return _missingValues; } set { _missingValues = value; NotifyOfPropertyChange(() => MissingValues); } }
 
         #endregion
 
@@ -130,16 +136,19 @@ namespace IndiaTango.ViewModels
 
         #region Event Handlers
 
-        #region Dectecion Methods
+        #region Detection Methods
 
-        public void DetectionMethodChecked(string name)
+        public void DetectionMethodChecked(IDetectionMethod method)
         {
-            
+            Debug.WriteLine("Adding {0} to selected detection methods", method);
+            _selectedMethods.Add(method);
         }
 
-        public void DetectionMethodUnChecked(string name)
+        public void DetectionMethodUnChecked(IDetectionMethod method)
         {
-            
+            Debug.WriteLine("Removing {0} from selected detection methods", method);
+            if (_selectedMethods.Contains(method))
+                _selectedMethods.Remove(method);
         }
 
         #endregion
@@ -196,6 +205,34 @@ namespace IndiaTango.ViewModels
 
         #endregion
 
+        public void MissingValuesSelectionChanged(SelectionChangedEventArgs e)
+        {
+            //Add all new values
+            foreach (var addedItem in e.AddedItems)
+            {
+                _selectedMissingValues.Add((string)addedItem);
+            }
+
+            //Remove any removed values
+            foreach (var removedItem in e.RemovedItems.Cast<string>().Where(removedItem => _selectedMissingValues.Contains(removedItem)))
+            {
+                _selectedMissingValues.Remove(removedItem);
+            }
+        }
+
         #endregion
+
+        private void FindErroneousValues()
+        {
+            if(SelectedSensor == null)
+                return;
+
+            foreach (var detectionMethod in _selectedMethods)
+            {
+                MissingValues.AddRange(detectionMethod.GetDetectedValues());
+            }
+
+            MissingValues = new List<string>(MissingValues);
+        }
     }
 }
