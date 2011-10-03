@@ -6,8 +6,10 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using Caliburn.Micro;
 using IndiaTango.Models;
+using Visiblox.Charts;
 
 namespace IndiaTango.ViewModels
 {
@@ -46,6 +48,12 @@ namespace IndiaTango.ViewModels
         private Grid _detectionSettingsGrid;
         private GridLength _detectionSettingsHeight = new GridLength(0);
 
+        private string _chartTitle = string.Empty;
+        private BehaviourManager _chartBehaviour;
+        private List<LineSeries> _chartSeries = new List<LineSeries>();
+        private string _yAxisTitle = string.Empty;
+        private DoubleRange _yAxisRange = new DoubleRange(0, 0);
+
         #endregion
 
         #region Constants
@@ -63,6 +71,20 @@ namespace IndiaTango.ViewModels
         public Grid DetectionSettingsGrid { get { return _detectionSettingsGrid; } set { _detectionSettingsGrid = value; NotifyOfPropertyChange(() => DetectionSettingsGrid); } }
 
         public GridLength DetectionSettingsHeight { get { return _detectionSettingsHeight; } set { _detectionSettingsHeight = value; NotifyOfPropertyChange(() => DetectionSettingsHeight); } }
+
+        #endregion
+
+        #region ChartBindings
+
+        public string ChartTitle { get { return _chartTitle; } set { _chartTitle = value; NotifyOfPropertyChange(() => ChartTitle); } }
+
+        public BehaviourManager ChartBehaviour { get { return _chartBehaviour; } set { _chartBehaviour = value; NotifyOfPropertyChange(() => ChartBehaviour); } }
+
+        public List<LineSeries> ChartSeries { get { return _chartSeries; } set { _chartSeries = value; NotifyOfPropertyChange(() => ChartSeries); } }
+
+        public string YAxisTitle { get { return _yAxisTitle; } set { _yAxisTitle = value; NotifyOfPropertyChange(() => YAxisTitle); } }
+
+        public DoubleRange YAxisRange { get { return _yAxisRange; } set { _yAxisRange = value; NotifyOfPropertyChange(() => YAxisRange); } }
 
         #endregion
 
@@ -260,6 +282,8 @@ namespace IndiaTango.ViewModels
             }
 
             MissingValues = new List<string>(MissingValues);
+
+            UpdateGraph();
         }
 
         private void UpdateDetectionMethodsSettings()
@@ -275,6 +299,39 @@ namespace IndiaTango.ViewModels
             DetectionSettingsHeight = (SelectedDetectionMethod == null || !SelectedDetectionMethod.HasSettings)
                                           ? new GridLength(0)
                                           : new GridLength(1, GridUnitType.Star);
+        }
+
+        private void UpdateGraph()
+        {
+
+        }
+
+        private void SampleValues(GraphableSensor sensor, int maxPointCount)
+        {
+            var generatedSeries = new List<LineSeries>();
+
+            var sampleRate = sensor.DataPoints.Count() / maxPointCount;
+
+            Debug.Print("Number of points: {0} Max Number {1} Sampling rate {2}", sensor.DataPoints.Count(), maxPointCount, sampleRate);
+
+            var series = (sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints.Where((x, index) => index % sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints);
+
+            generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour)});
+
+            if(sampleRate > 1)
+                ShowBackground();
+
+            ChartSeries = generatedSeries;
+        }
+
+        private void HideBackground()
+        {
+
+        }
+
+        private void ShowBackground()
+        {
+
         }
     }
 }

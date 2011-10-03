@@ -12,5 +12,7 @@ namespace IndiaTango.Models
         bool HasSettings { get; }
 
         Grid SettingsGrid { get; }
+
+        bool HasGraphableSeries { get; }
     }
 }

@@ -34,5 +34,10 @@ namespace IndiaTango.Models
                 return wrapperGrid;
             }
         }
+
+        public bool HasGraphableSeries
+        {
+            get { return false; }
+        }
     }
 }

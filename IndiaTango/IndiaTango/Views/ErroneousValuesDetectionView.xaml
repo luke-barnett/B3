@@ -5,6 +5,7 @@
         xmlns:cal="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro"
         xmlns:charts="clr-namespace:Visiblox.Charts;assembly=Visiblox.Charts"
         xmlns:toolkit="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit/extended"
+        xmlns:multiseries="clr-namespace:IndiaTango.MultiSeriesBinding"
         Title="{Binding ViewTitle}" Icon="{Binding Icon}" Cursor="{Binding ViewCursor}" Height="700" Width="950" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.ColumnDefinitions>
@@ -151,7 +152,14 @@
             </GroupBox>
         </Grid>
         <Grid Grid.Column="1" Margin="5">
-            <charts:Chart />
+            <charts:Chart Title="{Binding ChartTitle}" Behaviour="{Binding ChartBehaviour}" multiseries:MultiSeries.Source="{Binding ChartSeries}" Margin="10,10,10,0">
+                <charts:Chart.YAxis>
+                    <charts:LinearAxis Title="{Binding YAxisTitle}" Range="{Binding YAxisRange}" />
+                </charts:Chart.YAxis>
+                <charts:Chart.XAxis>
+                    <charts:DateTimeAxis Title="Date" />
+                </charts:Chart.XAxis>
+            </charts:Chart>
         </Grid>
     </Grid>
 </Window>
