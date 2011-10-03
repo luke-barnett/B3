@@ -63,8 +63,6 @@ namespace IndiaTango.ViewModels
         private List<ErroneousValue> _missingValues = new List<ErroneousValue>();
         private bool _showUndoStates;
         private bool _showRedoStates;
-        private bool _undoButtonEnabled;
-        private bool _redoButtonEnabled;
         private bool _actionButtonsEnabled;
 
         private Dataset _dataset;
@@ -163,7 +161,7 @@ namespace IndiaTango.ViewModels
 
         #region Undo
 
-        public bool UndoButtonEnabled { get { return _undoButtonEnabled; } set { _undoButtonEnabled = value; NotifyOfPropertyChange(() => UndoButtonEnabled); } }
+        public bool UndoButtonEnabled { get { return SelectedSensor != null && !SelectedSensor.Sensor.CurrentState.IsRaw; } }
 
         public bool ShowUndoStates { get { return _showUndoStates; } set { _showUndoStates = value; NotifyOfPropertyChange(() => ShowUndoStates); } }
 
@@ -196,7 +194,7 @@ namespace IndiaTango.ViewModels
 
         #region Redo
 
-        public bool RedoButtonEnabled { get { return _redoButtonEnabled; } set { _redoButtonEnabled = value; NotifyOfPropertyChange(() => RedoButtonEnabled); } }
+        public bool RedoButtonEnabled { get { return SelectedSensor != null && SelectedSensor.Sensor.RedoStates.Count > 0; } }
 
         public bool ShowRedoStates { get { return _showRedoStates; } set { _showRedoStates = value; NotifyOfPropertyChange(() => ShowRedoStates); } }
 
@@ -284,12 +282,30 @@ namespace IndiaTango.ViewModels
 
         public void BtnUndo()
         {
+            if(_selectedSensor == null)
+                return;
+            
+            _selectedSensor.Sensor.Undo();
 
+            UpdateUndoRedo();
         }
 
-        public void UndoPathSelected()
+        public void UndoPathSelected(SelectionChangedEventArgs e)
         {
+            if (e.AddedItems.Count <= 0 || e.AddedItems[0] == null) return;
 
+            var item = (SensorStateListObject)e.AddedItems[0];
+
+            if (SelectedSensor != null && item != null)
+            {
+                if (item.IsRaw)
+                    SelectedSensor.Sensor.RevertToRaw();
+                else
+                    SelectedSensor.Sensor.Undo(item.State.EditTimestamp);
+            }
+
+            ShowUndoStates = false;
+            UpdateUndoRedo();
         }
 
         #endregion
@@ -298,12 +314,25 @@ namespace IndiaTango.ViewModels
 
         public void BtnRedo()
         {
+            if (_selectedSensor == null)
+                return;
 
+            _selectedSensor.Sensor.Redo();
+
+            UpdateUndoRedo();
         }
 
-        public void RedoPathSelected()
+        public void RedoPathSelected(SelectionChangedEventArgs e)
         {
+            if (e.AddedItems.Count <= 0 || e.AddedItems[0] == null) return;
 
+            var item = (SensorStateListObject)e.AddedItems[0];
+
+            if (SelectedSensor != null && item != null)
+                SelectedSensor.Sensor.Redo(item.State.EditTimestamp);
+
+            ShowRedoStates = false;
+            UpdateUndoRedo();
         }
 
         #endregion
@@ -317,7 +346,8 @@ namespace IndiaTango.ViewModels
 
         public void BtnExtrapolate()
         {
-
+            //TODO: Make me work
+            Common.ShowFeatureNotImplementedMessageBox();
         }
 
         public void BtnMakeZero()
@@ -334,6 +364,8 @@ namespace IndiaTango.ViewModels
             Finalise("Selected values set to 0.");
 
             Common.ShowMessageBox("Values Updated", "The selected values have been set to 0.", false, false);
+
+            UpdateUndoRedo();
         }
 
         public void BtnSpecify()
@@ -365,6 +397,8 @@ namespace IndiaTango.ViewModels
                 var exit = Common.ShowMessageBox("An Error Occured", "Please enter a valid number.", true, true);
                 if (exit) return;
             }
+
+            UpdateUndoRedo();
         }
 
         #endregion
@@ -444,7 +478,7 @@ namespace IndiaTango.ViewModels
             }
             MissingValues = new List<ErroneousValue>(MissingValues);
 
-            _selectedSensor.RefreshDataPoints();
+            SelectedSensor.RefreshDataPoints();
 
             UpdateGraph();
 
@@ -581,6 +615,20 @@ namespace IndiaTango.ViewModels
             ViewCursor = Cursors.Wait;
             Debug.WriteLine("Starting check");
             bw.RunWorkerAsync();
+        }
+
+        private void UpdateUndoRedo()
+        {
+            SelectedSensor.RefreshDataPoints();
+
+            UpdateGraph();
+
+            NotifyOfPropertyChange(() => UndoButtonEnabled);
+            NotifyOfPropertyChange(() => RedoButtonEnabled);
+            NotifyOfPropertyChange(() => UndoStates);
+            NotifyOfPropertyChange(() => RedoStates);
+            NotifyOfPropertyChange(() => ShowUndoStates);
+            NotifyOfPropertyChange(() => ShowRedoStates);
         }
     }
 }
