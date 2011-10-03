@@ -7,6 +7,7 @@ using System.Collections;
 
 namespace IndiaTango.Models
 {
+    public enum SummaryType { Average, Sum }
     /// <summary>
     /// Represents a Sensor, which resembles a sensor attached to a buoy, measuring a given water quality parameter.
     /// </summary>
@@ -24,6 +25,7 @@ namespace IndiaTango.Models
         private string _serialNumber;
         private float _lowerLimit;
         private float _upperLimit;
+        private SummaryType _summaryType;
         #endregion
 
 
