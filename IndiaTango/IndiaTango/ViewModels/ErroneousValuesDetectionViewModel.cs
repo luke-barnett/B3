@@ -21,7 +21,10 @@ namespace IndiaTango.ViewModels
             _windowManager = windowManager;
             _container = container;
 
-            DetectionMethods = new List<IDetectionMethod> { new MissingValuesDetector(), new MinMaxRateOfChangeDetector() };
+            var minMaxRateofChangeDetector = new MinMaxRateOfChangeDetector();
+            minMaxRateofChangeDetector.GraphUpdateNeeded += UpdateGraph;
+
+            DetectionMethods = new List<IDetectionMethod> { new MissingValuesDetector(), minMaxRateofChangeDetector };
 
             var behaviours = new BehaviourManager { AllowMultipleEnabled = true };
 
@@ -552,7 +555,7 @@ namespace IndiaTango.ViewModels
 
             DetectionSettingsHeight = (SelectedDetectionMethod == null || !SelectedDetectionMethod.HasSettings)
                                           ? new GridLength(0)
-                                          : new GridLength(1, GridUnitType.Star);
+                                          : GridLength.Auto;
         }
 
         private void Finalise(string taskPerformed)

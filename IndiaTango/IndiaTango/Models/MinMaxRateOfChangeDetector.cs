@@ -6,11 +6,14 @@ using Visiblox.Charts;
 
 namespace IndiaTango.Models
 {
-    class MinMaxRateOfChangeDetector : IDetectionMethod
+    public class MinMaxRateOfChangeDetector : IDetectionMethod
     {
         private AboveMaxValueDetector _aboveMaxValue;
         private BelowMinValueDetector _belowMinValue;
         private ToHighRateOfChangeDetector _highRateOfChange;
+        private bool _showMaxMinLines;
+
+        public event UpdateGraph GraphUpdateNeeded;
 
         public MinMaxRateOfChangeDetector()
         {
@@ -51,7 +54,7 @@ namespace IndiaTango.Models
 
         public bool HasSettings
         {
-            get { return false; }
+            get { return true; }
         }
 
         public Grid SettingsGrid
@@ -59,14 +62,25 @@ namespace IndiaTango.Models
             get
             {
                 var wrapperGrid = new Grid();
-                wrapperGrid.Children.Add(new TextBlock { Text = "No Settings" });
+                var checkBox = new CheckBox {Content = new TextBlock {Text = "Graph Upper and Lower Limits"}};
+                checkBox.Checked += (o, e) =>
+                                        {
+                                            _showMaxMinLines = true;
+                                            GraphUpdateNeeded();
+                                        };
+                checkBox.Unchecked += (o, e) =>
+                                          {
+                                              _showMaxMinLines = false;
+                                              GraphUpdateNeeded();
+                                          };
+                wrapperGrid.Children.Add(checkBox);
                 return wrapperGrid;
             }
         }
 
         public bool HasGraphableSeries
         {
-            get { return true; }
+            get { return _showMaxMinLines; }
         }
 
         public bool CheckIndividualValue(Sensor sensor, DateTime timeStamp)
@@ -88,4 +102,6 @@ namespace IndiaTango.Models
             return Name;
         }
     }
+
+    public delegate void UpdateGraph();
 }
