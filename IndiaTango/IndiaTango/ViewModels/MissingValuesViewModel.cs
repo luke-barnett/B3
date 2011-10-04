@@ -151,7 +151,10 @@ namespace IndiaTango.ViewModels
             {
                 _sensor = value;
                 NotifyOfPropertyChange(() => SelectedSensor);
-                MissingValues = _sensor.CurrentState.GetMissingTimes(15, _ds.StartTimeStamp, _ds.EndTimeStamp);
+
+                if(_sensor != null && _sensor.CurrentState != null)
+                    MissingValues = _sensor.CurrentState.GetMissingTimes(15, _ds.StartTimeStamp, _ds.EndTimeStamp);
+
                 NotifyOfPropertyChange(() => SensorName);
                 NotifyOfPropertyChange(() => MissingCount);
                 NotifyOfPropertyChange(() => RedoButtonEnabled);
@@ -602,6 +605,60 @@ namespace IndiaTango.ViewModels
         private void ShowBackground()
         {
             _backgroundCanvas.Visibility = Visibility.Visible;
+        }
+
+        private Sensor _sensorAtStartOfDrag = null;
+        private bool isDragging = false;
+        private bool movedMouseWhileDragging = false;
+
+        public void StartSensorDrag(SelectionChangedEventArgs e)
+        {
+            if (isDragging)
+                return;
+
+            // This handles the fact that, when you click and drag, this event *only* fires
+            // when a *new* item is selected. We want the one from before - hence the
+            // use of RemovedItems.
+
+            _sensorAtStartOfDrag = (e.RemovedItems.Count == 1) ? (Sensor)e.RemovedItems[0] : (Sensor) e.AddedItems[0];
+
+            isDragging = true;
+        }
+
+        public void MovedOverSensorList(MouseEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                ViewCursor = Cursors.SizeAll;
+                movedMouseWhileDragging = true;
+            }
+        }
+
+        public void EndSensorDrag(MouseEventArgs e)
+        {
+            if (movedMouseWhileDragging)
+            {
+                isDragging = false;
+                var sensorAtEndOfDrag = SelectedSensor;
+
+                if (!sensorAtEndOfDrag.Equals(_sensorAtStartOfDrag) &&
+                    (sensorAtEndOfDrag != null && _sensorAtStartOfDrag != null))
+                {
+                    // Move it into place
+                    _ds.SwapSensors(_sensorAtStartOfDrag, sensorAtEndOfDrag);
+                    SelectedSensor = _sensorAtStartOfDrag;
+
+                    // TODO: must be more efficient way of doing this? Just NotifyPropertyChanged() didn't work
+                    var tmpList = SensorList;
+                    SensorList = new List<Sensor>();
+                    SensorList = tmpList;
+                }
+            }
+
+            _sensorAtStartOfDrag = null;
+            movedMouseWhileDragging = false;
+            isDragging = false;
+            ViewCursor = Cursors.Arrow;
         }
 
         #region Multi-level Undo/Redo Handling

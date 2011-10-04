@@ -13,8 +13,8 @@ namespace IndiaTango.Tests
     class SiteExportTest
     {
         #region Test XML
-        private string singleSiteXML = "<ArrayOfSite xmlns=\"http://schemas.datacontract.org/2004/07/IndiaTango.Models\" xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\"><Site><Events/><GPSLocation><Latitude>27</Latitude><Longitude>-95</Longitude></GPSLocation><ID>1</ID><Name>Random Site</Name><Owner>An Owner</Owner><PrimaryContactID>1</PrimaryContactID><SecondaryContactID>1</SecondaryContactID><UniversityContactID>1</UniversityContactID></Site></ArrayOfSite>";
-        private string twoSiteXML = "<ArrayOfSite xmlns=\"http://schemas.datacontract.org/2004/07/IndiaTango.Models\" xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\"><Site><Events/><GPSLocation><Latitude>27</Latitude><Longitude>-95</Longitude></GPSLocation><ID>1</ID><Name>Random Site</Name><Owner>An Owner</Owner><PrimaryContactID>1</PrimaryContactID><SecondaryContactID>1</SecondaryContactID><UniversityContactID>1</UniversityContactID></Site><Site><Events/><GPSLocation><Latitude>54</Latitude><Longitude>-12</Longitude></GPSLocation><ID>2</ID><Name>Random Site Two</Name><Owner>An Owner</Owner><PrimaryContactID>1</PrimaryContactID><SecondaryContactID>1</SecondaryContactID><UniversityContactID>1</UniversityContactID></Site></ArrayOfSite>";
+        private string singleSiteXML = "<ArrayOfSite xmlns=\"http://schemas.datacontract.org/2004/07/IndiaTango.Models\" xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\"><Site><Events/><GPSLocation><Latitude>27</Latitude><Longitude>-95</Longitude></GPSLocation><ID>1</ID><Images i:nil=\"true\"/><Name>Random Site</Name><Owner>An Owner</Owner><PrimaryContactID>1</PrimaryContactID><SecondaryContactID>1</SecondaryContactID><UniversityContactID>1</UniversityContactID></Site></ArrayOfSite>";
+        private string twoSiteXML = "<ArrayOfSite xmlns=\"http://schemas.datacontract.org/2004/07/IndiaTango.Models\" xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\"><Site><Events/><GPSLocation><Latitude>27</Latitude><Longitude>-95</Longitude></GPSLocation><ID>1</ID><Images i:nil=\"true\"/><Name>Random Site</Name><Owner>An Owner</Owner><PrimaryContactID>1</PrimaryContactID><SecondaryContactID>1</SecondaryContactID><UniversityContactID>1</UniversityContactID></Site><Site><Events/><GPSLocation><Latitude>54</Latitude><Longitude>-12</Longitude></GPSLocation><ID>2</ID><Images i:nil=\"true\"/><Name>Random Site Two</Name><Owner>An Owner</Owner><PrimaryContactID>1</PrimaryContactID><SecondaryContactID>1</SecondaryContactID><UniversityContactID>1</UniversityContactID></Site></ArrayOfSite>";
         #endregion
 
         private Contact c;
@@ -113,5 +113,8 @@ namespace IndiaTango.Tests
 
             Assert.IsTrue(Site.ImportAll().Count == 0);
         }
+
+        // TODO: test site export when images are involved
+        // On that note, what if a saved site is reloaded (not using session loading) - do the images come back?
     }
 }

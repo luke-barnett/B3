@@ -19,14 +19,45 @@
             </Grid.RowDefinitions>
 
             <GroupBox Grid.Row="0" Header="Select A Sensor" BorderBrush="OrangeRed" Margin="10 5 5 5">
-                <ListBox ItemsSource="{Binding SensorList}"  SelectionMode="Single" Margin="5" SelectedItem="{Binding SelectedSensor}">
-                    <!--<i:Interaction.Triggers>
-                        <i:EventTrigger EventName="SelectionChanged">
-                            <cal:ActionMessage MethodName="SensorChanged">
+                <ListBox ItemsSource="{Binding SensorList}"  SelectionMode="Single" Margin="5" SelectedItem="{Binding SelectedSensor}" AllowDrop="True">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="{x:Type ListBoxItem}">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    
+                    <!--<ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Background="Transparent">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="MouseDown">
+                                        <cal:ActionMessage MethodName="StartSensorDrag">
+                                            <cal:Parameter Value="$eventArgs" />
+                                        </cal:ActionMessage>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                                <TextBlock Foreground="Black" Text="{Binding Path=Name}" />
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>-->
+                    
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="MouseLeftButtonUp">
+                            <cal:ActionMessage MethodName="EndSensorDrag">
                                 <cal:Parameter Value="$eventArgs" />
                             </cal:ActionMessage>
                         </i:EventTrigger>
-                    </i:Interaction.Triggers>-->
+                        <i:EventTrigger EventName="SelectionChanged">
+                            <cal:ActionMessage MethodName="StartSensorDrag">
+                                <cal:Parameter Value="$eventArgs" />
+                            </cal:ActionMessage>
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="MouseMove">
+                            <cal:ActionMessage MethodName="MovedOverSensorList">
+                                <cal:Parameter Value="$eventArgs" />
+                            </cal:ActionMessage>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
                 </ListBox>
             </GroupBox>
             
