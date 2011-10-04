@@ -56,7 +56,7 @@
             </GroupBox>
 
             <GroupBox Grid.Row="3" Header="Readings Found" BorderBrush="OrangeRed" Margin="10 5 5 0">
-                <ListBox ItemsSource="{Binding MissingValues}" SelectionMode="Extended">
+                <ListBox ItemsSource="{Binding FoundErroneousValues}" SelectionMode="Extended">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="SelectionChanged">
                             <cal:ActionMessage MethodName="MissingValuesSelectionChanged">
@@ -201,7 +201,7 @@
                 </StackPanel>
                 <Grid HorizontalAlignment="Right">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding WaitReason}" Visibility="{Binding WaitReasonVisibility}" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding WaitReason}" Visibility="{Binding WaitReasonVisibility}" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="150" />
                         <ProgressBar Visibility="{Binding WaitReasonVisibility}" IsIndeterminate="True" VerticalAlignment="Center" Width="50" Height="15" Margin="5,0,0,0" />
                     </StackPanel>
                 </Grid>

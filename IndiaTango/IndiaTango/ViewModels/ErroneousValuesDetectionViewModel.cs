@@ -63,7 +63,7 @@ namespace IndiaTango.ViewModels
         private Cursor _cursor = Cursors.Arrow;
         private List<IDetectionMethod> _detectionMethods = new List<IDetectionMethod>();
         private List<GraphableSensor> _sensorList = new List<GraphableSensor>();
-        private List<ErroneousValue> _missingValues = new List<ErroneousValue>();
+        private List<ErroneousValue> _foundErroneousValues = new List<ErroneousValue>();
         private bool _showUndoStates;
         private bool _showRedoStates;
         private bool _actionButtonsEnabled;
@@ -100,11 +100,22 @@ namespace IndiaTango.ViewModels
 
         #endregion
 
-        #region Constants
-        public string ViewTitle { get { return "Erroneous Values Detection"; } }
-        #endregion
-
         #region Visual Items
+
+        public string ViewTitle
+        {
+            get
+            {
+                if (_sensorList.Count > 1 && _sensorList[0].Sensor.Owner.Site != null)
+                    if (_selectedSensor == null)
+                        return string.Format("[{0}] Erroneous Values Detection", _sensorList[0].Sensor.Owner.Site.Name);
+                    else
+                        return string.Format("[{0}] Erroneous Values Detection - {1}",
+                                             _sensorList[0].Sensor.Owner.Site.Name, _selectedSensor.Sensor.Name);
+
+                return _selectedSensor != null ? string.Format("Erroneous Values Detection - {0}", _selectedSensor.Sensor.Name) : "Erroneous Values Detection";
+            }
+        }
 
         public Cursor ViewCursor { get { return _cursor; } set { _cursor = value; NotifyOfPropertyChange(() => ViewCursor); } }
 
@@ -159,6 +170,7 @@ namespace IndiaTango.ViewModels
                     FindErroneousValues();
                 }
                 NotifyOfPropertyChange(() => SelectedSensor);
+                NotifyOfPropertyChange(() => ViewTitle);
             }
         }
 
@@ -170,7 +182,7 @@ namespace IndiaTango.ViewModels
 
         public List<GraphableSensor> SensorList { get { return _sensorList; } set { _sensorList = value; NotifyOfPropertyChange(() => SensorList); } }
 
-        public List<ErroneousValue> MissingValues { get { return _missingValues; } set { _missingValues = value; NotifyOfPropertyChange(() => MissingValues); } }
+        public List<ErroneousValue> FoundErroneousValues { get { return _foundErroneousValues; } set { _foundErroneousValues = value; NotifyOfPropertyChange(() => FoundErroneousValues); } }
 
         #endregion
 
@@ -350,13 +362,13 @@ namespace IndiaTango.ViewModels
 
             if (_selectedMethods.Count == 0)
             {
-                MissingValues = new List<ErroneousValue>();
+                FoundErroneousValues = new List<ErroneousValue>();
                 return;
             }
 
-            for (var i = 0; i < MissingValues.Count; i++)
+            for (var i = 0; i < FoundErroneousValues.Count; i++)
             {
-                var value = MissingValues[i];
+                var value = FoundErroneousValues[i];
 
                 if (!value.Detectors.Contains(method)) continue;
 
@@ -364,11 +376,11 @@ namespace IndiaTango.ViewModels
 
                 if (value.Detectors.Count == 0)
                 {
-                    MissingValues.Remove(value);
+                    FoundErroneousValues.Remove(value);
                 }
             }
 
-            MissingValues = new List<ErroneousValue>(MissingValues);
+            FoundErroneousValues = new List<ErroneousValue>(FoundErroneousValues);
         }
 
         #endregion
@@ -549,7 +561,7 @@ namespace IndiaTango.ViewModels
             if (SelectedSensor == null)
                 return;
 
-            MissingValues.Clear();
+            FoundErroneousValues.Clear();
 
             CheckTheseMethods(_selectedMethods);
 
@@ -581,9 +593,9 @@ namespace IndiaTango.ViewModels
                     notErroneous = !method.CheckIndividualValue(_selectedSensor.Sensor, value.TimeStamp);
                 }
                 if (notErroneous)
-                    MissingValues.Remove(value);
+                    FoundErroneousValues.Remove(value);
             }
-            MissingValues = new List<ErroneousValue>(MissingValues);
+            FoundErroneousValues = new List<ErroneousValue>(FoundErroneousValues);
 
             SelectedSensor.RefreshDataPoints();
 
@@ -703,10 +715,10 @@ namespace IndiaTango.ViewModels
         {
             foreach (var erroneousValue in values)
             {
-                var item = MissingValues.Where(x => x != null && x.Equals(erroneousValue)).DefaultIfEmpty(null).FirstOrDefault();
+                var item = FoundErroneousValues.Where(x => x != null && x.Equals(erroneousValue)).DefaultIfEmpty(null).FirstOrDefault();
 
                 if (item == null)
-                    MissingValues.Add(erroneousValue);
+                    FoundErroneousValues.Add(erroneousValue);
                 else
                     item.Detectors.AddRange(erroneousValue.Detectors);
             }
@@ -736,8 +748,8 @@ namespace IndiaTango.ViewModels
 
             bw.RunWorkerCompleted += (o, e) =>
                                          {
-                                             Debug.WriteLine("There are {0} items in Missing Values", MissingValues.Count);
-                                             MissingValues = new List<ErroneousValue>(MissingValues);
+                                             Debug.WriteLine("There are {0} items in Missing Values", FoundErroneousValues.Count);
+                                             FoundErroneousValues = new List<ErroneousValue>(FoundErroneousValues);
 
                                              StopWaiting();
                                          };
