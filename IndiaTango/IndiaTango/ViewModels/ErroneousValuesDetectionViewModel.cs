@@ -326,6 +326,8 @@ namespace IndiaTango.ViewModels
                 return;
 
             CheckTheseMethods(new Collection<IDetectionMethod> { method });
+
+            UpdateGraph();
         }
 
         public void DetectionMethodUnChecked(RoutedEventArgs eventArgs)
@@ -339,6 +341,8 @@ namespace IndiaTango.ViewModels
                 _selectedMethods.Remove(method);
 
             SelectedDetectionMethod = method;
+
+            UpdateGraph();
 
             if (_selectedMethods.Count == 0)
             {
@@ -595,6 +599,16 @@ namespace IndiaTango.ViewModels
             var series = (sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints.Where((x, index) => index % sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints);
 
             generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour) });
+
+            foreach (var method in _selectedMethods.Where(method => method.HasGraphableSeries))
+            {
+                Debug.WriteLine("Adding series from {0}", method.Name);
+                generatedSeries.AddRange(sensor.BoundsSet
+                                             ? method.GraphableSeries(sensor.Sensor, sensor.LowerBound,
+                                                                      sensor.UpperBound)
+                                             : method.GraphableSeries(sensor.Sensor, sensor.Sensor.Owner.StartTimeStamp,
+                                                                      sensor.Sensor.Owner.EndTimeStamp));
+            }
 
             if (sampleRate > 1)
                 ShowBackground();
