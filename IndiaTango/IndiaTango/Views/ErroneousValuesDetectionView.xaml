@@ -172,7 +172,7 @@
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                 </CheckBox>
-                <TextBlock Grid.Column="0" Text="Sampling Options: " VerticalAlignment="Center" HorizontalAlignment="Right" />
+                <TextBlock Grid.Column="0" Text="Max Graphed Points: " VerticalAlignment="Center" HorizontalAlignment="Right" />
                 <ComboBox ItemsSource="{Binding SamplingCapOptions}" SelectedIndex="{Binding SelectedSamplingCapIndex, Mode=TwoWay}" Grid.Column="1">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="SelectionChanged">
