@@ -162,6 +162,16 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="100" />
                 </Grid.ColumnDefinitions>
+                <CheckBox Grid.Column="0" Content="Graph Raw Data" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Checked">
+                            <cal:ActionMessage MethodName="GraphRawData" />
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="Unchecked">
+                            <cal:ActionMessage MethodName="DontGraphRawData" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </CheckBox>
                 <TextBlock Grid.Column="0" Text="Sampling Options: " VerticalAlignment="Center" HorizontalAlignment="Right" />
                 <ComboBox ItemsSource="{Binding SamplingCapOptions}" SelectedIndex="{Binding SelectedSamplingCapIndex, Mode=TwoWay}" Grid.Column="1">
                     <i:Interaction.Triggers>
