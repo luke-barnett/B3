@@ -620,10 +620,14 @@ namespace IndiaTango.ViewModels
 
             var generatedSeries = new List<LineSeries>();
 
-            var sampleRate = sensor.DataPoints.Count() / maxPointCount;
+            var numberOfSeries = 1;
 
             if (_showRawDataOnGraph)
-                sampleRate = sampleRate / 2;
+                numberOfSeries += 1;
+
+            numberOfSeries += _selectedMethods.Where(method => method.HasGraphableSeries).Count();
+
+            var sampleRate = sensor.DataPoints.Count() / (maxPointCount / numberOfSeries);
 
             Debug.Print("Number of points: {0} Max Number {1} Sampling rate {2}", sensor.DataPoints.Count(), maxPointCount, sampleRate);
 
@@ -633,13 +637,28 @@ namespace IndiaTango.ViewModels
 
             foreach (var method in _selectedMethods.Where(method => method.HasGraphableSeries))
             {
-                //TODO: These may need sampling
-                Debug.WriteLine("Adding series from {0}", method.Name);
-                generatedSeries.AddRange(sensor.BoundsSet
-                                             ? method.GraphableSeries(sensor.Sensor, sensor.LowerBound,
-                                                                      sensor.UpperBound)
-                                             : method.GraphableSeries(sensor.Sensor, sensor.Sensor.Owner.StartTimeStamp,
-                                                                      sensor.Sensor.Owner.EndTimeStamp));
+                Debug.Print("Adding series from {0}", method.Name);
+
+                //Get them
+                var methodsSeries = sensor.BoundsSet
+                                        ? method.GraphableSeries(sensor.Sensor, sensor.LowerBound,
+                                                                 sensor.UpperBound)
+                                        : method.GraphableSeries(sensor.Sensor, sensor.Sensor.Owner.StartTimeStamp,
+                                                                 sensor.Sensor.Owner.EndTimeStamp);
+                //If we need to apply sampling do so
+                if(sampleRate > 1)
+                {
+                    foreach (var x in methodsSeries.Where(i => i.DataSeries.Cast<object>().Count() > (maxPointCount / numberOfSeries)))
+                    {
+                        x.DataSeries = new DataSeries<DateTime, float>(x.DataSeries.Title,
+                                                                       x.DataSeries.Cast<DataPoint<DateTime, float>>().
+                                                                           Where
+                                                                           ((value, index) => index%sampleRate == 0));
+                    }
+                }
+
+                //Add them
+                generatedSeries.AddRange(methodsSeries);
             }
 
             if (_showRawDataOnGraph)
