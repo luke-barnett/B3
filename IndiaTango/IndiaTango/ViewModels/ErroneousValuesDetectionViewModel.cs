@@ -96,6 +96,7 @@ namespace IndiaTango.ViewModels
         private double _maximumMaximum;
 
         private string _waitReason = string.Empty;
+        private bool _showRawDataOnGraph;
 
         #endregion
 
@@ -529,6 +530,18 @@ namespace IndiaTango.ViewModels
                 SampleValues(_selectedSensor, Common.MaximumGraphablePoints);
         }
 
+        public void GraphRawData()
+        {
+            _showRawDataOnGraph = true;
+            UpdateGraph();
+        }
+
+        public void DontGraphRawData()
+        {
+            _showRawDataOnGraph = false;
+            UpdateGraph();
+        }
+
         #endregion
 
         private void FindErroneousValues()
@@ -597,6 +610,9 @@ namespace IndiaTango.ViewModels
 
             var sampleRate = sensor.DataPoints.Count() / maxPointCount;
 
+            if (_showRawDataOnGraph)
+                sampleRate = sampleRate / 2;
+
             Debug.Print("Number of points: {0} Max Number {1} Sampling rate {2}", sensor.DataPoints.Count(), maxPointCount, sampleRate);
 
             var series = (sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints.Where((x, index) => index % sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints);
@@ -605,12 +621,18 @@ namespace IndiaTango.ViewModels
 
             foreach (var method in _selectedMethods.Where(method => method.HasGraphableSeries))
             {
+                //TODO: These may need sampling
                 Debug.WriteLine("Adding series from {0}", method.Name);
                 generatedSeries.AddRange(sensor.BoundsSet
                                              ? method.GraphableSeries(sensor.Sensor, sensor.LowerBound,
                                                                       sensor.UpperBound)
                                              : method.GraphableSeries(sensor.Sensor, sensor.Sensor.Owner.StartTimeStamp,
                                                                       sensor.Sensor.Owner.EndTimeStamp));
+            }
+
+            if (_showRawDataOnGraph)
+            {
+                generatedSeries.Add(new LineSeries { LineStroke = new SolidColorBrush(sensor.RawDataColour), DataSeries = (sampleRate > 1) ? new DataSeries<DateTime, float>("Raw Data", sensor.RawDataPoints.Where((x, index) => index % sampleRate == 0)) : new DataSeries<DateTime, float>("Raw Data", sensor.RawDataPoints) });
             }
 
             if (sampleRate > 1)
