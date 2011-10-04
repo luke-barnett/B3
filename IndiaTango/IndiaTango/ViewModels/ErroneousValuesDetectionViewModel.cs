@@ -21,7 +21,7 @@ namespace IndiaTango.ViewModels
             _windowManager = windowManager;
             _container = container;
 
-            DetectionMethods = new List<IDetectionMethod> { new MissingValuesDetector() };
+            DetectionMethods = new List<IDetectionMethod> { new MissingValuesDetector(), new MinMaxRateOfChangeDetector() };
 
             var behaviours = new BehaviourManager { AllowMultipleEnabled = true };
 
