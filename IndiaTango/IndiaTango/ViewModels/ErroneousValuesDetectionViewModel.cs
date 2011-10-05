@@ -710,8 +710,8 @@ namespace IndiaTango.ViewModels
             var maxY = MaximumY();
             var minY = MinimumY();
 
-            MaximumMaximum = maxY + maxY * 0.1;
-            MinimumMinimum = minY - minY * 0.1;
+            MaximumMaximum = maxY + (maxY * 0.1);
+            MinimumMinimum = minY - (minY * 0.1);
 
             Maximum = MaximumMaximum;
             Minimum = MinimumMinimum;
@@ -737,14 +737,13 @@ namespace IndiaTango.ViewModels
         {
             DataPoint<DateTime, float> maxY = null;
 
-            foreach (var value in _selectedSensor.DataPoints)
+            foreach (var value in ChartSeries.SelectMany(series => series.DataSeries.Cast<DataPoint<DateTime, float>>()))
             {
                 if (maxY == null)
                     maxY = value;
                 else if (value.Y > maxY.Y)
                     maxY = value;
             }
-
             return maxY == null ? 10 : maxY.Y;
         }
 
@@ -752,7 +751,7 @@ namespace IndiaTango.ViewModels
         {
             DataPoint<DateTime, float> minY = null;
 
-            foreach (var value in _selectedSensor.DataPoints)
+            foreach (var value in ChartSeries.SelectMany(series => series.DataSeries.Cast<DataPoint<DateTime, float>>()))
             {
                 if (minY == null)
                     minY = value;
