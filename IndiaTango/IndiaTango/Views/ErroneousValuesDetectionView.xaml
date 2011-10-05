@@ -6,7 +6,7 @@
         xmlns:charts="clr-namespace:Visiblox.Charts;assembly=Visiblox.Charts"
         xmlns:toolkit="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit/extended"
         xmlns:multiseries="clr-namespace:IndiaTango.MultiSeriesBinding"
-        Title="{Binding ViewTitle}" Icon="{Binding Icon}" Cursor="{Binding ViewCursor}" Height="700" Width="950" WindowStartupLocation="CenterScreen">
+        Title="{Binding ViewTitle}" Icon="{Binding Icon}" Cursor="{Binding ViewCursor}" Height="700" Width="1150" WindowStartupLocation="CenterScreen">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closing">
             <cal:ActionMessage MethodName="ClosingWindow">
@@ -165,6 +165,27 @@
                     <ColumnDefinition Width="100" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" Margin="5 0 0 0">
+                        <toolkit:DateTimePicker Width="125" Value="{Binding StartTime}" Format="Custom" FormatString="dd/MM/yy HH:mm" IsEnabled="{Binding CanEditDates}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="ValueChanged">
+                                    <cal:ActionMessage MethodName="StartTimeChanged">
+                                        <cal:Parameter Value="$eventArgs" />
+                                    </cal:ActionMessage>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </toolkit:DateTimePicker>
+                        <TextBlock Text=" - to - " VerticalAlignment="Center" />
+                        <toolkit:DateTimePicker Width="125" Value="{Binding EndTime}" Format="Custom" FormatString="dd/MM/yy HH:mm" IsEnabled="{Binding CanEditDates}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="ValueChanged">
+                                    <cal:ActionMessage MethodName="EndTimeChanged">
+                                        <cal:Parameter Value="$eventArgs" />
+                                    </cal:ActionMessage>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </toolkit:DateTimePicker>
+                    </StackPanel>
                     <CheckBox Grid.Column="0" Content="Graph Raw Data" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="Checked">

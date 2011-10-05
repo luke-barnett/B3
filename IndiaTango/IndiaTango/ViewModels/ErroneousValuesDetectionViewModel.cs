@@ -50,12 +50,12 @@ namespace IndiaTango.ViewModels
                                              var startTime = (DateTime)e.FirstPoint.X;
                                              var endTime = (DateTime)e.SecondPoint.X;
                                              _selectedSensor.SetUpperAndLowerBounds(startTime, endTime);
-                                             UpdateGraph();
+                                             CalculateDateTimeEndPoints();
                                          };
             _zooming.ZoomResetRequested += o =>
                                               {
                                                   _selectedSensor.RemoveBounds();
-                                                  UpdateGraph();
+                                                  CalculateDateTimeEndPoints();
                                               };
 
             behaviours.Behaviours.Add(_zooming);
@@ -136,6 +136,9 @@ namespace IndiaTango.ViewModels
         private DateTime _endSelectionDate;
 
         private bool _buttonsEnabled = true;
+        private bool _canEditDates = false;
+        private DateTime _startTime = DateTime.MinValue;
+        private DateTime _endTime = DateTime.MaxValue;
 
         #endregion
 
@@ -206,6 +209,7 @@ namespace IndiaTango.ViewModels
                 if (ViewCursor != Cursors.Wait)
                 {
                     _selectedSensor = value;
+                    CalculateDateTimeEndPoints();
                     FindErroneousValues();
                 }
                 NotifyOfPropertyChange(() => SelectedSensor);
@@ -225,6 +229,7 @@ namespace IndiaTango.ViewModels
                 NotifyOfPropertyChange(() => ActionButtonsEnabled);
                 NotifyOfPropertyChange(() => UndoButtonEnabled);
                 NotifyOfPropertyChange(() => RedoButtonEnabled);
+                NotifyOfPropertyChange(() => CanEditDates);
             }
         }
 
@@ -372,6 +377,16 @@ namespace IndiaTango.ViewModels
         public List<string> SamplingCapOptions { get { return _samplingCapOptions; } set { _samplingCapOptions = value; NotifyOfPropertyChange(() => SamplingCapOptions); } }
 
         public int SelectedSamplingCapIndex { get { return _selectedSamplingCapIndex; } set { _selectedSamplingCapIndex = value; NotifyOfPropertyChange(() => SelectedSamplingCapIndex); } }
+
+        #endregion
+
+        #region Date Pickers
+
+        public bool CanEditDates { get { return ButtonsEnabled && _canEditDates; } private set { _canEditDates = value; NotifyOfPropertyChange(() => CanEditDates); } }
+
+        public DateTime StartTime { get { return _startTime; } set { _startTime = value; NotifyOfPropertyChange(() => StartTime); } }
+
+        public DateTime EndTime { get { return _endTime; } set { _endTime = value; NotifyOfPropertyChange(() => EndTime); } }
 
         #endregion
 
@@ -634,6 +649,61 @@ namespace IndiaTango.ViewModels
                 eventArgs.Cancel = true;
         }
 
+        #region Date Pickers
+
+        public void StartTimeChanged(RoutedPropertyChangedEventArgs<object> e)
+        {
+            if (e == null)
+                return;
+
+            if (e.NewValue == e.OldValue)
+                return;
+
+            DateTime newStartTime;
+
+            if (e.OldValue == null || (DateTime)e.OldValue == new DateTime() || (DateTime)e.NewValue < EndTime)
+                newStartTime = (DateTime)e.NewValue;
+            else
+                newStartTime = (DateTime)e.OldValue;
+
+            _selectedSensor.SetUpperAndLowerBounds(newStartTime, EndTime);
+
+            if (SelectedSensor == null)
+                ChartSeries = new List<LineSeries>();
+            else
+                SampleValues(SelectedSensor, Common.MaximumGraphablePoints);
+        }
+
+        public void EndTimeChanged(RoutedPropertyChangedEventArgs<object> e)
+        {
+            if (e == null)
+                return;
+
+            if (e.NewValue == e.OldValue)
+                return;
+
+            DateTime newEndTime;
+
+            if (e.OldValue == null || (DateTime)e.OldValue == new DateTime() || (DateTime)e.NewValue > StartTime)
+                newEndTime = (DateTime)e.NewValue;
+            else
+                newEndTime = (DateTime)e.OldValue;
+
+            _selectedSensor.SetUpperAndLowerBounds(StartTime, newEndTime);
+
+            if (SelectedSensor == null)
+                ChartSeries = new List<LineSeries>();
+            else
+                SampleValues(SelectedSensor, Common.MaximumGraphablePoints);
+        }
+
+        #region End Time
+
+
+        #endregion
+
+        #endregion
+
         #endregion
 
         private void FindErroneousValues()
@@ -770,6 +840,8 @@ namespace IndiaTango.ViewModels
 
             Maximum = MaximumMaximum;
             Minimum = MinimumMinimum;
+
+
         }
 
         #region GraphBackground Modifiers
@@ -964,6 +1036,23 @@ namespace IndiaTango.ViewModels
                  x => x.Detectors.RemoveAll(m => m.Equals(methodToRemove) || methodToRemove.Children.Contains(m)));
 
             FoundErroneousValues = new List<ErroneousValue>(FoundErroneousValues.Where(x => x.Detectors.Count != 0));
+        }
+
+        private void CalculateDateTimeEndPoints()
+        {
+            Debug.Print("Old Start Time {0} Old End Time {1}",StartTime,EndTime);
+            var firstOrDefault = _selectedSensor.DataPoints.DefaultIfEmpty(new DataPoint<DateTime, float>(DateTime.MinValue, 0)).FirstOrDefault();
+            var lastOrDefault = _selectedSensor.DataPoints.DefaultIfEmpty(new DataPoint<DateTime, float>(DateTime.MaxValue, 0)).LastOrDefault();
+
+            if (firstOrDefault != null && firstOrDefault.X != DateTime.MinValue)
+                StartTime = firstOrDefault.X;
+
+            
+            if (lastOrDefault != null && lastOrDefault.X != DateTime.MaxValue)
+                EndTime = lastOrDefault.X;
+            Debug.Print("New Start Time {0} New End Time {1}", StartTime, EndTime);
+
+            CanEditDates = true;
         }
     }
 }
