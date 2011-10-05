@@ -69,5 +69,10 @@ namespace IndiaTango.Models
         {
             throw new NotImplementedException();
         }
+
+        public List<IDetectionMethod> Children
+        {
+            get { return new List<IDetectionMethod>(); }
+        }
     }
 }
