@@ -85,11 +85,10 @@ namespace IndiaTango.Models
 
         public bool CheckIndividualValue(Sensor sensor, DateTime timeStamp)
         {
+            if (sensor.CurrentState.Values.ContainsKey(timeStamp))
+                return false;
             var value = sensor.CurrentState.Values[timeStamp];
-            if (value > sensor.UpperLimit || value < sensor.LowerLimit)
-                return true;
-            //TODO: Check rate of change
-            return false;
+            return value > sensor.UpperLimit || value < sensor.LowerLimit || Math.Abs(value - sensor.CurrentState.Values[sensor.CurrentState.FindPrevValue(timeStamp)]) > sensor.MaxRateOfChange;
         }
 
         public List<LineSeries> GraphableSeries(Sensor sensorToBaseOn, DateTime startDate, DateTime endDate)

@@ -343,12 +343,12 @@ namespace IndiaTango.Models
         /// </summary>
         /// <param name="dataValue">The key, representing an unknown data point, to use.</param>
         /// <returns>A key representing the first known data value before the value represented by dataValue.</returns>
-        private DateTime FindPrevValue(DateTime dataValue)
+        public DateTime FindPrevValue(DateTime dataValue)
         {
             return Values.Keys.Where(x => x < dataValue).Max();
         }
 
-        private DateTime FindNextValue(DateTime dataValue)
+        public DateTime FindNextValue(DateTime dataValue)
         {
             return Values.Keys.Where(x => x > dataValue).Min();
         }

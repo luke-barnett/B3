@@ -589,9 +589,18 @@ namespace IndiaTango.ViewModels
             foreach (var value in _selectedMissingValues)
             {
                 var notErroneous = true;
-                foreach (var method in DetectionMethods)
+                foreach (var method in _selectedMethods)
                 {
                     notErroneous = !method.CheckIndividualValue(_selectedSensor.Sensor, value.TimeStamp);
+                    if(notErroneous)
+                    {
+                        value.Detectors.RemoveAll(x => x.Equals(method) || x.Children.Contains(method));
+                    }
+                    else
+                    {
+                        if(!value.Detectors.Contains(method))
+                            value.Detectors.Add(method);
+                    }
                 }
                 if (notErroneous)
                     FoundErroneousValues.Remove(value);
@@ -632,9 +641,14 @@ namespace IndiaTango.ViewModels
 
             Debug.Print("Number of points: {0} Max Number {1} Sampling rate {2}", sensor.DataPoints.Count(), maxPointCount, sampleRate);
 
-            var series = (sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints.Where((x, index) => index % sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints);
+            //Put Raw Data on bottom
+            if (_showRawDataOnGraph)
+            {
+                generatedSeries.Add(new LineSeries { LineStroke = new SolidColorBrush(sensor.RawDataColour), DataSeries = (sampleRate > 1) ? new DataSeries<DateTime, float>("Raw Data", sensor.RawDataPoints.Where((x, index) => index % sampleRate == 0)) : new DataSeries<DateTime, float>("Raw Data", sensor.RawDataPoints), LineStrokeThickness = 1.5 });
+            }
 
-            generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour), LineStrokeThickness = (_showRawDataOnGraph) ? 2.5 : 1 });
+            //Draw the series
+            generatedSeries.Add(new LineSeries { DataSeries = (sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints.Where((x, index) => index % sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints), LineStroke = new SolidColorBrush(sensor.Colour) });
 
             foreach (var method in _selectedMethods.Where(method => method.HasGraphableSeries))
             {
@@ -660,11 +674,6 @@ namespace IndiaTango.ViewModels
 
                 //Add them
                 generatedSeries.AddRange(methodsSeries);
-            }
-
-            if (_showRawDataOnGraph)
-            {
-                generatedSeries.Add(new LineSeries { LineStroke = new SolidColorBrush(sensor.RawDataColour), DataSeries = (sampleRate > 1) ? new DataSeries<DateTime, float>("Raw Data", sensor.RawDataPoints.Where((x, index) => index % sampleRate == 0)) : new DataSeries<DateTime, float>("Raw Data", sensor.RawDataPoints) });
             }
 
             if (sampleRate > 1)
