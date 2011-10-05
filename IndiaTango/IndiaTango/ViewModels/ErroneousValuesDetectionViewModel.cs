@@ -32,22 +32,40 @@ namespace IndiaTango.ViewModels
 
             behaviours.Behaviours.Add(samplingBackground);
 
-            var zooming = new CustomZoomBehaviour { IsEnabled = true };
+            _zooming = new CustomZoomBehaviour { IsEnabled = !_inSelectionMode };
 
-            zooming.ZoomRequested += (o, e) =>
+            _zooming.ZoomRequested += (o, e) =>
                                          {
                                              var startTime = (DateTime)e.FirstPoint.X;
                                              var endTime = (DateTime)e.SecondPoint.X;
                                              _selectedSensor.SetUpperAndLowerBounds(startTime, endTime);
                                              UpdateGraph();
                                          };
-            zooming.ZoomResetRequested += o =>
+            _zooming.ZoomResetRequested += o =>
                                               {
                                                   _selectedSensor.RemoveBounds();
                                                   UpdateGraph();
                                               };
 
-            behaviours.Behaviours.Add(zooming);
+            behaviours.Behaviours.Add(_zooming);
+
+            _selection = new CustomSelectionBehaviour { IsEnabled = _inSelectionMode };
+
+            _selection.SelectionMade += (o, e) =>
+                                           {
+                                               _selectionMade = true;
+                                               _startSelectionDate = (DateTime)e.FirstPoint.X;
+                                               _endSelectionDate = (DateTime)e.SecondPoint.X;
+                                               ActionButtonsEnabled = true;
+                                           };
+
+            _selection.SelectionReset += o =>
+                                            {
+                                                _selectionMade = false;
+                                                ActionButtonsEnabled = _selectedMissingValues.Count != 0;
+                                            };
+
+            behaviours.Behaviours.Add(_selection);
 
             ChartBehaviour = behaviours;
 
@@ -97,6 +115,14 @@ namespace IndiaTango.ViewModels
 
         private string _waitReason = string.Empty;
         private bool _showRawDataOnGraph;
+
+        private readonly CustomZoomBehaviour _zooming;
+        private readonly CustomSelectionBehaviour _selection;
+
+        private bool _inSelectionMode;
+        private bool _selectionMade;
+        private DateTime _startSelectionDate;
+        private DateTime _endSelectionDate;
 
         #endregion
 
@@ -444,10 +470,10 @@ namespace IndiaTango.ViewModels
 
         public void BtnExtrapolate()
         {
-            if (_selectedMissingValues.Count == 0)
-                return;
+            var dates = GetDates();
 
-            var dates = (from values in _selectedMissingValues select values.TimeStamp).ToList();
+            if(dates.Count == 0)
+                return;
 
             _selectedSensor.Sensor.AddState(_selectedSensor.Sensor.CurrentState.Extrapolate(dates, _selectedSensor.Sensor.Owner));
 
@@ -462,10 +488,10 @@ namespace IndiaTango.ViewModels
         {
             EventLogger.LogInfo(GetType().ToString(), "Value updation started.");
 
-            if (_selectedMissingValues.Count == 0)
-                return;
+            var dates = GetDates();
 
-            var dates = (from values in _selectedMissingValues select values.TimeStamp).ToList();
+            if (dates.Count == 0)
+                return;
 
             _selectedSensor.Sensor.AddState(_selectedSensor.Sensor.CurrentState.MakeZero(dates));
 
@@ -480,7 +506,9 @@ namespace IndiaTango.ViewModels
         {
             EventLogger.LogInfo(GetType().ToString(), "Value updation started.");
 
-            if (_selectedMissingValues.Count == 0)
+            var dates = GetDates();
+
+            if (dates.Count == 0)
                 return;
 
             var specifyVal = _container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel") as SpecifyValueViewModel;
@@ -491,8 +519,6 @@ namespace IndiaTango.ViewModels
             try
             {
                 var value = float.Parse(specifyVal.Text);
-
-                var dates = (from values in _selectedMissingValues select values.TimeStamp).ToList();
 
                 _selectedSensor.Sensor.AddState(_selectedSensor.Sensor.CurrentState.MakeValue(dates, value));
 
@@ -525,7 +551,7 @@ namespace IndiaTango.ViewModels
                 _selectedMissingValues.Remove(removedItem);
             }
 
-            ActionButtonsEnabled = _selectedMissingValues.Count != 0;
+            ActionButtonsEnabled = _selectionMade || _selectedMissingValues.Count != 0;
         }
 
         public void SamplingCapChanged(SelectionChangedEventArgs e)
@@ -553,6 +579,22 @@ namespace IndiaTango.ViewModels
         {
             _showRawDataOnGraph = false;
             UpdateGraph();
+        }
+
+        public void StartSelectionMode()
+        {
+            _inSelectionMode = true;
+
+            _zooming.IsEnabled = !_inSelectionMode;
+            _selection.IsEnabled = _inSelectionMode;
+        }
+
+        public void EndSelectionMode()
+        {
+            _inSelectionMode = false;
+
+            _zooming.IsEnabled = !_inSelectionMode;
+            _selection.IsEnabled = _inSelectionMode;
         }
 
         #endregion
@@ -592,13 +634,13 @@ namespace IndiaTango.ViewModels
                 foreach (var method in _selectedMethods)
                 {
                     notErroneous = !method.CheckIndividualValue(_selectedSensor.Sensor, value.TimeStamp);
-                    if(notErroneous)
+                    if (notErroneous)
                     {
                         value.Detectors.RemoveAll(x => x.Equals(method) || x.Children.Contains(method));
                     }
                     else
                     {
-                        if(!value.Detectors.Contains(method))
+                        if (!value.Detectors.Contains(method))
                             value.Detectors.Add(method);
                     }
                 }
@@ -814,6 +856,33 @@ namespace IndiaTango.ViewModels
         {
             ViewCursor = Cursors.Arrow;
             WaitReason = string.Empty;
+        }
+
+        private List<DateTime> GetDates()
+        {
+            var dates = new List<DateTime>();
+
+            var useRange = false;
+
+            if(_selectionMade)
+            {
+                var view = _container.GetInstance(typeof(UseSelectedRangeViewModel), "UseSelectedRangeViewModel") as UseSelectedRangeViewModel;
+
+                if (view != null)
+                {
+                    if (_selectedMissingValues.Count != 0)
+                        _windowManager.ShowDialog(view);
+
+                    useRange = view.UseSelectedRange || _selectedMissingValues.Count == 0;
+                }
+            }
+
+            if(useRange)
+                dates.AddRange(from values in _selectedSensor.DataPoints where values.X > _startSelectionDate && values.X < _endSelectionDate select values.X);
+            else if(_selectedMissingValues.Count != 0)
+                dates.AddRange(from values in _selectedMissingValues select values.TimeStamp);
+
+            return dates;
         }
     }
 }
