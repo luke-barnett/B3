@@ -703,19 +703,12 @@ namespace IndiaTango.ViewModels
         {
             Debug.WriteLine("Graph Centering Requested " + value);
             var give = new TimeSpan(0, 1, 0, 0);
-            var lastOrDefault = _selectedSensor.DataPoints.Where(x => x.X < (value.TimeStamp - give)).DefaultIfEmpty(
-                _selectedSensor.DataPoints.First()).LastOrDefault();
-            var firstOrDefault = _selectedSensor.DataPoints.Where(x => x.X > (value.TimeStamp + give)).DefaultIfEmpty(
-                _selectedSensor.DataPoints.Last()).FirstOrDefault();
-
-            if (lastOrDefault == null || firstOrDefault == null)
-                return;
-
-            var closestLower = lastOrDefault.X;
-            var cloestUpper = firstOrDefault.X;
-
-            _selectedSensor.RemoveBounds();
-            _selectedSensor.SetUpperAndLowerBounds(closestLower, cloestUpper);
+            var closestLower = _selectedSensor.Sensor.CurrentState.Values.Select(x => x.Key).Where(x => x < (value.TimeStamp - give)).DefaultIfEmpty(
+                _selectedSensor.Sensor.CurrentState.Values.Select(x => x.Key).Min()).Max();
+            var closestUpper = _selectedSensor.Sensor.CurrentState.Values.Select(x => x.Key).Where(x => x > (value.TimeStamp + give)).DefaultIfEmpty(
+                _selectedSensor.Sensor.CurrentState.Values.Select(x => x.Key).Max()).Min();
+            
+            _selectedSensor.SetUpperAndLowerBounds(closestLower, closestUpper);
             CalculateDateTimeEndPoints();
 
         }
