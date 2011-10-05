@@ -240,7 +240,7 @@ namespace IndiaTango.ViewModels
         public List<GraphableSensor> SensorList { get { return _sensorList; } set { _sensorList = value; NotifyOfPropertyChange(() => SensorList); } }
 
         public List<ErroneousValue> FoundErroneousValues { get { return _foundErroneousValues; } set { _foundErroneousValues = value; NotifyOfPropertyChange(() => FoundErroneousValues); } }
-
+        
         #endregion
 
         #region Undo/Redo
@@ -697,12 +697,28 @@ namespace IndiaTango.ViewModels
                 SampleValues(SelectedSensor, Common.MaximumGraphablePoints);
         }
 
-        #region End Time
-
-
         #endregion
 
-        #endregion
+        public void GraphCenteringRequested(ErroneousValue value)
+        {
+            Debug.WriteLine("Graph Centering Requested " + value);
+            var give = new TimeSpan(0, 1, 0, 0);
+            var lastOrDefault = _selectedSensor.DataPoints.Where(x => x.X < (value.TimeStamp - give)).DefaultIfEmpty(
+                _selectedSensor.DataPoints.First()).LastOrDefault();
+            var firstOrDefault = _selectedSensor.DataPoints.Where(x => x.X > (value.TimeStamp + give)).DefaultIfEmpty(
+                _selectedSensor.DataPoints.Last()).FirstOrDefault();
+
+            if (lastOrDefault == null || firstOrDefault == null)
+                return;
+
+            var closestLower = lastOrDefault.X;
+            var cloestUpper = firstOrDefault.X;
+
+            _selectedSensor.RemoveBounds();
+            _selectedSensor.SetUpperAndLowerBounds(closestLower, cloestUpper);
+            CalculateDateTimeEndPoints();
+
+        }
 
         #endregion
 
@@ -902,7 +918,15 @@ namespace IndiaTango.ViewModels
                 if (existingValuesDict.ContainsKey(erroneousValue.TimeStamp))
                     existingValuesDict[erroneousValue.TimeStamp].Detectors.AddRange(erroneousValue.Detectors);
                 else
+                {
                     existingValuesDict[erroneousValue.TimeStamp] = erroneousValue;
+                    ErroneousValue value = erroneousValue;
+
+                    //Remove any old events
+                    erroneousValue.RemoveAllEvents();
+                    
+                    erroneousValue.GraphCenteringRequested += () => GraphCenteringRequested(value);
+                }
             }
 
             FoundErroneousValues = (from value in existingValuesDict select value.Value).ToList();
@@ -1040,14 +1064,14 @@ namespace IndiaTango.ViewModels
 
         private void CalculateDateTimeEndPoints()
         {
-            Debug.Print("Old Start Time {0} Old End Time {1}",StartTime,EndTime);
+            Debug.Print("Old Start Time {0} Old End Time {1}", StartTime, EndTime);
             var firstOrDefault = _selectedSensor.DataPoints.DefaultIfEmpty(new DataPoint<DateTime, float>(DateTime.MinValue, 0)).FirstOrDefault();
             var lastOrDefault = _selectedSensor.DataPoints.DefaultIfEmpty(new DataPoint<DateTime, float>(DateTime.MaxValue, 0)).LastOrDefault();
 
             if (firstOrDefault != null && firstOrDefault.X != DateTime.MinValue)
                 StartTime = firstOrDefault.X;
 
-            
+
             if (lastOrDefault != null && lastOrDefault.X != DateTime.MaxValue)
                 EndTime = lastOrDefault.X;
             Debug.Print("New Start Time {0} New End Time {1}", StartTime, EndTime);

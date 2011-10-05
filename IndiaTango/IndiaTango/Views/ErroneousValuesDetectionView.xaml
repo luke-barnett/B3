@@ -66,6 +66,18 @@
                             </cal:ActionMessage>
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel>
+                                <TextBlock Text="{Binding AsString}" />
+                                <ContextMenuService.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Center on Graph" Command="{Binding RequestGraphCenteringCommand}" />
+                                    </ContextMenu>
+                                </ContextMenuService.ContextMenu>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
                 </ListBox>
             </GroupBox>
 
