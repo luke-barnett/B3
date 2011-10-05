@@ -97,6 +97,11 @@ namespace IndiaTango.Models
             return new List<LineSeries> { new LineSeries { DataSeries = new DataSeries<DateTime, float>("Upper Limit") { new DataPoint<DateTime, float>(startDate, sensorToBaseOn.UpperLimit), new DataPoint<DateTime, float>(endDate, sensorToBaseOn.UpperLimit) }, LineStroke = Brushes.OrangeRed }, new LineSeries { DataSeries = new DataSeries<DateTime, float>("Lower Limit") { new DataPoint<DateTime, float>(startDate, sensorToBaseOn.LowerLimit), new DataPoint<DateTime, float>(endDate, sensorToBaseOn.LowerLimit) }, LineStroke = Brushes.OrangeRed } };
         }
 
+        public List<IDetectionMethod> Children
+        {
+            get { return new List<IDetectionMethod>(){_aboveMaxValue, _belowMinValue, _highRateOfChange}; }
+        }
+
         public override string ToString()
         {
             return Name;

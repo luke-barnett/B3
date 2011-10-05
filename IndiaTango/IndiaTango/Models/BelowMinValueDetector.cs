@@ -53,5 +53,10 @@ namespace IndiaTango.Models
         {
             return _owner.GraphableSeries(sensorToBaseOn, startDate, endDate);
         }
+
+        public List<IDetectionMethod> Children
+        {
+            get { return new List<IDetectionMethod>(); }
+        }
     }
 }

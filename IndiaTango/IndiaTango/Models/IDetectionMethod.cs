@@ -52,5 +52,10 @@ namespace IndiaTango.Models
         /// <param name="sensorToBaseOn">The sensor to base the series on</param>
         /// </summary>
         List<LineSeries> GraphableSeries(Sensor sensorToBaseOn, DateTime startDate, DateTime endDate);
+
+        /// <summary>
+        /// The detection methods children
+        /// </summary>
+        List<IDetectionMethod> Children { get; }
     }
 }
