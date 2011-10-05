@@ -732,15 +732,17 @@ namespace IndiaTango.ViewModels
 
         private void AddToMissingValues(IEnumerable<ErroneousValue> values)
         {
+            var existingValuesDict = FoundErroneousValues.ToDictionary(x => x.TimeStamp);
+
             foreach (var erroneousValue in values)
             {
-                var item = FoundErroneousValues.Where(x => x != null && x.Equals(erroneousValue)).DefaultIfEmpty(null).FirstOrDefault();
-
-                if (item == null)
-                    FoundErroneousValues.Add(erroneousValue);
+                if (existingValuesDict.ContainsKey(erroneousValue.TimeStamp))
+                    existingValuesDict[erroneousValue.TimeStamp].Detectors.AddRange(erroneousValue.Detectors);
                 else
-                    item.Detectors.AddRange(erroneousValue.Detectors);
+                    existingValuesDict[erroneousValue.TimeStamp] = erroneousValue;
             }
+
+            FoundErroneousValues = (from value in existingValuesDict select value.Value).ToList();
         }
 
         private void CheckTheseMethods(IEnumerable<IDetectionMethod> methods)
