@@ -444,8 +444,18 @@ namespace IndiaTango.ViewModels
 
         public void BtnExtrapolate()
         {
-            //TODO: Make me work
-            Common.ShowFeatureNotImplementedMessageBox();
+            if (_selectedMissingValues.Count == 0)
+                return;
+
+            var dates = (from values in _selectedMissingValues select values.TimeStamp).ToList();
+
+            _selectedSensor.Sensor.AddState(_selectedSensor.Sensor.CurrentState.Extrapolate(dates, _selectedSensor.Sensor.Owner));
+
+            Finalise("Extrapolated Values");
+
+            Common.ShowMessageBox("Values Updated", "The selected values were extrapolated", false, false);
+
+            UpdateUndoRedo();
         }
 
         public void BtnMakeZero()

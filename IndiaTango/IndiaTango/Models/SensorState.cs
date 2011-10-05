@@ -240,63 +240,105 @@ namespace IndiaTango.Models
         /// <summary>
         /// Given a timestamp which represents a missing value, extrapolates the dataset using the first known point before the given point, and the first known point after the given point in the list of keys.
         /// </summary>
-        /// <param name="keys">A list of data point 'keys' where values are missing.</param>
+        /// <param name="valuesToExtrapolate">A list of data point 'keys' where values are missing.</param>
         /// <param name="ds">A dataset to use, which indicates the length of time that elapses between readings.</param>
         /// <returns>A sensor state with the extrapolated data.</returns>
-        public SensorState Extrapolate(List<DateTime> keys, Dataset ds)
+        public SensorState Extrapolate(List<DateTime> valuesToExtrapolate, Dataset ds)
         {
             EventLogger.LogInfo(GetType().ToString(), "Starting extrapolation process");
 
-            if (keys == null)
+            if (valuesToExtrapolate == null)
                 throw new ArgumentNullException("You must specify a list of keys.");
 
-            if (keys.Count == 0)
+            if (valuesToExtrapolate.Count == 0)
                 throw new ArgumentException("You must specify at least one value to use for extrapolation.");
 
             if (ds == null)
                 throw new ArgumentNullException("You must specify the containing data set for this sensor.");
 
-            var first = keys[0];
-            DateTime startValue;
-            try
-            {
-                startValue = FindPrevValue(first, ds);
-            }
-            catch(Exception e)
-            {
-                throw new DataException("No start value");
-            }
-            var endValue = DateTime.MinValue;
-            var time = 0;
-            try
-            {
-                while (endValue == DateTime.MinValue)
-                {
-                    endValue = (Values.ContainsKey(first.AddMinutes(time))
-                                    ? first.AddMinutes(time)
-                                    : DateTime.MinValue);
-                    time += ds.DataInterval;
-                }
-            }
-            catch(Exception e)
-            {
-                throw new DataException("No end value");
-            }
-
-            var timeDiff = endValue.Subtract(startValue).TotalMinutes;
-            var valDiff = Values[endValue] - Values[startValue];
-            var step = valDiff / (timeDiff / ds.DataInterval);
-            var value = Values[startValue] + step;
+            var completedValues = new List<DateTime>();
 
             var newState = Clone();
 
-            for (var i = ds.DataInterval; i < timeDiff; i += ds.DataInterval)
+            foreach (var time in valuesToExtrapolate)
             {
-                newState.Values.Add(startValue.AddMinutes(i), (float)Math.Round(value, 2));
-                value += step;
+                if (completedValues.Contains(time))
+                    continue;
+
+                DateTime startValue;
+                try
+                {
+                    startValue = FindPrevValue(time);
+                }
+                catch (Exception)
+                {
+                    throw new DataException("No start value");
+                }
+
+                DateTime endValue;
+                try
+                {
+                    endValue = FindNextValue(time);
+                }
+                catch (Exception)
+                {
+                    throw new DataException("No end value");
+                }
+
+                var timeDiffBetweenEndPoints = endValue.Subtract(startValue).TotalMinutes;
+                var timeDiffBetweenStartAndPoint = time.Subtract(startValue).TotalMinutes;
+
+                var valueDiff = Values[endValue] - Values[startValue];
+
+                var newValue = (float)(valueDiff * (timeDiffBetweenStartAndPoint / timeDiffBetweenEndPoints)) + Values[startValue];
+
+                Debug.Print("Large time dif: {0} Small time dif: {1} Value Dif: {2} Start Value: {3} End Value: {4} New Value: {5}", timeDiffBetweenEndPoints, timeDiffBetweenStartAndPoint, valueDiff, Values[startValue], Values[endValue], newValue);
+
+                newState.Values[time] = newValue;
             }
 
-            EventLogger.LogInfo(GetType().ToString(), "Completing extrapolation process");
+            /* ==OLD METHOD==
+                var first = valuesToExtrapolate[0];
+                DateTime startValue;
+                try
+                {
+	                startValue = FindPrevValue(first, ds);
+                }
+                catch(Exception e)
+                {
+	                throw new DataException("No start value");
+                }
+                var endValue = DateTime.MinValue;
+                var time = 0;
+                try
+                {
+	                while (endValue == DateTime.MinValue)
+	                {
+		                endValue = (Values.ContainsKey(first.AddMinutes(time))
+						                ? first.AddMinutes(time)
+						                : DateTime.MinValue);
+		                time += ds.DataInterval;
+	                }
+                }
+                catch(Exception e)
+                {
+	                throw new DataException("No end value");
+                }
+
+                var timeDiff = endValue.Subtract(startValue).TotalMinutes;
+                var valDiff = Values[endValue] - Values[startValue];
+                var step = valDiff / (timeDiff / ds.DataInterval);
+                var value = Values[startValue] + step;
+
+                var newState = Clone();
+
+                for (var i = ds.DataInterval; i < timeDiff; i += ds.DataInterval)
+                {
+	                newState.Values.Add(startValue.AddMinutes(i), (float)Math.Round(value, 2));
+	                value += step;
+                }
+
+                EventLogger.LogInfo(GetType().ToString(), "Completing extrapolation process");*/
 
             return newState;
         }
@@ -305,22 +347,15 @@ namespace IndiaTango.Models
         /// Given a timestamp as a key, finds the first known data point before the point represented by this key.
         /// </summary>
         /// <param name="dataValue">The key, representing an unknown data point, to use.</param>
-        /// <param name="ds">A dataset to use, primarily to determine the time that elapses between data points.</param>
         /// <returns>A key representing the first known data value before the value represented by dataValue.</returns>
-        private DateTime FindPrevValue(DateTime dataValue, Dataset ds)
+        private DateTime FindPrevValue(DateTime dataValue)
         {
-            var prevValue = DateTime.MinValue;
-            var time = 0;
+            return Values.Keys.Where(x => x < dataValue).Max();
+        }
 
-            while (prevValue == DateTime.MinValue)
-            {
-                prevValue = (Values.ContainsKey(dataValue.AddMinutes(time))
-                                 ? dataValue.AddMinutes(time)
-                                 : DateTime.MinValue);
-                time -= ds.DataInterval;
-            }
-
-            return prevValue;
+        private DateTime FindNextValue(DateTime dataValue)
+        {
+            return Values.Keys.Where(x => x > dataValue).Min();
         }
 
         public SensorState MakeZero(List<DateTime> values)
