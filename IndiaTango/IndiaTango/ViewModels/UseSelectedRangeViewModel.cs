@@ -2,7 +2,7 @@
 {
     class UseSelectedRangeViewModel : BaseViewModel
     {
-        public string Title { get { return "What would you like to use?"; } }
+        public string Title { get { return "Would you like to use?"; } }
 
         public bool UseSelectedRange { get; private set; }
 
