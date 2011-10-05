@@ -60,9 +60,7 @@ namespace IndiaTango.Models
         {
             get
             {
-                var rawDataColour = Colour;
-                rawDataColour.A = 125;
-                return rawDataColour;
+                return Color.FromArgb(Colour.A, (byte)~Colour.R, (byte)~Colour.G, (byte)~Colour.B);
             }
         }
 
@@ -93,11 +91,14 @@ namespace IndiaTango.Models
         public void RefreshDataPoints()
         {
             DataPoints = !BoundsSet ? (from dataValue in Sensor.CurrentState.Values select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value)).OrderBy(dataPoint => dataPoint.X) : (from dataValue in Sensor.CurrentState.Values where dataValue.Key >= LowerBound && dataValue.Key <= UpperBound select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value)).OrderBy(dataPoint => dataPoint.X);
+
+            RawDataPoints = !BoundsSet ? (from dataValue in Sensor.RawData.Values select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value)).OrderBy(dataPoint => dataPoint.X) : (from dataValue in Sensor.RawData.Values where dataValue.Key >= LowerBound && dataValue.Key <= UpperBound select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value)).OrderBy(dataPoint => dataPoint.X);
+
             if (Sensor.CurrentState.UpperLine == null) return;
             LowerLine = !BoundsSet ? (from dataValue in Sensor.CurrentState.LowerLine select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value)).OrderBy(dataPoint => dataPoint.X) : (from dataValue in Sensor.CurrentState.LowerLine where dataValue.Key >= LowerBound && dataValue.Key <= UpperBound select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value)).OrderBy(dataPoint => dataPoint.X);
             UpperLine = !BoundsSet ? (from dataValue in Sensor.CurrentState.UpperLine select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value)).OrderBy(dataPoint => dataPoint.X) : (from dataValue in Sensor.CurrentState.UpperLine where dataValue.Key >= LowerBound && dataValue.Key <= UpperBound select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value)).OrderBy(dataPoint => dataPoint.X);
 
-            RawDataPoints = !BoundsSet ? (from dataValue in Sensor.RawData.Values select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value)).OrderBy(dataPoint => dataPoint.X) : (from dataValue in Sensor.RawData.Values where dataValue.Key >= LowerBound && dataValue.Key <= UpperBound select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value)).OrderBy(dataPoint => dataPoint.X);
+
         }
 
         /// <summary>

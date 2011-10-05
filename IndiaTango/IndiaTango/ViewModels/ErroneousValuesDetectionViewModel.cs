@@ -624,7 +624,7 @@ namespace IndiaTango.ViewModels
 
             var series = (sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints.Where((x, index) => index % sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints);
 
-            generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour) });
+            generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour), LineStrokeThickness = (_showRawDataOnGraph) ? 2.5 : 1 });
 
             foreach (var method in _selectedMethods.Where(method => method.HasGraphableSeries))
             {
