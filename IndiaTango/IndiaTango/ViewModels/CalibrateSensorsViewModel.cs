@@ -61,7 +61,7 @@ namespace IndiaTango.ViewModels
         {
             _container = container;
             _windowManager = windowManager;
-            _eval = new FormulaEvaluator();
+            
 
             _backgroundCanvas = new Canvas() {Visibility = Visibility.Collapsed};
 
@@ -217,6 +217,7 @@ namespace IndiaTango.ViewModels
             set
             {
                 _ds = value;
+                _eval = new FormulaEvaluator(_ds.Sensors,_ds.DataInterval);
                 StartTime = _ds.StartTimeStamp;
                 EndTime = _ds.EndTimeStamp;
             }
@@ -588,11 +589,7 @@ namespace IndiaTango.ViewModels
             if (ValidFormula)
             {
                 ViewCursor = Cursors.Wait;
-                SensorState newState = _eval.EvaluateFormula(_results, SelectedSensor.CurrentState.Clone(),
-                                                             _ds.StartTimeStamp,
-                                                             _ds.EndTimeStamp);
-
-                SelectedSensor.AddState(newState);
+                _ds.Sensors = _eval.EvaluateFormula(_results,_ds.StartTimeStamp,_ds.EndTimeStamp);
 
                 ViewCursor = Cursors.Arrow;
 

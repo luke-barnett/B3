@@ -24,7 +24,7 @@ namespace IndiaTango.Tests
             _reader = new CSVReader(Path.Combine(Common.TestDataPath, "lakeTutira120120110648_extra_small.csv"));
             _ds = new Dataset(_s, _reader.ReadSensors());
 
-            _eval = new FormulaEvaluator();
+            _eval = new FormulaEvaluator(_ds.Sensors,_ds.DataInterval);
 		}
 
         //Parsing not yet implemented
@@ -68,72 +68,78 @@ namespace IndiaTango.Tests
         [Test]
         public void ValidCompilerResults1()
         {
-            CompilerResults results = _eval.CompileFormula("x = t.Month");
+            CompilerResults results = _eval.CompileFormula("a = time.Month");
             Assert.IsTrue(_eval.CheckCompileResults(results));
         }
 
         [Test]
         public void ValidCompilerResults2()
         {
-            CompilerResults results = _eval.CompileFormula("x = Cos(t.Month) * 7");
+            CompilerResults results = _eval.CompileFormula("a = Cos(time.Month) * 7");
             Assert.IsTrue(_eval.CheckCompileResults(results));
         }
 
         [Test]
         public void ValidCompilerResults3()
         {
-            CompilerResults results = _eval.CompileFormula("x = Pi * 8");
+            CompilerResults results = _eval.CompileFormula("a = Pi * 8");
             Assert.IsTrue(_eval.CheckCompileResults(results));
         }
 
         [Test]
         public void InvalidCompilerResults1()
         {
-            CompilerResults results = _eval.CompileFormula("x = potatoes");
+            CompilerResults results = _eval.CompileFormula("a = potatoes");
             Assert.IsFalse(_eval.CheckCompileResults(results));
         }
 
         [Test]
         public void InvalidCompilerResults2()
         {
-            CompilerResults results = _eval.CompileFormula("x = t.Potato");
+            CompilerResults results = _eval.CompileFormula("a = time.Potato");
             Assert.IsFalse(_eval.CheckCompileResults(results));
         }
 
         [Test]
         public void InvalidCompilerResults3()
         {
-            CompilerResults results = _eval.CompileFormula("x = eleven");
+            CompilerResults results = _eval.CompileFormula("a = eleven");
             Assert.IsFalse(_eval.CheckCompileResults(results));
         }
 
-		[Test]
-		public void SetValuetoMonth()
-		{
-            CompilerResults results = _eval.CompileFormula("x = t.Month");
-            SensorState newState = _eval.EvaluateFormula(results, _ds.Sensors[0].CurrentState.Clone(), _ds.StartTimeStamp,
-		                                                 _ds.EndTimeStamp);
-
-            _ds.Sensors[0].AddState(newState);
+        [Test]
+        public void SetValuetoMonth()
+        {
+            CompilerResults results = _eval.CompileFormula("a = time.Month");
+            _ds.Sensors = _eval.EvaluateFormula(results, _ds.StartTimeStamp, _ds.EndTimeStamp);
 
             foreach (var pair in _ds.Sensors[0].CurrentState.Values)
-		    {
-		        Assert.AreEqual(pair.Key.Month,pair.Value);
-		    }
-		}
+            {
+                Assert.AreEqual(pair.Key.Month, pair.Value);
+            }
+        }
 
         [Test]
         public void SetValuetoCosDay()
         {
-            CompilerResults results = _eval.CompileFormula("x = Cos(t.Day)");
-            SensorState newState = _eval.EvaluateFormula(results, _ds.Sensors[1].CurrentState.Clone(), _ds.StartTimeStamp,
-                                                         _ds.EndTimeStamp);
-
-            _ds.Sensors[1].AddState(newState);
+            CompilerResults results = _eval.CompileFormula("b = Cos(time.Day)");
+            _ds.Sensors = _eval.EvaluateFormula(results, _ds.StartTimeStamp, _ds.EndTimeStamp);
 
             foreach (var pair in _ds.Sensors[1].CurrentState.Values)
             {
-                Assert.AreEqual(Math.Cos(pair.Key.Day), pair.Value,delta);
+                Assert.AreEqual(Math.Cos(pair.Key.Day), pair.Value, delta);
+            }
+        }
+
+        [Test]
+        public void SetLToM()
+        { 
+            CompilerResults results = _eval.CompileFormula("l = m");
+            _ds.Sensors = _eval.EvaluateFormula(results, _ds.StartTimeStamp, _ds.EndTimeStamp);
+
+            foreach (var pair in _ds.Sensors[11].CurrentState.Values)
+            {
+                Assert.AreEqual(pair.Value,_ds.Sensors[12].CurrentState.Values[pair.Key]);
             }
         }
 
