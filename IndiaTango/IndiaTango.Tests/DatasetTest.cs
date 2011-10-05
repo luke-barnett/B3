@@ -118,5 +118,25 @@ namespace IndiaTango.Tests
             Dataset ds = new Dataset(_b, _reader.ReadSensors());
             Assert.AreEqual(15, ds.DataInterval);
         }
+
+        [Test]
+        public void SwapsSensorsCorrectly()
+        {
+            var A = new Sensor("Temperature at 10m", "C");
+            var B = new Sensor("Temperature at 50m", "C");
+
+            _ds1.Sensors.Add(A);
+            _ds1.Sensors.Add(B);
+
+            var indexA = _ds1.Sensors.IndexOf(A);
+            var indexB = _ds1.Sensors.IndexOf(B);
+
+            _ds1.SwapSensors(A, B);
+
+            Assert.AreEqual(indexB, _ds1.Sensors.IndexOf(A));
+            Assert.AreEqual(indexA, _ds1.Sensors.IndexOf(B));
+            Assert.AreEqual("Temperature at 10m", _ds1.Sensors[indexB].Name);
+            Assert.AreEqual("Temperature at 50m", _ds1.Sensors[indexA].Name);
+        }
     }
 }

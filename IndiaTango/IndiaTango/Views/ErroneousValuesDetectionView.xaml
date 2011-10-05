@@ -56,7 +56,7 @@
             </GroupBox>
 
             <GroupBox Grid.Row="3" Header="Readings Found" BorderBrush="OrangeRed" Margin="10 5 5 0">
-                <ListBox ItemsSource="{Binding MissingValues}" SelectionMode="Extended">
+                <ListBox ItemsSource="{Binding FoundErroneousValues}" SelectionMode="Extended">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="SelectionChanged">
                             <cal:ActionMessage MethodName="MissingValuesSelectionChanged">
@@ -162,7 +162,17 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="100" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="Sampling Options: " VerticalAlignment="Center" HorizontalAlignment="Right" />
+                <CheckBox Grid.Column="0" Content="Graph Raw Data" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Checked">
+                            <cal:ActionMessage MethodName="GraphRawData" />
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="Unchecked">
+                            <cal:ActionMessage MethodName="DontGraphRawData" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </CheckBox>
+                <TextBlock Grid.Column="0" Text="Max Graphed Points: " VerticalAlignment="Center" HorizontalAlignment="Right" />
                 <ComboBox ItemsSource="{Binding SamplingCapOptions}" SelectedIndex="{Binding SelectedSamplingCapIndex, Mode=TwoWay}" Grid.Column="1">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="SelectionChanged">
@@ -191,7 +201,7 @@
                 </StackPanel>
                 <Grid HorizontalAlignment="Right">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding WaitReason}" Visibility="{Binding WaitReasonVisibility}" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding WaitReason}" Visibility="{Binding WaitReasonVisibility}" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="150" />
                         <ProgressBar Visibility="{Binding WaitReasonVisibility}" IsIndeterminate="True" VerticalAlignment="Center" Width="50" Height="15" Margin="5,0,0,0" />
                     </StackPanel>
                 </Grid>

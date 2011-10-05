@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Controls;
+using Visiblox.Charts;
 
 namespace IndiaTango.Models
 {
@@ -62,6 +63,11 @@ namespace IndiaTango.Models
         public bool CheckIndividualValue(Sensor sensor, DateTime timeStamp)
         {
             return !sensor.CurrentState.Values.ContainsKey(timeStamp);
+        }
+
+        public List<LineSeries> GraphableSeries(Sensor sensorToBaseOn, DateTime startDate, DateTime endDate)
+        {
+            throw new NotImplementedException();
         }
     }
 }

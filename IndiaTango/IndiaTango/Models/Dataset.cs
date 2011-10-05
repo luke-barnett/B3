@@ -90,7 +90,7 @@ namespace IndiaTango.Models
         	    _sensors = value;
 
 
-                if(Sensors[0] != null && Sensors[0].CurrentState != null)
+                if(Sensors.Count > 0 && Sensors[0] != null && Sensors[0].CurrentState != null)
                 {
                     var intervalMap = new Dictionary<int, int>();
                     var prevDate = DateTime.MinValue;
@@ -191,6 +191,18 @@ namespace IndiaTango.Models
         public int ExpectedDataPointCount
         {
             get { return _expectedDataPointCount; }
+        }
+
+        public void SwapSensors(Sensor A, Sensor B)
+        {
+            if (A.Equals(B))
+                return;
+
+            var indexA = Sensors.IndexOf(A);
+            var indexB = Sensors.IndexOf(B);
+
+            Sensors[indexA] = B;
+            Sensors[indexB] = A;
         }
     }
 }

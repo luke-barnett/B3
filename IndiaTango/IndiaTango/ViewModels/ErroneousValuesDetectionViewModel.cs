@@ -21,7 +21,10 @@ namespace IndiaTango.ViewModels
             _windowManager = windowManager;
             _container = container;
 
-            DetectionMethods = new List<IDetectionMethod> { new MissingValuesDetector() };
+            var minMaxRateofChangeDetector = new MinMaxRateOfChangeDetector();
+            minMaxRateofChangeDetector.GraphUpdateNeeded += UpdateGraph;
+
+            DetectionMethods = new List<IDetectionMethod> { new MissingValuesDetector(), minMaxRateofChangeDetector };
 
             var behaviours = new BehaviourManager { AllowMultipleEnabled = true };
 
@@ -60,7 +63,7 @@ namespace IndiaTango.ViewModels
         private Cursor _cursor = Cursors.Arrow;
         private List<IDetectionMethod> _detectionMethods = new List<IDetectionMethod>();
         private List<GraphableSensor> _sensorList = new List<GraphableSensor>();
-        private List<ErroneousValue> _missingValues = new List<ErroneousValue>();
+        private List<ErroneousValue> _foundErroneousValues = new List<ErroneousValue>();
         private bool _showUndoStates;
         private bool _showRedoStates;
         private bool _actionButtonsEnabled;
@@ -93,14 +96,26 @@ namespace IndiaTango.ViewModels
         private double _maximumMaximum;
 
         private string _waitReason = string.Empty;
+        private bool _showRawDataOnGraph;
 
-        #endregion
-
-        #region Constants
-        public string ViewTitle { get { return "Erroneous Values Detection"; } }
         #endregion
 
         #region Visual Items
+
+        public string ViewTitle
+        {
+            get
+            {
+                if (_sensorList.Count > 1 && _sensorList[0].Sensor.Owner.Site != null)
+                    if (_selectedSensor == null)
+                        return string.Format("[{0}] Erroneous Values Detection", _sensorList[0].Sensor.Owner.Site.Name);
+                    else
+                        return string.Format("[{0}] Erroneous Values Detection - {1}",
+                                             _sensorList[0].Sensor.Owner.Site.Name, _selectedSensor.Sensor.Name);
+
+                return _selectedSensor != null ? string.Format("Erroneous Values Detection - {0}", _selectedSensor.Sensor.Name) : "Erroneous Values Detection";
+            }
+        }
 
         public Cursor ViewCursor { get { return _cursor; } set { _cursor = value; NotifyOfPropertyChange(() => ViewCursor); } }
 
@@ -155,6 +170,7 @@ namespace IndiaTango.ViewModels
                     FindErroneousValues();
                 }
                 NotifyOfPropertyChange(() => SelectedSensor);
+                NotifyOfPropertyChange(() => ViewTitle);
             }
         }
 
@@ -166,7 +182,7 @@ namespace IndiaTango.ViewModels
 
         public List<GraphableSensor> SensorList { get { return _sensorList; } set { _sensorList = value; NotifyOfPropertyChange(() => SensorList); } }
 
-        public List<ErroneousValue> MissingValues { get { return _missingValues; } set { _missingValues = value; NotifyOfPropertyChange(() => MissingValues); } }
+        public List<ErroneousValue> FoundErroneousValues { get { return _foundErroneousValues; } set { _foundErroneousValues = value; NotifyOfPropertyChange(() => FoundErroneousValues); } }
 
         #endregion
 
@@ -326,6 +342,8 @@ namespace IndiaTango.ViewModels
                 return;
 
             CheckTheseMethods(new Collection<IDetectionMethod> { method });
+
+            UpdateGraph();
         }
 
         public void DetectionMethodUnChecked(RoutedEventArgs eventArgs)
@@ -340,15 +358,17 @@ namespace IndiaTango.ViewModels
 
             SelectedDetectionMethod = method;
 
+            UpdateGraph();
+
             if (_selectedMethods.Count == 0)
             {
-                MissingValues = new List<ErroneousValue>();
+                FoundErroneousValues = new List<ErroneousValue>();
                 return;
             }
 
-            for (var i = 0; i < MissingValues.Count; i++)
+            for (var i = 0; i < FoundErroneousValues.Count; i++)
             {
-                var value = MissingValues[i];
+                var value = FoundErroneousValues[i];
 
                 if (!value.Detectors.Contains(method)) continue;
 
@@ -356,11 +376,11 @@ namespace IndiaTango.ViewModels
 
                 if (value.Detectors.Count == 0)
                 {
-                    MissingValues.Remove(value);
+                    FoundErroneousValues.Remove(value);
                 }
             }
 
-            MissingValues = new List<ErroneousValue>(MissingValues);
+            FoundErroneousValues = new List<ErroneousValue>(FoundErroneousValues);
         }
 
         #endregion
@@ -522,6 +542,18 @@ namespace IndiaTango.ViewModels
                 SampleValues(_selectedSensor, Common.MaximumGraphablePoints);
         }
 
+        public void GraphRawData()
+        {
+            _showRawDataOnGraph = true;
+            UpdateGraph();
+        }
+
+        public void DontGraphRawData()
+        {
+            _showRawDataOnGraph = false;
+            UpdateGraph();
+        }
+
         #endregion
 
         private void FindErroneousValues()
@@ -529,7 +561,7 @@ namespace IndiaTango.ViewModels
             if (SelectedSensor == null)
                 return;
 
-            MissingValues.Clear();
+            FoundErroneousValues.Clear();
 
             CheckTheseMethods(_selectedMethods);
 
@@ -548,7 +580,7 @@ namespace IndiaTango.ViewModels
 
             DetectionSettingsHeight = (SelectedDetectionMethod == null || !SelectedDetectionMethod.HasSettings)
                                           ? new GridLength(0)
-                                          : new GridLength(1, GridUnitType.Star);
+                                          : GridLength.Auto;
         }
 
         private void Finalise(string taskPerformed)
@@ -561,9 +593,9 @@ namespace IndiaTango.ViewModels
                     notErroneous = !method.CheckIndividualValue(_selectedSensor.Sensor, value.TimeStamp);
                 }
                 if (notErroneous)
-                    MissingValues.Remove(value);
+                    FoundErroneousValues.Remove(value);
             }
-            MissingValues = new List<ErroneousValue>(MissingValues);
+            FoundErroneousValues = new List<ErroneousValue>(FoundErroneousValues);
 
             SelectedSensor.RefreshDataPoints();
 
@@ -588,13 +620,51 @@ namespace IndiaTango.ViewModels
 
             var generatedSeries = new List<LineSeries>();
 
-            var sampleRate = sensor.DataPoints.Count() / maxPointCount;
+            var numberOfSeries = 1;
+
+            if (_showRawDataOnGraph)
+                numberOfSeries += 1;
+
+            numberOfSeries += _selectedMethods.Where(method => method.HasGraphableSeries).Count();
+
+            var sampleRate = sensor.DataPoints.Count() / (maxPointCount / numberOfSeries);
 
             Debug.Print("Number of points: {0} Max Number {1} Sampling rate {2}", sensor.DataPoints.Count(), maxPointCount, sampleRate);
 
             var series = (sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints.Where((x, index) => index % sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints);
 
             generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour) });
+
+            foreach (var method in _selectedMethods.Where(method => method.HasGraphableSeries))
+            {
+                Debug.Print("Adding series from {0}", method.Name);
+
+                //Get them
+                var methodsSeries = sensor.BoundsSet
+                                        ? method.GraphableSeries(sensor.Sensor, sensor.LowerBound,
+                                                                 sensor.UpperBound)
+                                        : method.GraphableSeries(sensor.Sensor, sensor.Sensor.Owner.StartTimeStamp,
+                                                                 sensor.Sensor.Owner.EndTimeStamp);
+                //If we need to apply sampling do so
+                if(sampleRate > 1)
+                {
+                    foreach (var x in methodsSeries.Where(i => i.DataSeries.Cast<object>().Count() > (maxPointCount / numberOfSeries)))
+                    {
+                        x.DataSeries = new DataSeries<DateTime, float>(x.DataSeries.Title,
+                                                                       x.DataSeries.Cast<DataPoint<DateTime, float>>().
+                                                                           Where
+                                                                           ((value, index) => index%sampleRate == 0));
+                    }
+                }
+
+                //Add them
+                generatedSeries.AddRange(methodsSeries);
+            }
+
+            if (_showRawDataOnGraph)
+            {
+                generatedSeries.Add(new LineSeries { LineStroke = new SolidColorBrush(sensor.RawDataColour), DataSeries = (sampleRate > 1) ? new DataSeries<DateTime, float>("Raw Data", sensor.RawDataPoints.Where((x, index) => index % sampleRate == 0)) : new DataSeries<DateTime, float>("Raw Data", sensor.RawDataPoints) });
+            }
 
             if (sampleRate > 1)
                 ShowBackground();
@@ -664,10 +734,10 @@ namespace IndiaTango.ViewModels
         {
             foreach (var erroneousValue in values)
             {
-                var item = MissingValues.Where(x => x != null && x.Equals(erroneousValue)).DefaultIfEmpty(null).FirstOrDefault();
+                var item = FoundErroneousValues.Where(x => x != null && x.Equals(erroneousValue)).DefaultIfEmpty(null).FirstOrDefault();
 
                 if (item == null)
-                    MissingValues.Add(erroneousValue);
+                    FoundErroneousValues.Add(erroneousValue);
                 else
                     item.Detectors.AddRange(erroneousValue.Detectors);
             }
@@ -697,8 +767,8 @@ namespace IndiaTango.ViewModels
 
             bw.RunWorkerCompleted += (o, e) =>
                                          {
-                                             Debug.WriteLine("There are {0} items in Missing Values", MissingValues.Count);
-                                             MissingValues = new List<ErroneousValue>(MissingValues);
+                                             Debug.WriteLine("There are {0} items in Missing Values", FoundErroneousValues.Count);
+                                             FoundErroneousValues = new List<ErroneousValue>(FoundErroneousValues);
 
                                              StopWaiting();
                                          };
