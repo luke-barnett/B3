@@ -24,6 +24,7 @@
                     <RowDefinition Height="32" />
                     <RowDefinition Height="45" />
                     <RowDefinition Height="45" />
+                    <RowDefinition Height="45" />
                     <RowDefinition Height="32" />
                     <RowDefinition Height="*" />
                     <RowDefinition Height="50" />
@@ -34,19 +35,20 @@
                 <TextBlock FontWeight="Bold" TextAlignment="Right" Margin="5" Grid.Row="1" Grid.Column="0" Text="Lower Limit:" />
                 <TextBlock FontWeight="Bold" TextAlignment="Right" Margin="5" Grid.Row="3" Grid.Column="0" Text="Maximum Rate of Change:" TextWrapping="Wrap" />
 
-                <TextBlock FontWeight="Bold" TextAlignment="Right" Margin="5" Grid.Row="4" Grid.Column="0" Text="Match Sensor Names:" TextWrapping="Wrap" />
-                <TextBlock FontWeight="Bold" TextAlignment="Right" Margin="5" Grid.Row="5" Grid.Column="0" Text="Text to Match:" TextWrapping="Wrap" />
+                <TextBlock FontWeight="Bold" TextAlignment="Right" Margin="5" Grid.Row="5" Grid.Column="0" Text="Match Sensor Names:" TextWrapping="Wrap" />
+                <TextBlock FontWeight="Bold" TextAlignment="Right" Margin="5" Grid.Row="6" Grid.Column="0" Text="Text to Match:" TextWrapping="Wrap" />
                 
                 
 
                 <TextBox Text="{Binding Unit, Mode=TwoWay}" Grid.Column="1" Grid.Row="0" Margin="5" IsEnabled="{Binding Editing}" />
                 <TextBox Text="{Binding LowerLimit, Mode=TwoWay}" Grid.Column="1" Grid.Row="1" Margin="5" IsEnabled="{Binding Editing}" />
                 <TextBox Text="{Binding UpperLimit, Mode=TwoWay}" Grid.Column="1" Grid.Row="2" Margin="5" IsEnabled="{Binding Editing}" />
-                <TextBox Text="{Binding MaximumRateOfChange, Mode=TwoWay}" Grid.Column="1" Grid.Row="3" Margin="5" Height="22" Width="100" VerticalAlignment="Top" HorizontalAlignment="Left" IsEnabled="{Binding Editing}" />
-                <ComboBox ItemsSource="{Binding SensorMatchStyles}" SelectedIndex="{Binding MatchMode, Mode=TwoWay}" Grid.Column="1" Grid.Row="4" Margin="5 10" IsEnabled="{Binding Editing}" />
-                <TextBox Text="{Binding TextToMatch, Mode=TwoWay}" Grid.Column="1" Grid.Row="5" Margin="5" IsEnabled="{Binding Editing}"/>
+                <TextBox Text="{Binding MaximumRateOfChange, Mode=TwoWay}" Grid.Column="1" Grid.Row="3" Margin="5" Height="22" Width="100" HorizontalAlignment="Left" IsEnabled="{Binding Editing}" />
+                <ComboBox ItemsSource="{Binding SummaryTypes}" SelectedIndex="{Binding SummaryMode, Mode=TwoWay}" Grid.Column="1" Grid.Row="4" Margin="5 10" IsEnabled="{Binding Editing}"/>
+                <ComboBox ItemsSource="{Binding SensorMatchStyles}" SelectedIndex="{Binding MatchMode, Mode=TwoWay}" Grid.Column="1" Grid.Row="5" Margin="5 10" IsEnabled="{Binding Editing}" />
+                <TextBox Text="{Binding TextToMatch, Mode=TwoWay}" Grid.Column="1" Grid.Row="6" Margin="5" IsEnabled="{Binding Editing}"/>
 
-                <StackPanel Grid.Column="0" Grid.Row="7" Grid.ColumnSpan="2" HorizontalAlignment="Right" Orientation="Horizontal">
+                <StackPanel Grid.Row="8" Grid.ColumnSpan="2" HorizontalAlignment="Right" Orientation="Horizontal">
                     <Button Name="btnNew" FontSize="15" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Left">
                         <StackPanel Orientation="Horizontal">
                             <Image Source="/IndiaTango;component/Images/new_sensor.png" Width="32" Height="32" VerticalAlignment="Center" />
@@ -89,6 +91,7 @@
                         </StackPanel>
                     </Button>
                 </StackPanel>
+                <TextBlock FontWeight="Bold" Margin="8,10,6,0" Text="Summary type:" TextAlignment="Right" TextWrapping="Wrap" Grid.Row="4" />
             </Grid>
         </GroupBox>
     </Grid>

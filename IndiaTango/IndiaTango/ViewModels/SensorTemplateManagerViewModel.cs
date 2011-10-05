@@ -27,6 +27,7 @@ namespace IndiaTango.ViewModels
         private float _maxChange = 0;
         private string _pattern = "";
         private int _selectedMatchMode = 0;
+        private SummaryType _sType;
 
         public SensorTemplateManagerViewModel(IWindowManager windowManager, SimpleContainer container)
         {
@@ -52,6 +53,21 @@ namespace IndiaTango.ViewModels
                             "If they contain the text to match", "If they start with the text to match", "If they end with the text to match"
                         };
             }
+        }
+
+        public int SummaryMode
+        {
+            get { return (int)_sType; }
+            set
+            {
+                _sType = (SummaryType) value;
+                NotifyOfPropertyChange(() => SummaryMode);
+            }
+        }
+
+        public string[] SummaryTypes
+        {
+            get{return new string[]{"Agerage","Sum"};}
         }
 
         public List<ListedSensor> Sensors
@@ -155,6 +171,7 @@ namespace IndiaTango.ViewModels
                     UpperLimit = 0;
                     TextToMatch = "";
                     MatchMode = 0;
+                    SummaryMode = (int)SummaryType.Average;
                 }
                 else
                 {
@@ -163,6 +180,7 @@ namespace IndiaTango.ViewModels
                     LowerLimit = _selectedTemplate.LowerLimit;
                     TextToMatch = _selectedTemplate.Pattern;
                     MatchMode = (int) _selectedTemplate.MatchingStyle;
+                    SummaryMode = (int)_selectedTemplate.SummaryType;
                 }
 
                 NotifyOfPropertyChange(() => SelectedTemplate);
@@ -201,7 +219,7 @@ namespace IndiaTango.ViewModels
             try
             {
                 var msg = "";
-                var template = new SensorTemplate(Unit, UpperLimit, LowerLimit, MaximumRateOfChange, (SensorTemplate.MatchStyle)Enum.Parse(typeof(SensorTemplate.MatchStyle), (MatchMode).ToString()), TextToMatch); // Construct object to prevent inconsistent state if updating (when setting properties and some are invalid)
+                var template = new SensorTemplate(Unit, UpperLimit, LowerLimit, MaximumRateOfChange, (SensorTemplate.MatchStyle)Enum.Parse(typeof(SensorTemplate.MatchStyle), (MatchMode).ToString()), TextToMatch,_sType); // Construct object to prevent inconsistent state if updating (when setting properties and some are invalid)
 
                 var list = AllTemplates; // To trigger update
 

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Collections;
 using System.ComponentModel;
 using System.Text;
+using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Data;
 using System.CodeDom;
@@ -30,28 +31,20 @@ namespace IndiaTango.Models
         readonly ICodeCompiler _compiler;
         readonly CompilerParameters _parms;
         private List<SensorVariable> _sensorStates;
-        private string variableStartCode = "";
-        private string variableEndCode = "";
-        private string loopStartCode =  "for(int i = 0; i < sensorState.Values.Keys.Count ; i++)\n" +
-                                        "{\n" +
-                                        "   DateTime t = sensorState.Values.Keys.ElementAt(i);\n" +
-                                        "   if(t >= startTime && t <= endTime)\n" +
-                                        "   {\n" +
-                                        "       double x = sensorState.Values[t]\n";      //Colon should be missing
-                                                //User code goes here
-        private string loopEndCode =    "       sensorState.Values[t] = (float)x;\n" +
-                                        "   }\n" +
-                                        "}\n";
+        private string loopStartCode = "";
+        private string loopEndCode = "";
+        private int _interval;
 
         #region PublicMethods
-        public FormulaEvaluator()//List<SensorVariable> sensorStates)
+        public FormulaEvaluator(List<Sensor> sensorStates, int interval)
         {
             //Create the compiler
             CodeDomProvider codeProvider = null;
             codeProvider = new CSharpCodeProvider();
             _compiler = codeProvider.CreateCompiler();
+            _interval = interval;
+            _sensorStates = SensorVariable.CreateSensorVariablesFromSensors(sensorStates);
 
-            
             //add compiler parameters and assembly references
             _parms = new CompilerParameters();
             _parms.CompilerOptions = "/target:library /optimize";
@@ -62,6 +55,7 @@ namespace IndiaTango.Models
             _parms.ReferencedAssemblies.Add("System.dll");
             _parms.ReferencedAssemblies.Add("System.Windows.Forms.dll");
             _parms.ReferencedAssemblies.Add("System.Core.dll");
+            //_parms.ReferencedAssemblies.Add("System.Collections.Generic");
             _parms.ReferencedAssemblies.Add(Assembly.GetExecutingAssembly().Location);
             Debug.WriteLine(Assembly.GetExecutingAssembly().Location);
             //Add any aditional references needed
@@ -69,9 +63,6 @@ namespace IndiaTango.Models
               //  _parms.ReferencedAssemblies.Add(refAssembly);
 
             GetMathMemberNames();
-
-            //Save states and generate variable code
-            //_sensorStates = sensorStates;
         }
 
         public bool ParseFormula(string formula)
@@ -91,6 +82,55 @@ namespace IndiaTango.Models
             // change evaluation string to pick up Math class members
             formula = RefineEvaluationString(formula);
 
+            //Get the varibles used in formula
+            List<SensorVariable> variablesUsed = new List<SensorVariable>();
+            foreach (SensorVariable sensorVariable in _sensorStates)
+            {
+                if (formula.Contains(sensorVariable.VariableName + " ")  || formula.Contains(" " + sensorVariable.VariableName))
+                {
+                    variablesUsed.Add(sensorVariable);
+                }
+            }
+
+            //Get the variables assigned to in the formula, and add a new state for them
+            List<SensorVariable> variablesAssignedTo = new List<SensorVariable>();
+            foreach (SensorVariable sensorVariable in variablesUsed)
+            {
+                if (formula.Contains(sensorVariable.VariableName + " ="))
+                {
+                    variablesAssignedTo.Add(sensorVariable);
+                    sensorVariable.Sensor.AddState(sensorVariable.Sensor.CurrentState.Clone());
+                }
+            }
+
+            //Generate start loopp code
+            loopStartCode = "for(DateTime time = startTime; time <= endTime ; time = time.AddMinutes(" + _interval + "))\n" +
+                            "{\n";
+
+            for (int v = 0; v < _sensorStates.Count; v++)
+            {
+                if (variablesUsed.Contains(_sensorStates[v]))
+                {
+                    loopStartCode += "float " + _sensorStates[v].VariableName + " = 0;\n";
+                    loopStartCode += "sensorStates[" + v + "].Sensor.CurrentState.Values.TryGetValue(time,out " +
+                                     _sensorStates[v].VariableName + ");\n";
+                }
+            }
+
+            //Generate the code for the end of the loop
+            loopEndCode = "";
+
+            for (int v = 0; v < _sensorStates.Count; v++)
+            {
+                if (variablesAssignedTo.Contains(_sensorStates[v]))
+                {
+                    loopEndCode += "sensorStates[" + v + "].Sensor.CurrentState.Values[time] = " +
+                                   _sensorStates[v].VariableName + ";\n";
+                }
+            }
+
+            loopEndCode += "}\n";
+
             // build the class using codedom
             BuildClass(formula);
 
@@ -101,7 +141,7 @@ namespace IndiaTango.Models
 			if (results.Errors.Count > 0)
 			{
 				foreach (CompilerError error in results.Errors)
-					Console.WriteLine("Compile Error:" + error.ErrorText);
+					Console.WriteLine("Compile Error. Line " +error.Line + ":" + error.ErrorText);
 			}
 
             Console.WriteLine("...........................\r\n");
@@ -110,7 +150,7 @@ namespace IndiaTango.Models
             return results;
         }
 
-        public SensorState EvaluateFormula(CompilerResults results, SensorState sensorState, DateTime startTime, DateTime endTime)
+        public List<Sensor> EvaluateFormula(CompilerResults results,  DateTime startTime, DateTime endTime)
         {
             if (startTime >= endTime)
                 throw new ArgumentException("End time must be greater than start time");
@@ -120,7 +160,7 @@ namespace IndiaTango.Models
             if (results != null && results.CompiledAssembly != null)
             {
                 // run the evaluation function
-                return RunCode(results, sensorState, startTime, endTime);
+                return RunCode(results, startTime, endTime);
             }
             else
             {
@@ -163,6 +203,9 @@ namespace IndiaTango.Models
             }
 
             // return the modified evaluation string
+
+            eval = eval.Replace("=", "= (float)");
+
             return eval;
         }
 
@@ -211,7 +254,7 @@ namespace IndiaTango.Models
         /// Runs the Calculate method in our on-the-fly assembly
         /// </summary>
         /// <param name="results"></param>
-        private SensorState RunCode(CompilerResults results, SensorState sensorState, DateTime startTime, DateTime endTime)
+        private List<Sensor> RunCode(CompilerResults results, DateTime startTime, DateTime endTime)
         {
             Assembly executingAssembly = results.CompiledAssembly;
             try
@@ -233,8 +276,7 @@ namespace IndiaTango.Models
                         {
                             if (mi.Name == "ApplyFormula")
                             {
-                                object result = mi.Invoke(assemblyInstance, new object[]{sensorState, startTime, endTime});
-                                return (SensorState) result;
+                                return (List<Sensor>)mi.Invoke(assemblyInstance, new object[] { _sensorStates, startTime, endTime });
                             }
                         }
                     }
@@ -312,6 +354,8 @@ namespace IndiaTango.Models
             myNamespace.Imports.Add(new CodeNamespaceImport("System"));
             myNamespace.Imports.Add(new CodeNamespaceImport("System.Windows.Forms"));
             myNamespace.Imports.Add(new CodeNamespaceImport("System.Linq"));
+            myNamespace.Imports.Add(new CodeNamespaceImport("System.Collections.Generic"));
+            myNamespace.Imports.Add(new CodeNamespaceImport("IndiaTango.Models"));
             //myNamespace.Imports.Add(new CodeNamespaceImport("System.Math"));
             //Build the class declaration and member variables			
             CodeTypeDeclaration classDeclaration = new CodeTypeDeclaration();
@@ -328,21 +372,19 @@ namespace IndiaTango.Models
             //Our Calculate Method
             CodeMemberMethod myMethod = new CodeMemberMethod();
             myMethod.Name = "ApplyFormula";
-            myMethod.ReturnType = new CodeTypeReference(typeof(SensorState));
+            myMethod.ReturnType = new CodeTypeReference(typeof(List<Sensor>));
             myMethod.Comments.Add(new CodeCommentStatement("Apply a formula across a dataset", true));
-            myMethod.Parameters.Add(new CodeParameterDeclarationExpression(new CodeTypeReference(typeof(SensorState)), "sensorState"));
+            myMethod.Parameters.Add(new CodeParameterDeclarationExpression(new CodeTypeReference(typeof(List<SensorVariable>)), "sensorStates"));
             myMethod.Parameters.Add(new CodeParameterDeclarationExpression(new CodeTypeReference(typeof(DateTime)), "startTime"));
             myMethod.Parameters.Add(new CodeParameterDeclarationExpression(new CodeTypeReference(typeof(DateTime)), "endTime"));
             myMethod.Attributes = MemberAttributes.Public;
-            myMethod.Statements.Add(new CodeSnippetExpression(variableStartCode));
             myMethod.Statements.Add(new CodeSnippetExpression(loopStartCode));
 
             //Add the user specified code
             myMethod.Statements.Add(new CodeSnippetExpression(expression));
 
             myMethod.Statements.Add(new CodeSnippetExpression(loopEndCode));
-            myMethod.Statements.Add(new CodeSnippetExpression(variableEndCode));
-            myMethod.Statements.Add(new CodeMethodReturnStatement(new CodeVariableReferenceExpression("sensorState")));
+            myMethod.Statements.Add(new CodeMethodReturnStatement(new CodeVariableReferenceExpression("SensorVariable.CreateSensorsFromSensorVariables(sensorStates)")));
             classDeclaration.Members.Add(myMethod);
 
             //write code
@@ -355,48 +397,5 @@ namespace IndiaTango.Models
         #endregion
     }
 
-    public class SensorVariable
-    {
-        private Sensor _sensor;
-        private string _variableName;
-
-        public SensorVariable(Sensor sensor, string variableName)
-        {
-            if(sensor == null)
-                throw new ArgumentNullException("Sensor cannot be null.");
-
-            if (String.IsNullOrEmpty(variableName))
-                throw new ArgumentNullException("variableName cannot be null.");
-
-            _sensor = sensor;
-            _variableName = variableName;
-        }
-
-        public Sensor Sensor
-        {
-            get { return _sensor; }
-        }
-
-        public string VariableName
-        {
-            get { return _variableName; }
-        }
-
-        public static List<SensorVariable> CreateSensorVariablesFromSensors(List<Sensor> sensors)
-        {
-            List<SensorVariable> variables = new List<SensorVariable>();
-            int i = 0;
-            string var;
-
-            foreach (Sensor sensor in sensors)
-            {
-                variables.Add(new SensorVariable(sensor,
-                    (i > 25 ? Convert.ToChar((int)Math.Floor(i/26d) + 96) + "" : "")+ 
-                    "" + Convert.ToChar((int)(i % 26) + 97)));
-                i++;
-            }
-
-            return variables;
-        }
-    }
+    
 }

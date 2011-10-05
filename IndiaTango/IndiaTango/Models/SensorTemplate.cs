@@ -14,6 +14,7 @@ namespace IndiaTango.Models
         private float _lowerLimit = 0;
         private float _maxRateOfChange = 0;
         private string _unit = "";
+        private SummaryType _sType;
 
         public static string ExportPath
         {
@@ -27,21 +28,26 @@ namespace IndiaTango.Models
             EndsWith
         };
 
-        public SensorTemplate(string unit, float upperLimit, float lowerLimit, float maxRateOfChange, MatchStyle matchStyle, string pattern)
+        public SensorTemplate(string unit, float upperLimit, float lowerLimit, float maxRateOfChange, MatchStyle matchStyle, string pattern):this(unit,upperLimit,lowerLimit,maxRateOfChange,matchStyle,pattern,SummaryType.Average){}
+
+
+        public SensorTemplate(string unit, float upperLimit, float lowerLimit, float maxRateOfChange, MatchStyle matchStyle, string pattern,SummaryType sType)
         {
-            if(String.IsNullOrWhiteSpace(unit))
+            if (String.IsNullOrWhiteSpace(unit))
                 throw new ArgumentException("You must a non-blank default unit.");
 
-            if(pattern == null)
+            if (pattern == null)
                 throw new ArgumentException("The pattern to match a sensor on cannot be blank.");
 
-            if(lowerLimit > upperLimit)
-                throw new ArgumentOutOfRangeException("The lower limit must be less than the upper limit for this preset.");
+            if (lowerLimit > upperLimit)
+                throw new ArgumentOutOfRangeException(
+                    "The lower limit must be less than the upper limit for this preset.");
 
             _unit = unit;
             _upperLimit = upperLimit;
             _lowerLimit = lowerLimit;
             _maxRateOfChange = maxRateOfChange;
+            _sType = sType;
 
             _matchStyle = matchStyle;
             _pattern = pattern;
@@ -52,6 +58,12 @@ namespace IndiaTango.Models
         {
             get { return _unit; }
             set { _unit = value; }
+        }
+
+        public SummaryType SummaryType
+        {
+            get { return _sType; }
+            set { _sType = value; }
         }
 
         /*
@@ -132,6 +144,7 @@ namespace IndiaTango.Models
             sensor.UpperLimit = UpperLimit;
             sensor.LowerLimit = LowerLimit;
             sensor.MaxRateOfChange = MaximumRateOfChange;
+            sensor.SummaryType = SummaryType;
         }
 
         public static void ExportAll(List<SensorTemplate> templates)

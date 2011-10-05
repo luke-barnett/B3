@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using Caliburn.Micro;
 using IndiaTango.Models;
 
@@ -19,6 +21,7 @@ namespace IndiaTango.ViewModels
     	private bool _editing = false;
         private List<SensorTemplate> Templates = new List<SensorTemplate>();
         private Dataset _ds = null;
+        private SummaryType _summaryType;
 
         public EditSensorViewModel(IWindowManager windowManager, SimpleContainer container)
         {
@@ -26,6 +29,68 @@ namespace IndiaTango.ViewModels
             _container = container;
 
             Templates = SensorTemplate.ImportAll();
+        }
+
+        private Cursor _viewCursor = Cursors.Arrow;
+
+        public Cursor ViewCursor
+        {
+            get { return _viewCursor; }
+            set { _viewCursor = value; NotifyOfPropertyChange(() => ViewCursor); }
+        }
+
+        private ListedSensor _sensorAtStartOfDrag = null;
+        private bool isDragging = false;
+        private bool movedMouseWhileDragging = false;
+
+        public void StartSensorDrag(SelectionChangedEventArgs e)
+        {
+            if (isDragging)
+                return;
+
+            // This handles the fact that, when you click and drag, this event *only* fires
+            // when a *new* item is selected. We want the one from before - hence the
+            // use of RemovedItems.
+
+            _sensorAtStartOfDrag = (e.RemovedItems.Count == 1) ? (ListedSensor)e.RemovedItems[0] : (ListedSensor)e.AddedItems[0];
+
+            isDragging = true;
+        }
+
+        public void MovedOverSensorList(MouseEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                ViewCursor = Cursors.SizeAll;
+                movedMouseWhileDragging = true;
+            }
+        }
+
+        public void EndSensorDrag(MouseEventArgs e)
+        {
+            if (movedMouseWhileDragging)
+            {
+                isDragging = false;
+                var sensorAtEndOfDrag = SelectedItem;
+
+                if (!sensorAtEndOfDrag.Sensor.Equals(_sensorAtStartOfDrag.Sensor) &&
+                    (sensorAtEndOfDrag != null && _sensorAtStartOfDrag != null))
+                {
+                    // Move it into place
+                    _ds.SwapSensors(_sensorAtStartOfDrag.Sensor, sensorAtEndOfDrag.Sensor);
+                    SelectedItem = _sensorAtStartOfDrag;
+
+                    // TODO: must be more efficient way of doing this? Just NotifyPropertyChanged() didn't work
+                    var tmpList = AllSensors;
+                    AllSensors = new List<ListedSensor>();
+                    AllSensors = tmpList;
+                }
+            }
+
+            _sensorAtStartOfDrag = null;
+            movedMouseWhileDragging = false;
+            isDragging = false;
+            ViewCursor = Cursors.Arrow;
         }
 
 		#region View Properties
@@ -39,6 +104,16 @@ namespace IndiaTango.ViewModels
 
         public string Icon { get { return Common.Icon; } }
 
+        public int SummaryMode
+        {
+            get { return (int) _summaryType; }
+            set
+            {
+                _summaryType = (SummaryType) value;
+                NotifyOfPropertyChange(() => SummaryMode);
+            }
+        }
+
         public int TipRowHeight
         {
             get { return (TipVisible) ? 45 : 0; }
@@ -48,6 +123,8 @@ namespace IndiaTango.ViewModels
         {
             get { return (FailingErrorVisible) ? 60 : 0; }
         }
+
+        public string[] SummaryTypes{get {return new string[]{"Average","Sum"};}}
 
         public bool FailingErrorVisible
         {
@@ -86,10 +163,13 @@ namespace IndiaTango.ViewModels
 
 		public List<ListedSensor> AllSensors
     	{
-			get { return _allSensors; }
+            get
+            {
+                return _ds.Sensors.Select(s => new ListedSensor(s, _ds)).ToList();
+            }
 			set
 			{
-                _allSensors = value;
+			    _ds.Sensors = value.Select(s => s.Sensor).ToList();
                 NotifyOfPropertyChange(() => AllSensors);
 			}
     	}
@@ -112,6 +192,7 @@ namespace IndiaTango.ViewModels
                     Manufacturer = _selectedItem.Sensor.Manufacturer;
                     SerialNumber = _selectedItem.Sensor.SerialNumber;
                     ErrorThreshold = _selectedItem.Sensor.ErrorThreshold.ToString();
+                    SummaryMode = (int)_selectedItem.Sensor.SummaryType;
                 }
                 else
                 {
@@ -124,6 +205,7 @@ namespace IndiaTango.ViewModels
                     Manufacturer = "";
                     SerialNumber = "";
                     ErrorThreshold = IndiaTango.Properties.Settings.Default.DefaultErrorThreshold.ToString();
+                    SummaryMode = 0;
                 }
 
                 FailingErrorVisible = (_selectedItem != null && _selectedItem.IsFailing);
@@ -215,15 +297,6 @@ namespace IndiaTango.ViewModels
 		#endregion
 
 		#region Event Handlers
-        
-		public void SelectionChanged(SelectionChangedEventArgs e)
-		{
-			//if(e.AddedItems.Count > 0)
-			//	SelectedSensor = (Sensor)e.AddedItems[0];
-
-			//MessageBox.Show(((Sensor)e.AddedItems[0]).ToString());
-		}
-
 		public void btnEdit()
 		{
 			Editing = true;
@@ -242,7 +315,7 @@ namespace IndiaTango.ViewModels
                 try
                 {
                     // TODO: more user-friendly conversion messages!
-                    Sensor s = new Sensor(Name, Description, float.Parse(UpperLimit), float.Parse(LowerLimit), Unit, float.Parse(MaximumRateOfChange), Manufacturer, SerialNumber, new Stack<SensorState>(), new Stack<SensorState>(), new List<DateTime>(), int.Parse(ErrorThreshold), _ds);
+                    var s = new Sensor(Name, Description, float.Parse(UpperLimit), float.Parse(LowerLimit), Unit, float.Parse(MaximumRateOfChange), Manufacturer, SerialNumber, new Stack<SensorState>(), new Stack<SensorState>(), new List<DateTime>(), int.Parse(ErrorThreshold), _ds, SummaryType.Average);
                     SelectedItem = new ListedSensor(s, _ds);
                     EventLogger.LogInfo(GetType().ToString(), "Created new sensor. Sensor name: " + s.Name);
                     this.TryClose();
@@ -267,6 +340,7 @@ namespace IndiaTango.ViewModels
                     SelectedItem.Sensor.Manufacturer = Manufacturer;
                     SelectedItem.Sensor.SerialNumber = SerialNumber;
                     SelectedItem.Sensor.ErrorThreshold = int.Parse(ErrorThreshold);
+                    SelectedItem.Sensor.SummaryType = (SummaryType)SummaryMode;
                     EventLogger.LogInfo(GetType().ToString(), "Saved existing sensor. Sensor name: " + Name);
                 }
                 catch (Exception e)

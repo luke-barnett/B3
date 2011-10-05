@@ -87,14 +87,14 @@ namespace IndiaTango.Models
             filePath = Path.ChangeExtension(filePath,format.Extension);
             string metaDataFilePath = filePath + " Site Meta Data.txt";
             string changeLogFilePath = filePath + " Change Log.txt";
-	        var numOfPointsToAverage = 1;
+	        var numOfPointsToSummarise = 1;
 
             if(exportedPoints.NumberOfMinutes!=0)
-                numOfPointsToAverage = exportedPoints.NumberOfMinutes/15;
+                numOfPointsToSummarise = exportedPoints.NumberOfMinutes/15;
 
             if (format.Equals(ExportFormat.CSV))
 			{
-				ExportCSV(filePath, includeEmptyLines, dateColumnFormat, exportRaw, numOfPointsToAverage);
+				ExportCSV(filePath, includeEmptyLines, dateColumnFormat, exportRaw, numOfPointsToSummarise);
                 
                 if (addMetaDataFile && Data.Site != null)
                     ExportMetaData(filePath, metaDataFilePath);
@@ -114,7 +114,7 @@ namespace IndiaTango.Models
 			}
 		}
 
-		private void ExportCSV(string filePath, bool includeEmptyLines, DateColumnFormat dateColumnFormat, bool exportRaw, int numOfPointsToAverage)
+		private void ExportCSV(string filePath, bool includeEmptyLines, DateColumnFormat dateColumnFormat, bool exportRaw, int numOfPointsToSummarise)
 		{
 			using (StreamWriter writer = File.CreateText(filePath))
 			{
@@ -123,7 +123,7 @@ namespace IndiaTango.Models
 				                        	? "dd" + del + "mm" + del + "yyyy" + del + "hh" + del + "nn"
 				                        	: "dd/mm/yyyy" + del + "hhnn"; //Not a typo
 				int currentSensorIndex = 0;
-				var outputData = new string[Data.Sensors.Count,(Data.ExpectedDataPointCount/numOfPointsToAverage) + 1];
+				var outputData = new string[Data.Sensors.Count,(Data.ExpectedDataPointCount/numOfPointsToSummarise) + 1];
 				DateTime rowDate = Data.StartTimeStamp;
 
 
@@ -134,35 +134,43 @@ namespace IndiaTango.Models
 					//Construct the column headings (Sensor names)
 					columnHeadings += del + sensor.Name;
 					var i = Data.StartTimeStamp;
-					while (i <= Data.EndTimeStamp)
-					{
-						var sum = float.MinValue;
-						for (var j = 0; j < numOfPointsToAverage; j++,i = i.AddMinutes(15))
-						{
-							float value;
-							if (stateToUse.Values.TryGetValue(i, out value))
-								if (sum.Equals(float.MinValue))
-									sum = value;
-								else
-									sum += value;
-						}
+                    while (i <= Data.EndTimeStamp)
+                    {
+                        var sum = float.MinValue;
+                        for (var j = 0; j < numOfPointsToSummarise; j++, i = i.AddMinutes(15))
+                        {
+                            float value;
+                            if (stateToUse.Values.TryGetValue(i, out value))
+                                if (sum.Equals(float.MinValue))
+                                    sum = value;
+                                else
+                                    sum += value;
+                        }
 
-						if (!sum.Equals(float.MinValue))
-						{
-							outputData[
-								currentSensorIndex,
-								GetArrayRowFromTime(Data.StartTimeStamp, i.AddMinutes((-15)*numOfPointsToAverage), numOfPointsToAverage)] =
-								Math.Round((sum/numOfPointsToAverage), 2).ToString();
-						}
-					}
-					currentSensorIndex++;
+                        if (!sum.Equals(float.MinValue))
+                        {
+                            if (sensor.SummaryType == SummaryType.Average)
+                                outputData[
+                                    currentSensorIndex,
+                                    GetArrayRowFromTime(Data.StartTimeStamp, i.AddMinutes((-15)*numOfPointsToSummarise),
+                                                        numOfPointsToSummarise)] =
+                                    Math.Round((sum/numOfPointsToSummarise), 2).ToString();
+                            else
+                                outputData[
+                                    currentSensorIndex,
+                                    GetArrayRowFromTime(Data.StartTimeStamp, i.AddMinutes((-15) * numOfPointsToSummarise),
+                                                        numOfPointsToSummarise)] =
+                                    Math.Round((sum), 2).ToString();
+                        }
+                    }
+				    currentSensorIndex++;
 				}
 
 				//Strip the last delimiter from the headings and write the line
 				writer.WriteLine(columnHeadings);
 
 				//write the data here...
-				for (int row = 0; row < Data.ExpectedDataPointCount/numOfPointsToAverage; row++)
+				for (int row = 0; row < Data.ExpectedDataPointCount/numOfPointsToSummarise; row++)
 				{
 					string line = "";
 
@@ -178,7 +186,7 @@ namespace IndiaTango.Models
 						writer.WriteLine(line);
 					}
 
-					rowDate = rowDate.AddMinutes(15*numOfPointsToAverage);
+					rowDate = rowDate.AddMinutes(15*numOfPointsToSummarise);
 				}
 
 				writer.Close();
