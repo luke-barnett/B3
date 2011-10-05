@@ -211,7 +211,7 @@ namespace IndiaTango.Models
                                         new DataSeries<DateTime, float>("Upper Deviation",
                                         (from point in _upperLine
                                          where point.Key >= startDate && point.Key <= endDate
-                                         select new DataPoint<DateTime, float>(point.Key, point.Value))),
+                                         select new DataPoint<DateTime, float>(point.Key, point.Value)).OrderBy(x => x.X)),
                                     LineStroke = Brushes.OrangeRed
                                 };
             var lowerLine = new LineSeries
@@ -220,7 +220,7 @@ namespace IndiaTango.Models
                                         new DataSeries<DateTime, float>("Lower Deviation",
                                         (from point in _lowerLine
                                          where point.Key >= startDate && point.Key <= endDate
-                                         select new DataPoint<DateTime, float>(point.Key, point.Value))),
+                                         select new DataPoint<DateTime, float>(point.Key, point.Value)).OrderBy(x => x.X)),
                                     LineStroke = Brushes.OrangeRed
                                 };
             return new List<LineSeries> { upperLine, lowerLine };
