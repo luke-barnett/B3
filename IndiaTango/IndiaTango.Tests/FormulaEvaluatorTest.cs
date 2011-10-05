@@ -111,7 +111,7 @@ namespace IndiaTango.Tests
         public void SetValuetoMonth()
         {
             CompilerResults results = _eval.CompileFormula("a = time.Month");
-            _ds.Sensors = _eval.EvaluateFormula(results, _ds.StartTimeStamp, _ds.EndTimeStamp);
+            _eval.EvaluateFormula(results, _ds.StartTimeStamp, _ds.EndTimeStamp);
 
             foreach (var pair in _ds.Sensors[0].CurrentState.Values)
             {
@@ -123,7 +123,7 @@ namespace IndiaTango.Tests
         public void SetValuetoCosDay()
         {
             CompilerResults results = _eval.CompileFormula("b = Cos(time.Day)");
-            _ds.Sensors = _eval.EvaluateFormula(results, _ds.StartTimeStamp, _ds.EndTimeStamp);
+            _eval.EvaluateFormula(results, _ds.StartTimeStamp, _ds.EndTimeStamp);
 
             foreach (var pair in _ds.Sensors[1].CurrentState.Values)
             {
@@ -135,7 +135,7 @@ namespace IndiaTango.Tests
         public void SetLToM()
         { 
             CompilerResults results = _eval.CompileFormula("l = m");
-            _ds.Sensors = _eval.EvaluateFormula(results, _ds.StartTimeStamp, _ds.EndTimeStamp);
+            _eval.EvaluateFormula(results, _ds.StartTimeStamp, _ds.EndTimeStamp);
 
             foreach (var pair in _ds.Sensors[11].CurrentState.Values)
             {

@@ -31,6 +31,8 @@ namespace IndiaTango.Models
         readonly ICodeCompiler _compiler;
         readonly CompilerParameters _parms;
         private List<SensorVariable> _sensorStates;
+    	private List<SensorVariable> _variablesUsed;
+    	private List<SensorVariable> _variablesAssignedTo;
         private string loopStartCode = "";
         private string loopEndCode = "";
         private int _interval;
@@ -83,23 +85,22 @@ namespace IndiaTango.Models
             formula = RefineEvaluationString(formula);
 
             //Get the varibles used in formula
-            List<SensorVariable> variablesUsed = new List<SensorVariable>();
+            _variablesUsed = new List<SensorVariable>();
             foreach (SensorVariable sensorVariable in _sensorStates)
             {
                 if (formula.Contains(sensorVariable.VariableName + " ")  || formula.Contains(" " + sensorVariable.VariableName))
                 {
-                    variablesUsed.Add(sensorVariable);
+                    _variablesUsed.Add(sensorVariable);
                 }
             }
 
-            //Get the variables assigned to in the formula, and add a new state for them
-            List<SensorVariable> variablesAssignedTo = new List<SensorVariable>();
-            foreach (SensorVariable sensorVariable in variablesUsed)
+            //Get the variables assigned to in the formula
+            _variablesAssignedTo = new List<SensorVariable>();
+            foreach (SensorVariable sensorVariable in _variablesUsed)
             {
                 if (formula.Contains(sensorVariable.VariableName + " ="))
                 {
-                    variablesAssignedTo.Add(sensorVariable);
-                    sensorVariable.Sensor.AddState(sensorVariable.Sensor.CurrentState.Clone());
+                    _variablesAssignedTo.Add(sensorVariable);
                 }
             }
 
@@ -109,7 +110,7 @@ namespace IndiaTango.Models
 
             for (int v = 0; v < _sensorStates.Count; v++)
             {
-                if (variablesUsed.Contains(_sensorStates[v]))
+                if (_variablesUsed.Contains(_sensorStates[v]))
                 {
                     loopStartCode += "float " + _sensorStates[v].VariableName + " = 0;\n";
                     loopStartCode += "sensorStates[" + v + "].Sensor.CurrentState.Values.TryGetValue(time,out " +
@@ -122,7 +123,7 @@ namespace IndiaTango.Models
 
             for (int v = 0; v < _sensorStates.Count; v++)
             {
-                if (variablesAssignedTo.Contains(_sensorStates[v]))
+                if (_variablesAssignedTo.Contains(_sensorStates[v]))
                 {
                     loopEndCode += "sensorStates[" + v + "].Sensor.CurrentState.Values[time] = " +
                                    _sensorStates[v].VariableName + ";\n";
@@ -159,6 +160,10 @@ namespace IndiaTango.Models
             // run the code using the new assembly (which is inside the results)
             if (results != null && results.CompiledAssembly != null)
             {
+				//Foreach variable assigned to, give it a new sensor state
+            	foreach (var sensorVariable in _variablesAssignedTo)
+            		sensorVariable.Sensor.AddState(sensorVariable.Sensor.CurrentState.Clone());
+
                 // run the evaluation function
                 return RunCode(results, startTime, endTime);
             }
