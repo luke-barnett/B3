@@ -135,6 +135,8 @@ namespace IndiaTango.ViewModels
         private DateTime _startSelectionDate;
         private DateTime _endSelectionDate;
 
+        private bool _buttonsEnabled = true;
+
         #endregion
 
         #region Visual Items
@@ -156,7 +158,7 @@ namespace IndiaTango.ViewModels
 
         public Cursor ViewCursor { get { return _cursor; } set { _cursor = value; NotifyOfPropertyChange(() => ViewCursor); } }
 
-        public bool ActionButtonsEnabled { get { return _actionButtonsEnabled; } set { _actionButtonsEnabled = value; NotifyOfPropertyChange(() => ActionButtonsEnabled); } }
+        public bool ActionButtonsEnabled { get { return (ButtonsEnabled && _actionButtonsEnabled); } set { _actionButtonsEnabled = value; NotifyOfPropertyChange(() => ActionButtonsEnabled); } }
 
         public Visibility DetectionSettingsVisibility { get { return _detectionSettingsVisibility; } set { _detectionSettingsVisibility = value; NotifyOfPropertyChange(() => DetectionSettingsVisibility); } }
 
@@ -212,6 +214,8 @@ namespace IndiaTango.ViewModels
         }
 
         public IDetectionMethod SelectedDetectionMethod { get { return _selectedDetectionMethod; } set { _selectedDetectionMethod = value; NotifyOfPropertyChange(() => SelectedDetectionMethod); UpdateDetectionMethodsSettings(); } }
+
+        public bool ButtonsEnabled { get { return _buttonsEnabled; } private set { _buttonsEnabled = value; NotifyOfPropertyChange(() => ButtonsEnabled); NotifyOfPropertyChange(() => ActionButtonsEnabled); } }
 
         #region Public Lists
 
@@ -457,42 +461,62 @@ namespace IndiaTango.ViewModels
             if (dates.Count == 0)
                 return;
 
-            _selectedSensor.Sensor.AddState(_selectedSensor.Sensor.CurrentState.Extrapolate(dates, _selectedSensor.Sensor.Owner));
+            var bw = new BackgroundWorker();
 
-            Finalise("Extrapolated Values");
+            bw.DoWork += (o, e) => _selectedSensor.Sensor.AddState(_selectedSensor.Sensor.CurrentState.Extrapolate(dates, _selectedSensor.Sensor.Owner));
 
-            Common.ShowMessageBox("Values Updated", "The selected values were extrapolated", false, false);
+            bw.RunWorkerCompleted += (o, e) =>
+                                         {
+                                             StopWaiting();
 
-            UpdateUndoRedo();
+                                             Finalise("Extrapolated Values");
+
+                                             Common.ShowMessageBox("Values Updated", "The selected values were extrapolated", false, false);
+
+                                             UpdateUndoRedo();
+                                             ButtonsEnabled = true;
+                                         };
+            ButtonsEnabled = false;
+            StartWaiting("Extrapolating Values");
+            bw.RunWorkerAsync();
         }
 
         public void BtnMakeZero()
         {
-            EventLogger.LogInfo(GetType().ToString(), "Value updation started.");
-
             var dates = GetDates();
 
             if (dates.Count == 0)
                 return;
+            
+            var bw = new BackgroundWorker();
 
-            _selectedSensor.Sensor.AddState(_selectedSensor.Sensor.CurrentState.MakeZero(dates));
+            bw.DoWork += (o, e) => _selectedSensor.Sensor.AddState(_selectedSensor.Sensor.CurrentState.MakeZero(dates));
 
-            Finalise("Selected values set to 0.");
+            bw.RunWorkerCompleted += (o, e) =>
+                                         {
+                                             StopWaiting();
 
-            Common.ShowMessageBox("Values Updated", "The selected values have been set to 0.", false, false);
+                                             Finalise("Selected values set to 0.");
 
-            UpdateUndoRedo();
+                                             Common.ShowMessageBox("Values Updated", "The selected values have been set to 0.", false, false);
+
+                                             UpdateUndoRedo();
+                                             ButtonsEnabled = true;
+                                         };
+            ButtonsEnabled = false;
+            StartWaiting("Setting values to zero");
+            EventLogger.LogInfo(GetType().ToString(), "Value updation started.");
+            bw.RunWorkerAsync();
+
         }
 
         public void BtnSpecify()
         {
-            EventLogger.LogInfo(GetType().ToString(), "Value updation started.");
-
             var dates = GetDates();
 
             if (dates.Count == 0)
                 return;
-
+            
             var specifyVal = _container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel") as SpecifyValueViewModel;
             _windowManager.ShowDialog(specifyVal);
 
@@ -502,11 +526,25 @@ namespace IndiaTango.ViewModels
             {
                 var value = float.Parse(specifyVal.Text);
 
-                _selectedSensor.Sensor.AddState(_selectedSensor.Sensor.CurrentState.MakeValue(dates, value));
+                var bw = new BackgroundWorker();
 
-                Finalise("Selected values has been set to " + value + ".");
+                bw.DoWork += (o, e) => _selectedSensor.Sensor.AddState(_selectedSensor.Sensor.CurrentState.MakeValue(dates, value));
 
-                Common.ShowMessageBox("Values Updated", "The selected values have been set to " + value + ".", false, false);
+                bw.RunWorkerCompleted += (o, e) =>
+                                             {
+                                                 StopWaiting();
+                                                 Finalise("Selected values has been set to " + value + ".");
+
+                                                 Common.ShowMessageBox("Values Updated", "The selected values have been set to " + value + ".", false, false);
+
+                                                 UpdateUndoRedo();
+                                                 ButtonsEnabled = true;
+                                             };
+                ButtonsEnabled = false;
+                StartWaiting("Setting values to " + value);
+                EventLogger.LogInfo(GetType().ToString(), "Value updation started.");
+                bw.RunWorkerAsync();
+
             }
             catch (Exception)
             {
@@ -514,7 +552,7 @@ namespace IndiaTango.ViewModels
                 if (exit) return;
             }
 
-            UpdateUndoRedo();
+            
         }
 
         #endregion
