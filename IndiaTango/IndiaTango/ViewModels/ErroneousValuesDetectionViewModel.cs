@@ -24,7 +24,18 @@ namespace IndiaTango.ViewModels
             var minMaxRateofChangeDetector = new MinMaxRateOfChangeDetector();
             minMaxRateofChangeDetector.GraphUpdateNeeded += UpdateGraph;
 
-            DetectionMethods = new List<IDetectionMethod> { new MissingValuesDetector(), minMaxRateofChangeDetector };
+            var runningMeanStandardDeviationDetector = new RunningMeanStandardDeviationDetector();
+            runningMeanStandardDeviationDetector.GraphUpdateNeeded += UpdateGraph;
+
+            runningMeanStandardDeviationDetector.RefreshDetectedValues += delegate
+                                                                              {
+                                                                                  if (!_selectedMethods.Contains(runningMeanStandardDeviationDetector))
+                                                                                      return;
+                                                                                  RemoveDetectionMethod(runningMeanStandardDeviationDetector);
+                                                                                  AddDetectionMethod(runningMeanStandardDeviationDetector);
+                                                                              };
+
+            DetectionMethods = new List<IDetectionMethod> { new MissingValuesDetector(), minMaxRateofChangeDetector, runningMeanStandardDeviationDetector };
 
             var behaviours = new BehaviourManager { AllowMultipleEnabled = true };
 
@@ -359,17 +370,7 @@ namespace IndiaTango.ViewModels
             if (checkBox == null) return;
 
             var method = (checkBox.Content as IDetectionMethod);
-            Debug.WriteLine("Adding {0} to selected detection methods", method);
-            _selectedMethods.Add(method);
-
-            SelectedDetectionMethod = method;
-
-            if (_selectedSensor == null || method == null)
-                return;
-
-            CheckTheseMethods(new Collection<IDetectionMethod> { method });
-
-            UpdateGraph();
+            AddDetectionMethod(method);
         }
 
         public void DetectionMethodUnChecked(RoutedEventArgs eventArgs)
@@ -378,26 +379,7 @@ namespace IndiaTango.ViewModels
             if (checkBox == null) return;
 
             var method = (checkBox.Content as IDetectionMethod);
-            if (method == null)
-                return;
-            Debug.WriteLine("Removing {0} from selected detection methods", method);
-            if (_selectedMethods.Contains(method))
-                _selectedMethods.Remove(method);
-
-            SelectedDetectionMethod = method;
-
-            UpdateGraph();
-
-            if (_selectedMethods.Count == 0)
-            {
-                FoundErroneousValues = new List<ErroneousValue>();
-                return;
-            }
-
-            FoundErroneousValues.ForEach(
-                 x => x.Detectors.RemoveAll(m => m.Equals(method) || method.Children.Contains(m)));
-
-            FoundErroneousValues = new List<ErroneousValue>(FoundErroneousValues.Where(x => x.Detectors.Count != 0));
+            RemoveDetectionMethod(method);
         }
 
         #endregion
@@ -472,7 +454,7 @@ namespace IndiaTango.ViewModels
         {
             var dates = GetDates();
 
-            if(dates.Count == 0)
+            if (dates.Count == 0)
                 return;
 
             _selectedSensor.Sensor.AddState(_selectedSensor.Sensor.CurrentState.Extrapolate(dates, _selectedSensor.Sensor.Owner));
@@ -725,8 +707,11 @@ namespace IndiaTango.ViewModels
 
             YAxisTitle = sensor.Sensor.Unit;
 
-            MaximumMaximum = MaximumY() + 10;
-            MinimumMinimum = MinimumY() - 10;
+            var maxY = MaximumY();
+            var minY = MinimumY();
+
+            MaximumMaximum = maxY + maxY * 0.1;
+            MinimumMinimum = minY - minY * 0.1;
 
             Maximum = MaximumMaximum;
             Minimum = MinimumMinimum;
@@ -864,7 +849,7 @@ namespace IndiaTango.ViewModels
 
             var useRange = false;
 
-            if(_selectionMade)
+            if (_selectionMade)
             {
                 var view = _container.GetInstance(typeof(UseSelectedRangeViewModel), "UseSelectedRangeViewModel") as UseSelectedRangeViewModel;
 
@@ -877,12 +862,54 @@ namespace IndiaTango.ViewModels
                 }
             }
 
-            if(useRange)
+            if (useRange)
                 dates.AddRange(from values in _selectedSensor.DataPoints where values.X > _startSelectionDate && values.X < _endSelectionDate select values.X);
-            else if(_selectedMissingValues.Count != 0)
+            else if (_selectedMissingValues.Count != 0)
                 dates.AddRange(from values in _selectedMissingValues select values.TimeStamp);
 
             return dates;
+        }
+
+        private void AddDetectionMethod(IDetectionMethod methodToAdd)
+        {
+            if (methodToAdd == null)
+                return;
+
+            Debug.WriteLine("Adding {0} to selected detection methods", methodToAdd);
+            _selectedMethods.Add(methodToAdd);
+
+            SelectedDetectionMethod = methodToAdd;
+
+            if (_selectedSensor == null || methodToAdd == null)
+                return;
+
+            CheckTheseMethods(new Collection<IDetectionMethod> { methodToAdd });
+
+            UpdateGraph();
+        }
+
+        private void RemoveDetectionMethod(IDetectionMethod methodToRemove)
+        {
+            if (methodToRemove == null)
+                return;
+            Debug.WriteLine("Removing {0} from selected detection methods", methodToRemove);
+            if (_selectedMethods.Contains(methodToRemove))
+                _selectedMethods.Remove(methodToRemove);
+
+            SelectedDetectionMethod = methodToRemove;
+
+            UpdateGraph();
+
+            if (_selectedMethods.Count == 0)
+            {
+                FoundErroneousValues = new List<ErroneousValue>();
+                return;
+            }
+
+            FoundErroneousValues.ForEach(
+                 x => x.Detectors.RemoveAll(m => m.Equals(methodToRemove) || methodToRemove.Children.Contains(m)));
+
+            FoundErroneousValues = new List<ErroneousValue>(FoundErroneousValues.Where(x => x.Detectors.Count != 0));
         }
     }
 }

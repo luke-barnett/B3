@@ -41,11 +41,6 @@
                             </CheckBox>
                         </HierarchicalDataTemplate>
                     </ListBox.ItemTemplate>
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal" />
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
                 </ListBox>
             </GroupBox>
 

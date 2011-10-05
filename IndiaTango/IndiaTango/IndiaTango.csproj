@@ -103,6 +103,7 @@
     <Compile Include="Models\MinMaxRateOfChangeDetector.cs" />
     <Compile Include="Models\MissingValuesDetector.cs" />
     <Compile Include="Models\NamedBitmap.cs" />
+    <Compile Include="Models\RunningMeanStandardDeviationDetector.cs" />
     <Compile Include="Models\SensorStateListObject.cs" />
     <Compile Include="Models\SensorTemplate.cs" />
     <Compile Include="Models\SensorVariable.cs" />

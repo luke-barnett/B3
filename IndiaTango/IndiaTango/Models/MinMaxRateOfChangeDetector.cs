@@ -62,7 +62,7 @@ namespace IndiaTango.Models
             get
             {
                 var wrapperGrid = new Grid();
-                var checkBox = new CheckBox {Content = new TextBlock {Text = "Graph Upper and Lower Limits"}};
+                var checkBox = new CheckBox {Content = new TextBlock {Text = "Graph Upper and Lower Limits"}, IsChecked = _showMaxMinLines};
                 checkBox.Checked += (o, e) =>
                                         {
                                             _showMaxMinLines = true;
