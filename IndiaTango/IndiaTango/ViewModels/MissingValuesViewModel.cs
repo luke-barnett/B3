@@ -151,7 +151,10 @@ namespace IndiaTango.ViewModels
             {
                 _sensor = value;
                 NotifyOfPropertyChange(() => SelectedSensor);
-                MissingValues = _sensor.CurrentState.GetMissingTimes(15, _ds.StartTimeStamp, _ds.EndTimeStamp);
+
+                if(_sensor != null && _sensor.CurrentState != null)
+                    MissingValues = _sensor.CurrentState.GetMissingTimes(15, _ds.StartTimeStamp, _ds.EndTimeStamp);
+
                 NotifyOfPropertyChange(() => SensorName);
                 NotifyOfPropertyChange(() => MissingCount);
                 NotifyOfPropertyChange(() => RedoButtonEnabled);

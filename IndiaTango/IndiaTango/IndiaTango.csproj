@@ -87,6 +87,8 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Models\AboveMaxValueDetector.cs" />
+    <Compile Include="Models\BelowMinValueDetector.cs" />
     <Compile Include="Models\ErroneousValue.cs" />
     <Compile Include="Models\IDetectionMethod.cs" />
     <Compile Include="Models\FormulaEvaluator.cs" />
@@ -98,11 +100,13 @@
     <Compile Include="Models\CustomZoomBehaviour.cs" />
     <Compile Include="Models\GraphBackgroundBehaviour.cs" />
     <Compile Include="Models\ListedSensor.cs" />
+    <Compile Include="Models\MinMaxRateOfChangeDetector.cs" />
     <Compile Include="Models\MissingValuesDetector.cs" />
     <Compile Include="Models\NamedBitmap.cs" />
     <Compile Include="Models\SensorStateListObject.cs" />
     <Compile Include="Models\SensorTemplate.cs" />
     <Compile Include="Models\SensorVariable.cs" />
+    <Compile Include="Models\ToHighRateOfChangeDetector.cs" />
     <Compile Include="Models\Tools.cs" />
     <Compile Include="MultiSeriesBinding\MultiSeries.cs" />
     <Compile Include="SimpleContainer.cs" />

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Controls;
+using Visiblox.Charts;
 
 namespace IndiaTango.Models
 {
@@ -45,5 +46,16 @@ namespace IndiaTango.Models
         /// <param name="timeStamp">The timestamp of the value</param>
         /// <returns>If the value gets past the detection method or not</returns>
         bool CheckIndividualValue(Sensor sensor, DateTime timeStamp);
+
+        /// <summary>
+        /// The list of series that relate to this detection method
+        /// <param name="sensorToBaseOn">The sensor to base the series on</param>
+        /// </summary>
+        List<LineSeries> GraphableSeries(Sensor sensorToBaseOn, DateTime startDate, DateTime endDate);
+
+        /// <summary>
+        /// The detection methods children
+        /// </summary>
+        List<IDetectionMethod> Children { get; }
     }
 }

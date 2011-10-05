@@ -19,15 +19,7 @@
             </Grid.RowDefinitions>
 
             <GroupBox Grid.Row="0" Header="Select A Sensor" BorderBrush="OrangeRed" Margin="10 5 5 5">
-                <ListBox ItemsSource="{Binding SensorList}"  SelectionMode="Single" Margin="5" SelectedItem="{Binding SelectedSensor}">
-                    <!--<i:Interaction.Triggers>
-                        <i:EventTrigger EventName="SelectionChanged">
-                            <cal:ActionMessage MethodName="SensorChanged">
-                                <cal:Parameter Value="$eventArgs" />
-                            </cal:ActionMessage>
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>-->
-                </ListBox>
+                <ListBox ItemsSource="{Binding SensorList}"  SelectionMode="Single" Margin="5" SelectedItem="{Binding SelectedSensor}" />
             </GroupBox>
             
             <GroupBox Grid.Row="1" Header="Readings Found" BorderBrush="OrangeRed" Margin="10 5 5 5">
