@@ -19,8 +19,10 @@
             </Grid.RowDefinitions>
 
             <GroupBox Grid.Row="0" Header="Select A Sensor To Graph" BorderBrush="OrangeRed" Margin="10 5 5 5">
-                <ListBox ItemsSource="{Binding SensorList}"  SelectionMode="Single" Margin="5" SelectedItem="{Binding SelectedSensor}">
-                </ListBox>
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Text="Sensor:                                    Variable Name:" Margin="7,0"/>
+                    <ListBox ItemsSource="{Binding SensorList}" SelectionMode="Single" Margin="5" SelectedItem="{Binding SelectedSensor}" FontFamily="Consolas" />
+                </DockPanel>
             </GroupBox>
   
             <GroupBox Grid.Row="1" Header="Actions" BorderBrush="OrangeRed" Margin="10 5 5 10">

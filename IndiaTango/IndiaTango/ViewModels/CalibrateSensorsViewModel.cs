@@ -24,7 +24,7 @@ namespace IndiaTango.ViewModels
         private readonly SimpleContainer _container;
         private readonly IWindowManager _windowManager;
 
-        private Sensor _sensor;
+        private SensorVariable _sensor;
         private Dataset _ds;
 
         private string _formulaText = "";
@@ -32,6 +32,7 @@ namespace IndiaTango.ViewModels
 
         private FormulaEvaluator _eval;
         private CompilerResults _results;
+    	private List<SensorVariable> _sensorVariables; 
 
         private int _sampleRate;
         private int _zoomLevel = 100;
@@ -179,12 +180,12 @@ namespace IndiaTango.ViewModels
 
         public bool RedoButtonEnabled
         {
-            get { return SelectedSensor != null && SelectedSensor.RedoStates.Count > 0; }
+            get { return SelectedSensor != null && SelectedSensor.Sensor.RedoStates.Count > 0; }
         }
 
         public bool UndoButtonEnabled
         {
-            get { return SelectedSensor != null && !SelectedSensor.CurrentState.IsRaw; }
+            get { return SelectedSensor != null && !SelectedSensor.Sensor.CurrentState.IsRaw; }
         }
 
         public bool ApplyButtonEnabled
@@ -220,6 +221,7 @@ namespace IndiaTango.ViewModels
                 _eval = new FormulaEvaluator(_ds.Sensors,_ds.DataInterval);
                 StartTime = _ds.StartTimeStamp;
                 EndTime = _ds.EndTimeStamp;
+            	_sensorVariables = SensorVariable.CreateSensorVariablesFromSensors(_ds.Sensors);
             }
         }
 
@@ -230,35 +232,35 @@ namespace IndiaTango.ViewModels
 
         public string Title
         {
-            get { return "Calibrate Sensors" + (SelectedSensor != null ? " - " + SelectedSensor.Name : ""); }
+            get { return "Calibrate Sensors" + (SelectedSensor != null ? " - " + SelectedSensor.Sensor.Name : ""); }
         }
 
         public String SensorName
         {
-            get { return SelectedSensor == null ? "" : SelectedSensor.Name; }
+            get { return SelectedSensor == null ? "" : SelectedSensor.Sensor.Name; }
         }
 
-        public List<Sensor> SensorList
+        public List<SensorVariable> SensorList
         {
-            get { return _ds.Sensors; }
+			get { return _sensorVariables; }
             set
             {
-                _ds.Sensors = value;
+				_sensorVariables = value;
                 NotifyOfPropertyChange(() => SensorList);
             }
         }
 
-        public Sensor SelectedSensor
+        public SensorVariable SelectedSensor
         {
             get { return _sensor; }
             set
             {
                 _sensor = value;
 
-                YAxisTitle = SelectedSensor.Unit;
-                ChartTitle = SelectedSensor.Name;
+                YAxisTitle = SelectedSensor.Sensor.Unit;
+                ChartTitle = SelectedSensor.Sensor.Name;
 
-                SensorToGraph = new GraphableSensor(SelectedSensor);
+				SensorToGraph = new GraphableSensor(SelectedSensor.Sensor);
 
                 NotifyOfPropertyChange(() => SelectedSensor);
                 NotifyOfPropertyChange(() => ChartTitle);
@@ -539,7 +541,7 @@ namespace IndiaTango.ViewModels
         {
             if (_sensor != null)
             {
-                _sensor.Undo();
+				_sensor.Sensor.Undo();
                 UpdateUndoRedo();
             }
         }
@@ -548,7 +550,7 @@ namespace IndiaTango.ViewModels
         {
             if (_sensor != null)
             {
-                _sensor.Redo();
+				_sensor.Sensor.Redo();
                 UpdateUndoRedo();
             }
         }
@@ -567,15 +569,16 @@ namespace IndiaTango.ViewModels
                 "The following gives an indication of the operations and syntax.\n\n" +
                 "Mathematical operations\t [ -, +, *, ^, % ]\n" +
                 "Mathematical functions\t [ Sin(y), Cos(y), Tan(y), Pi ]\n\n" +
-                "To set a data points value for a particular sensor, use that sensors variable followed an equals sign, then by the value.\n" +
-                "   eg: To set the values of the sensor Temperatue1 to 5 for all points, use 'a = 5' \n\n" +
+                "To set a data points value for a particular sensor, use that sensors variable followed by a space and an equals sign, then by the value.\n" +
+                "   eg: To set the values of the sensor " + _sensorVariables[0].Sensor.Name + " to 5 for all points, use '" + _sensorVariables[0].VariableName + " = 5' \n\n" +
                 "To use a sensors values in a calculation, use that sesnors variable.\n" +
-                "   eg: To make all the values of the sensor Temperature1 equal to Temperature2, use a = b\n\n" +
-                "To use the data points time stamp in calculations use 't.' followed by the time part desired.\n" +
-                "   eg: t.Year, t.Month, t.Day, t.Hour, t.Minute, t.Second\n\n" +
+                "   eg: To make all the values of the sensor " + _sensorVariables[0].Sensor.Name + " equal to " + _sensorVariables[1].Sensor.Name + 
+					", use " + _sensorVariables[0].VariableName + " = " + _sensorVariables[1].VariableName + "\n\n" +
+                "To use the data points time stamp in calculations use 'time.' followed by the time part desired.\n" +
+                "   eg: time.Year, time.Month, time.Day, time.Hour, time.Minute, time.Second\n\n" +
                 "Examples:\n" +
                 "'x = x + 1'\n" +
-                "'x = t.Date'\n" +
+                "'x = time.Date'\n" +
                 "'x = x * Cos(x + 1) + 2'";
             Common.ShowMessageBox("Formula Help", message, false, false);
         }
@@ -589,11 +592,11 @@ namespace IndiaTango.ViewModels
             if (ValidFormula)
             {
                 ViewCursor = Cursors.Wait;
-                _ds.Sensors = _eval.EvaluateFormula(_results,_ds.StartTimeStamp,_ds.EndTimeStamp);
+                _eval.EvaluateFormula(_results,_ds.StartTimeStamp,_ds.EndTimeStamp);
 
                 ViewCursor = Cursors.Arrow;
 
-                Common.RequestReason(SelectedSensor, _container, _windowManager, SelectedSensor.CurrentState, "Formula '" + FormulaText + "' successfully applied to the sensor.");
+				Common.RequestReason(SelectedSensor.Sensor, _container, _windowManager, SelectedSensor.Sensor.CurrentState, "Formula '" + FormulaText + "' successfully applied to the sensor.");
 
                 Common.ShowMessageBox("Formula applied", "The formula was successfully applied to the selected sensor.",
                                       false, false);
@@ -612,6 +615,7 @@ namespace IndiaTango.ViewModels
             }
 
             UpdateUndoRedo();
+			UpdateGraph();
         }
 
         public void btnClear()
@@ -754,9 +758,9 @@ namespace IndiaTango.ViewModels
                 if (SelectedSensor != null && item != null)
                 {
                     if (item.IsRaw)
-                        SelectedSensor.RevertToRaw();
+                        SelectedSensor.Sensor.RevertToRaw();
                     else
-                        SelectedSensor.Undo(item.State.EditTimestamp);
+                        SelectedSensor.Sensor.Undo(item.State.EditTimestamp);
                 }
 
                 ShowUndoStates = false;
@@ -771,7 +775,7 @@ namespace IndiaTango.ViewModels
                 var item = (SensorStateListObject)e.AddedItems[0];
 
                 if (SelectedSensor != null && item != null)
-                    SelectedSensor.Redo(item.State.EditTimestamp);
+					SelectedSensor.Sensor.Redo(item.State.EditTimestamp);
 
                 ShowRedoStates = false;
 
@@ -791,7 +795,7 @@ namespace IndiaTango.ViewModels
 
                 var atStart = true;
 
-                foreach (var obj in _sensor.UndoStates)
+				foreach (var obj in _sensor.Sensor.UndoStates)
                 {
                     if (atStart)
                     {
@@ -802,7 +806,7 @@ namespace IndiaTango.ViewModels
                     ss.Add(new SensorStateListObject(obj, false));
                 }
 
-                ss.Add(new SensorStateListObject(_sensor.RawData, true));
+				ss.Add(new SensorStateListObject(_sensor.Sensor.RawData, true));
 
                 return new ReadOnlyCollection<SensorStateListObject>(ss);
             }
@@ -814,7 +818,7 @@ namespace IndiaTango.ViewModels
             {
                 var ss = new List<SensorStateListObject>();
 
-                foreach (var obj in _sensor.RedoStates)
+				foreach (var obj in _sensor.Sensor.RedoStates)
                     ss.Add(new SensorStateListObject(obj, false));
 
                 return new ReadOnlyCollection<SensorStateListObject>(ss);

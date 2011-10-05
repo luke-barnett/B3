@@ -32,6 +32,11 @@ namespace IndiaTango.Models
             get { return _variableName; }
         }
 
+		public override string ToString()
+		{
+			return Sensor.Name.PadRight(25).Substring(0, 25) + VariableName;
+		}
+
         public static List<SensorVariable> CreateSensorVariablesFromSensors(List<Sensor> sensors)
         {
             List<SensorVariable> variables = new List<SensorVariable>();
