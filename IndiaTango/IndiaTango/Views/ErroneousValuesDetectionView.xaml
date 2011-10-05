@@ -7,6 +7,13 @@
         xmlns:toolkit="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit/extended"
         xmlns:multiseries="clr-namespace:IndiaTango.MultiSeriesBinding"
         Title="{Binding ViewTitle}" Icon="{Binding Icon}" Cursor="{Binding ViewCursor}" Height="700" Width="950" WindowStartupLocation="CenterScreen">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Closing">
+            <cal:ActionMessage MethodName="ClosingWindow">
+                <cal:Parameter Value="$eventArgs" />
+            </cal:ActionMessage>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="370" />
@@ -111,7 +118,7 @@
                             </toolkit:SplitButton.DropDownContent>
                         </toolkit:SplitButton>
 
-                        <Button Name="BtnDone" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" >
+                        <Button IsEnabled="{Binding ButtonsEnabled}" Name="BtnDone" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" >
                             <StackPanel Orientation="Vertical">
                                 <Image Source="/IndiaTango;component/Images/done_64.png" Width="64" Height="64" />
                                 <TextBlock Text="Done" HorizontalAlignment="Center" />

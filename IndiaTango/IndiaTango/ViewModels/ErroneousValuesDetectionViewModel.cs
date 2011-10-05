@@ -215,7 +215,18 @@ namespace IndiaTango.ViewModels
 
         public IDetectionMethod SelectedDetectionMethod { get { return _selectedDetectionMethod; } set { _selectedDetectionMethod = value; NotifyOfPropertyChange(() => SelectedDetectionMethod); UpdateDetectionMethodsSettings(); } }
 
-        public bool ButtonsEnabled { get { return _buttonsEnabled; } private set { _buttonsEnabled = value; NotifyOfPropertyChange(() => ButtonsEnabled); NotifyOfPropertyChange(() => ActionButtonsEnabled); } }
+        public bool ButtonsEnabled
+        {
+            get { return _buttonsEnabled; }
+            private set
+            {
+                _buttonsEnabled = value;
+                NotifyOfPropertyChange(() => ButtonsEnabled);
+                NotifyOfPropertyChange(() => ActionButtonsEnabled);
+                NotifyOfPropertyChange(() => UndoButtonEnabled);
+                NotifyOfPropertyChange(() => RedoButtonEnabled);
+            }
+        }
 
         #region Public Lists
 
@@ -231,7 +242,7 @@ namespace IndiaTango.ViewModels
 
         #region Undo
 
-        public bool UndoButtonEnabled { get { return SelectedSensor != null && !SelectedSensor.Sensor.CurrentState.IsRaw; } }
+        public bool UndoButtonEnabled { get { return ButtonsEnabled && SelectedSensor != null && !SelectedSensor.Sensor.CurrentState.IsRaw; } }
 
         public bool ShowUndoStates { get { return _showUndoStates; } set { _showUndoStates = value; NotifyOfPropertyChange(() => ShowUndoStates); } }
 
@@ -264,7 +275,7 @@ namespace IndiaTango.ViewModels
 
         #region Redo
 
-        public bool RedoButtonEnabled { get { return SelectedSensor != null && SelectedSensor.Sensor.RedoStates.Count > 0; } }
+        public bool RedoButtonEnabled { get { return ButtonsEnabled && SelectedSensor != null && SelectedSensor.Sensor.RedoStates.Count > 0; } }
 
         public bool ShowRedoStates { get { return _showRedoStates; } set { _showRedoStates = value; NotifyOfPropertyChange(() => ShowRedoStates); } }
 
@@ -487,7 +498,7 @@ namespace IndiaTango.ViewModels
 
             if (dates.Count == 0)
                 return;
-            
+
             var bw = new BackgroundWorker();
 
             bw.DoWork += (o, e) => _selectedSensor.Sensor.AddState(_selectedSensor.Sensor.CurrentState.MakeZero(dates));
@@ -516,7 +527,7 @@ namespace IndiaTango.ViewModels
 
             if (dates.Count == 0)
                 return;
-            
+
             var specifyVal = _container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel") as SpecifyValueViewModel;
             _windowManager.ShowDialog(specifyVal);
 
@@ -552,7 +563,7 @@ namespace IndiaTango.ViewModels
                 if (exit) return;
             }
 
-            
+
         }
 
         #endregion
@@ -615,6 +626,12 @@ namespace IndiaTango.ViewModels
 
             _zooming.IsEnabled = !_inSelectionMode;
             _selection.IsEnabled = _inSelectionMode;
+        }
+
+        public void ClosingWindow(CancelEventArgs eventArgs)
+        {
+            if (!ButtonsEnabled)
+                eventArgs.Cancel = true;
         }
 
         #endregion
