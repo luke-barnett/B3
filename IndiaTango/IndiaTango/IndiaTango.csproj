@@ -102,6 +102,7 @@
     <Compile Include="Models\NamedBitmap.cs" />
     <Compile Include="Models\SensorStateListObject.cs" />
     <Compile Include="Models\SensorTemplate.cs" />
+    <Compile Include="Models\SensorVariable.cs" />
     <Compile Include="Models\Tools.cs" />
     <Compile Include="MultiSeriesBinding\MultiSeries.cs" />
     <Compile Include="SimpleContainer.cs" />
