@@ -19,6 +19,7 @@ namespace IndiaTango.ViewModels
     	private bool _editing = false;
         private List<SensorTemplate> Templates = new List<SensorTemplate>();
         private Dataset _ds = null;
+        private SummaryType _summaryType;
 
         public EditSensorViewModel(IWindowManager windowManager, SimpleContainer container)
         {
@@ -39,6 +40,16 @@ namespace IndiaTango.ViewModels
 
         public string Icon { get { return Common.Icon; } }
 
+        public int SummaryMode
+        {
+            get { return (int) _summaryType; }
+            set
+            {
+                _summaryType = (SummaryType) value;
+                NotifyOfPropertyChange(() => SummaryMode);
+            }
+        }
+
         public int TipRowHeight
         {
             get { return (TipVisible) ? 45 : 0; }
@@ -48,6 +59,8 @@ namespace IndiaTango.ViewModels
         {
             get { return (FailingErrorVisible) ? 60 : 0; }
         }
+
+        public string[] SummaryTypes{get {return new string[]{"Average","Sum"};}}
 
         public bool FailingErrorVisible
         {
@@ -112,6 +125,7 @@ namespace IndiaTango.ViewModels
                     Manufacturer = _selectedItem.Sensor.Manufacturer;
                     SerialNumber = _selectedItem.Sensor.SerialNumber;
                     ErrorThreshold = _selectedItem.Sensor.ErrorThreshold.ToString();
+                    SummaryMode = (int)_selectedItem.Sensor.SummaryType;
                 }
                 else
                 {
@@ -124,6 +138,7 @@ namespace IndiaTango.ViewModels
                     Manufacturer = "";
                     SerialNumber = "";
                     ErrorThreshold = IndiaTango.Properties.Settings.Default.DefaultErrorThreshold.ToString();
+                    SummaryMode = 0;
                 }
 
                 FailingErrorVisible = (_selectedItem != null && _selectedItem.IsFailing);
@@ -242,7 +257,7 @@ namespace IndiaTango.ViewModels
                 try
                 {
                     // TODO: more user-friendly conversion messages!
-                    Sensor s = new Sensor(Name, Description, float.Parse(UpperLimit), float.Parse(LowerLimit), Unit, float.Parse(MaximumRateOfChange), Manufacturer, SerialNumber, new Stack<SensorState>(), new Stack<SensorState>(), new List<DateTime>(), int.Parse(ErrorThreshold), _ds);
+                    var s = new Sensor(Name, Description, float.Parse(UpperLimit), float.Parse(LowerLimit), Unit, float.Parse(MaximumRateOfChange), Manufacturer, SerialNumber, new Stack<SensorState>(), new Stack<SensorState>(), new List<DateTime>(), int.Parse(ErrorThreshold), _ds, SummaryType.Average);
                     SelectedItem = new ListedSensor(s, _ds);
                     EventLogger.LogInfo(GetType().ToString(), "Created new sensor. Sensor name: " + s.Name);
                     this.TryClose();
@@ -267,6 +282,7 @@ namespace IndiaTango.ViewModels
                     SelectedItem.Sensor.Manufacturer = Manufacturer;
                     SelectedItem.Sensor.SerialNumber = SerialNumber;
                     SelectedItem.Sensor.ErrorThreshold = int.Parse(ErrorThreshold);
+                    SelectedItem.Sensor.SummaryType = (SummaryType)SummaryMode;
                     EventLogger.LogInfo(GetType().ToString(), "Saved existing sensor. Sensor name: " + Name);
                 }
                 catch (Exception e)

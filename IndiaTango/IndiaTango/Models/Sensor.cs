@@ -7,7 +7,7 @@ using System.Collections;
 
 namespace IndiaTango.Models
 {
-    public enum SummaryType { Average, Sum }
+    public enum SummaryType { Average=0, Sum=1 }
     /// <summary>
     /// Represents a Sensor, which resembles a sensor attached to a buoy, measuring a given water quality parameter.
     /// </summary>
@@ -77,6 +77,24 @@ namespace IndiaTango.Models
         /// <param name="owner">The dataset owner of the sensor</param>
         public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, string manufacturer, string serial, Stack<SensorState> undoStack, Stack<SensorState> redoStack, List<DateTime> calibrationDates, Dataset owner) : this(name, description, upperLimit, lowerLimit, unit, maxRateOfChange, manufacturer, serial, undoStack, redoStack, calibrationDates, Properties.Settings.Default.DefaultErrorThreshold, owner) { }
 
+         /// <summary>
+        /// Creates a new sensor.
+        /// </summary>
+        /// <param name="name">The name of the sensor.</param>
+        /// <param name="description">A description of the sensor's function or purpose.</param>
+        /// <param name="upperLimit">The upper limit for values reported by this sensor.</param>
+        /// <param name="lowerLimit">The lower limit for values reported by this sensor.</param>
+        /// <param name="unit">The unit used to report values given by this sensor.</param>
+        /// <param name="maxRateOfChange">The maximum rate of change allowed by this sensor.</param>
+        /// <param name="manufacturer">The manufacturer of this sensor.</param>
+        /// <param name="serial">The serial number associated with this sensor.</param>
+        /// <param name="undoStack">A stack containing previous sensor states.</param>
+        /// <param name="redoStack">A stack containing sensor states created after the modifications of the current state.</param>
+        /// <param name="calibrationDates">A list of dates, on which calibration was performed.</param>
+        /// <param name="errorThreshold">The number of times a failure-indicating value can occur before this sensor is flagged as failing.</param>
+        /// <param name="owner">The dataset that owns the sensor</param>
+        public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, string manufacturer, string serial, Stack<SensorState> undoStack, Stack<SensorState> redoStack, List<DateTime> calibrationDates, int errorThreshold, Dataset owner):this(name,description,upperLimit,lowerLimit,unit,maxRateOfChange,manufacturer,serial,undoStack,redoStack,calibrationDates,Properties.Settings.Default.DefaultErrorThreshold,owner,SummaryType.Average){}
+
         /// <summary>
         /// Creates a new sensor.
         /// </summary>
@@ -93,7 +111,8 @@ namespace IndiaTango.Models
         /// <param name="calibrationDates">A list of dates, on which calibration was performed.</param>
         /// <param name="errorThreshold">The number of times a failure-indicating value can occur before this sensor is flagged as failing.</param>
         /// <param name="owner">The dataset that owns the sensor</param>
-        public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, string manufacturer, string serial, Stack<SensorState> undoStack, Stack<SensorState> redoStack, List<DateTime> calibrationDates, int errorThreshold, Dataset owner)
+        /// <param name="sType">Indicates whether the sensor's values should be averaged or summed when summarised</param>
+        public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, string manufacturer, string serial, Stack<SensorState> undoStack, Stack<SensorState> redoStack, List<DateTime> calibrationDates, int errorThreshold, Dataset owner, SummaryType sType)
         {
             if (name == "")
                 throw new ArgumentNullException("Sensor name cannot be empty.");
@@ -131,6 +150,7 @@ namespace IndiaTango.Models
 
             ErrorThreshold = errorThreshold;
             Owner = owner;
+            _summaryType = sType;
         }
 
         #endregion
@@ -379,6 +399,12 @@ namespace IndiaTango.Models
             }
 
             return false;
+        }
+
+        public SummaryType SummaryType
+        {
+            get { return _summaryType; }
+            set { _summaryType = value; }
         }
         #endregion
 
