@@ -256,15 +256,10 @@ namespace IndiaTango.Models
             if (ds == null)
                 throw new ArgumentNullException("You must specify the containing data set for this sensor.");
 
-            var completedValues = new List<DateTime>();
-
             var newState = Clone();
 
             foreach (var time in valuesToExtrapolate)
             {
-                if (completedValues.Contains(time))
-                    continue;
-
                 DateTime startValue;
                 try
                 {
@@ -272,7 +267,8 @@ namespace IndiaTango.Models
                 }
                 catch (Exception)
                 {
-                    throw new DataException("No start value");
+                    Debug.WriteLine("Failed to find start value continuing");
+                    continue;
                 }
 
                 DateTime endValue;
@@ -282,7 +278,8 @@ namespace IndiaTango.Models
                 }
                 catch (Exception)
                 {
-                    throw new DataException("No end value");
+                    Debug.WriteLine("Failed to find end value continuing");
+                    continue;
                 }
 
                 var timeDiffBetweenEndPoints = endValue.Subtract(startValue).TotalMinutes;
@@ -291,9 +288,7 @@ namespace IndiaTango.Models
                 var valueDiff = Values[endValue] - Values[startValue];
 
                 var newValue = (float)(valueDiff * (timeDiffBetweenStartAndPoint / timeDiffBetweenEndPoints)) + Values[startValue];
-
-                Debug.Print("Large time dif: {0} Small time dif: {1} Value Dif: {2} Start Value: {3} End Value: {4} New Value: {5}", timeDiffBetweenEndPoints, timeDiffBetweenStartAndPoint, valueDiff, Values[startValue], Values[endValue], newValue);
-
+                
                 newState.Values[time] = newValue;
             }
 
