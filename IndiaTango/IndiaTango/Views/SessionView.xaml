@@ -251,6 +251,12 @@
                 <ScrollViewer Grid.Row="2" Margin="0,0,5,0" VerticalScrollBarVisibility="Auto" CanContentScroll="True">
                     <StackPanel>
                         <WrapPanel>
+                            <Button Name="btnErroneousValues" FontSize="15" Width="100" Height="100" Margin="5" IsEnabled="{Binding ActionButtonsEnabled}" >
+                                <Image Source="/IndiaTango;component/Images/find_range.png" Width="64" Height="64" />
+                            </Button>
+                            <TextBlock  Text="Find Erroneous Values" FontSize="15" VerticalAlignment="Center" Margin="5" />
+                        </WrapPanel>
+                        <!--<WrapPanel>
                             <Button Name="btnOutOfRangeValues" FontSize="15" Width="100" Height="100" Margin="5" IsEnabled="{Binding ActionButtonsEnabled}" >
                                 <Image Source="/IndiaTango;component/Images/find_range.png" Width="64" Height="64" />
                             </Button>
@@ -262,7 +268,7 @@
                                 <Image Source="/IndiaTango;component/Images/find_missing.png" Width="64" Height="64" />
                             </Button>
                             <TextBlock Text="Find Missing Values" FontSize="15" VerticalAlignment="Center" Margin="5" />
-                        </WrapPanel>
+                        </WrapPanel>-->
 
                         <WrapPanel>
                             <Button Name="btnEditPoints" FontSize="15" Width="100" Height="100" Margin="5" IsEnabled="{Binding ActionButtonsEnabled}">
@@ -284,12 +290,7 @@
                             </Button>
                             <TextBlock Text="Revert All Data" FontSize="15" VerticalAlignment="Center" Margin="5" />
                         </WrapPanel>
-                        <WrapPanel>
-                            <Button Name="btnErroneousValues" FontSize="15" Width="100" Height="100" Margin="5" IsEnabled="{Binding ActionButtonsEnabled}" >
-                                <Image Source="/IndiaTango;component/Images/find_range.png" Width="64" Height="64" />
-                            </Button>
-                            <TextBlock  Text="Find Erroneous Values" FontSize="15" VerticalAlignment="Center" Margin="5" />
-                        </WrapPanel>
+                        
                     </StackPanel>
                 </ScrollViewer>
             </Grid>

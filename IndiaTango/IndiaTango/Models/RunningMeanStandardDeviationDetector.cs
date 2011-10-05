@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Media;
 using Visiblox.Charts;
 
 namespace IndiaTango.Models
@@ -207,18 +208,20 @@ namespace IndiaTango.Models
             var upperLine = new LineSeries
                                 {
                                     DataSeries =
-                                        new DataSeries<DateTime, float>(
+                                        new DataSeries<DateTime, float>("Upper Deviation",
                                         (from point in _upperLine
-                                         where point.Key > startDate && point.Key < endDate
-                                         select new DataPoint<DateTime, float>(point.Key, point.Value)))
+                                         where point.Key >= startDate && point.Key <= endDate
+                                         select new DataPoint<DateTime, float>(point.Key, point.Value))),
+                                    LineStroke = Brushes.OrangeRed
                                 };
             var lowerLine = new LineSeries
                                 {
                                     DataSeries =
-                                        new DataSeries<DateTime, float>(
+                                        new DataSeries<DateTime, float>("Lower Deviation",
                                         (from point in _lowerLine
-                                         where point.Key > startDate && point.Key < endDate
-                                         select new DataPoint<DateTime, float>(point.Key, point.Value)))
+                                         where point.Key >= startDate && point.Key <= endDate
+                                         select new DataPoint<DateTime, float>(point.Key, point.Value))),
+                                    LineStroke = Brushes.OrangeRed
                                 };
             return new List<LineSeries> { upperLine, lowerLine };
         }
