@@ -352,6 +352,8 @@ namespace IndiaTango.ViewModels
             if (checkBox == null) return;
 
             var method = (checkBox.Content as IDetectionMethod);
+            if (method == null)
+                return;
             Debug.WriteLine("Removing {0} from selected detection methods", method);
             if (_selectedMethods.Contains(method))
                 _selectedMethods.Remove(method);
@@ -366,21 +368,10 @@ namespace IndiaTango.ViewModels
                 return;
             }
 
-            for (var i = 0; i < FoundErroneousValues.Count; i++)
-            {
-                var value = FoundErroneousValues[i];
+            FoundErroneousValues.ForEach(
+                 x => x.Detectors.RemoveAll(m => m.Equals(method) || method.Children.Contains(m)));
 
-                if (!value.Detectors.Contains(method)) continue;
-
-                value.Detectors.Remove(method);
-
-                if (value.Detectors.Count == 0)
-                {
-                    FoundErroneousValues.Remove(value);
-                }
-            }
-
-            FoundErroneousValues = new List<ErroneousValue>(FoundErroneousValues);
+            FoundErroneousValues = new List<ErroneousValue>(FoundErroneousValues.Where(x => x.Detectors.Count != 0));
         }
 
         #endregion
@@ -633,7 +624,7 @@ namespace IndiaTango.ViewModels
 
             var series = (sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints.Where((x, index) => index % sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints);
 
-            generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour) });
+            generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour), LineStrokeThickness = (_showRawDataOnGraph) ? 2.5 : 1 });
 
             foreach (var method in _selectedMethods.Where(method => method.HasGraphableSeries))
             {
@@ -646,14 +637,14 @@ namespace IndiaTango.ViewModels
                                         : method.GraphableSeries(sensor.Sensor, sensor.Sensor.Owner.StartTimeStamp,
                                                                  sensor.Sensor.Owner.EndTimeStamp);
                 //If we need to apply sampling do so
-                if(sampleRate > 1)
+                if (sampleRate > 1)
                 {
                     foreach (var x in methodsSeries.Where(i => i.DataSeries.Cast<object>().Count() > (maxPointCount / numberOfSeries)))
                     {
                         x.DataSeries = new DataSeries<DateTime, float>(x.DataSeries.Title,
                                                                        x.DataSeries.Cast<DataPoint<DateTime, float>>().
                                                                            Where
-                                                                           ((value, index) => index%sampleRate == 0));
+                                                                           ((value, index) => index % sampleRate == 0));
                     }
                 }
 
@@ -732,15 +723,17 @@ namespace IndiaTango.ViewModels
 
         private void AddToMissingValues(IEnumerable<ErroneousValue> values)
         {
+            var existingValuesDict = FoundErroneousValues.ToDictionary(x => x.TimeStamp);
+
             foreach (var erroneousValue in values)
             {
-                var item = FoundErroneousValues.Where(x => x != null && x.Equals(erroneousValue)).DefaultIfEmpty(null).FirstOrDefault();
-
-                if (item == null)
-                    FoundErroneousValues.Add(erroneousValue);
+                if (existingValuesDict.ContainsKey(erroneousValue.TimeStamp))
+                    existingValuesDict[erroneousValue.TimeStamp].Detectors.AddRange(erroneousValue.Detectors);
                 else
-                    item.Detectors.AddRange(erroneousValue.Detectors);
+                    existingValuesDict[erroneousValue.TimeStamp] = erroneousValue;
             }
+
+            FoundErroneousValues = (from value in existingValuesDict select value.Value).ToList();
         }
 
         private void CheckTheseMethods(IEnumerable<IDetectionMethod> methods)

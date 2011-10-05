@@ -698,7 +698,6 @@ namespace IndiaTango.ViewModels
             foreach (var s in SensorList)
                 newSensorList.Add(new ListedSensor(s, _ds));
 
-            editSensor.AllSensors = newSensorList;
             editSensor.Dataset = _ds;
 
             _windowManager.ShowWindow(editSensor);

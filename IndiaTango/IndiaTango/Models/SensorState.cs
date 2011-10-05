@@ -337,7 +337,7 @@ namespace IndiaTango.Models
 
             foreach (var time in values)
             {
-                newState.Values.Add(time, value);
+                newState.Values[time] = value;
             }
 
             return newState;
