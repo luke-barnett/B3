@@ -150,7 +150,7 @@
                         </StackPanel>
                     </Button>
                 </StackPanel>
-                <ComboBox Grid.Column="1" Grid.ColumnSpan="1" Grid.Row="12" IsEnabled="{Binding Editing}" ItemsSource="{Binding SummaryTypes}" Margin="3,7,0,7" SelectedIndex="{Binding SummaryMode, Mode=TwoWay}" />
+                <ComboBox Grid.Column="1" Grid.ColumnSpan="1" Grid.Row="12" IsEnabled="{Binding Editing}" ItemsSource="{Binding SummaryTypes}" Margin="3,7,0,7" SelectedIndex="{Binding SummaryType, Mode=TwoWay}" />
                 <TextBlock FontWeight="Bold" Grid.Row="12" Margin="10,10,24,11" Text="Summary type:" TextAlignment="Right" TextWrapping="Wrap" />
             </Grid>
         </GroupBox>

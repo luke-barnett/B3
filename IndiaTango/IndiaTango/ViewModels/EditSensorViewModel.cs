@@ -102,13 +102,13 @@ namespace IndiaTango.ViewModels
 
 		public string Title { get { return "Edit Sensor"; } }
 
-        public int SummaryMode
+        public int SummaryType
         {
             get { return (int) _summaryType; }
             set
             {
                 _summaryType = (SummaryType) value;
-                NotifyOfPropertyChange(() => SummaryMode);
+                NotifyOfPropertyChange(() => SummaryType);
             }
         }
 
@@ -190,7 +190,7 @@ namespace IndiaTango.ViewModels
                     Manufacturer = _selectedItem.Sensor.Manufacturer;
                     SerialNumber = _selectedItem.Sensor.SerialNumber;
                     ErrorThreshold = _selectedItem.Sensor.ErrorThreshold.ToString();
-                    SummaryMode = (int)_selectedItem.Sensor.SummaryType;
+                    SummaryType = (int)_selectedItem.Sensor.SummaryType;
                 }
                 else
                 {
@@ -203,7 +203,7 @@ namespace IndiaTango.ViewModels
                     Manufacturer = "";
                     SerialNumber = "";
                     ErrorThreshold = IndiaTango.Properties.Settings.Default.DefaultErrorThreshold.ToString();
-                    SummaryMode = 0;
+                    SummaryType = 0;
                 }
 
                 FailingErrorVisible = (_selectedItem != null && _selectedItem.IsFailing);
@@ -313,7 +313,7 @@ namespace IndiaTango.ViewModels
                 try
                 {
                     // TODO: more user-friendly conversion messages!
-                    var s = new Sensor(Name, Description, float.Parse(UpperLimit), float.Parse(LowerLimit), Unit, float.Parse(MaximumRateOfChange), Manufacturer, SerialNumber, new Stack<SensorState>(), new Stack<SensorState>(), new List<DateTime>(), int.Parse(ErrorThreshold), _ds, SummaryType.Average);
+                    var s = new Sensor(Name, Description, float.Parse(UpperLimit), float.Parse(LowerLimit), Unit, float.Parse(MaximumRateOfChange), Manufacturer, SerialNumber, new Stack<SensorState>(), new Stack<SensorState>(), new List<DateTime>(), int.Parse(ErrorThreshold), _ds, Models.SummaryType.Average);
                     SelectedItem = new ListedSensor(s, _ds);
                     EventLogger.LogInfo(GetType().ToString(), "Created new sensor. Sensor name: " + s.Name);
                     this.TryClose();
@@ -338,7 +338,7 @@ namespace IndiaTango.ViewModels
                     SelectedItem.Sensor.Manufacturer = Manufacturer;
                     SelectedItem.Sensor.SerialNumber = SerialNumber;
                     SelectedItem.Sensor.ErrorThreshold = int.Parse(ErrorThreshold);
-                    SelectedItem.Sensor.SummaryType = (SummaryType)SummaryMode;
+                    SelectedItem.Sensor.SummaryType = (SummaryType)SummaryType;
                     EventLogger.LogInfo(GetType().ToString(), "Saved existing sensor. Sensor name: " + Name);
                 }
                 catch (Exception e)
