@@ -102,8 +102,6 @@ namespace IndiaTango.ViewModels
 
 		public string Title { get { return "Edit Sensor"; } }
 
-        public string Icon { get { return Common.Icon; } }
-
         public int SummaryMode
         {
             get { return (int) _summaryType; }
