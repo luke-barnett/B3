@@ -120,23 +120,31 @@ namespace IndiaTango.Tests
         }
 
         [Test]
-        public void SwapsSensorsCorrectly()
+        public void MovesSensorsCorrectly()
         {
-            var A = new Sensor("Temperature at 10m", "C");
-            var B = new Sensor("Temperature at 50m", "C");
+            var A = new Sensor("Temperature at 10m", "A");
+            var B = new Sensor("Temperature at 50m", "B");
+            var C = new Sensor("Temperature at 100m", "C");
+            var D = new Sensor("Temperature at 200m", "D");
+            var E = new Sensor("Temperature at 500m", "E");
 
-            _ds1.Sensors.Add(A);
-            _ds1.Sensors.Add(B);
+            _ds1.Sensors.AddRange(new Sensor[] { A, B, C, D, E });
 
-            var indexA = _ds1.Sensors.IndexOf(A);
-            var indexB = _ds1.Sensors.IndexOf(B);
+            _ds1.MoveSensorTo(A, C);
 
-            _ds1.SwapSensors(A, B);
+            Assert.AreEqual(0, _ds1.Sensors.IndexOf(B));
+            Assert.AreEqual(1, _ds1.Sensors.IndexOf(C));
+            Assert.AreEqual(2, _ds1.Sensors.IndexOf(A));
+            Assert.AreEqual(3, _ds1.Sensors.IndexOf(D));
+            Assert.AreEqual(4, _ds1.Sensors.IndexOf(E));
 
-            Assert.AreEqual(indexB, _ds1.Sensors.IndexOf(A));
-            Assert.AreEqual(indexA, _ds1.Sensors.IndexOf(B));
-            Assert.AreEqual("Temperature at 10m", _ds1.Sensors[indexB].Name);
-            Assert.AreEqual("Temperature at 50m", _ds1.Sensors[indexA].Name);
+            _ds1.MoveSensorTo(E, C);
+
+            Assert.AreEqual(0, _ds1.Sensors.IndexOf(B));
+            Assert.AreEqual(1, _ds1.Sensors.IndexOf(E));
+            Assert.AreEqual(2, _ds1.Sensors.IndexOf(C));
+            Assert.AreEqual(3, _ds1.Sensors.IndexOf(A));
+            Assert.AreEqual(4, _ds1.Sensors.IndexOf(D));
         }
     }
 }

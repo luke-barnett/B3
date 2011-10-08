@@ -73,11 +73,10 @@ namespace IndiaTango.ViewModels
                 isDragging = false;
                 var sensorAtEndOfDrag = SelectedItem;
 
-                if (!sensorAtEndOfDrag.Sensor.Equals(_sensorAtStartOfDrag.Sensor) &&
-                    (sensorAtEndOfDrag != null && _sensorAtStartOfDrag != null))
+                if(sensorAtEndOfDrag != null && _sensorAtStartOfDrag != null && !sensorAtEndOfDrag.Sensor.Equals(_sensorAtStartOfDrag.Sensor))
                 {
                     // Move it into place
-                    _ds.SwapSensors(_sensorAtStartOfDrag.Sensor, sensorAtEndOfDrag.Sensor);
+                    _ds.MoveSensorTo(_sensorAtStartOfDrag.Sensor, sensorAtEndOfDrag.Sensor);
                     SelectedItem = _sensorAtStartOfDrag;
 
                     // TODO: must be more efficient way of doing this? Just NotifyPropertyChanged() didn't work

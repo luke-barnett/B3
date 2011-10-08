@@ -193,16 +193,32 @@ namespace IndiaTango.Models
             get { return _expectedDataPointCount; }
         }
 
-        public void SwapSensors(Sensor A, Sensor B)
+        /// <summary>
+        /// This method reads as 'move sensor A to the spot occupied by sensor B'. It moves sensor A to the spot where sensor B was, and moves sensor B one spot below it.
+        /// </summary>
+        /// <param name="A">The sensor to be moved.</param>
+        /// <param name="B">The sensor whose spot will become sensor A's new location.</param>
+        public void MoveSensorTo(Sensor A, Sensor B)
         {
             if (A.Equals(B))
                 return;
 
-            var indexA = Sensors.IndexOf(A);
-            var indexB = Sensors.IndexOf(B);
+            var newIndex = 0;
 
-            Sensors[indexA] = B;
-            Sensors[indexB] = A;
+            var goingDown = Sensors.IndexOf(A) < Sensors.IndexOf(B);
+
+            if(goingDown)
+                newIndex = Sensors.IndexOf(B); // Going down - use current index in the list
+
+            Sensors.Remove(A);
+
+            if(!goingDown)
+                newIndex = Sensors.IndexOf(B);
+
+            if(newIndex < Sensors.Count)
+                Sensors.Insert(newIndex, A);
+            else
+                Sensors.Add(A);
         }
 
         public string IdentifiableName
