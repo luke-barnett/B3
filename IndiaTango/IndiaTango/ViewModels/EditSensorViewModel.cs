@@ -210,6 +210,7 @@ namespace IndiaTango.ViewModels
 				NotifyOfPropertyChange(() => EditDoneVisible);
 				NotifyOfPropertyChange(() => ListEnabled);
 				NotifyOfPropertyChange(() => Editing);
+                NotifyOfPropertyChange(() => NewVisible);
 			}
     	}
 
@@ -240,6 +241,11 @@ namespace IndiaTango.ViewModels
         public string Manufacturer { get; set; }
         public string SerialNumber { get; set; }
         public string ErrorThreshold { get; set; }
+
+        public Visibility NewVisible
+        {
+            get { return (Editing) ? Visibility.Collapsed : Visibility.Visible; }
+        }
 		#endregion
 
 		#region Event Handlers
@@ -262,9 +268,17 @@ namespace IndiaTango.ViewModels
                 {
                     // TODO: more user-friendly conversion messages!
                     var s = new Sensor(Name, Description, float.Parse(UpperLimit), float.Parse(LowerLimit), Unit, float.Parse(MaximumRateOfChange), Manufacturer, SerialNumber, new Stack<SensorState>(), new Stack<SensorState>(), new List<DateTime>(), int.Parse(ErrorThreshold), _ds, Models.SummaryType.Average);
+                    
+                    if(Dataset.Sensors == null)
+                        Dataset.Sensors = new List<Sensor>();
+
+                    Dataset.Sensors.Add(s);
                     SelectedItem = new ListedSensor(s, _ds);
+
                     EventLogger.LogInfo(GetType().ToString(), "Created new sensor. Sensor name: " + s.Name);
-                    this.TryClose();
+                    Common.ShowMessageBox("New sensor created", "The new sensor '" + Name + "' was added successfully.",
+                                          false, false);
+                    endEditing();
                 }
                 catch (Exception e)
                 {
@@ -288,6 +302,7 @@ namespace IndiaTango.ViewModels
                     SelectedItem.Sensor.ErrorThreshold = int.Parse(ErrorThreshold);
                     SelectedItem.Sensor.SummaryType = (SummaryType)SummaryType;
                     EventLogger.LogInfo(GetType().ToString(), "Saved existing sensor. Sensor name: " + Name);
+                    endEditing();
                 }
                 catch (Exception e)
                 {
@@ -295,13 +310,34 @@ namespace IndiaTango.ViewModels
                     EventLogger.LogWarning(GetType().ToString(), "Attempted to save existing sensor, but failed. Details: " + e.Message);
                 }
             }
+        }
 
-        	Editing = false;
+        public void btnDelete()
+        {
+            if(SelectedItem != null && SelectedItem.Sensor != null && Common.Confirm("Really delete sensor?", "Are you sure you want to permanently delete this sensor?"))
+            {
+                Dataset.Sensors.Remove(SelectedItem.Sensor);
+                EventLogger.LogInfo(GetType().ToString(), "Deleted existing sensor. Sensor name: " + SelectedItem.Sensor.Name);
+                Common.ShowMessageBox("Sensor removed", "The selected sensor was successfully deleted.",
+                                          false, false);
+                endEditing();
+            }
+        }
 
-			//Force the damn list box to update the sensor names
-        	List<ListedSensor> old = AllSensors;
+        private void endEditing()
+        {
+            Editing = false;
+
+            //Force the damn list box to update the sensor names
+            List<ListedSensor> old = AllSensors;
             AllSensors = new List<ListedSensor>();
             AllSensors = old;
+        }
+
+        public void btnNew()
+        {
+            Editing = true;
+            SelectedItem = null;
         }
 
 		public void btnCancel()
