@@ -158,8 +158,10 @@ namespace IndiaTango.Models
         public static string GetLast20()
         {
             var q = new Queue<String>();
+
             for (var i = 0; i < 20; i++)
                 q.Enqueue("");
+
             using (var sr = new StreamReader(EventLogger.LogFilePath))
             {
                 while (sr.Peek() != -1)
@@ -168,7 +170,11 @@ namespace IndiaTango.Models
                     q.Enqueue(sr.ReadLine() + "\n");
                 }
             }
-            _logRefNum = Int32.Parse(q.Last().Split(' ')[0])+1;
+
+            int currentRef = 0;
+            Int32.TryParse(q.Last().Split(' ')[0], out currentRef);
+
+            _logRefNum = currentRef + 1;
             return q.Aggregate("", (current, s) => current + s);
         }
         #endregion
