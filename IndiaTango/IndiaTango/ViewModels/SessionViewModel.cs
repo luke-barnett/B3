@@ -163,7 +163,7 @@ namespace IndiaTango.ViewModels
 
         public string Title
         {
-            get { return "New Session"; }
+            get { return string.Format("{0}", (_ds != null ?  _ds.IdentifiableName : Common.UnknownSite)); }
         }
 
         public double ProgressBarPercent
@@ -403,6 +403,7 @@ namespace IndiaTango.ViewModels
                 NotifyOfPropertyChange(() => UniversityContact);
                 NotifyOfPropertyChange(() => EditDeleteEnabled);
 				NotifyOfPropertyChange(() => SiteImages);
+                NotifyOfPropertyChange(() => Title);
             }
         }
         #endregion
@@ -475,6 +476,7 @@ namespace IndiaTango.ViewModels
                         }
                     }
 
+                    NotifyOfPropertyChange(() => Title);
                     ImportEnabled = true;
                     ProgressBarVisible = Visibility.Hidden;
                     EventLogger.LogInfo("BackgroundImportThread", "Data import complete.");
@@ -502,6 +504,7 @@ namespace IndiaTango.ViewModels
         {
             var graphView = (_container.GetInstance(typeof(GraphViewModel), "GraphViewModel") as GraphViewModel);
             graphView.SensorList = SensorList;
+            graphView.Dataset = _ds;
             _windowManager.ShowWindow(graphView);
         }
 

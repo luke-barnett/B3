@@ -9,7 +9,7 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" FontSize="18" Text="{Binding Title}" Margin="10" />
+        <TextBlock Grid.Row="0" FontSize="18" Text="{Binding IntroTitle}" Margin="10" />
 
         <Rectangle Height="3" Fill="OrangeRed" Margin="0,5" Grid.Row="1" SnapsToDevicePixels="True" Stroke="White" />
 

@@ -144,18 +144,15 @@ namespace IndiaTango.ViewModels
 
         #region Visual Items
 
-        public string ViewTitle
+        public string Title
         {
             get
             {
-                if (_sensorList.Count > 1 && _sensorList[0].Sensor.Owner.Site != null)
-                    if (_selectedSensor == null)
-                        return string.Format("[{0}] Erroneous Values Detection", _sensorList[0].Sensor.Owner.Site.Name);
-                    else
-                        return string.Format("[{0}] Erroneous Values Detection - {1}",
-                                             _sensorList[0].Sensor.Owner.Site.Name, _selectedSensor.Sensor.Name);
-
-                return _selectedSensor != null ? string.Format("Erroneous Values Detection - {0}", _selectedSensor.Sensor.Name) : "Erroneous Values Detection";
+                if (_selectedSensor == null)
+                    return string.Format("[{0}] Erroneous Values Detection", (_dataset != null) ? _sensorList[0].Sensor.Owner.IdentifiableName : Common.UnknownSite);
+                else
+                    return string.Format("[{0}] Erroneous Values Detection - {1}",
+                                            (_dataset != null) ? _sensorList[0].Sensor.Owner.IdentifiableName : Common.UnknownSite, _selectedSensor.Sensor.Name);
             }
         }
 
@@ -213,7 +210,7 @@ namespace IndiaTango.ViewModels
                     FindErroneousValues();
                 }
                 NotifyOfPropertyChange(() => SelectedSensor);
-                NotifyOfPropertyChange(() => ViewTitle);
+                NotifyOfPropertyChange(() => Title);
             }
         }
 

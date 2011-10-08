@@ -121,6 +121,8 @@ namespace IndiaTango.ViewModels
         /// </summary>
         public List<Sensor> SensorList { set { _sensors = (from x in value select new GraphableSensor(x)).ToList(); NotifyOfPropertyChange(() => GraphableSensors); } }
 
+        public Dataset Dataset { get; set; }
+
         /// <summary>
         /// The list of GraphableSensors that can be used for graphing
         /// </summary>
@@ -139,7 +141,12 @@ namespace IndiaTango.ViewModels
         /// <summary>
         /// The title of the Chart
         /// </summary>
-        public string ChartTitle { get { return _chartTitle; } set { _chartTitle = value; NotifyOfPropertyChange(() => ChartTitle); } }
+        public string ChartTitle { get { return _chartTitle; } set { _chartTitle = value; NotifyOfPropertyChange(() => ChartTitle); NotifyOfPropertyChange(() => Title); } }
+
+        public string Title
+        {
+            get { return string.Format("[{0}] {1}", Dataset != null ? Dataset.IdentifiableName : Common.UnknownSite, ChartTitle == "" ? "Graph Data" : ChartTitle); }
+        }
 
         /// <summary>
         /// The Y Axis Title

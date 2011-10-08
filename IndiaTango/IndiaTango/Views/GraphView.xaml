@@ -5,7 +5,7 @@
         xmlns:multiseries="clr-namespace:IndiaTango.MultiSeriesBinding"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:cal="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro"
         xmlns:toolkit="clr-namespace:Microsoft.Windows.Controls;assembly=WPFToolkit.Extended"
-        Title="{Binding ChartTitle}" Height="570" Width="1100" Icon="{Binding Icon}" WindowStartupLocation="CenterScreen">
+        Title="{Binding Title}" Height="570" Width="1100" Icon="{Binding Icon}" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="{Binding ColumnWidth}" />

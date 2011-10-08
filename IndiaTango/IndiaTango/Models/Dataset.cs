@@ -204,5 +204,10 @@ namespace IndiaTango.Models
             Sensors[indexA] = B;
             Sensors[indexB] = A;
         }
+
+        public string IdentifiableName
+        {
+            get { return (Site != null && !string.IsNullOrWhiteSpace(Site.Name)) ? Site.Name : Common.UnknownSite; }
+        }
     }
 }

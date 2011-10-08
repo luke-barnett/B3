@@ -232,7 +232,7 @@ namespace IndiaTango.ViewModels
 
         public string Title
         {
-            get { return "Calibrate Sensors" + (SelectedSensor != null ? " - " + SelectedSensor.Sensor.Name : ""); }
+            get { return string.Format("[{1}] Calibrate Sensors{0}", (SelectedSensor != null ? " - " + SelectedSensor.Sensor.Name : ""), (Dataset != null ? Dataset.IdentifiableName : Common.UnknownSite)); }
         }
 
         public String SensorName

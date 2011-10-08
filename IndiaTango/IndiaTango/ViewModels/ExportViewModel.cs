@@ -33,7 +33,12 @@ namespace IndiaTango.ViewModels
         #region View Properties
         public string Title
         {
-            get { return "Export Options"; }
+            get { return string.Format("[{0}] Export Options", (Dataset != null ? Dataset.IdentifiableName : Common.UnknownSite)); }
+        }
+
+        public string IntroTitle
+        {
+            get { return "Choose which data to export"; }
         }
 
         public List<DateColumnFormat> DateColumnFormatOptions

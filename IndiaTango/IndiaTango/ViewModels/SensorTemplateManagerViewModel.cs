@@ -29,6 +29,8 @@ namespace IndiaTango.ViewModels
         private int _selectedMatchMode = 0;
         private SummaryType _sType;
 
+        public Dataset Dataset { get; set; }
+
         public SensorTemplateManagerViewModel(IWindowManager windowManager, SimpleContainer container)
         {
             _windowManager = windowManager;
@@ -42,7 +44,8 @@ namespace IndiaTango.ViewModels
             set { _allTemplates = value; NotifyOfPropertyChange(() => AllTemplates); }
         }
 
-        public string Title { get { return "Manage Sensor Presets"; } }
+        public string Title { get { return string.Format("[{0}] Sensor Presets", (Dataset != null ? Dataset.IdentifiableName : Common.UnknownSite)); } }
+        
         public string[] SensorMatchStyles
         {
             get
@@ -67,7 +70,7 @@ namespace IndiaTango.ViewModels
 
         public string[] SummaryTypes
         {
-            get{return new string[]{"Agerage","Sum"};}
+            get{return new string[]{"Average","Sum"};}
         }
 
         public List<ListedSensor> Sensors

@@ -100,7 +100,7 @@ namespace IndiaTango.ViewModels
             set { _ds = value; }
         }
 
-		public string Title { get { return "Edit Sensor"; } }
+        public string Title { get { return string.Format("[{0}] Edit Sensors", (Dataset != null ? Dataset.IdentifiableName : Common.UnknownSite)); } }
 
         public int SummaryType
         {
@@ -368,6 +368,7 @@ namespace IndiaTango.ViewModels
         {
             var v = (SensorTemplateManagerViewModel)_container.GetInstance(typeof (SensorTemplateManagerViewModel), "SensorTemplateManagerViewModel");
             v.Sensors = AllSensors;
+            v.Dataset = Dataset;
             v.Deactivated += (o, e) => {
                 Templates = SensorTemplate.ImportAll(); /* Update sensor templates after potential change */
 

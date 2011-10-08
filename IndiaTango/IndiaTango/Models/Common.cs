@@ -198,6 +198,7 @@ namespace IndiaTango.Models
         }
 
         public static Random Generator = new Random();
+        public const string UnknownSite = "Unidentified Site";
 
         public static bool Confirm(string title, string message)
         {

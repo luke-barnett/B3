@@ -6,7 +6,7 @@
         xmlns:charts="clr-namespace:Visiblox.Charts;assembly=Visiblox.Charts"
         xmlns:toolkit="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit/extended"
         xmlns:multiseries="clr-namespace:IndiaTango.MultiSeriesBinding"
-        Title="{Binding ViewTitle}" Icon="{Binding Icon}" Cursor="{Binding ViewCursor}" Height="700" Width="1150" WindowStartupLocation="CenterScreen">
+        Title="{Binding Title}" Icon="{Binding Icon}" Cursor="{Binding ViewCursor}" Height="700" Width="1150" WindowStartupLocation="CenterScreen">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closing">
             <cal:ActionMessage MethodName="ClosingWindow">
