@@ -112,11 +112,6 @@ namespace IndiaTango.ViewModels
             }
         }
 
-        public int TipRowHeight
-        {
-            get { return (TipVisible) ? 45 : 0; }
-        }
-
         public int ErrorRowHeight
         {
             get { return (FailingErrorVisible) ? 60 : 0; }
@@ -135,29 +130,6 @@ namespace IndiaTango.ViewModels
                 NotifyOfPropertyChange(() => ErrorRowHeight);
             }
         }
-
-        public bool TipVisible
-        {
-            get { return _tipVisible; }
-            set
-            {
-                _tipVisible = value;
-                
-                NotifyOfPropertyChange(() => TipVisible);
-                NotifyOfPropertyChange(() => TipRowHeight);
-            }
-        }
-
-        public bool NeedsTip
-        {
-            get { return String.IsNullOrEmpty(Unit); }
-        }
-
-        /*public List<Sensor> Sensors
-        {
-            get { return _sensors; }
-            set { _sensors = value; }
-        }*/
 
 		public List<ListedSensor> AllSensors
     	{
@@ -209,30 +181,6 @@ namespace IndiaTango.ViewModels
                 FailingErrorVisible = (_selectedItem != null && _selectedItem.IsFailing);
                 //var val =
                     //_selectedSensor.CurrentState.GetMissingTimes(Dataset.DataInterval, Dataset.StartTimeStamp, Dataset.EndTimeStamp).Count;
-
-				NotifyOfPropertyChange(() => NeedsTip);
-
-                if(NeedsTip)
-                {
-                    var gotMatch = false;
-
-                    if(value != null)
-                        foreach(SensorTemplate st in Templates)
-                            if(st.Matches(value.Sensor))
-                            {
-                                Unit = st.Unit;
-                                LowerLimit = st.LowerLimit.ToString();
-                                UpperLimit = st.UpperLimit.ToString();
-                                MaximumRateOfChange = st.MaximumRateOfChange.ToString();
-                                gotMatch = true;
-                            }
-
-                    TipVisible = gotMatch;
-                }
-                else
-                {
-                    TipVisible = false;
-                }
 
 				NotifyOfPropertyChange(() => Name);
 				NotifyOfPropertyChange(() => Description);
