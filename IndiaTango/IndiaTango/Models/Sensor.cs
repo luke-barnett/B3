@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Collections;
+using System.Text.RegularExpressions;
 
 namespace IndiaTango.Models
 {
@@ -514,6 +515,28 @@ namespace IndiaTango.Models
                         break;
                 }
             }
+        }
+
+        public string GuessConventionalNameForSensor()
+        {
+            // We will guess the name of the sensor, following convention,
+            // by getting the first two words (even if each word is only a single
+            // capital letter, and return them
+            // The experts can then specify the depth
+            Regex r = new Regex("(([A-Z])[a-z]*)");
+
+            MatchCollection mc = r.Matches(Name);
+
+            if (mc.Count > 0)
+            {
+                if (mc.Count == 1)
+                    return mc[0].Captures[0].Value;
+                else
+                    return mc[0].Captures[0].Value + mc[1].Captures[0].Value;
+            }
+            else
+                return Name;
+
         }
     }
 }

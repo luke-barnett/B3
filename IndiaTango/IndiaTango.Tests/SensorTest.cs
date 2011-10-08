@@ -918,5 +918,22 @@ namespace IndiaTango.Tests
         }
 
         #endregion
+
+        #region Determining Conventional Sensor Names
+        [Test]
+        public void GuessesCorrectConventionalName()
+        {
+            var temp = new Sensor("Temperature1", "C");
+            var dio = new Sensor("DODeepSat", "D");
+            var quo = new Sensor("FourWordsInIt", "F");
+            var bo = new Sensor("TempErature", "C");
+
+            Assert.AreEqual("Temperature", temp.GuessConventionalNameForSensor());
+            Assert.AreEqual("DO", dio.GuessConventionalNameForSensor());
+            Assert.AreEqual("FourWords", quo.GuessConventionalNameForSensor());
+            Assert.AreEqual("TempErature", bo.GuessConventionalNameForSensor());
+
+        }
+        #endregion
     }
 }
