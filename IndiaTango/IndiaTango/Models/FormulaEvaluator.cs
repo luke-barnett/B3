@@ -76,9 +76,6 @@ namespace IndiaTango.Models
 
         public Formula CompileFormula(string formula)
         {
-            // change evaluation string to pick up Math class members
-            formula = RefineEvaluationString(formula);
-
             //Get the varibles used in formula
             _variablesUsed = new List<SensorVariable>();
             foreach (SensorVariable sensorVariable in _sensorStates)
@@ -100,6 +97,9 @@ namespace IndiaTango.Models
                     _variablesAssignedTo.Add(sensorVariable);
                 }
             }
+
+            // change evaluation string to pick up Math class members
+            formula = RefineEvaluationString(formula);
 
             //Generate start loopp code
             loopStartCode = "for(DateTime time = startTime; time <= endTime ; time = time.AddMinutes(" + _interval + "))\n" +

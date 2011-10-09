@@ -286,14 +286,14 @@ namespace IndiaTango.Models
             EventLogger.LogInfo("Image Exporter", "Saved graph as image to: " + filename);
         }
 
-        public static void RequestReason(Sensor sensor, SimpleContainer _container, IWindowManager _windowManager, SensorState state, string taskPerformed)
+        public static void RequestReason(Sensor sensor, SimpleContainer _container, IWindowManager _windowManager, string taskPerformed)
         {
-            RequestReason(new List<Sensor>(){sensor},_container,_windowManager,state,taskPerformed);
+            RequestReason(new List<Sensor>(){sensor},_container,_windowManager,taskPerformed);
         }
 
-        public static void RequestReason(List<Sensor> sensors, SimpleContainer _container, IWindowManager _windowManager, SensorState state, string taskPerformed)
+        public static void RequestReason(List<Sensor> sensors, SimpleContainer _container, IWindowManager _windowManager, string taskPerformed)
         {
-            if (state != null)
+            if (sensors.Count > 0)
             {
                 var specify = (SpecifyValueViewModel)_container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel");
                 specify.Title = "Log Reason";
@@ -302,17 +302,19 @@ namespace IndiaTango.Models
                 specify.ComboBoxItems = GetChangeReasons();
                 specify.Deactivated += (o, e) =>
                 {
-                    // Specify reason
-                    state.Reason = specify.Text;
+                    foreach (Sensor sensor in sensors)
+                    {
+                        // Specify reason
+                        sensor.CurrentState.Reason = specify.Text;
 
-                    // Log this change to the file!
-                    foreach(Sensor sensor in sensors)
-                        state.LogChange(sensor.Name, taskPerformed);
-
+                        // Log this change to the file!
+                        sensor.CurrentState.LogChange(sensor.Name, taskPerformed);
+                    }
 
                     //Add the change to the list
                     AddChangeReason(specify.Text);
                 };
+
                 _windowManager.ShowDialog(specify);
             }
         }

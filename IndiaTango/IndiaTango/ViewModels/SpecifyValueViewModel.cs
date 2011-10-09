@@ -20,7 +20,7 @@ namespace IndiaTango.ViewModels
     	private bool _showCancel = false;
     	private bool _canEditComboBox = true;
         private bool _canceled = false;
-        private int _selectedIndex = 0;
+        private int _selectedIndex = -1;
 
         public SpecifyValueViewModel(IWindowManager windowManager, SimpleContainer container)
         {

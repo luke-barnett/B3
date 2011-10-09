@@ -766,7 +766,7 @@ namespace IndiaTango.ViewModels
 
             UpdateGraph();
 
-            Common.RequestReason(_selectedSensor.Sensor, _container, _windowManager, _selectedSensor.Sensor.CurrentState, taskPerformed);
+            Common.RequestReason(_selectedSensor.Sensor, _container, _windowManager, taskPerformed);
         }
 
         #region Graphing Methods

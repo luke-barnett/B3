@@ -644,11 +644,8 @@ namespace IndiaTango.ViewModels
                 _eval.EvaluateFormula(_formula, _ds.StartTimeStamp, _ds.EndTimeStamp, skipMissingValues);
 
                 ViewCursor = Cursors.Arrow;
-                foreach (SensorVariable sensorVariable in _formula.SensorsUsed)
-                {
-                    
-                }
-                Common.RequestReason(SelectedSensor.Sensor, _container, _windowManager, SelectedSensor.Sensor.CurrentState, "Formula '" + FormulaText + "' successfully applied to the sensor.");
+
+                Common.RequestReason(SensorVariable.CreateSensorsFromSensorVariables(_formula.SensorsUsed), _container, _windowManager, "Formula '" + FormulaText + "' successfully applied to the sensor.");
 
                 Common.ShowMessageBox("Formula applied", "The formula was successfully applied to the selected sensor.",
                                       false, false);

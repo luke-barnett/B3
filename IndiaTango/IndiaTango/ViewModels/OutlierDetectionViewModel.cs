@@ -346,7 +346,7 @@ namespace IndiaTango.ViewModels
             NotifyOfPropertyChange(() => Outliers);
             NotifyOfPropertyChange(() => OutliersStrings);
 
-            Common.RequestReason(_sensor, _container, _windowManager, _sensor.CurrentState, taskPerformed);
+            Common.RequestReason(_sensor, _container, _windowManager, taskPerformed);
         }
 
         public void btnSpecify()
