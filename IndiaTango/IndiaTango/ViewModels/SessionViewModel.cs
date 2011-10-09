@@ -780,6 +780,10 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        public void btnWizard()
+        {
+            _windowManager.ShowWindow(_container.GetInstance(typeof(WizardViewModel), "WizardViewModel"));
+        }
         #endregion
 
         #region Contact Add/Edit/Delete Handlers
