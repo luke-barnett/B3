@@ -591,33 +591,30 @@ namespace IndiaTango.ViewModels
 
             if (ValidFormula)
             {
-				bool missingValues = true;
 				bool skipMissingValues = false;
+            	string missingSensors = "";
 				MissingValuesDetector detector = new MissingValuesDetector();
 
 				//Detect if missing values
             	foreach (var sensorVariable in _formula.SensorsUsed)
             	{
             		if(detector.GetDetectedValues(sensorVariable.Sensor).Count > 0)
-            		{
-            			missingValues = true;
-						break;
-            		}
+            			missingSensors += "\t" + sensorVariable.Sensor.Name + " (" + sensorVariable.VariableName + ")\n";
             	}
 
-				if (missingValues)
+				if (missingSensors != "")
 				{
 					string action = "";
 					var specify =
 						(SpecifyValueViewModel) _container.GetInstance(typeof (SpecifyValueViewModel), "SpecifyValueViewModel");
 					specify.Title = "Missing Values Detected";
 					specify.Message =
-						"One or more of the sensors you have used in the formula contain missing values.\nPlease select an action to take.";
+						"The following sensors you have used in the formula contain missing values:\n\n" + missingSensors + "\nPlease select an action to take.";
 					specify.ShowComboBox = true;
 					specify.ShowCancel = true;
 					specify.CanEditComboBox = false;
 					specify.ComboBoxItems =
-						new List<string>(new string[] {"Treat all missing values as zero", "Skip over all missing values"});
+						new List<string>(new[] {"Treat all missing values as zero", "Skip over all missing values"});
 					specify.Text = "Treat all missing values as zero";
 					specify.Deactivated += (o, e) =>
 					                       	{
@@ -626,6 +623,7 @@ namespace IndiaTango.ViewModels
 
 					_windowManager.ShowDialog(specify);
 
+					//Should totally use an enum...
 					switch (action)
 					{
 						case "Cancel":

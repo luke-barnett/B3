@@ -109,7 +109,7 @@
                     
                     <TextBlock Text="Enter Formula Below:" Margin="5"/>
                     
-                    <TextBox Name="txtFormula" Height="50" BorderBrush="OrangeRed" Margin="5 0" Text="{Binding FormulaText, Mode=TwoWay, UpdateSourceTrigger=Explicit}" Background="{Binding FormulaBoxBackground}" KeyUp="TextBox_KeyUp" />
+                    <TextBox Name="txtFormula" Height="70" BorderBrush="OrangeRed" Margin="5 0" Text="{Binding FormulaText, Mode=TwoWay, UpdateSourceTrigger=Explicit}" Background="{Binding FormulaBoxBackground}" KeyUp="TextBox_KeyUp" VerticalScrollBarVisibility="Auto" AcceptsReturn="True" />
                     
                     <WrapPanel HorizontalAlignment="Right">
                         <Button Name="btnHelp" FontSize="15"  HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" >

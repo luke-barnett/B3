@@ -83,7 +83,9 @@ namespace IndiaTango.Models
             _variablesUsed = new List<SensorVariable>();
             foreach (SensorVariable sensorVariable in _sensorStates)
             {
-                if (formula.Contains(sensorVariable.VariableName + " ")  || formula.Contains(" " + sensorVariable.VariableName))
+				//TODO: Regex this up yall
+                if (formula.Contains(sensorVariable.VariableName + " ")  || formula.Contains(" " + sensorVariable.VariableName) || 
+					formula.Contains("(" + sensorVariable.VariableName) || formula.Contains(sensorVariable.VariableName + ")"))
                 {
                     _variablesUsed.Add(sensorVariable);
                 }
@@ -120,7 +122,7 @@ namespace IndiaTango.Models
             {
                 if (_variablesAssignedTo.Contains(_sensorStates[v]))
                 {
-                    loopEndCode += "sensorStates[" + v + "].Sensor.CurrentState.Values[time] = " +
+                    loopEndCode += "if(!skipMissingValues || sensorStates[" + v + "].Sensor.CurrentState.Values.ContainsKey(time)) sensorStates[" + v + "].Sensor.CurrentState.Values[time] = " +
                                    _sensorStates[v].VariableName + ";\n";
                 }
             }
@@ -202,10 +204,14 @@ namespace IndiaTango.Models
                 replacelist.Add(m.Value);
             }
 
-            // return the modified evaluation string
-
+            
+			//Make sure all values are cast back as floats
             eval = eval.Replace("=", "= (float)");
 
+			//Make sure all newlines have semicolins before them
+        	eval = eval.Replace("\n", ";\n");
+
+			// return the modified evaluation string
             return eval;
         }
 
