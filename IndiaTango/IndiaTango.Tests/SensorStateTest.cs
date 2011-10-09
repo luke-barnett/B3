@@ -277,7 +277,7 @@ namespace IndiaTango.Tests
             var A = new SensorState(baseDate,
                                        new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 50 }, { baseDate.AddMinutes(60), 200 } });
 
-            var state = A.Extrapolate(new List<DateTime> { baseDate.AddMinutes(30) }, ds);
+            var state = A.Extrapolate(new List<DateTime> { baseDate.AddMinutes(30), baseDate.AddMinutes(45) }, ds);
 
             Assert.AreEqual(100, state.Values[baseDate.AddMinutes(30)]);
             Assert.AreEqual(150, state.Values[baseDate.AddMinutes(45)]);
