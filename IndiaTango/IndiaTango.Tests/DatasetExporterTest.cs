@@ -27,7 +27,7 @@ namespace IndiaTango.Tests
     	[Test]
         public void ExportAsCSVNoEmptyLines()
     	{
-    		CSVReader reader = new CSVReader(Path.Combine(_inputFilePath));
+    		var reader = new CSVReader(Path.Combine(_inputFilePath));
     		_data.Sensors = reader.ReadSensors();
 			_exporter = new DatasetExporter(_data);
             _exporter.Export(_outputFilePath, ExportFormat.CSV, false, false, false, ExportedPoints.AllPoints, DateColumnFormat.TwoDateColumn);
@@ -37,7 +37,7 @@ namespace IndiaTango.Tests
         [Test]
         public void ExportAsCSVEmptyLinesIncluded()
         {
-            CSVReader reader = new CSVReader(Path.Combine(_inputFilePath));
+            var reader = new CSVReader(Path.Combine(_inputFilePath));
             _data.Sensors = reader.ReadSensors();
             _exporter = new DatasetExporter(_data);
             _exporter.Export(_outputFilePath, ExportFormat.CSV, true, false, false, ExportedPoints.AllPoints, DateColumnFormat.TwoDateColumn);
@@ -47,7 +47,7 @@ namespace IndiaTango.Tests
         [Test]
         public void ExportAsCSVEmptyLinesIncludedWithAverageEveryHour()
         {
-            CSVReader reader = new CSVReader(Path.Combine(_inputFilePath));
+            var reader = new CSVReader(Path.Combine(_inputFilePath));
             _data.Sensors = reader.ReadSensors();
             _exporter = new DatasetExporter(_data);
             _exporter.Export(_outputFilePath, ExportFormat.CSV, true, false, false, ExportedPoints.HourlyPoints, DateColumnFormat.TwoDateColumn);
@@ -57,7 +57,7 @@ namespace IndiaTango.Tests
         [Test]
         public void ExportAsCSVNoEmptyLinesAndMetaData()
         {
-            CSVReader reader = new CSVReader(Path.Combine(_inputFilePath));
+            var reader = new CSVReader(Path.Combine(_inputFilePath));
             _data.Sensors = reader.ReadSensors();
             _exporter = new DatasetExporter(_data);
             _exporter.Export(_outputFilePath, ExportFormat.CSV, false, true, false, ExportedPoints.AllPoints, DateColumnFormat.TwoDateColumn);
@@ -71,7 +71,7 @@ namespace IndiaTango.Tests
             var givenDataSet = new Dataset(new Site(1, "Steven", "Kerry", Contact, Contact, Contact, new GPSCoords(0, 0)));
             var sampleData = new Dictionary<DateTime,float>{ {dateTime.AddMinutes(15), 100},{dateTime.AddMinutes(30), 100}, {dateTime.AddMinutes(45), 100}, {dateTime.AddMinutes(60), 100} };
             var s = new Sensor("Awesome Sensor", "Awesome");
-            var ss = new SensorState(DateTime.Now, sampleData);
+            var ss = new SensorState(DateTime.Now, sampleData, null);
             s.AddState(ss);
             givenDataSet.AddSensor(s);
 
@@ -82,7 +82,7 @@ namespace IndiaTango.Tests
 
             sampleData = new Dictionary<DateTime, float>{{dateTime.AddMinutes(60), 100}, {dateTime.AddMinutes(75), 100}, {dateTime.AddMinutes(90), 100},{dateTime.AddMinutes(105), 100} };
             s = new Sensor("Awesome Sensor", "Awesome");
-            ss = new SensorState(DateTime.Now, sampleData);
+            ss = new SensorState(DateTime.Now, sampleData, null);
             s.AddState(ss);
             givenDataSet.AddSensor(s);
 
@@ -103,7 +103,7 @@ namespace IndiaTango.Tests
             var givenDataSet = new Dataset(new Site(1, "Steven", "Kerry", Contact, Contact, Contact, new GPSCoords(0, 0)));
             var sampleData = new Dictionary<DateTime, float> { { dateTime.AddMinutes(15), 100 }, { dateTime.AddMinutes(30), 100 }, { dateTime.AddMinutes(45), 100 }, { dateTime.AddMinutes(60), 100 } };
             var s = new Sensor("Awesome Sensor", "Awesome");
-            var ss = new SensorState(DateTime.Now, sampleData);
+            var ss = new SensorState(DateTime.Now, sampleData, null);
             s.AddState(ss);
             givenDataSet.AddSensor(s);
 
@@ -118,7 +118,7 @@ namespace IndiaTango.Tests
         [Test]
         public void ExportsRawDataWhenRequested()
         {
-            CSVReader reader = new CSVReader(_inputFilePath);
+            var reader = new CSVReader(_inputFilePath);
             _data.Sensors = reader.ReadSensors();
 
             Assert.AreNotEqual(0, _data.Sensors[0].CurrentState.Values[new DateTime(2009, 1, 10, 7, 45, 0)]);
