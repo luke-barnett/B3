@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using IndiaTango.ViewModels;
 
@@ -86,7 +87,7 @@ namespace IndiaTango.Models
             //Strip the existing extension and add the one specified in the method args
             filePath = Path.ChangeExtension(filePath,format.Extension);
             string metaDataFilePath = filePath + " Site Meta Data.txt";
-            string changeLogFilePath = filePath + " Change Log.txt";
+            string changeLogFilePath = filePath + "Change Log.csv";
 	        var numOfPointsToSummarise = 1;
 
             if(exportedPoints.NumberOfMinutes!=0)
@@ -195,53 +196,77 @@ namespace IndiaTango.Models
 
 		private void ExportChangesFile(string filePath, string changeLogFilePath)
 	    {
-	        
-	    }
-
-	    private void ExportMetaData(string filePath, string metaDataFilePath)
-	    {
-	        using (StreamWriter writer = File.CreateText(metaDataFilePath))
+	        using (var writer = File.CreateText(changeLogFilePath))
 	        {
-	            writer.WriteLine("Site details for file: " + Path.GetFileName(filePath));
-	            writer.WriteLine("ID: " + Data.Site.Id);
-	            writer.WriteLine("Name: " + Data.Site.Name);
-	            writer.WriteLine("Owner: " + Data.Site.Owner);
-
-	            //TODO: clean up
-	            if (Data.Site.PrimaryContact != null)
+	            writer.WriteLine("Change log for file: " + Path.GetFileName(filePath));
+	            var line = Data.Sensors.Aggregate("", (current, sensor) => current + (sensor.Name + ","));
+	            line = line.Remove(line.Count() - 2);
+                writer.Write(line);
+	            for (var time = Data.StartTimeStamp; time <= Data.EndTimeStamp; time = time.AddMinutes(Data.DataInterval))
 	            {
-	                writer.WriteLine("Primary Contact:");
-	                writer.WriteLine("\tName: " + Data.Site.PrimaryContact.FirstName + " " +
-	                                 Data.Site.PrimaryContact.LastName);
-	                writer.WriteLine("\tBusiness: " + Data.Site.PrimaryContact.Business);
-	                writer.WriteLine("\tPhone: " + Data.Site.PrimaryContact.Phone);
-	                writer.WriteLine("\tEmail: " + Data.Site.PrimaryContact.Email);
+	                line = "";
+                    foreach (var sensor in Data.Sensors)
+                    {
+                        LinkedList<int> vals;
+                        if (sensor.CurrentState.Changes.TryGetValue(time,out vals))
+                        {
+                            foreach (var val in vals)
+                            {
+                                line += val + " ";
+                            }
+                        }
+                        line += ",";
+                    }
+	                line = line.Remove(line.Count() - 2);
+                    writer.WriteLine(line);
 	            }
-
-	            if (Data.Site.SecondaryContact != null)
-	            {
-	                writer.WriteLine("Secondary Contact:");
-	                writer.WriteLine("\tName: " + Data.Site.SecondaryContact.FirstName + " " +
-	                                 Data.Site.PrimaryContact.LastName);
-	                writer.WriteLine("\tBusiness: " + Data.Site.SecondaryContact.Business);
-	                writer.WriteLine("\tPhone: " + Data.Site.SecondaryContact.Phone);
-	                writer.WriteLine("\tEmail: " + Data.Site.SecondaryContact.Email);
-	            }
-
-	            if (Data.Site.UniversityContact != null)
-	            {
-	                writer.WriteLine("University Contact:");
-	                writer.WriteLine("\tName: " + Data.Site.UniversityContact.FirstName + " " +
-	                                 Data.Site.PrimaryContact.LastName);
-	                writer.WriteLine("\tBusiness: " + Data.Site.UniversityContact.Business);
-	                writer.WriteLine("\tPhone: " + Data.Site.UniversityContact.Phone);
-	                writer.WriteLine("\tEmail: " + Data.Site.UniversityContact.Email);
-	            }
-
-	            Debug.WriteLine(metaDataFilePath);
-	            writer.Close();
-	        }
+	        }   
 	    }
+
+        private void ExportMetaData(string filePath, string metaDataFilePath)
+        {
+            using (StreamWriter writer = File.CreateText(metaDataFilePath))
+            {
+                writer.WriteLine("Site details for file: " + Path.GetFileName(filePath));
+                writer.WriteLine("ID: " + Data.Site.Id);
+                writer.WriteLine("Name: " + Data.Site.Name);
+                writer.WriteLine("Owner: " + Data.Site.Owner);
+
+                //TODO: clean up
+                if (Data.Site.PrimaryContact != null)
+                {
+                    writer.WriteLine("Primary Contact:");
+                    writer.WriteLine("\tName: " + Data.Site.PrimaryContact.FirstName + " " +
+                                     Data.Site.PrimaryContact.LastName);
+                    writer.WriteLine("\tBusiness: " + Data.Site.PrimaryContact.Business);
+                    writer.WriteLine("\tPhone: " + Data.Site.PrimaryContact.Phone);
+                    writer.WriteLine("\tEmail: " + Data.Site.PrimaryContact.Email);
+                }
+
+                if (Data.Site.SecondaryContact != null)
+                {
+                    writer.WriteLine("Secondary Contact:");
+                    writer.WriteLine("\tName: " + Data.Site.SecondaryContact.FirstName + " " +
+                                     Data.Site.PrimaryContact.LastName);
+                    writer.WriteLine("\tBusiness: " + Data.Site.SecondaryContact.Business);
+                    writer.WriteLine("\tPhone: " + Data.Site.SecondaryContact.Phone);
+                    writer.WriteLine("\tEmail: " + Data.Site.SecondaryContact.Email);
+                }
+
+                if (Data.Site.UniversityContact != null)
+                {
+                    writer.WriteLine("University Contact:");
+                    writer.WriteLine("\tName: " + Data.Site.UniversityContact.FirstName + " " +
+                                     Data.Site.PrimaryContact.LastName);
+                    writer.WriteLine("\tBusiness: " + Data.Site.UniversityContact.Business);
+                    writer.WriteLine("\tPhone: " + Data.Site.UniversityContact.Phone);
+                    writer.WriteLine("\tEmail: " + Data.Site.UniversityContact.Email);
+                }
+
+                Debug.WriteLine(metaDataFilePath);
+                writer.Close();
+            }
+        }
 
 	    private int GetArrayRowFromTime(DateTime startDate, DateTime currentDate, int numOfPointsToAverage)
         {
