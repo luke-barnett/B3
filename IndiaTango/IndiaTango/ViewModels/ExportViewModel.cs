@@ -20,6 +20,7 @@ namespace IndiaTango.ViewModels
         private bool _exportRaw = false;
         private DateColumnFormat _dateColumnFormat;
         private ExportedPoints _exportedPoints;
+        private bool _changesFile;
 
         public ExportViewModel(IWindowManager windowManager, SimpleContainer container)
         {
@@ -109,7 +110,7 @@ namespace IndiaTango.ViewModels
 
             if (dialog.ShowDialog() == DialogResult.OK)
             {
-                DatasetExporter exporter = new DatasetExporter(Dataset);
+                var exporter = new DatasetExporter(Dataset);
                 exporter.Export(dialog.FileName, ExportFormat.CSV, IncludeEmptyLines, IncludeMetaData, IncludeChangeLog, ExportedPoints, DateColumnFormat, ExportRawData);
                 this.TryClose();
             }
