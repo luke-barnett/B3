@@ -39,6 +39,7 @@ namespace IndiaTango.ViewModels
             set { _viewCursor = value; NotifyOfPropertyChange(() => ViewCursor); }
         }
 
+        #region Drag and Drop for Sensors
         private ListedSensor _sensorAtStartOfDrag = null;
         private bool isDragging = false;
         private bool movedMouseWhileDragging = false;
@@ -91,8 +92,9 @@ namespace IndiaTango.ViewModels
             isDragging = false;
             ViewCursor = Cursors.Arrow;
         }
+        #endregion
 
-		#region View Properties
+        #region View Properties
         public Dataset Dataset
         {
             get { return _ds; }

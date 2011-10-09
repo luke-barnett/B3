@@ -94,7 +94,7 @@ namespace IndiaTango.Models
         /// <param name="calibrationDates">A list of dates, on which calibration was performed.</param>
         /// <param name="errorThreshold">The number of times a failure-indicating value can occur before this sensor is flagged as failing.</param>
         /// <param name="owner">The dataset that owns the sensor</param>
-        public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, string manufacturer, string serial, Stack<SensorState> undoStack, Stack<SensorState> redoStack, List<DateTime> calibrationDates, int errorThreshold, Dataset owner):this(name,description,upperLimit,lowerLimit,unit,maxRateOfChange,manufacturer,serial,undoStack,redoStack,calibrationDates,Properties.Settings.Default.DefaultErrorThreshold,owner,SummaryType.Average){}
+        public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, string manufacturer, string serial, Stack<SensorState> undoStack, Stack<SensorState> redoStack, List<DateTime> calibrationDates, int errorThreshold, Dataset owner):this(name,description,upperLimit,lowerLimit,unit,maxRateOfChange,manufacturer,serial,undoStack,redoStack,calibrationDates,errorThreshold,owner,SummaryType.Average){}
 
         /// <summary>
         /// Creates a new sensor.
