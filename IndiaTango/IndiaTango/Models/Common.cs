@@ -288,6 +288,11 @@ namespace IndiaTango.Models
 
         public static void RequestReason(Sensor sensor, SimpleContainer _container, IWindowManager _windowManager, SensorState state, string taskPerformed)
         {
+            RequestReason(new List<Sensor>(){sensor},_container,_windowManager,state,taskPerformed);
+        }
+
+        public static void RequestReason(List<Sensor> sensors, SimpleContainer _container, IWindowManager _windowManager, SensorState state, string taskPerformed)
+        {
             if (state != null)
             {
                 var specify = (SpecifyValueViewModel)_container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel");
@@ -296,16 +301,18 @@ namespace IndiaTango.Models
                 specify.ShowComboBox = true;
                 specify.ComboBoxItems = GetChangeReasons();
                 specify.Deactivated += (o, e) =>
-                                           {
-                                               // Specify reason
-                                               state.Reason = specify.Text;
+                {
+                    // Specify reason
+                    state.Reason = specify.Text;
 
-                                               // Log this change to the file!
-                                               state.LogChange(sensor.Name, taskPerformed);
+                    // Log this change to the file!
+                    foreach(Sensor sensor in sensors)
+                        state.LogChange(sensor.Name, taskPerformed);
 
-											   //Add the change to the list
-											   AddChangeReason(specify.Text);
-                                           };
+
+                    //Add the change to the list
+                    AddChangeReason(specify.Text);
+                };
                 _windowManager.ShowDialog(specify);
             }
         }
