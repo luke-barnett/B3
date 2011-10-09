@@ -68,50 +68,50 @@ namespace IndiaTango.Tests
         [Test]
         public void ValidCompilerResults1()
         {
-            CompilerResults results = _eval.CompileFormula("a = time.Month");
-            Assert.IsTrue(_eval.CheckCompileResults(results));
+            Formula formula = _eval.CompileFormula("a = time.Month");
+            Assert.IsTrue(formula.IsValid);
         }
 
         [Test]
         public void ValidCompilerResults2()
         {
-            CompilerResults results = _eval.CompileFormula("a = Cos(time.Month) * 7");
-            Assert.IsTrue(_eval.CheckCompileResults(results));
+			Formula formula = _eval.CompileFormula("a = Cos(time.Month) * 7");
+			Assert.IsTrue(formula.IsValid);
         }
 
         [Test]
         public void ValidCompilerResults3()
         {
-            CompilerResults results = _eval.CompileFormula("a = Pi * 8");
-            Assert.IsTrue(_eval.CheckCompileResults(results));
+			Formula formula = _eval.CompileFormula("a = Pi * 8");
+			Assert.IsTrue(formula.IsValid);
         }
 
         [Test]
         public void InvalidCompilerResults1()
         {
-            CompilerResults results = _eval.CompileFormula("a = potatoes");
-            Assert.IsFalse(_eval.CheckCompileResults(results));
+			Formula formula = _eval.CompileFormula("a = potatoes");
+			Assert.IsTrue(!formula.IsValid);
         }
 
         [Test]
         public void InvalidCompilerResults2()
         {
-            CompilerResults results = _eval.CompileFormula("a = time.Potato");
-            Assert.IsFalse(_eval.CheckCompileResults(results));
+			Formula formula = _eval.CompileFormula("a = time.Potato");
+			Assert.IsTrue(!formula.IsValid);
         }
 
         [Test]
         public void InvalidCompilerResults3()
         {
-            CompilerResults results = _eval.CompileFormula("a = eleven");
-            Assert.IsFalse(_eval.CheckCompileResults(results));
+			Formula formula = _eval.CompileFormula("a = eleven");
+			Assert.IsTrue(!formula.IsValid);
         }
 
         [Test]
         public void SetValuetoMonth()
         {
-            CompilerResults results = _eval.CompileFormula("a = time.Month");
-            _eval.EvaluateFormula(results, _ds.StartTimeStamp, _ds.EndTimeStamp);
+			Formula formula = _eval.CompileFormula("a = time.Month");
+			_eval.EvaluateFormula(formula, _ds.StartTimeStamp, _ds.EndTimeStamp,false);
 
             foreach (var pair in _ds.Sensors[0].CurrentState.Values)
             {
@@ -122,8 +122,8 @@ namespace IndiaTango.Tests
         [Test]
         public void SetValuetoCosDay()
         {
-            CompilerResults results = _eval.CompileFormula("b = Cos(time.Day)");
-            _eval.EvaluateFormula(results, _ds.StartTimeStamp, _ds.EndTimeStamp);
+			Formula formula = _eval.CompileFormula("b = Cos(time.Day)");
+			_eval.EvaluateFormula(formula, _ds.StartTimeStamp, _ds.EndTimeStamp, false);
 
             foreach (var pair in _ds.Sensors[1].CurrentState.Values)
             {
@@ -133,9 +133,9 @@ namespace IndiaTango.Tests
 
         [Test]
         public void SetLToM()
-        { 
-            CompilerResults results = _eval.CompileFormula("l = m");
-            _eval.EvaluateFormula(results, _ds.StartTimeStamp, _ds.EndTimeStamp);
+        {
+			Formula formula = _eval.CompileFormula("l = m");
+			_eval.EvaluateFormula(formula, _ds.StartTimeStamp, _ds.EndTimeStamp, false);
 
             foreach (var pair in _ds.Sensors[11].CurrentState.Values)
             {

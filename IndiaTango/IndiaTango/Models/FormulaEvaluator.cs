@@ -74,12 +74,7 @@ namespace IndiaTango.Models
             return  regularExpression.IsMatch(formula);
         }
 
-        public bool CheckCompileResults(CompilerResults results)
-        {
-			return results != null && results.Errors.Count == 0 && results.CompiledAssembly != null;
-        }
-
-        public CompilerResults CompileFormula(string formula)
+        public Formula CompileFormula(string formula)
         {
             // change evaluation string to pick up Math class members
             formula = RefineEvaluationString(formula);
@@ -148,24 +143,24 @@ namespace IndiaTango.Models
             Console.WriteLine("...........................\r\n");
             Console.WriteLine(_source.ToString());
 
-            return results;
+            return new Formula(results,_variablesUsed);
         }
 
-        public List<Sensor> EvaluateFormula(CompilerResults results,  DateTime startTime, DateTime endTime)
+        public List<Sensor> EvaluateFormula(Formula formula,  DateTime startTime, DateTime endTime, bool skipMissingValues)
         {
             if (startTime >= endTime)
                 throw new ArgumentException("End time must be greater than start time");
 
             // if the code compiled okay,
             // run the code using the new assembly (which is inside the results)
-            if (results != null && results.CompiledAssembly != null)
+			if (formula.CompilerResults != null && formula.CompilerResults.CompiledAssembly != null)
             {
 				//Foreach variable assigned to, give it a new sensor state
             	foreach (var sensorVariable in _variablesAssignedTo)
             		sensorVariable.Sensor.AddState(sensorVariable.Sensor.CurrentState.Clone());
 
                 // run the evaluation function
-                return RunCode(results, startTime, endTime);
+				return RunCode(formula.CompilerResults, startTime, endTime, skipMissingValues);
             }
             else
             {
@@ -259,7 +254,7 @@ namespace IndiaTango.Models
         /// Runs the Calculate method in our on-the-fly assembly
         /// </summary>
         /// <param name="results"></param>
-        private List<Sensor> RunCode(CompilerResults results, DateTime startTime, DateTime endTime)
+		private List<Sensor> RunCode(CompilerResults results, DateTime startTime, DateTime endTime, bool skipMissingValues)
         {
             Assembly executingAssembly = results.CompiledAssembly;
             try
@@ -281,7 +276,7 @@ namespace IndiaTango.Models
                         {
                             if (mi.Name == "ApplyFormula")
                             {
-                                return (List<Sensor>)mi.Invoke(assemblyInstance, new object[] { _sensorStates, startTime, endTime });
+								return (List<Sensor>)mi.Invoke(assemblyInstance, new object[] { _sensorStates, startTime, endTime, skipMissingValues});
                             }
                         }
                     }
@@ -382,6 +377,7 @@ namespace IndiaTango.Models
             myMethod.Parameters.Add(new CodeParameterDeclarationExpression(new CodeTypeReference(typeof(List<SensorVariable>)), "sensorStates"));
             myMethod.Parameters.Add(new CodeParameterDeclarationExpression(new CodeTypeReference(typeof(DateTime)), "startTime"));
             myMethod.Parameters.Add(new CodeParameterDeclarationExpression(new CodeTypeReference(typeof(DateTime)), "endTime"));
+			myMethod.Parameters.Add(new CodeParameterDeclarationExpression(new CodeTypeReference(typeof(bool)), "skipMissingValues"));
             myMethod.Attributes = MemberAttributes.Public;
             myMethod.Statements.Add(new CodeSnippetExpression(loopStartCode));
 
@@ -401,4 +397,31 @@ namespace IndiaTango.Models
 
         #endregion
     }
+
+	public class Formula
+	{
+		private CompilerResults _results;
+		private List<SensorVariable> _sensors;
+
+		public Formula(CompilerResults results, List<SensorVariable> sensorsUsed)
+		{
+			_results = results;
+			_sensors = sensorsUsed;
+		}
+
+		public CompilerResults CompilerResults
+		{
+			get { return _results; }
+		}
+
+		public List<SensorVariable> SensorsUsed
+		{
+			get { return _sensors; }
+		}
+
+		public bool IsValid
+		{
+			get { return _results != null && _results.Errors.Count == 0 && _results.CompiledAssembly != null; }
+		}
+	}
 }

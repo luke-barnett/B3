@@ -31,7 +31,7 @@ namespace IndiaTango.ViewModels
         private bool _validFormula = true;
 
         private FormulaEvaluator _eval;
-        private CompilerResults _results;
+        private Formula _formula;
     	private List<SensorVariable> _sensorVariables; 
 
         private int _sampleRate;
@@ -160,8 +160,8 @@ namespace IndiaTango.ViewModels
                 //Console.WriteLine("Formual Validity: " + _validFormula);
 
                 //Uncoment for per character compile checking
-                _results = _eval.CompileFormula(FormulaText);
-                ValidFormula = _eval.CheckCompileResults(_results);
+                _formula = _eval.CompileFormula(FormulaText);
+                ValidFormula = _formula.IsValid;
             }
         }
 
@@ -585,14 +585,62 @@ namespace IndiaTango.ViewModels
 
         public void btnApply()
         {
-            _results = _eval.CompileFormula(FormulaText);
-            ValidFormula = _eval.CheckCompileResults(_results);
+            _formula = _eval.CompileFormula(FormulaText);
+        	ValidFormula = _formula.IsValid;
             DateTime t = DateTime.Now;
 
             if (ValidFormula)
             {
-                ViewCursor = Cursors.Wait;
-                _eval.EvaluateFormula(_results,_ds.StartTimeStamp,_ds.EndTimeStamp);
+				bool missingValues = true;
+				bool skipMissingValues = false;
+				MissingValuesDetector detector = new MissingValuesDetector();
+
+				//Detect if missing values
+            	foreach (var sensorVariable in _formula.SensorsUsed)
+            	{
+            		if(detector.GetDetectedValues(sensorVariable.Sensor).Count > 0)
+            		{
+            			missingValues = true;
+						break;
+            		}
+            	}
+
+				if (missingValues)
+				{
+					string action = "";
+					var specify =
+						(SpecifyValueViewModel) _container.GetInstance(typeof (SpecifyValueViewModel), "SpecifyValueViewModel");
+					specify.Title = "Missing Values Detected";
+					specify.Message =
+						"One or more of the sensors you have used in the formula contain missing values.\nPlease select an action to take.";
+					specify.ShowComboBox = true;
+					specify.ShowCancel = true;
+					specify.CanEditComboBox = false;
+					specify.ComboBoxItems =
+						new List<string>(new string[] {"Treat all missing values as zero", "Skip over all missing values"});
+					specify.Text = "Treat all missing values as zero";
+					specify.Deactivated += (o, e) =>
+					                       	{
+					                       		action = specify.Text;
+					                       	};
+
+					_windowManager.ShowDialog(specify);
+
+					switch (action)
+					{
+						case "Cancel":
+							return;
+						case "Treat all missing values as zero":
+							skipMissingValues = false;
+							break;
+						case "Skip over all missing values":
+							skipMissingValues = true;
+							break;
+					}
+				}
+
+            	ViewCursor = Cursors.Wait;
+				_eval.EvaluateFormula(_formula, _ds.StartTimeStamp, _ds.EndTimeStamp, skipMissingValues);
 
                 ViewCursor = Cursors.Arrow;
 
@@ -605,8 +653,8 @@ namespace IndiaTango.ViewModels
             {
                 string errorString = "";
 
-                if (_results.Errors.Count > 0)
-                    foreach (CompilerError error in _results.Errors)
+                if (_formula.CompilerResults.Errors.Count > 0)
+                    foreach (CompilerError error in _formula.CompilerResults.Errors)
                         errorString += error.ErrorText + "\n";
 
                 Common.ShowMessageBoxWithExpansion("Unable to Apply Formula",
