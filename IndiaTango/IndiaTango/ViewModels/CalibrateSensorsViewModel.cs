@@ -382,8 +382,8 @@ namespace IndiaTango.ViewModels
                 NotifyOfPropertyChange(() => Minimum);
                 NotifyOfPropertyChange(() => MinimumValue);
                 MinimumMaximum = Minimum;
-                Range = new DoubleRange(Minimum, Maximum);
                 if (Math.Abs(Maximum - Minimum) < 0.001) Minimum -= 1;
+                Range = new DoubleRange(Minimum, Maximum);
             }
         }
 
@@ -445,8 +445,8 @@ namespace IndiaTango.ViewModels
                 NotifyOfPropertyChange(() => Maximum);
                 NotifyOfPropertyChange(() => MaximumValue);
                 MaximumMinimum = Maximum;
-                Range = new DoubleRange(Minimum, Maximum);
                 if (Math.Abs(Maximum - Minimum) < 0.001) Maximum += 1;
+                Range = new DoubleRange(Minimum, Maximum);
             }
         }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -9,13 +10,10 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using Caliburn.Micro;
 using IndiaTango.Models;
 using System.Windows.Controls;
 using Cursors = System.Windows.Input.Cursors;
-using HorizontalAlignment = System.Windows.HorizontalAlignment;
 using Image = System.Windows.Controls.Image;
 using Orientation = System.Windows.Controls.Orientation;
 using DragEventArgs = System.Windows.DragEventArgs;
@@ -50,7 +48,7 @@ namespace IndiaTango.ViewModels
         private ObservableCollection<Site> _allSites = new ObservableCollection<Site>();
         private ObservableCollection<Contact> _allContacts = new ObservableCollection<Contact>();
         private List<NamedBitmap> _siteImages = new List<NamedBitmap>();
-    	private int _selectedImage = -1;
+        private int _selectedImage = -1;
 
         #endregion
 
@@ -106,16 +104,16 @@ namespace IndiaTango.ViewModels
         //TODO: Make a gloabl 'editing/creating/viewing site' state that the properties reference
         private Visibility _sensorWarningVis = Visibility.Collapsed;
 
-    	public int SelectedImage
-    	{
-			get { return _selectedImage; }
-			set { _selectedImage = value; NotifyOfPropertyChange(() => SelectedImage); }
-    	}
-    	public List<StackPanel> SiteImages
-    	{
-    		get
-    		{
-    			List<StackPanel> list = new List<StackPanel>();
+        public int SelectedImage
+        {
+            get { return _selectedImage; }
+            set { _selectedImage = value; NotifyOfPropertyChange(() => SelectedImage); }
+        }
+        public List<StackPanel> SiteImages
+        {
+            get
+            {
+                List<StackPanel> list = new List<StackPanel>();
 
                 if (_siteImages != null)
                 {
@@ -123,36 +121,36 @@ namespace IndiaTango.ViewModels
                         list.Add(MakeImageItem(bitmap));
                 }
 
-    		    return list;
-    		}
-    	}
+                return list;
+            }
+        }
 
-		private StackPanel MakeImageItem(NamedBitmap bitmap)
-		{
-			StackPanel panel = new StackPanel();
-			panel.Orientation = Orientation.Horizontal;
-			Image image = new Image();
-		    image.Source = Common.BitmapToImageSource(bitmap.Bitmap);
-			image.Height = 50;
-			image.Width = 50;
-			image.MouseLeftButtonUp += delegate
-			                               {
-			                                   string path = Path.Combine(Common.TempDataPath, (string) bitmap.Name);
-                                               if(!File.Exists(path))
-                                                    bitmap.Bitmap.Save(path);
-			                                   System.Diagnostics.Process.Start(path);
-			                               };
-			image.Cursor = Cursors.Hand;
+        private StackPanel MakeImageItem(NamedBitmap bitmap)
+        {
+            StackPanel panel = new StackPanel();
+            panel.Orientation = Orientation.Horizontal;
+            Image image = new Image();
+            image.Source = Common.BitmapToImageSource(bitmap.Bitmap);
+            image.Height = 50;
+            image.Width = 50;
+            image.MouseLeftButtonUp += delegate
+                                           {
+                                               string path = Path.Combine(Common.TempDataPath, (string)bitmap.Name);
+                                               if (!File.Exists(path))
+                                                   bitmap.Bitmap.Save(path);
+                                               System.Diagnostics.Process.Start(path);
+                                           };
+            image.Cursor = Cursors.Hand;
             image.Margin = new Thickness(3);
-			TextBlock text = new TextBlock();
-			text.Text = (string)bitmap.Name;
-			text.Margin = new Thickness(5, 0, 0, 0);
-			text.VerticalAlignment = VerticalAlignment.Center;
-			panel.Children.Add(image);
-			panel.Children.Add(text);
+            TextBlock text = new TextBlock();
+            text.Text = (string)bitmap.Name;
+            text.Margin = new Thickness(5, 0, 0, 0);
+            text.VerticalAlignment = VerticalAlignment.Center;
+            panel.Children.Add(image);
+            panel.Children.Add(text);
 
-			return panel;
-		}
+            return panel;
+        }
 
 
         public Visibility SensorWarningVisible
@@ -163,7 +161,7 @@ namespace IndiaTango.ViewModels
 
         public string Title
         {
-            get { return string.Format("{0}", (_ds != null ?  _ds.IdentifiableName : Common.UnknownSite)); }
+            get { return string.Format("{0}", (_ds != null ? _ds.IdentifiableName : Common.UnknownSite)); }
         }
 
         public double ProgressBarPercent
@@ -378,7 +376,7 @@ namespace IndiaTango.ViewModels
                     SecondaryContact = _ds.Site.SecondaryContact;
                     UniversityContact = _ds.Site.UniversityContact;
 
-                    if(_ds.Site.Images != null)
+                    if (_ds.Site.Images != null)
                         _siteImages = _ds.Site.Images.ToList();
                 }
                 else
@@ -402,7 +400,7 @@ namespace IndiaTango.ViewModels
                 NotifyOfPropertyChange(() => SecondaryContact);
                 NotifyOfPropertyChange(() => UniversityContact);
                 NotifyOfPropertyChange(() => EditDeleteEnabled);
-				NotifyOfPropertyChange(() => SiteImages);
+                NotifyOfPropertyChange(() => SiteImages);
                 NotifyOfPropertyChange(() => Title);
             }
         }
@@ -428,8 +426,31 @@ namespace IndiaTango.ViewModels
             var fileDialog = new OpenFileDialog();
             fileDialog.Filter = "CSV Files|*.csv";
             var result = fileDialog.ShowDialog();
+
             if (result == DialogResult.OK)
             {
+                var askUser = _container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel") as SpecifyValueViewModel;
+
+                if (askUser == null)
+                {
+                    Common.ShowMessageBox("EPIC FAIL", "RUN AROUND WITH NO REASON", false, true);
+                    return;
+                }
+
+                askUser.ComboBoxItems = new List<string> { "Keep old values", "Keep new values" };
+                askUser.Text = "Keep old values";
+                askUser.ShowComboBox = true;
+                askUser.Message = "How do you want to handle overlapping points";
+                askUser.CanEditComboBox = false;
+                askUser.Title = "Importing";
+
+                if (_ds.Sensors.Count != 0)
+                    _windowManager.ShowDialog(askUser);
+
+                var keepOldValues = askUser.Text.CompareTo("Keep old values") == 0;
+                Debug.Print("Keep old values {0}", keepOldValues);
+
+
                 _bw.DoWork += delegate(object sender, DoWorkEventArgs eventArgs)
                 {
                     EventLogger.LogInfo("BackgroundImportThread", "Data import started.");
@@ -454,13 +475,13 @@ namespace IndiaTango.ViewModels
                         if (_ds.Sensors.Count == 0)
                             _ds.Sensors = readSensors;
                         else
-                            AddValuesToSensors(readSensors);
+                            AddValuesToSensors(readSensors, keepOldValues);
 
                         // Loaded successfully
                         ActionButtonsEnabled = true;
                         SaveButtonEnabled = true;
                         StatusLabelText = "";
-                        SensorList = readSensors;
+                        SensorList = _ds.Sensors;
 
                         var sensorTemplates = SensorTemplate.ImportAll();
                         foreach (var s in readSensors)
@@ -495,10 +516,10 @@ namespace IndiaTango.ViewModels
             ProgressBarPercent = e.Progress;
         }
 
-		public void imgListDoubleClick(object sender, MouseButtonEventArgs e)
-		{
-			Console.WriteLine("Test");
-		}
+        public void imgListDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            Console.WriteLine("Test");
+        }
 
         public void btnGraph()
         {
@@ -576,28 +597,28 @@ namespace IndiaTango.ViewModels
             _windowManager.ShowWindow(calibrateView);
         }
 
-		public void btnRevert()
-		{
-			string changes = "The following sensors would be reverted:\n";
+        public void btnRevert()
+        {
+            string changes = "The following sensors would be reverted:\n";
 
-			foreach (var sensor in _ds.Sensors)
-				if (sensor.UndoStates.Count > 1)
-					changes += sensor.Name + "\n";
+            foreach (var sensor in _ds.Sensors)
+                if (sensor.UndoStates.Count > 1)
+                    changes += sensor.Name + "\n";
 
-			if (Common.ShowMessageBoxWithExpansion("Confirm Revert", "Are you sure you wish to revert all sensors back to their original state?\n" +
-																	 "Modified data will still be available within the redo states for each sensor.", true, false, changes))
-			{
-				foreach (var sensor in _ds.Sensors)
-					sensor.RevertToRaw();
-			}
-		}
+            if (Common.ShowMessageBoxWithExpansion("Confirm Revert", "Are you sure you wish to revert all sensors back to their original state?\n" +
+                                                                     "Modified data will still be available within the redo states for each sensor.", true, false, changes))
+            {
+                foreach (var sensor in _ds.Sensors)
+                    sensor.RevertToRaw();
+            }
+        }
 
         public void btnErroneousValues()
         {
             var erroneousValuesView =
-                (_container.GetInstance(typeof (ErroneousValuesDetectionViewModel), "ErroneousValuesDetectionViewModel")
+                (_container.GetInstance(typeof(ErroneousValuesDetectionViewModel), "ErroneousValuesDetectionViewModel")
                  as ErroneousValuesDetectionViewModel);
-            if(erroneousValuesView == null)
+            if (erroneousValuesView == null)
                 return;
             erroneousValuesView.DataSet = _ds;
             _windowManager.ShowWindow(erroneousValuesView);
@@ -655,14 +676,14 @@ namespace IndiaTango.ViewModels
                     SelectedSite.SecondaryContact = SecondaryContact;
                     SelectedSite.Name = SiteName;
                     SelectedSite.UniversityContact = UniversityContact;
-					SelectedSite.Images = _siteImages.ToList();
+                    SelectedSite.Images = _siteImages.ToList();
                     EventLogger.LogInfo(GetType().ToString(), "Site saved. Site name: " + SelectedSite.Name);
                 }
                 //else if creating a new one
                 else
                 {
                     Site b = new Site(Site.NextID, SiteName, Owner, PrimaryContact, SecondaryContact, UniversityContact, GPSCoords.Parse(Latitude, Longitude));
-					b.Images = _siteImages.ToList();
+                    b.Images = _siteImages.ToList();
                     _allSites.Add(b);
                     Site.ExportAll(_allSites);
                     SelectedSite = b;
@@ -714,7 +735,7 @@ namespace IndiaTango.ViewModels
             dlg.Title = "Select images to add";
             dlg.Multiselect = true;
 
-            if(dlg.ShowDialog() == DialogResult.OK)
+            if (dlg.ShowDialog() == DialogResult.OK)
             {
                 InsertImagesForSite(dlg.FileNames);
             }
@@ -739,11 +760,11 @@ namespace IndiaTango.ViewModels
 
         public void btnDeleteImage()
         {
-			//Confirm really needed? User can just hit the cancel edit button to revert all changes
-            if(SelectedImage != -1)// && Common.ShowMessageBox("Confirm Delete","Are you sure you wish to delete this image?",true,false))
+            //Confirm really needed? User can just hit the cancel edit button to revert all changes
+            if (SelectedImage != -1)// && Common.ShowMessageBox("Confirm Delete","Are you sure you wish to delete this image?",true,false))
             {
-            	_siteImages.RemoveAt(SelectedImage);
-				NotifyOfPropertyChange(() => SiteImages);
+                _siteImages.RemoveAt(SelectedImage);
+                NotifyOfPropertyChange(() => SiteImages);
             }
         }
 
@@ -872,16 +893,15 @@ namespace IndiaTango.ViewModels
         }
         #endregion
 
-        // TODO: make this change raw data?
-        private void AddValuesToSensors(IEnumerable<Sensor> sensors)
+        private void AddValuesToSensors(IEnumerable<Sensor> sensors, bool keepOldValues)
         {
             //For all the sensors we have imported
             foreach (var newSensor in sensors)
             {
                 //Check to see if we match a current sensor
-                var matchingSensor = (from sensor in _ds.Sensors where sensor.RawName == newSensor.RawName select sensor).DefaultIfEmpty(null).FirstOrDefault();
+                var matchingSensor = (from sensor in _ds.Sensors where sensor.RawName.CompareTo(newSensor.RawName) == 0 select sensor).DefaultIfEmpty(null).FirstOrDefault();
 
-                if(matchingSensor == null)
+                if (matchingSensor == null)
                 {
                     //If we don't  then add it as a new sensor
                     _ds.Sensors.Add(newSensor);
@@ -894,10 +914,10 @@ namespace IndiaTango.ViewModels
                     //Check to see if values are inserted
                     var insertedValues = false;
 
-                    //And add values for any new dates we want (keep edited values TODO: Make this a users choice)
-                    foreach (var value in newSensor.CurrentState.Values.Where(value => !newState.Values.ContainsKey(value.Key)))
+                    //And add values for any new dates we want
+                    foreach (var value in newSensor.CurrentState.Values.Where(value => !keepOldValues || !newState.Values.ContainsKey(value.Key)))
                     {
-                        newState.Values.Add(value.Key, value.Value);
+                        newState.Values[value.Key] = value.Value;
                         insertedValues = true;
                     }
                     //Give a reason
