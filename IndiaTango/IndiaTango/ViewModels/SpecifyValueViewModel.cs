@@ -19,6 +19,8 @@ namespace IndiaTango.ViewModels
         private bool _showTextBox = true;
     	private bool _showCancel = false;
     	private bool _canEditComboBox = true;
+        private bool _canceled = false;
+        private int _selectedIndex = 0;
 
         public SpecifyValueViewModel(IWindowManager windowManager, SimpleContainer container)
         {
@@ -41,7 +43,7 @@ namespace IndiaTango.ViewModels
 
 		public void btnCancel()
 		{
-			Text = "Cancel";
+		    _canceled = true;
 			this.TryClose();
 		}
 
@@ -60,7 +62,7 @@ namespace IndiaTango.ViewModels
     	public bool ShowCancel
     	{
     		get { return _showCancel; }
-			set { _showCancel = value; NotifyOfPropertyChange(() => CancelVisibile);}
+			set { _showCancel = value; NotifyOfPropertyChange(() => CancelVisible);}
     	}
 
         public Visibility ComboBoxVisible
@@ -85,9 +87,20 @@ namespace IndiaTango.ViewModels
 			set { _canEditComboBox = value; NotifyOfPropertyChange(() => CanEditComboBox); }
     	}
 
-    	private Visibility CancelVisibile
+        public bool WasCanceled
+        {
+            get { return _canceled; }
+        }
+
+        public Visibility CancelVisible
     	{
     		get { return _showCancel ? Visibility.Visible : Visibility.Collapsed; }
     	}
+
+        public int ComboBoxSelectedIndex
+        {
+            get { return _selectedIndex; }
+            set { _selectedIndex = value; NotifyOfPropertyChange(() => ComboBoxSelectedIndex); }
+        }
     }
 }

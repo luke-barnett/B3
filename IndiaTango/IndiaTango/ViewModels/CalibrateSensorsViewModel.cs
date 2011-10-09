@@ -32,7 +32,7 @@ namespace IndiaTango.ViewModels
 
         private FormulaEvaluator _eval;
         private Formula _formula;
-    	private List<SensorVariable> _sensorVariables; 
+        private List<SensorVariable> _sensorVariables;
 
         private int _sampleRate;
         private int _zoomLevel = 100;
@@ -62,20 +62,20 @@ namespace IndiaTango.ViewModels
         {
             _container = container;
             _windowManager = windowManager;
-            
 
-            _backgroundCanvas = new Canvas() {Visibility = Visibility.Collapsed};
 
-            _behaviour = new BehaviourManager() {AllowMultipleEnabled = true};
+            _backgroundCanvas = new Canvas() { Visibility = Visibility.Collapsed };
 
-            _behaviour.Behaviours.Add(new GraphBackgroundBehaviour(_backgroundCanvas) {IsEnabled = true});
+            _behaviour = new BehaviourManager() { AllowMultipleEnabled = true };
 
-            _zoomBehav = new CustomZoomBehaviour() {IsEnabled = true};
+            _behaviour.Behaviours.Add(new GraphBackgroundBehaviour(_backgroundCanvas) { IsEnabled = true });
+
+            _zoomBehav = new CustomZoomBehaviour() { IsEnabled = true };
             _zoomBehav.ZoomRequested += (o, e) =>
                                             {
                                                 // Set the DateTime ranges for calibration via visual selection
-                                                UpdateGraphToShowRange((DateTime) e.FirstPoint.X,
-                                                                       (DateTime) e.SecondPoint.X);
+                                                UpdateGraphToShowRange((DateTime)e.FirstPoint.X,
+                                                                       (DateTime)e.SecondPoint.X);
                                             };
             _zoomBehav.ZoomResetRequested += (o) =>
                                                  {
@@ -192,8 +192,7 @@ namespace IndiaTango.ViewModels
         {
             get
             {
-                return SelectedSensor != null &&
-                       (ValidFormula || !IndiaTango.Properties.Settings.Default.EvaluateFormulaOnKeyUp);
+                return ValidFormula || !IndiaTango.Properties.Settings.Default.EvaluateFormulaOnKeyUp;
             }
         }
 
@@ -218,10 +217,10 @@ namespace IndiaTango.ViewModels
             set
             {
                 _ds = value;
-                _eval = new FormulaEvaluator(_ds.Sensors,_ds.DataInterval);
+                _eval = new FormulaEvaluator(_ds.Sensors, _ds.DataInterval);
                 StartTime = _ds.StartTimeStamp;
                 EndTime = _ds.EndTimeStamp;
-            	_sensorVariables = SensorVariable.CreateSensorVariablesFromSensors(_ds.Sensors);
+                _sensorVariables = SensorVariable.CreateSensorVariablesFromSensors(_ds.Sensors);
             }
         }
 
@@ -242,10 +241,10 @@ namespace IndiaTango.ViewModels
 
         public List<SensorVariable> SensorList
         {
-			get { return _sensorVariables; }
+            get { return _sensorVariables; }
             set
             {
-				_sensorVariables = value;
+                _sensorVariables = value;
                 NotifyOfPropertyChange(() => SensorList);
             }
         }
@@ -260,7 +259,7 @@ namespace IndiaTango.ViewModels
                 YAxisTitle = SelectedSensor.Sensor.Unit;
                 ChartTitle = SelectedSensor.Sensor.Name;
 
-				SensorToGraph = new GraphableSensor(SelectedSensor.Sensor);
+                SensorToGraph = new GraphableSensor(SelectedSensor.Sensor);
 
                 NotifyOfPropertyChange(() => SelectedSensor);
                 NotifyOfPropertyChange(() => ChartTitle);
@@ -325,7 +324,7 @@ namespace IndiaTango.ViewModels
 
         public bool CanEditDates
         {
-            get { return (SelectedSensor != null); }
+            get { return (true); }
         }
 
         public Cursor ViewCursor
@@ -382,8 +381,9 @@ namespace IndiaTango.ViewModels
                 NotifyOfPropertyChange(() => Minimum);
                 NotifyOfPropertyChange(() => MinimumValue);
                 MinimumMaximum = Minimum;
-                Range = new DoubleRange(Minimum, Maximum);
                 if (Math.Abs(Maximum - Minimum) < 0.001) Minimum -= 1;
+                if (Minimum < Maximum)
+                    Range = new DoubleRange(Minimum, Maximum);
             }
         }
 
@@ -445,8 +445,9 @@ namespace IndiaTango.ViewModels
                 NotifyOfPropertyChange(() => Maximum);
                 NotifyOfPropertyChange(() => MaximumValue);
                 MaximumMinimum = Maximum;
-                Range = new DoubleRange(Minimum, Maximum);
                 if (Math.Abs(Maximum - Minimum) < 0.001) Maximum += 1;
+                if (Minimum < Maximum)
+                    Range = new DoubleRange(Minimum, Maximum);
             }
         }
 
@@ -505,12 +506,12 @@ namespace IndiaTango.ViewModels
         public void StartTimeChanged(RoutedPropertyChangedEventArgs<object> e)
         {
             // Is start within bounds?
-            var newValue = (DateTime) e.NewValue;
+            var newValue = (DateTime)e.NewValue;
 
             if (newValue.CompareTo(EndTime) >= 0 || !inDatasetRange(newValue))
             {
                 // Revert
-                StartTime = (DateTime) e.OldValue;
+                StartTime = (DateTime)e.OldValue;
                 return;
             }
 
@@ -520,12 +521,12 @@ namespace IndiaTango.ViewModels
         public void EndTimeChanged(RoutedPropertyChangedEventArgs<object> e)
         {
             // Is end within bounds?
-            var newValue = (DateTime) e.NewValue;
+            var newValue = (DateTime)e.NewValue;
 
             if (newValue.CompareTo(StartTime) <= 0 || !inDatasetRange(newValue))
             {
                 // Revert
-                EndTime = (DateTime) e.OldValue;
+                EndTime = (DateTime)e.OldValue;
                 return;
             }
 
@@ -541,7 +542,7 @@ namespace IndiaTango.ViewModels
         {
             if (_sensor != null)
             {
-				_sensor.Sensor.Undo();
+                _sensor.Sensor.Undo();
                 UpdateUndoRedo();
             }
         }
@@ -550,7 +551,7 @@ namespace IndiaTango.ViewModels
         {
             if (_sensor != null)
             {
-				_sensor.Sensor.Redo();
+                _sensor.Sensor.Redo();
                 UpdateUndoRedo();
             }
         }
@@ -572,8 +573,8 @@ namespace IndiaTango.ViewModels
                 "To set a data points value for a particular sensor, use that sensors variable followed by a space and an equals sign, then by the value.\n" +
                 "   eg: To set the values of the sensor " + _sensorVariables[0].Sensor.Name + " to 5 for all points, use '" + _sensorVariables[0].VariableName + " = 5' \n\n" +
                 "To use a sensors values in a calculation, use that sesnors variable.\n" +
-                "   eg: To make all the values of the sensor " + _sensorVariables[0].Sensor.Name + " equal to " + _sensorVariables[1].Sensor.Name + 
-					", use " + _sensorVariables[0].VariableName + " = " + _sensorVariables[1].VariableName + "\n\n" +
+                "   eg: To make all the values of the sensor " + _sensorVariables[0].Sensor.Name + " equal to " + _sensorVariables[1].Sensor.Name +
+                    ", use " + _sensorVariables[0].VariableName + " = " + _sensorVariables[1].VariableName + "\n\n" +
                 "To use the data points time stamp in calculations use 'time.' followed by the time part desired.\n" +
                 "   eg: time.Year, time.Month, time.Day, time.Hour, time.Minute, time.Second\n\n" +
                 "Examples:\n" +
@@ -586,63 +587,53 @@ namespace IndiaTango.ViewModels
         public void btnApply()
         {
             _formula = _eval.CompileFormula(FormulaText);
-        	ValidFormula = _formula.IsValid;
+            ValidFormula = _formula.IsValid;
             DateTime t = DateTime.Now;
 
             if (ValidFormula)
             {
-				bool skipMissingValues = false;
-            	string missingSensors = "";
-				MissingValuesDetector detector = new MissingValuesDetector();
+                bool skipMissingValues = false;
+                string missingSensors = "";
+                MissingValuesDetector detector = new MissingValuesDetector();
 
-				//Detect if missing values
-            	foreach (var sensorVariable in _formula.SensorsUsed)
-            	{
-            		if(detector.GetDetectedValues(sensorVariable.Sensor).Count > 0)
-            			missingSensors += "\t" + sensorVariable.Sensor.Name + " (" + sensorVariable.VariableName + ")\n";
-            	}
+                //Detect if missing values
+                foreach (var sensorVariable in _formula.SensorsUsed)
+                {
+                    if (detector.GetDetectedValues(sensorVariable.Sensor).Count > 0)
+                        missingSensors += "\t" + sensorVariable.Sensor.Name + " (" + sensorVariable.VariableName + ")\n";
+                }
 
-				if (missingSensors != "")
-				{
-					string action = "";
-					var specify =
-						(SpecifyValueViewModel) _container.GetInstance(typeof (SpecifyValueViewModel), "SpecifyValueViewModel");
-					specify.Title = "Missing Values Detected";
-					specify.Message =
-						"The following sensors you have used in the formula contain missing values:\n\n" + missingSensors + "\nPlease select an action to take.";
-					specify.ShowComboBox = true;
-					specify.ShowCancel = true;
-					specify.CanEditComboBox = false;
-					specify.ComboBoxItems =
-						new List<string>(new[] {"Treat all missing values as zero", "Skip over all missing values"});
-					specify.Text = "Treat all missing values as zero";
-					specify.Deactivated += (o, e) =>
-					                       	{
-					                       		action = specify.Text;
-					                       	};
+                if (missingSensors != "")
+                {
+                    string action = "";
+                    var specify =
+                        (SpecifyValueViewModel)_container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel");
+                    specify.Title = "Missing Values Detected";
+                    specify.Message =
+                        "The following sensors you have used in the formula contain missing values:\n\n" + missingSensors + "\nPlease select an action to take.";
+                    specify.ShowComboBox = true;
+                    specify.ShowCancel = true;
+                    specify.CanEditComboBox = false;
+                    specify.ComboBoxItems =
+                        new List<string>(new[] { "Treat all missing values as zero", "Skip over all missing values" });
+                    specify.ComboBoxSelectedIndex = 0;
+                    specify.Deactivated += (o, e) =>
+                                            {
+                                                action = specify.Text;
+                                            };
 
-					_windowManager.ShowDialog(specify);
+                    _windowManager.ShowDialog(specify);
 
-					//Should totally use an enum...
-					switch (action)
-					{
-						case "Cancel":
-							return;
-						case "Treat all missing values as zero":
-							skipMissingValues = false;
-							break;
-						case "Skip over all missing values":
-							skipMissingValues = true;
-							break;
-					}
-				}
+                    if (specify.WasCanceled) return;
+                    skipMissingValues = specify.ComboBoxSelectedIndex == 1;
+                }
 
-            	ViewCursor = Cursors.Wait;
-				_eval.EvaluateFormula(_formula, _ds.StartTimeStamp, _ds.EndTimeStamp, skipMissingValues);
+                ViewCursor = Cursors.Wait;
+                _eval.EvaluateFormula(_formula, _ds.StartTimeStamp, _ds.EndTimeStamp, skipMissingValues);
 
                 ViewCursor = Cursors.Arrow;
 
-				Common.RequestReason(SelectedSensor.Sensor, _container, _windowManager, SelectedSensor.Sensor.CurrentState, "Formula '" + FormulaText + "' successfully applied to the sensor.");
+                Common.RequestReason(SelectedSensor.Sensor, _container, _windowManager, SelectedSensor.Sensor.CurrentState, "Formula '" + FormulaText + "' successfully applied to the sensor.");
 
                 Common.ShowMessageBox("Formula applied", "The formula was successfully applied to the selected sensor.",
                                       false, false);
@@ -661,7 +652,7 @@ namespace IndiaTango.ViewModels
             }
 
             UpdateUndoRedo();
-			UpdateGraph();
+            UpdateGraph();
         }
 
         public void btnClear()
@@ -673,7 +664,7 @@ namespace IndiaTango.ViewModels
         {
             try
             {
-                Common.MaximumGraphablePoints = int.Parse((string) e.AddedItems[0]);
+                Common.MaximumGraphablePoints = int.Parse((string)e.AddedItems[0]);
             }
             catch (Exception)
             {
@@ -714,16 +705,16 @@ namespace IndiaTango.ViewModels
 
             HideBackground();
 
-            _sampleRate = sensor.DataPoints.Count()/(numberOfPoints);
+            _sampleRate = sensor.DataPoints.Count() / (numberOfPoints);
             Debug.Print("Number of points: {0} Max Number {1} Sampling rate {2}", sensor.DataPoints.Count(),
                         numberOfPoints, _sampleRate);
 
             var series = (_sampleRate > 1)
                              ? new DataSeries<DateTime, float>(sensor.Sensor.Name,
                                                                sensor.DataPoints.Where(
-                                                                   (x, index) => index%_sampleRate == 0))
+                                                                   (x, index) => index % _sampleRate == 0))
                              : new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints);
-            generatedSeries.Add(new LineSeries {DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour)});
+            generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour) });
 
             if (_sampleRate > 1) ShowBackground();
 
@@ -746,7 +737,7 @@ namespace IndiaTango.ViewModels
 
             foreach (var series in ChartSeries)
             {
-                foreach (var value in (DataSeries<DateTime, float>) series.DataSeries)
+                foreach (var value in (DataSeries<DateTime, float>)series.DataSeries)
                 {
                     if (maxY == null)
                         maxY = value;
@@ -769,7 +760,7 @@ namespace IndiaTango.ViewModels
 
             foreach (var series in ChartSeries)
             {
-                foreach (var value in (DataSeries<DateTime, float>) series.DataSeries)
+                foreach (var value in (DataSeries<DateTime, float>)series.DataSeries)
                 {
                     if (minY == null)
                         minY = value;
@@ -821,7 +812,7 @@ namespace IndiaTango.ViewModels
                 var item = (SensorStateListObject)e.AddedItems[0];
 
                 if (SelectedSensor != null && item != null)
-					SelectedSensor.Sensor.Redo(item.State.EditTimestamp);
+                    SelectedSensor.Sensor.Redo(item.State.EditTimestamp);
 
                 ShowRedoStates = false;
 
@@ -841,7 +832,7 @@ namespace IndiaTango.ViewModels
 
                 var atStart = true;
 
-				foreach (var obj in _sensor.Sensor.UndoStates)
+                foreach (var obj in _sensor.Sensor.UndoStates)
                 {
                     if (atStart)
                     {
@@ -852,7 +843,7 @@ namespace IndiaTango.ViewModels
                     ss.Add(new SensorStateListObject(obj, false));
                 }
 
-				ss.Add(new SensorStateListObject(_sensor.Sensor.RawData, true));
+                ss.Add(new SensorStateListObject(_sensor.Sensor.RawData, true));
 
                 return new ReadOnlyCollection<SensorStateListObject>(ss);
             }
@@ -864,7 +855,7 @@ namespace IndiaTango.ViewModels
             {
                 var ss = new List<SensorStateListObject>();
 
-				foreach (var obj in _sensor.Sensor.RedoStates)
+                foreach (var obj in _sensor.Sensor.RedoStates)
                     ss.Add(new SensorStateListObject(obj, false));
 
                 return new ReadOnlyCollection<SensorStateListObject>(ss);
