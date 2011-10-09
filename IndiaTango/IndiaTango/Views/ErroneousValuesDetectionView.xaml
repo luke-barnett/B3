@@ -216,7 +216,7 @@
 					</Grid.RowDefinitions>
 
 					<TextBlock Text="Date Range: " VerticalAlignment="Center"  Grid.Column="0" Grid.Row="0"/>
-					<StackPanel  Orientation="Horizontal" Margin="10,5" Grid.Column="1" Grid.Row="0" >
+					<StackPanel  Orientation="Horizontal" Margin="3" Grid.Column="1" Grid.Row="0" >
 						<toolkit:DateTimePicker Width="125" Value="{Binding StartTime}" Format="Custom" FormatString="dd/MM/yy HH:mm" IsEnabled="{Binding CanEditDates}" Height="24">
 							<i:Interaction.Triggers>
 								<i:EventTrigger EventName="ValueChanged">
@@ -239,19 +239,19 @@
 					</StackPanel>
 
 					<TextBlock Text="Y Min: " VerticalAlignment="Center" Grid.Column="0" Grid.Row="1"/>
-					<StackPanel Orientation="Horizontal" Margin="10,5" Grid.Column="1" Grid.Row="1">
+					<StackPanel Orientation="Horizontal" Margin="3" Grid.Column="1" Grid.Row="1">
 						<Slider Width="100" Minimum="{Binding MinimumMinimum}" Maximum="{Binding MaximumMinimum}" Value="{Binding Minimum, Mode=TwoWay}" TickPlacement="BottomRight" VerticalAlignment="Center" Margin="5,0" IsSnapToTickEnabled="True" TickFrequency="10" />
-						<TextBox Name="MinimumValue" Text="{Binding MinimumValue, Mode=TwoWay, UpdateSourceTrigger=Explicit}"  VerticalAlignment="Center" Margin="0" FontSize="15" Width="50" TextChanged="MinimumValueTextChanged" />
+						<TextBox Name="MinimumValue" Text="{Binding MinimumValue, Mode=TwoWay, UpdateSourceTrigger=Explicit}"  VerticalAlignment="Center" Margin="0" FontSize="15" Width="50" TextChanged="MinimumValueTextChanged" Height="24" />
 					</StackPanel>
 
 					<TextBlock Text="Y Max: " VerticalAlignment="Center" Grid.Column="0" Grid.Row="2"/>
-					<StackPanel Orientation="Horizontal" Margin="10,5" Grid.Column="1" Grid.Row="2">
+					<StackPanel Orientation="Horizontal" Margin="3" Grid.Column="1" Grid.Row="2">
 						<Slider Width="100" Minimum="{Binding MinimumMaximum}" Maximum="{Binding MaximumMaximum}" Value="{Binding Maximum, Mode=TwoWay}" TickPlacement="BottomRight" VerticalAlignment="Center"  Margin="5,0" IsSnapToTickEnabled="True" TickFrequency="10" />
-						<TextBox Name="MaximumValue" Text="{Binding MaximumValue, Mode=TwoWay, UpdateSourceTrigger=Explicit}" VerticalAlignment="Center" Margin="0" FontSize="15" Width="50" TextChanged="MaximumValueTextChanged" />
+						<TextBox Name="MaximumValue" Text="{Binding MaximumValue, Mode=TwoWay, UpdateSourceTrigger=Explicit}" VerticalAlignment="Center" Margin="0" FontSize="15" Width="50" TextChanged="MaximumValueTextChanged" Height="24" />
 					</StackPanel>
 
 					<TextBlock Text="Max Graphed Points: " VerticalAlignment="Center" Grid.Column="3" Grid.Row="0"/>
-					<ComboBox Grid.Column="4" Grid.Row="0" Width="100" ItemsSource="{Binding SamplingCapOptions}" SelectedIndex="{Binding SelectedSamplingCapIndex, Mode=TwoWay}" VerticalAlignment="Center">
+					<ComboBox Grid.Column="4" Grid.Row="0" Width="100" ItemsSource="{Binding SamplingCapOptions}" SelectedIndex="{Binding SelectedSamplingCapIndex, Mode=TwoWay}" VerticalAlignment="Center" Height="24">
 						<i:Interaction.Triggers>
 							<i:EventTrigger EventName="SelectionChanged">
 								<cal:ActionMessage MethodName="SamplingCapChanged">

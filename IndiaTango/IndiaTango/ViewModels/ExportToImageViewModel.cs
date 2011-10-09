@@ -16,7 +16,7 @@ namespace IndiaTango.ViewModels
         public Chart Chart { get; set; }
         public GraphableSensor[] SelectedSensors { get; set; }
 
-        public string Filename { get { return string.IsNullOrWhiteSpace(_filename) ? "Select a File" : _filename; } set { _filename = value; NotifyOfPropertyChange(() => Filename); } }
+        public string Filename { get { return string.IsNullOrWhiteSpace(_filename) ? "No filename selected" : _filename; } set { _filename = value; NotifyOfPropertyChange(() => Filename); } }
 
         public string WindowTitle { get { return "Export to Image"; } }
 

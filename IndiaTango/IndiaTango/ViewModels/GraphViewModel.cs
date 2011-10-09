@@ -235,7 +235,7 @@ namespace IndiaTango.ViewModels
         /// <summary>
         /// The width of the column
         /// </summary>
-        public int ColumnWidth { get { return _columnVisible ? 410 : 0; } }
+        public int ColumnWidth { get { return _columnVisible ? 430 : 0; } }
 
         /// <summary>
         /// The column toggle buttons image
@@ -284,6 +284,7 @@ namespace IndiaTango.ViewModels
 
         public List<String> SamplingCaps { get { return _samplingCaps; } set { _samplingCaps = value; NotifyOfPropertyChange(() => SamplingCaps); } }
 
+		public Visibility ExportButtonVisible { get { return _selectedSensors.Count > 0 ? Visibility.Visible : Visibility.Collapsed; } }
         public int SelectedSamplingCapIndex
         {
             get { return _samplingCapIndex; }
@@ -329,6 +330,7 @@ namespace IndiaTango.ViewModels
             Debug.WriteLine("Adding sensor {0} to selected sensors", sensor.Sensor);
             _selectedSensors.Add(sensor);
             RedrawGraph();
+			NotifyOfPropertyChange(() => ExportButtonVisible);
         }
 
         /// <summary>
@@ -342,6 +344,7 @@ namespace IndiaTango.ViewModels
             Debug.WriteLine("Removing sensor {0} to selected sensors", sensor.Sensor);
             _selectedSensors.Remove(sensor);
             RedrawGraph();
+			NotifyOfPropertyChange(() => ExportButtonVisible);
         }
 
         /// <summary>
