@@ -18,9 +18,9 @@
 		<TextBlock Text="{Binding Message}" HorizontalAlignment="Left" Margin="0,5" VerticalAlignment="Top" Grid.ColumnSpan="3" />
 
 		<TextBox Grid.Column="0" Grid.Row="1" Name="txtValue" VerticalAlignment="Top" Text="{Binding Text}" Margin="0,5" Visibility="{Binding TextBoxVisible}" MaxLines="2" TabIndex="0" Grid.ColumnSpan="3" />
-		<ComboBox Grid.Column="0" Grid.Row="1" Name="comboValue" VerticalAlignment="Center" Margin="0, 5" IsEditable="{Binding CanEditComboBox}" ItemsSource="{Binding ComboBoxItems}" Visibility="{Binding ComboBoxVisible}" Text="{Binding Text}" IsTabStop="True" TabIndex="0" StaysOpenOnEdit="True" Grid.ColumnSpan="3" />
+		<ComboBox Grid.Column="0" Grid.Row="1" Name="comboValue" VerticalAlignment="Center" Margin="0, 5" IsEditable="{Binding CanEditComboBox}" ItemsSource="{Binding ComboBoxItems}" Visibility="{Binding ComboBoxVisible}" Text="{Binding Text}" IsTabStop="True" TabIndex="0" StaysOpenOnEdit="True" Grid.ColumnSpan="3" SelectedIndex="{Binding ComboBoxSelectedIndex, Mode=TwoWay}" />
 		
 		<Button Content="OK" Margin="10,5,0,5" Name="btnOK" VerticalAlignment="Top" Grid.Column="1" Grid.Row="3" IsDefault="True" Width="70" />
-		<Button Content="Cancel" Margin="10,5,0,5" Name="btnCancel" VerticalAlignment="Top" Grid.Column="2" Grid.Row="3" Width="70" Visibility="{Binding CancelVisibile}" />
+		<Button Content="Cancel" Margin="10,5,0,5" Name="btnCancel" VerticalAlignment="Top" Grid.Column="2" Grid.Row="3" Width="70" Visibility="{Binding CancelVisible}" />
     </Grid>
 </Window>
