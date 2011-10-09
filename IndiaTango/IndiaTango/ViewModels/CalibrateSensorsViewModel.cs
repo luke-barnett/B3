@@ -192,8 +192,7 @@ namespace IndiaTango.ViewModels
         {
             get
             {
-                return SelectedSensor != null &&
-                       (ValidFormula || !IndiaTango.Properties.Settings.Default.EvaluateFormulaOnKeyUp);
+                return ValidFormula || !IndiaTango.Properties.Settings.Default.EvaluateFormulaOnKeyUp;
             }
         }
 
@@ -325,7 +324,7 @@ namespace IndiaTango.ViewModels
 
         public bool CanEditDates
         {
-            get { return (SelectedSensor != null); }
+            get { return (true); }
         }
 
         public Cursor ViewCursor
@@ -615,7 +614,7 @@ namespace IndiaTango.ViewModels
 					specify.CanEditComboBox = false;
 					specify.ComboBoxItems =
 						new List<string>(new[] {"Treat all missing values as zero", "Skip over all missing values"});
-					specify.Text = "Treat all missing values as zero";
+				    specify.ComboBoxSelectedIndex = 0;
 					specify.Deactivated += (o, e) =>
 					                       	{
 					                       		action = specify.Text;
@@ -623,18 +622,8 @@ namespace IndiaTango.ViewModels
 
 					_windowManager.ShowDialog(specify);
 
-					//Should totally use an enum...
-					switch (action)
-					{
-						case "Cancel":
-							return;
-						case "Treat all missing values as zero":
-							skipMissingValues = false;
-							break;
-						case "Skip over all missing values":
-							skipMissingValues = true;
-							break;
-					}
+				    if (specify.WasCanceled) return;
+				    skipMissingValues = specify.ComboBoxSelectedIndex == 1;
 				}
 
             	ViewCursor = Cursors.Wait;

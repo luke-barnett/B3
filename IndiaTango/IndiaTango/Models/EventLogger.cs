@@ -56,6 +56,11 @@ namespace IndiaTango.Models
         {
             get { return _timeFormatString; }
         }
+
+        public static int NextRefNum
+        {
+            get { return _logRefNum; }
+        }
         #endregion
 
         #region PrivateMethods
