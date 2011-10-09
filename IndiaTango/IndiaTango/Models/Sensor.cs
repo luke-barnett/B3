@@ -353,7 +353,7 @@ namespace IndiaTango.Models
             get
             {
                 if(_rawData == null)
-                    _rawData = new SensorState(DateTime.Now, new Dictionary<DateTime, float>(), "", true);
+                    _rawData = new SensorState(DateTime.Now, new Dictionary<DateTime, float>(), "", true, null);
 
                 return _rawData;
             }

@@ -129,6 +129,7 @@
     <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="ViewModels\SpecifyValueViewModel.cs" />
     <Compile Include="ViewModels\UseSelectedRangeViewModel.cs" />
+    <Compile Include="ViewModels\WizardViewModel.cs" />
     <Compile Include="Views\BuoyDetailsView.xaml.cs">
       <DependentUpon>BuoyDetailsView.xaml</DependentUpon>
     </Compile>
@@ -179,6 +180,9 @@
     </Compile>
     <Compile Include="Views\UseSelectedRangeView.xaml.cs">
       <DependentUpon>UseSelectedRangeView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\WizardView.xaml.cs">
+      <DependentUpon>WizardView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -284,6 +288,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\UseSelectedRangeView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\WizardView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

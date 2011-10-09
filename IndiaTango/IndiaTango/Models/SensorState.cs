@@ -19,23 +19,28 @@ namespace IndiaTango.Models
         private string _reason = "";
         private Dictionary<DateTime, float> _upperLine;
         private Dictionary<DateTime, float> _lowerLine;
+        private Dictionary<DateTime, LinkedList<int>> _changes;
+        private bool _isRaw = false;
 
         public SensorState Clone()
         {
             var d = _valueList.ToDictionary(v => v.Key, v => v.Value);
-            var s = new SensorState(DateTime.Now, d);
+            var c = _changes.ToDictionary(v => v.Key, v => v.Value);
+            var s = new SensorState(d,c);
+            
             return s;
         }
 
-        public SensorState(Dictionary<DateTime, float> valueList) : this(DateTime.Now, valueList) { }
-        public SensorState(Dictionary<DateTime, float> valueList, string reason) : this(DateTime.Now, valueList, reason, false) { }
+        #region Constructors
+        public SensorState(Dictionary<DateTime, float> valueList, string reason, Dictionary<DateTime, LinkedList<int>> changes ) : this(DateTime.Now, valueList, reason, false, changes) { }
+        public SensorState(Dictionary<DateTime, float> valueList,Dictionary<DateTime,LinkedList<int>> changes) : this(DateTime.Now, valueList, changes) { }
 
         /// <summary>
         /// Creates a new sensor state with the specified timestamp representing the date it was last edited.
         /// </summary>
         /// <param name="editTimestamp">A DateTime object representing the last edit date and time for this sensor state.</param>
         public SensorState(DateTime editTimestamp)
-            : this(editTimestamp, new Dictionary<DateTime, float>())
+            : this(editTimestamp, new Dictionary<DateTime, float>(), new Dictionary<DateTime, LinkedList<int>>())
         {
         }
 
@@ -44,7 +49,7 @@ namespace IndiaTango.Models
         /// </summary>
         /// <param name="editTimestamp">A DateTime object representing the last edit date and time for this sensor state.</param>
         /// <param name="valueList">A list of data values, representing values recorded in this sensor state.</param>
-        public SensorState(DateTime editTimestamp, Dictionary<DateTime, float> valueList) : this(editTimestamp, valueList, "", false) { }
+        public SensorState(DateTime editTimestamp, Dictionary<DateTime, float> valueList, Dictionary<DateTime,LinkedList<int>> changes) : this(editTimestamp, valueList, "", false, changes) { }
 
         /// <summary>
         /// Creates a new sensor state with the specified timestamp representing the date it was last edited, a list of values representing data values recorded in this state, and a reason for the changes stored in this state.
@@ -53,7 +58,7 @@ namespace IndiaTango.Models
         /// <param name="valueList">A list of data values, representing values recorded in this sensor state.</param>
         /// <param name="reason">A string indicating the reason for the changes made in this state.</param>
         /// <param name="isRaw">Whether or not this represents the sensors raw data.</param>
-        public SensorState(DateTime editTimestamp, Dictionary<DateTime, float> valueList, string reason, bool isRaw)
+        public SensorState(DateTime editTimestamp, Dictionary<DateTime, float> valueList, string reason, bool isRaw, Dictionary<DateTime, LinkedList<int>> changes)
         {
             if (valueList == null)
                 throw new ArgumentNullException("The list of values in this state cannot be null.");
@@ -62,10 +67,18 @@ namespace IndiaTango.Models
             _editTimestamp = editTimestamp;
             _valueList = valueList;
             _isRaw = isRaw;
+            Changes = changes ?? new Dictionary<DateTime, LinkedList<int>>();
         }
 
-        private bool _isRaw = false;
+#endregion
 
+        [DataMember]
+        public Dictionary<DateTime, LinkedList<int>> Changes
+        {
+            get { return _changes; }
+            set { _changes = value; }
+        }
+        
         [DataMember]
         public bool IsRaw
         {
@@ -288,8 +301,15 @@ namespace IndiaTango.Models
                 var valueDiff = Values[endValue] - Values[startValue];
 
                 var newValue = (float)(valueDiff * (timeDiffBetweenStartAndPoint / timeDiffBetweenEndPoints)) + Values[startValue];
-                
+
                 newState.Values[time] = newValue;
+                if (_changes.ContainsKey(time))
+                    newState.Changes[time].AddFirst(EventLogger.NextRefNum);
+                else
+                {
+                    newState.Changes.Add(time, new LinkedList<int>());
+                    newState.Changes[time].AddFirst(EventLogger.NextRefNum);
+                }
             }
 
             /* ==OLD METHOD==
@@ -368,6 +388,13 @@ namespace IndiaTango.Models
             foreach (var time in values)
             {
                 newState.Values[time] = value;
+                if (_changes.ContainsKey(time))
+                    newState.Changes[time].AddFirst(EventLogger.NextRefNum);
+                else
+                {
+                    newState.Changes.Add(time, new LinkedList<int>());
+                    newState.Changes[time].AddFirst(EventLogger.NextRefNum);
+                }
             }
 
             return newState;
@@ -388,6 +415,13 @@ namespace IndiaTango.Models
             foreach (var time in values)
             {
                 newState.Values[time] = value;
+                if (_changes.ContainsKey(time))
+                    newState.Changes[time].AddFirst(EventLogger.NextRefNum);
+                else
+                {
+                    newState.Changes.Add(time, new LinkedList<int>());
+                    newState.Changes[time].AddFirst(EventLogger.NextRefNum);
+                }
             }
 
             return newState;
@@ -402,6 +436,13 @@ namespace IndiaTango.Models
             foreach (var time in values)
             {
                 newState.Values.Remove(time);
+                if (_changes.ContainsKey(time))
+                    newState.Changes[time].AddFirst(EventLogger.NextRefNum);
+                else
+                {
+                    newState.Changes.Add(time, new LinkedList<int>());
+                    newState.Changes[time].AddFirst(EventLogger.NextRefNum);
+                }
             }
 
             return newState;

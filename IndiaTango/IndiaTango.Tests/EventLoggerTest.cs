@@ -152,14 +152,14 @@ namespace IndiaTango.Tests
         public void LogSensorChangeTest()
         {
             var state = new SensorState(DateTime.Now,
-                                        new Dictionary<DateTime, float> { { new DateTime(2011, 5, 5, 5, 5, 0), 2000 } });
+                                        new Dictionary<DateTime, float> { { new DateTime(2011, 5, 5, 5, 5, 0), 2000 } }, null);
             state.Reason = "Because we can.";
             var result = state.LogChange("Temperature", "Extrapolation performed.");
 
             Assert.AreEqual(EventLogger.NextRefNum-1 + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       Temperature               Extrapolation performed. Reason: Because we can.", result);
 
             state = new SensorState(DateTime.Now,
-                                        new Dictionary<DateTime, float> { { new DateTime(2011, 5, 5, 5, 5, 0), 2000 } });
+                                        new Dictionary<DateTime, float> { { new DateTime(2011, 5, 5, 5, 5, 0), 2000 } }, null);
             state.Reason = "Because we can.";
             result = state.LogChange("Temperature", "Did some awesome work on the dataset.");
 
@@ -179,14 +179,14 @@ namespace IndiaTango.Tests
                 File.Delete(sensorTwoLogPath);
 
             var state = new SensorState(DateTime.Now,
-                                        new Dictionary<DateTime, float> { { new DateTime(2011, 5, 5, 5, 5, 0), 2000 } });
+                                        new Dictionary<DateTime, float> { { new DateTime(2011, 5, 5, 5, 5, 0), 2000 } }, null);
             state.Reason = "Because we can.";
             state.LogChange("Temperature", "Extrapolation performed.");
 
             Assert.AreEqual(EventLogger.NextRefNum-1 + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       Temperature               Extrapolation performed. Reason: Because we can.\r\n", File.ReadAllText(sensorLogPath));
 
             state = new SensorState(DateTime.Now,
-                                        new Dictionary<DateTime, float> { { new DateTime(2011, 5, 5, 5, 5, 0), 2000 } });
+                                        new Dictionary<DateTime, float> { { new DateTime(2011, 5, 5, 5, 5, 0), 2000 } }, null);
             state.Reason = "Because we can.";
             state.LogChange("Temperature20", "Extrapolation performed.");
 
