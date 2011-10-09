@@ -28,7 +28,7 @@ namespace IndiaTango.ViewModels
         private Dataset _ds;
 
         private string _formulaText = "";
-        private bool _validFormula = true;
+        private bool _validFormula = false;
 
         private FormulaEvaluator _eval;
         private Formula _formula;
@@ -160,6 +160,12 @@ namespace IndiaTango.ViewModels
                 //Console.WriteLine("Formual Validity: " + _validFormula);
 
                 //Uncoment for per character compile checking
+                if(string.IsNullOrWhiteSpace(_formulaText))
+                {
+                    ValidFormula = false;
+                    return;
+                }
+
                 _formula = _eval.CompileFormula(FormulaText);
                 ValidFormula = _formula.IsValid;
             }
@@ -584,6 +590,12 @@ namespace IndiaTango.ViewModels
 
         public void btnApply()
         {
+            if(string.IsNullOrWhiteSpace(_formulaText))
+            {
+                ValidFormula = false;
+                return;
+            }
+
             _formula = _eval.CompileFormula(FormulaText);
         	ValidFormula = _formula.IsValid;
             DateTime t = DateTime.Now;
@@ -630,12 +642,19 @@ namespace IndiaTango.ViewModels
 				_eval.EvaluateFormula(_formula, _ds.StartTimeStamp, _ds.EndTimeStamp, skipMissingValues);
 
                 ViewCursor = Cursors.Arrow;
-
+                foreach (SensorVariable sensorVariable in _formula.SensorsUsed)
+                {
+                    
+                }
 				Common.RequestReason(SelectedSensor.Sensor, _container, _windowManager, SelectedSensor.Sensor.CurrentState, "Formula '" + FormulaText + "' successfully applied to the sensor.");
 
                 Common.ShowMessageBox("Formula applied", "The formula was successfully applied to the selected sensor.",
                                       false, false);
+
+                UpdateUndoRedo();
+                UpdateGraph();
             }
+            //Not Valid
             else
             {
                 string errorString = "";
@@ -648,9 +667,6 @@ namespace IndiaTango.ViewModels
                                                    "An error was encounted when trying to apply the formula.\nPlease check the formula syntax.",
                                                    false, true, errorString);
             }
-
-            UpdateUndoRedo();
-			UpdateGraph();
         }
 
         public void btnClear()
