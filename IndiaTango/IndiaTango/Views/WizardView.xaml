@@ -43,14 +43,14 @@
 
             <Button Name="btnBack" FontSize="15"  HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" Grid.Column="1" IsEnabled="{Binding CanGoBack}">
                 <StackPanel Orientation="Horizontal">
-                    <Image Source="/IndiaTango;component/Images/cancel_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
+                    <Image Source="/IndiaTango;component/Images/left_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
                     <TextBlock Text="Back" VerticalAlignment="Center" Margin="5" />
                 </StackPanel>
             </Button>
 
             <Button Name="btnNext" FontSize="15"  HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" Grid.Column="2" IsEnabled="{Binding CanGoForward}">
                 <StackPanel Orientation="Horizontal">
-                    <Image Source="/IndiaTango;component/Images/redo_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
+                    <Image Source="/IndiaTango;component/Images/right_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
                     <TextBlock Text="Next" VerticalAlignment="Center" Margin="5" />
                 </StackPanel>
             </Button>

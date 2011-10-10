@@ -293,7 +293,7 @@
 
                         <WrapPanel>
                             <Button Name="btnWizard" FontSize="15" Width="100" Height="100" Margin="5">
-                                <Image Source="/IndiaTango;component/Images/B3_icon.png" Width="64" Height="64" />
+                                <Image Source="/IndiaTango;component/Images/wizard.png" Width="64" Height="64" />
                             </Button>
                             <TextBlock Text="Wizard" FontSize="15" VerticalAlignment="Center" Margin="5" />
                         </WrapPanel>
