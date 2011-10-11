@@ -105,6 +105,8 @@ namespace IndiaTango.Models
         {
             return string.Empty;
         }
+
+        public bool IsEnabled { get; set; }
     }
 
     public delegate void UpdateGraph();

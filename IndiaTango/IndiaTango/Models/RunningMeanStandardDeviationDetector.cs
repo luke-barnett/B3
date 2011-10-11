@@ -270,6 +270,8 @@ namespace IndiaTango.Models
                 //Debug.Print("numberOfValues: {0} average: {1} sumOfSquare: {2} stdDev: {3} upper: {4} lower: {5}", meanValues.Count, average, sumOfSquares, standardDeviation, _upperLine[value.Key], _lowerLine[value.Key]);
             }
         }
+
+        public bool IsEnabled { get; set; }
     }
 
     public delegate void Updated();

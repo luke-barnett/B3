@@ -58,5 +58,7 @@ namespace IndiaTango.Models
         {
             get { return new List<IDetectionMethod>(); }
         }
+
+        public bool IsEnabled { get; set; }
     }
 }
