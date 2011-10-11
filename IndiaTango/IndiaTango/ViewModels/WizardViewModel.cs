@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 using Caliburn.Micro;
 using IndiaTango.Models;
 
@@ -12,11 +16,19 @@ namespace IndiaTango.ViewModels
         private SimpleContainer _container;
         private IWindowManager _manager;
         private int _currentStep = 0;
+        private List<Sensor> _sensors = null;
 
-        public WizardViewModel(SimpleContainer container,  IWindowManager manager)
+        public WizardViewModel(SimpleContainer container, IWindowManager manager)
         {
             _container = container;
             _manager = manager;
+
+        }
+
+        public List<Sensor> Sensors
+        {
+            get { return _sensors; }
+            set { _sensors = value; NotifyOfPropertyChange(() => Sensors); NotifyOfPropertyChange(() => SensorsToRename); }
         }
 
         public int CurrentStep
@@ -58,6 +70,49 @@ namespace IndiaTango.ViewModels
         public void btnFinish()
         {
             this.TryClose();
+        }
+
+        public List<Grid> SensorsToRename
+        {
+            get
+            {
+                var list = new List<Grid>();
+
+                for (var i = 0; i < Sensors.Count; i++)
+                {
+                    var item = new Grid
+                                   {
+                                       Background =
+                                           i % 2 == 0
+                                               ? new SolidColorBrush(Color.FromArgb(180, 240, 240, 240))
+                                               : Brushes.White
+                                   };
+                    item.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
+                    item.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
+
+                    var textbox = new TextBox
+                                      {
+                                          Text = Sensors[i].GuessConventionalNameForSensor() + "_",
+                                          Background = Brushes.Transparent
+                                      };
+                    Grid.SetColumn(textbox, 1);
+                    item.Children.Add(textbox);
+                    var currentSensor = Sensors[i];
+                    textbox.TextChanged += (o, e) =>
+                                               {
+                                                   Debug.WriteLine("Fired for " + currentSensor.Name);
+                                                   currentSensor.Name = textbox.Text;
+                                               };
+
+                    var textblock = new TextBlock { Text = Sensors[i].Name };
+                    Grid.SetColumn(textblock, 0);
+                    item.Children.Add(textblock);
+
+                    list.Add(item);
+                }
+
+                return list;
+            }
         }
     }
 }
