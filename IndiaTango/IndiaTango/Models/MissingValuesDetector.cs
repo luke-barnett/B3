@@ -10,12 +10,12 @@ namespace IndiaTango.Models
     {
         public override string ToString()
         {
-            return "Missing Values";
+            return string.Empty;
         }
 
         public string Name
         {
-            get { return ToString(); }
+            get { return "Missing Values"; }
         }
 
         public IDetectionMethod This

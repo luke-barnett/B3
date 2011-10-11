@@ -28,7 +28,7 @@ namespace IndiaTango.Models
 
         public override string ToString()
         {
-            return Name;
+            return string.Empty;
         }
 
         public string Name

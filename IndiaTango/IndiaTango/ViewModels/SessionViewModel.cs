@@ -88,7 +88,7 @@ namespace IndiaTango.ViewModels
 
                 StatusLabelText = "";
 
-                NotifyOfPropertyChange(() => SelectedSite);
+                /*NotifyOfPropertyChange(() => SelectedSite);
                 NotifyOfPropertyChange(() => SiteName);
                 NotifyOfPropertyChange(() => Owner);
                 NotifyOfPropertyChange(() => Latitude);
@@ -96,7 +96,7 @@ namespace IndiaTango.ViewModels
                 NotifyOfPropertyChange(() => PrimaryContact);
                 NotifyOfPropertyChange(() => SecondaryContact);
                 NotifyOfPropertyChange(() => UniversityContact);
-                NotifyOfPropertyChange(() => EditDeleteEnabled);
+                NotifyOfPropertyChange(() => EditDeleteEnabled);*/
             }
         }
 
@@ -803,7 +803,9 @@ namespace IndiaTango.ViewModels
 
         public void btnWizard()
         {
-            _windowManager.ShowWindow(_container.GetInstance(typeof(WizardViewModel), "WizardViewModel"));
+            var wizard = (WizardViewModel)_container.GetInstance(typeof (WizardViewModel), "WizardViewModel");
+            wizard.Sensors = _ds.Sensors;
+            _windowManager.ShowWindow(wizard);
         }
         #endregion
 
@@ -938,6 +940,7 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        #region Site Image Drag/Drop
         public bool CanDragDropImages
         {
             get { return DoneCancelVisible == Visibility.Visible; }
@@ -964,5 +967,6 @@ namespace IndiaTango.ViewModels
 
             InsertImagesForSite(acceptedFiles.ToArray());
         }
+        #endregion
     }
 }

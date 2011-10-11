@@ -14,22 +14,6 @@
             </cal:ActionMessage>
         </i:EventTrigger>
     </i:Interaction.Triggers>
-	
-	<Window.Resources>
-		<Style x:Key="WrapList" TargetType="{x:Type ListBox}">
-			<Setter Property="ItemsPanel">
-				<Setter.Value>
-					<ItemsPanelTemplate>
-						<WrapPanel />
-					</ItemsPanelTemplate>
-				</Setter.Value>
-			</Setter>
-			
-			<Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
-		</Style>
-		
-	</Window.Resources>
-	
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="370" />
@@ -43,60 +27,63 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-			<GroupBox Grid.Row="0" Header="Detection Methods" BorderBrush="OrangeRed" Margin="10,5,5,0">
-				<StackPanel Orientation="Vertical">
-					<ListBox ItemsSource="{Binding DetectionMethods}" SelectedItem="{Binding SelectedDetectionMethod, Mode=TwoWay}" SelectionMode="Single" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Margin="5" Height="85">
-						<ListBox.ItemTemplate>
-							<HierarchicalDataTemplate>
-								<CheckBox Content="{Binding This}" Margin="5">
-									<i:Interaction.Triggers>
-										<i:EventTrigger EventName="Checked">
-											<cal:ActionMessage MethodName="DetectionMethodChecked">
-												<cal:Parameter Value="$eventArgs" />
-											</cal:ActionMessage>
-										</i:EventTrigger>
-										<i:EventTrigger EventName="Unchecked">
-											<cal:ActionMessage MethodName="DetectionMethodUnChecked">
-												<cal:Parameter Value="$eventArgs" />
-											</cal:ActionMessage>
-										</i:EventTrigger>
-									</i:Interaction.Triggers>
-								</CheckBox>
-							</HierarchicalDataTemplate>
-						</ListBox.ItemTemplate>
-					</ListBox>
-					
-					<GroupBox Visibility="{Binding DetectionSettingsVisibility}" Content="{Binding DetectionSettingsGrid}" Grid.Row="1" Header="Detection Method Settings:" BorderBrush="OrangeRed" Margin="0" Padding="5,7,5,5" BorderThickness="0" />
-				</StackPanel>
-			</GroupBox>
+            <GroupBox Grid.Row="0" Header="Detection Methods" BorderBrush="OrangeRed" Margin="10,5,5,0">
+                <StackPanel Orientation="Vertical">
+                    <ListBox ItemsSource="{Binding DetectionMethods}" SelectedItem="{Binding SelectedDetectionMethod, Mode=TwoWay}" SelectionMode="Single" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Margin="5" Height="85">
+                        <ListBox.ItemTemplate>
+                            <HierarchicalDataTemplate>
+                                <StackPanel Orientation="Horizontal" Margin="5">
+                                    <CheckBox Content="{Binding This}">
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="Checked">
+                                                <cal:ActionMessage MethodName="DetectionMethodChecked">
+                                                    <cal:Parameter Value="$eventArgs" />
+                                                </cal:ActionMessage>
+                                            </i:EventTrigger>
+                                            <i:EventTrigger EventName="Unchecked">
+                                                <cal:ActionMessage MethodName="DetectionMethodUnChecked">
+                                                    <cal:Parameter Value="$eventArgs" />
+                                                </cal:ActionMessage>
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
+                                    </CheckBox>
+                                    <TextBlock Text="{Binding Name}" />
+                                </StackPanel>
+                            </HierarchicalDataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <GroupBox Visibility="{Binding DetectionSettingsVisibility}" Content="{Binding DetectionSettingsGrid}" Grid.Row="1" Header="Detection Method Settings:" BorderBrush="OrangeRed" Margin="0" Padding="5,7,5,5" BorderThickness="0" />
+                </StackPanel>
+            </GroupBox>
 
 
-			<GroupBox Grid.Row="2" Header="Readings Found" BorderBrush="OrangeRed" Margin="10 5 5 0">
-				<DockPanel Margin="5">
-					<ComboBox Text="Select A Sensor" DockPanel.Dock="Top" Margin="0,0,0,5" ItemsSource="{Binding SensorList}" SelectedItem="{Binding SelectedSensor, Mode=TwoWay}"/>
-					<ListBox ItemsSource="{Binding FoundErroneousValues}" SelectionMode="Extended" >
-						<i:Interaction.Triggers>
-							<i:EventTrigger EventName="SelectionChanged">
-								<cal:ActionMessage MethodName="MissingValuesSelectionChanged">
-									<cal:Parameter Value="$eventArgs" />
-								</cal:ActionMessage>
-							</i:EventTrigger>
-						</i:Interaction.Triggers>
-						<ListBox.ItemTemplate>
-							<DataTemplate>
-								<StackPanel>
-									<TextBlock Text="{Binding AsString}" />
-									<ContextMenuService.ContextMenu>
-										<ContextMenu>
-											<MenuItem Header="Center on Graph" Command="{Binding RequestGraphCenteringCommand}" />
-										</ContextMenu>
-									</ContextMenuService.ContextMenu>
-								</StackPanel>
-							</DataTemplate>
-						</ListBox.ItemTemplate>
-					</ListBox>
-				</DockPanel>
-			</GroupBox>
+            <GroupBox Grid.Row="2" Header="Readings Found" BorderBrush="OrangeRed" Margin="10 5 5 0">
+                <DockPanel Margin="5">
+                    <ComboBox Text="Select A Sensor" DockPanel.Dock="Top" Margin="0,0,0,5" ItemsSource="{Binding SensorList}" SelectedItem="{Binding SelectedSensor, Mode=TwoWay}"/>
+                    <ListBox ItemsSource="{Binding FoundErroneousValues}" SelectionMode="Extended" >
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="SelectionChanged">
+                                <cal:ActionMessage MethodName="MissingValuesSelectionChanged">
+                                    <cal:Parameter Value="$eventArgs" />
+                                </cal:ActionMessage>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding AsString}" />
+                                    <ContextMenuService.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Center on Graph" Command="{Binding RequestGraphCenteringCommand}" />
+                                        </ContextMenu>
+                                    </ContextMenuService.ContextMenu>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </GroupBox>
 
             <GroupBox Grid.Row="3" Header="Actions" BorderBrush="OrangeRed" Margin="10,5,5,10">
                 <StackPanel>
@@ -182,14 +169,27 @@
                 </StackPanel>
             </GroupBox>
         </Grid>
-		
+
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-			
+
+            <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,5,5,0">
+                <TextBlock Text="Max Graphed Points: " VerticalAlignment="Center" Grid.Column="3" Grid.Row="0"/>
+                <ComboBox Grid.Column="4" Grid.Row="0" Width="100" ItemsSource="{Binding SamplingCapOptions}" SelectedIndex="{Binding SelectedSamplingCapIndex, Mode=TwoWay}" VerticalAlignment="Center" Height="24">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectionChanged">
+                            <cal:ActionMessage MethodName="SamplingCapChanged">
+                                <cal:Parameter Value="$eventArgs" />
+                            </cal:ActionMessage>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </ComboBox>
+            </StackPanel>
+
             <charts:Chart Title="{Binding ChartTitle}" Behaviour="{Binding ChartBehaviour}" multiseries:MultiSeries.Source="{Binding ChartSeries}" Grid.Row="1" Margin="10,5,10,5">
                 <charts:Chart.YAxis>
                     <charts:LinearAxis Title="{Binding YAxisTitle}" Range="{Binding YAxisRange}" />
@@ -199,97 +199,83 @@
                 </charts:Chart.XAxis>
             </charts:Chart>
 
-			<GroupBox Grid.Row="2" Header="Graph Settings" BorderBrush="OrangeRed" Margin="5,0,10,10">
-				<Grid Margin="5">
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="Auto"/>
-						<ColumnDefinition Width="Auto"/>
-						<ColumnDefinition Width="*"/>
-						<ColumnDefinition Width="Auto"/>
-						<ColumnDefinition Width="Auto"/>
-					</Grid.ColumnDefinitions>
-					
-					<Grid.RowDefinitions>
-						<RowDefinition Height="Auto"/>
-						<RowDefinition Height="Auto"/>
-						<RowDefinition Height="Auto"/>
-					</Grid.RowDefinitions>
+            <GroupBox Grid.Row="2" Header="Graph Settings" BorderBrush="OrangeRed" Margin="5,0,10,10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-					<TextBlock Text="Date Range: " VerticalAlignment="Center"  Grid.Column="0" Grid.Row="0"/>
-					<StackPanel  Orientation="Horizontal" Margin="3" Grid.Column="1" Grid.Row="0" >
-						<toolkit:DateTimePicker Width="125" Value="{Binding StartTime}" Format="Custom" FormatString="dd/MM/yy HH:mm" IsEnabled="{Binding CanEditDates}" Height="24">
-							<i:Interaction.Triggers>
-								<i:EventTrigger EventName="ValueChanged">
-									<cal:ActionMessage MethodName="StartTimeChanged">
-										<cal:Parameter Value="$eventArgs" />
-									</cal:ActionMessage>
-								</i:EventTrigger>
-							</i:Interaction.Triggers>
-						</toolkit:DateTimePicker>
-						<TextBlock Text=" - to - " VerticalAlignment="Center" />
-						<toolkit:DateTimePicker Width="125" Value="{Binding EndTime}" Format="Custom" FormatString="dd/MM/yy HH:mm" IsEnabled="{Binding CanEditDates}" Height="24">
-							<i:Interaction.Triggers>
-								<i:EventTrigger EventName="ValueChanged">
-									<cal:ActionMessage MethodName="EndTimeChanged">
-										<cal:Parameter Value="$eventArgs" />
-									</cal:ActionMessage>
-								</i:EventTrigger>
-							</i:Interaction.Triggers>
-						</toolkit:DateTimePicker>
-					</StackPanel>
+                    <StackPanel  Orientation="Horizontal" Grid.Row="0" HorizontalAlignment="Left">
+                        <TextBlock Text="Date Range: " VerticalAlignment="Center"  Grid.Column="0" Grid.Row="0"/>
+                        <toolkit:DateTimePicker Width="125" Value="{Binding StartTime}" Format="Custom" FormatString="dd/MM/yy HH:mm" IsEnabled="{Binding CanEditDates}" Height="24">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="ValueChanged">
+                                    <cal:ActionMessage MethodName="StartTimeChanged">
+                                        <cal:Parameter Value="$eventArgs" />
+                                    </cal:ActionMessage>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </toolkit:DateTimePicker>
+                        <TextBlock Text=" - to - " VerticalAlignment="Center" />
+                        <toolkit:DateTimePicker Width="125" Value="{Binding EndTime}" Format="Custom" FormatString="dd/MM/yy HH:mm" IsEnabled="{Binding CanEditDates}" Height="24">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="ValueChanged">
+                                    <cal:ActionMessage MethodName="EndTimeChanged">
+                                        <cal:Parameter Value="$eventArgs" />
+                                    </cal:ActionMessage>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </toolkit:DateTimePicker>
+                    </StackPanel>
 
-					<TextBlock Text="Y Min: " VerticalAlignment="Center" Grid.Column="0" Grid.Row="1"/>
-					<StackPanel Orientation="Horizontal" Margin="3" Grid.Column="1" Grid.Row="1">
-						<Slider Width="100" Minimum="{Binding MinimumMinimum}" Maximum="{Binding MaximumMinimum}" Value="{Binding Minimum, Mode=TwoWay}" TickPlacement="BottomRight" VerticalAlignment="Center" Margin="5,0" IsSnapToTickEnabled="True" TickFrequency="10" />
-						<TextBox Name="MinimumValue" Text="{Binding MinimumValue, Mode=TwoWay, UpdateSourceTrigger=Explicit}"  VerticalAlignment="Center" Margin="0" FontSize="15" Width="50" TextChanged="MinimumValueTextChanged" Height="24" />
-					</StackPanel>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" HorizontalAlignment="Right">
+                        <CheckBox  Content="Graph Raw Data" VerticalAlignment="Center" Margin="10,0">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Checked">
+                                    <cal:ActionMessage MethodName="GraphRawData" />
+                                </i:EventTrigger>
+                                <i:EventTrigger EventName="Unchecked">
+                                    <cal:ActionMessage MethodName="DontGraphRawData" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </CheckBox>
 
-					<TextBlock Text="Y Max: " VerticalAlignment="Center" Grid.Column="0" Grid.Row="2"/>
-					<StackPanel Orientation="Horizontal" Margin="3" Grid.Column="1" Grid.Row="2">
-						<Slider Width="100" Minimum="{Binding MinimumMaximum}" Maximum="{Binding MaximumMaximum}" Value="{Binding Maximum, Mode=TwoWay}" TickPlacement="BottomRight" VerticalAlignment="Center"  Margin="5,0" IsSnapToTickEnabled="True" TickFrequency="10" />
-						<TextBox Name="MaximumValue" Text="{Binding MaximumValue, Mode=TwoWay, UpdateSourceTrigger=Explicit}" VerticalAlignment="Center" Margin="0" FontSize="15" Width="50" TextChanged="MaximumValueTextChanged" Height="24" />
-					</StackPanel>
+                        <CheckBox  Content="Selection Mode" VerticalAlignment="Center"  Margin="10,0">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Checked">
+                                    <cal:ActionMessage MethodName="StartSelectionMode" />
+                                </i:EventTrigger>
+                                <i:EventTrigger EventName="Unchecked">
+                                    <cal:ActionMessage MethodName="EndSelectionMode" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </CheckBox>
+                    </StackPanel>
 
-					<TextBlock Text="Max Graphed Points: " VerticalAlignment="Center" Grid.Column="3" Grid.Row="0"/>
-					<ComboBox Grid.Column="4" Grid.Row="0" Width="100" ItemsSource="{Binding SamplingCapOptions}" SelectedIndex="{Binding SelectedSamplingCapIndex, Mode=TwoWay}" VerticalAlignment="Center" Height="24">
-						<i:Interaction.Triggers>
-							<i:EventTrigger EventName="SelectionChanged">
-								<cal:ActionMessage MethodName="SamplingCapChanged">
-									<cal:Parameter Value="$eventArgs" />
-								</cal:ActionMessage>
-							</i:EventTrigger>
-						</i:Interaction.Triggers>
-					</ComboBox>
-					
-					<CheckBox  Content="Graph Raw Data" VerticalAlignment="Center" Margin="10,5" Grid.Column="3" Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Right">
-						<i:Interaction.Triggers>
-							<i:EventTrigger EventName="Checked">
-								<cal:ActionMessage MethodName="GraphRawData" />
-							</i:EventTrigger>
-							<i:EventTrigger EventName="Unchecked">
-								<cal:ActionMessage MethodName="DontGraphRawData" />
-							</i:EventTrigger>
-						</i:Interaction.Triggers>
-					</CheckBox>
-						
-					<CheckBox  Content="Selection Mode" VerticalAlignment="Center"  Margin="10,5" Grid.Column="3" Grid.Row="2" Grid.ColumnSpan="2" HorizontalAlignment="Right">
-						<i:Interaction.Triggers>
-							<i:EventTrigger EventName="Checked">
-								<cal:ActionMessage MethodName="StartSelectionMode" />
-							</i:EventTrigger>
-							<i:EventTrigger EventName="Unchecked">
-								<cal:ActionMessage MethodName="EndSelectionMode" />
-							</i:EventTrigger>
-						</i:Interaction.Triggers>
-					</CheckBox>
-				</Grid>
-			</GroupBox>
+                    <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="0,5">
+                        <StackPanel Orientation="Horizontal" Margin="3">
+                            <TextBlock Text="Y Min: " VerticalAlignment="Center"/>
+                            <Slider Width="100" Minimum="{Binding MinimumMinimum}" Maximum="{Binding MaximumMinimum}" Value="{Binding Minimum, Mode=TwoWay}" TickPlacement="BottomRight" VerticalAlignment="Center" Margin="5,0" IsSnapToTickEnabled="True" TickFrequency="10" />
+                            <TextBox Name="MinimumValue" Text="{Binding MinimumValue, Mode=TwoWay, UpdateSourceTrigger=Explicit}"  VerticalAlignment="Center" Margin="0" FontSize="15" Width="50" TextChanged="MinimumValueTextChanged" Height="24" />
+                        </StackPanel>
 
-			<StackPanel Orientation="Horizontal" Margin="10,-4" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom">
-				<TextBlock Text="{Binding WaitReason}" Visibility="{Binding WaitReasonVisibility}" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="150" Margin="5,0" />
-				<ProgressBar Visibility="{Binding WaitReasonVisibility}" IsIndeterminate="True" VerticalAlignment="Center" Width="80" Height="18"  />
-			</StackPanel>
-		</Grid>
+
+                        <StackPanel Orientation="Horizontal" Margin="3">
+                            <TextBlock Text="Y Max: " VerticalAlignment="Center"/>
+                            <Slider Width="100" Minimum="{Binding MinimumMaximum}" Maximum="{Binding MaximumMaximum}" Value="{Binding Maximum, Mode=TwoWay}" TickPlacement="BottomRight" VerticalAlignment="Center"  Margin="5,0" IsSnapToTickEnabled="True" TickFrequency="10" />
+                            <TextBox Name="MaximumValue" Text="{Binding MaximumValue, Mode=TwoWay, UpdateSourceTrigger=Explicit}" VerticalAlignment="Center" Margin="0" FontSize="15" Width="50" TextChanged="MaximumValueTextChanged" Height="24" />
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+
+            <StackPanel Orientation="Horizontal" Margin="10,-4" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                <TextBlock Text="{Binding WaitReason}" Visibility="{Binding WaitReasonVisibility}" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="150" Margin="5,0" />
+                <ProgressBar Visibility="{Binding WaitReasonVisibility}" IsIndeterminate="True" VerticalAlignment="Center" Width="80" Height="18"  />
+            </StackPanel>
+        </Grid>
     </Grid>
 </Window>
 
