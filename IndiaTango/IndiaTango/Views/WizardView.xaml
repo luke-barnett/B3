@@ -12,7 +12,28 @@
         <TextBlock Text="{Binding WizardTitle}" FontSize="16" Margin="10" />
         <TabControl Grid.Column="0" Grid.Row="1" SelectedIndex="{Binding CurrentStep}">
             <TabItem Header="Rename Sensors">
-                <TextBlock Margin="5" Text="Rename sensor names to be more meaningful in the data you use." TextWrapping="Wrap" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Margin="5" Text="Rename sensor names to be more meaningful in the data you use." TextWrapping="Wrap" Grid.Column="0" Grid.Row="0" />
+
+                    <ItemsControl Grid.Column="0" Grid.Row="1" ItemsSource="{Binding SensorsToRename}" HorizontalAlignment="Stretch" Margin="5">
+                        <ItemsControl.Template>
+                            <ControlTemplate>
+                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                    <ItemsPresenter />
+                                </ScrollViewer>
+                            </ControlTemplate>
+                        </ItemsControl.Template>
+                    </ItemsControl>
+
+                </Grid>
             </TabItem>
             <TabItem Header="Fix Missing Values">
                 <TextBlock Margin="5" Text="This step looks for missing data in the imported dataset, allowing you to fill in these gaps." TextWrapping="Wrap" />  
