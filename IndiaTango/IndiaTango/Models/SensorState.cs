@@ -67,7 +67,7 @@ namespace IndiaTango.Models
             _editTimestamp = editTimestamp;
             _valueList = valueList;
             _isRaw = isRaw;
-            Changes = changes ?? new Dictionary<DateTime, LinkedList<int>>();
+            _changes = changes ?? new Dictionary<DateTime, LinkedList<int>>();
         }
 
 #endregion
@@ -388,13 +388,7 @@ namespace IndiaTango.Models
             foreach (var time in values)
             {
                 newState.Values[time] = value;
-                if (_changes.ContainsKey(time))
-                    newState.Changes[time].AddFirst(EventLogger.NextRefNum);
-                else
-                {
-                    newState.Changes.Add(time, new LinkedList<int>());
-                    newState.Changes[time].AddFirst(EventLogger.NextRefNum);
-                }
+                AddChange(newState, time);
             }
 
             return newState;
@@ -415,19 +409,24 @@ namespace IndiaTango.Models
             foreach (var time in values)
             {
                 newState.Values[time] = value;
-                if (_changes.ContainsKey(time))
-                    newState.Changes[time].AddFirst(EventLogger.NextRefNum);
-                else
-                {
-                    newState.Changes.Add(time, new LinkedList<int>());
-                    newState.Changes[time].AddFirst(EventLogger.NextRefNum);
-                }
+                AddChange(newState, time);
             }
 
             return newState;
         }
 
-        public SensorState removeValues(List<DateTime> values)
+        public static void AddChange(SensorState newState, DateTime time)
+        {
+            if (newState.Changes.ContainsKey(time))
+                newState.Changes[time].AddFirst(EventLogger.NextRefNum);
+            else
+            {
+                newState.Changes.Add(time, new LinkedList<int>());
+                newState.Changes[time].AddFirst(EventLogger.NextRefNum);
+            }
+        }
+
+        public SensorState RemoveValues(List<DateTime> values)
         {
             if (values == null)
                 throw new ArgumentException("A non-null list to be removed must be specified");
@@ -436,13 +435,7 @@ namespace IndiaTango.Models
             foreach (var time in values)
             {
                 newState.Values.Remove(time);
-                if (_changes.ContainsKey(time))
-                    newState.Changes[time].AddFirst(EventLogger.NextRefNum);
-                else
-                {
-                    newState.Changes.Add(time, new LinkedList<int>());
-                    newState.Changes[time].AddFirst(EventLogger.NextRefNum);
-                }
+                AddChange(newState, time);
             }
 
             return newState;

@@ -122,8 +122,8 @@ namespace IndiaTango.Models
             {
                 if (_variablesAssignedTo.Contains(_sensorStates[v]))
                 {
-                    loopEndCode += "if(!skipMissingValues || sensorStates[" + v + "].Sensor.CurrentState.Values.ContainsKey(time)) sensorStates[" + v + "].Sensor.CurrentState.Values[time] = " +
-                                   _sensorStates[v].VariableName + ";\n";
+                    loopEndCode += "if(!skipMissingValues || sensorStates[" + v + "].Sensor.CurrentState.Values.ContainsKey(time)){ sensorStates[" + v + "].Sensor.CurrentState.Values[time] = " +
+                                   _sensorStates[v].VariableName + ";\n SensorState.AddChange(sensorStates[" + v + "].Sensor.CurrentState,time);}";
                 }
             }
 

@@ -302,7 +302,7 @@ namespace IndiaTango.ViewModels
                 return;
 
         	ViewCursor = Cursors.Wait;
-            _sensor.AddState(_sensor.CurrentState.removeValues(SelectedValues));
+            _sensor.AddState(_sensor.CurrentState.RemoveValues(SelectedValues));
 
             Finalise("Removed selected values from dataset.");
 

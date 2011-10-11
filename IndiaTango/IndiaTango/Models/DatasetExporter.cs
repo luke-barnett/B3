@@ -101,7 +101,7 @@ namespace IndiaTango.Models
                     ExportMetaData(filePath, metaDataFilePath);
 
                 if (includeChangeLog)
-                    ExportChangesFile(filePath, changeLogFilePath);
+                    ExportChangesFile(filePath, changeLogFilePath, dateColumnFormat);
 
                 EventLogger.LogInfo(GetType().ToString(), "Data export complete. File saved to: " + filePath);
 			}
@@ -194,17 +194,22 @@ namespace IndiaTango.Models
 			}
 		}
 
-		private void ExportChangesFile(string filePath, string changeLogFilePath)
+		private void ExportChangesFile(string filePath, string changeLogFilePath, DateColumnFormat dateColumnFormat)
 	    {
 	        using (var writer = File.CreateText(changeLogFilePath))
 	        {
 	            writer.WriteLine("Change log for file: " + Path.GetFileName(filePath));
-	            var line = Data.Sensors.Aggregate("", (current, sensor) => current + (sensor.Name + ","));
+                var line = dateColumnFormat.Equals(DateColumnFormat.SplitDateColumn)
+                            ? "Day,Month,Year,Hours,Minutes" + ',' + Data.Sensors.Aggregate("", (current, sensor) => current + (sensor.Name + ","))
+                            : "Date,Time" + ',' + Data.Sensors.Aggregate("", (current, sensor) => current + (sensor.Name + ","));
 	            line = line.Remove(line.Count() - 2);
                 writer.Write(line);
 	            for (var time = Data.StartTimeStamp; time <= Data.EndTimeStamp; time = time.AddMinutes(Data.DataInterval))
-	            {
-	                line = "";
+                {
+                    line = dateColumnFormat.Equals(DateColumnFormat.SplitDateColumn)
+                            ? time.ToString("dd") + ',' + time.ToString("MM") + ',' + time.ToString("yyyy") + ',' +
+                              time.ToString("HH") + ',' + time.ToString("mm") + ','
+                            : time.ToString("dd/MM/yyyy") + ',' + time.ToString("HH:mm") + ',';
                     foreach (var sensor in Data.Sensors)
                     {
                         LinkedList<int> vals;
