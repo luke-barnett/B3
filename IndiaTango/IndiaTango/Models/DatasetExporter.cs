@@ -119,16 +119,16 @@ namespace IndiaTango.Models
 		{
 			using (StreamWriter writer = File.CreateText(filePath))
 			{
-				char del = ',';
-				string columnHeadings = dateColumnFormat.Equals(DateColumnFormat.SplitDateColumn)
+				var del = ',';
+				var columnHeadings = dateColumnFormat.Equals(DateColumnFormat.SplitDateColumn)
 				                        	? "dd" + del + "mm" + del + "yyyy" + del + "hh" + del + "nn"
 				                        	: "dd/mm/yyyy" + del + "hhnn"; //Not a typo
-				int currentSensorIndex = 0;
+				var currentSensorIndex = 0;
 				var outputData = new string[Data.Sensors.Count,(Data.ExpectedDataPointCount/numOfPointsToSummarise) + 1];
-				DateTime rowDate = Data.StartTimeStamp;
+				var rowDate = Data.StartTimeStamp;
 
 
-				foreach (Sensor sensor in Data.Sensors)
+				foreach (var sensor in Data.Sensors)
 				{
 					var stateToUse = (exportRaw) ? sensor.RawData : sensor.CurrentState;
 
@@ -159,7 +159,7 @@ namespace IndiaTango.Models
                             else
                                 outputData[
                                     currentSensorIndex,
-                                    GetArrayRowFromTime(Data.StartTimeStamp, i.AddMinutes((-15) * numOfPointsToSummarise),
+                                    GetArrayRowFromTime(Data.StartTimeStamp, i.AddMinutes((-15)*numOfPointsToSummarise),
                                                         numOfPointsToSummarise)] =
                                     Math.Round((sum), 2).ToString();
                         }
@@ -199,11 +199,15 @@ namespace IndiaTango.Models
 	        using (var writer = File.CreateText(changeLogFilePath))
 	        {
 	            writer.WriteLine("Change log for file: " + Path.GetFileName(filePath));
-                var line = dateColumnFormat.Equals(DateColumnFormat.SplitDateColumn)
-                            ? "Day,Month,Year,Hours,Minutes" + ',' + Data.Sensors.Aggregate("", (current, sensor) => current + (sensor.Name + ","))
-                            : "Date,Time" + ',' + Data.Sensors.Aggregate("", (current, sensor) => current + (sensor.Name + ","));
+	            var line = dateColumnFormat.Equals(DateColumnFormat.SplitDateColumn)
+	                           ? "Day,Month,Year,Hours,Minutes" + ',' 
+	                           : "Date,Time" + ',';
+                foreach (var sensor in Data.Sensors)
+                {
+                    line += sensor.Name + ",";
+                }
 	            line = line.Remove(line.Count() - 2);
-                writer.Write(line);
+                writer.WriteLine(line);
 	            for (var time = Data.StartTimeStamp; time <= Data.EndTimeStamp; time = time.AddMinutes(Data.DataInterval))
                 {
                     line = dateColumnFormat.Equals(DateColumnFormat.SplitDateColumn)
