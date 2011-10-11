@@ -167,6 +167,10 @@ namespace IndiaTango.Models
             for (var i = 0; i < 20; i++)
                 q.Enqueue("");
 
+            //Super line to fix all the problems (Totally not an XP thing btw)
+            if (!File.Exists(LogFilePath))
+                return "";
+
             using (var sr = new StreamReader(EventLogger.LogFilePath))
             {
                 while (sr.Peek() != -1)
