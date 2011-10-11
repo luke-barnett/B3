@@ -249,6 +249,67 @@ namespace IndiaTango.Models
             return sum / count;
         }
 
+		public SensorState Calibrate(DateTime start, DateTime end, double origA, double origB, double newA, double newB)
+		{
+			if(start >= end)
+				throw new ArgumentException("End time must be greater than start time");
+
+			if(origB > origA)
+				throw new ArgumentException("Original B value must be less than original A value");
+
+			if (newB > newA)
+				throw new ArgumentException("New B value must be less than new A value");
+
+			//The total minutes in the time span
+			double totalMinutes = end.Subtract(start).TotalMinutes;
+
+			//The distance from the median line to the A and B points
+			double origMedianDistance = (origA - origB) / 2;
+			double newMedianDistance = (newA - newB) / 2;
+
+			//The largest distance the points must move to normalise them with the median line
+			double normalisationDistance = newMedianDistance - origMedianDistance;
+
+			//The largest distance the points must move from the normalised position, to the calibrated (correct) position
+			double calibrationDistance = (newB + newMedianDistance) - (origB + origMedianDistance);
+
+			//The increment that must be made per minute to normalise the points above and below the median line
+			double normalisationIncrement = normalisationDistance / totalMinutes;			
+			double calibrationIncrement = calibrationDistance / totalMinutes;
+
+			//The gradients of the lines
+			double slopeA = (newA - origA)/totalMinutes;
+			double slopeMedian = ((newB + newMedianDistance) - (origB + origMedianDistance))/totalMinutes;
+
+			//The y-intercepts of the lines
+			double interceptA = origA;
+			double interceptMedian = origB + origMedianDistance;
+
+			//Copy!
+			SensorState newState = Clone();
+
+			foreach (var value in Values)
+			{
+				if(value.Key < start || value.Key > end)
+					continue;
+
+				double timeDiff = value.Key.Subtract(start).TotalMinutes;
+				double normalisationScale = GetRelativePositionBetweenLines(interceptA, interceptMedian, slopeA, slopeMedian, timeDiff, value.Value);
+
+				newState.Values[value.Key] = (float)(value.Value - (normalisationScale * normalisationIncrement + calibrationIncrement) * timeDiff);
+			}
+
+			return newState;
+		}
+
+		private double GetRelativePositionBetweenLines(double intercept1, double intercept2, double slope1, double slope2, double x, double y)
+		{
+			double y1 = slope1*x + intercept1;
+			double y2 = slope2*x + intercept2;
+
+			return (y - y2)/Math.Abs(y1 - y2);
+		}
+
 
         /// <summary>
         /// Given a timestamp which represents a missing value, extrapolates the dataset using the first known point before the given point, and the first known point after the given point in the list of keys.
@@ -462,5 +523,12 @@ namespace IndiaTango.Models
         {
             get { return _lowerLine; }
         }
+
+		private bool IsPointAbove(double x1, double y1, double x2, double y2, double xPoint, double yPoint)
+		{
+			return ((x2 - x1)*(yPoint - y1) - (y2 - y1)*(xPoint - x1)) > 0;
+		}
+
+
     }
 }

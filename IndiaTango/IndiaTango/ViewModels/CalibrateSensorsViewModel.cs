@@ -668,6 +668,23 @@ namespace IndiaTango.ViewModels
             }
         }
 
+		public void btnAuto()
+		{
+			string[] values = FormulaText.Split(',');
+			double origA = double.Parse(values[0]);
+			double origB = double.Parse(values[1]);
+			double newA = double.Parse(values[2]);
+			double newB = double.Parse(values[3]);
+
+			if(SelectedSensor != null)
+			{
+				SelectedSensor.Sensor.AddState(SelectedSensor.Sensor.CurrentState.Calibrate(StartTime, EndTime, origA, origB, newA, newB));
+			}
+
+			UpdateUndoRedo();
+			UpdateGraph();
+		}
+
         public void btnClear()
         {
             FormulaText = "";

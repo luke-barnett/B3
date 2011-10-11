@@ -119,7 +119,14 @@
                             </StackPanel>
                         </Button>
 
-                        <Button Name="btnApply" FontSize="15"  HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding ApplyButtonEnabled}" VerticalAlignment="Bottom">
+						<Button Name="btnAuto" FontSize="15"  HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" >
+							<StackPanel Orientation="Horizontal">
+								<Image Source="/IndiaTango;component/Images/right_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
+								<TextBlock Text="Auto" VerticalAlignment="Center" Margin="5" />
+							</StackPanel>
+						</Button>
+
+						<Button Name="btnApply" FontSize="15"  HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding ApplyButtonEnabled}" VerticalAlignment="Bottom">
                             <StackPanel Orientation="Horizontal">
                                 <Image Source="/IndiaTango;component/Images/done_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
                                 <TextBlock Text="Apply" VerticalAlignment="Center" Margin="5" />

@@ -48,6 +48,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CalibrationTest.cs" />
     <Compile Include="ErroneousValueTests.cs" />
     <Compile Include="FormulaEvaluatorTest.cs" />
     <Compile Include="MissingValuesDetectorTests.cs" />
