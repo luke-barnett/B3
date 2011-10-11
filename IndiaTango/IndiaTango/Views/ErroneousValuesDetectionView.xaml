@@ -33,7 +33,7 @@
                         <ListBox.ItemTemplate>
                             <HierarchicalDataTemplate>
                                 <StackPanel Orientation="Horizontal" Margin="5">
-                                    <CheckBox Content="{Binding This}" IsEnabled="{Binding IsEnabled}">
+                                    <CheckBox Content="{Binding This}" IsChecked="{Binding IsEnabled}">
                                         <i:Interaction.Triggers>
                                             <i:EventTrigger EventName="Checked">
                                                 <cal:ActionMessage MethodName="DetectionMethodChecked">
