@@ -127,6 +127,7 @@ namespace IndiaTango.ViewModels
             if (erroneousValuesView == null)
                 return;
             erroneousValuesView.DataSet = _ds;
+            erroneousValuesView.OnlyUseStandarDeviation();
             _manager.ShowWindow(erroneousValuesView);
         }
 
@@ -138,6 +139,7 @@ namespace IndiaTango.ViewModels
             if (erroneousValuesView == null)
                 return;
             erroneousValuesView.DataSet = _ds;
+            erroneousValuesView.OnlyUseMissingValues();
             _manager.ShowWindow(erroneousValuesView);
         }
 
@@ -149,6 +151,7 @@ namespace IndiaTango.ViewModels
             if (erroneousValuesView == null)
                 return;
             erroneousValuesView.DataSet = _ds;
+            erroneousValuesView.OnlyUseMinMaxRateOfChange();
             _manager.ShowWindow(erroneousValuesView);
         }
 
