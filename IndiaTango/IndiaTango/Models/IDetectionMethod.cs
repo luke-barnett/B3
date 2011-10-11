@@ -57,5 +57,10 @@ namespace IndiaTango.Models
         /// The detection methods children
         /// </summary>
         List<IDetectionMethod> Children { get; }
+
+        /// <summary>
+        /// If the method is enabled or not
+        /// </summary>
+        bool IsEnabled { get; set; }
     }
 }

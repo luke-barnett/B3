@@ -16,19 +16,23 @@ namespace IndiaTango.ViewModels
         private SimpleContainer _container;
         private IWindowManager _manager;
         private int _currentStep = 0;
-        private List<Sensor> _sensors = null;
+        private Dataset _ds = null;
 
         public WizardViewModel(SimpleContainer container, IWindowManager manager)
         {
             _container = container;
             _manager = manager;
-
         }
 
         public List<Sensor> Sensors
         {
-            get { return _sensors; }
-            set { _sensors = value; NotifyOfPropertyChange(() => Sensors); NotifyOfPropertyChange(() => SensorsToRename); }
+            get { return _ds.Sensors; }
+        }
+
+        public Dataset Dataset
+        {
+            get { return _ds; }
+            set { _ds = value; NotifyOfPropertyChange(() => Sensors);}
         }
 
         public int CurrentStep
@@ -113,6 +117,49 @@ namespace IndiaTango.ViewModels
 
                 return list;
             }
+        }
+
+        public void btnStdDev()
+        {
+            var erroneousValuesView =
+                (_container.GetInstance(typeof(ErroneousValuesDetectionViewModel), "ErroneousValuesDetectionViewModel")
+                 as ErroneousValuesDetectionViewModel);
+            if (erroneousValuesView == null)
+                return;
+            erroneousValuesView.DataSet = _ds;
+            erroneousValuesView.OnlyUseStandarDeviation();
+            _manager.ShowWindow(erroneousValuesView);
+        }
+
+        public void btnMissingValues()
+        {
+            var erroneousValuesView =
+                (_container.GetInstance(typeof(ErroneousValuesDetectionViewModel), "ErroneousValuesDetectionViewModel")
+                 as ErroneousValuesDetectionViewModel);
+            if (erroneousValuesView == null)
+                return;
+            erroneousValuesView.DataSet = _ds;
+            erroneousValuesView.OnlyUseMissingValues();
+            _manager.ShowWindow(erroneousValuesView);
+        }
+
+        public void btnOutliers()
+        {
+            var erroneousValuesView =
+                (_container.GetInstance(typeof(ErroneousValuesDetectionViewModel), "ErroneousValuesDetectionViewModel")
+                 as ErroneousValuesDetectionViewModel);
+            if (erroneousValuesView == null)
+                return;
+            erroneousValuesView.DataSet = _ds;
+            erroneousValuesView.OnlyUseMinMaxRateOfChange();
+            _manager.ShowWindow(erroneousValuesView);
+        }
+
+        public void btnCalibrate()
+        {
+            var calibrateView = (_container.GetInstance(typeof(CalibrateSensorsViewModel), "CalibrateSensorsViewModel") as CalibrateSensorsViewModel);
+            calibrateView.Dataset = _ds;
+            _manager.ShowWindow(calibrateView);
         }
     }
 }

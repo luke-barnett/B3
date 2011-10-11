@@ -36,16 +36,84 @@
                 </Grid>
             </TabItem>
             <TabItem Header="Fix Missing Values">
-                <TextBlock Margin="5" Text="This step looks for missing data in the imported dataset, allowing you to fill in these gaps." TextWrapping="Wrap" />  
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Margin="5" Text="This step looks for missing data in the imported dataset, allowing you to fill in these gaps." TextWrapping="Wrap" />
+
+                    <WrapPanel Grid.Column="0" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Button Name="btnMissingValues" FontSize="15" Margin="5" IsEnabled="{Binding ActionButtonsEnabled}" >
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="/IndiaTango;component/Images/find_range.png" Width="64" Height="64" />
+                                <TextBlock Text="Find Missing Values" FontSize="15" VerticalAlignment="Center" Margin="5" />
+                            </StackPanel>
+                        </Button>
+                       
+                    </WrapPanel>
+                </Grid>
             </TabItem>
             <TabItem Header="Standard Deviation">
-                <TextBlock Margin="5" Text="Description of standard deviation goes here." TextWrapping="Wrap" />
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Margin="5" Text="Use standard deviation to display a graph representing expected values, to detect erroneous values." Grid.Column="0" Grid.Row="0" TextWrapping="Wrap" />
+
+                    <WrapPanel Grid.Column="0" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Button Name="btnStdDev" FontSize="15" Margin="5" IsEnabled="{Binding ActionButtonsEnabled}" >
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="/IndiaTango;component/Images/graph.png" Width="64" Height="64" />
+                                <TextBlock Text="Fix Data based on Standard Deviation" FontSize="15" VerticalAlignment="Center" Margin="5" />
+                            </StackPanel>
+                        </Button>
+
+                    </WrapPanel>
+                </Grid>
             </TabItem>
             <TabItem Header="Outlier Detection">
-                <TextBlock Margin="5" Text="This step is awesome because it detects outliers." TextWrapping="Wrap" />
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Margin="5" Text="View a list of outliers from a given sensor, based on upper and lower limits, along with maximum rate of change, and correct them accordingly." TextWrapping="Wrap" />
+
+                    <WrapPanel Grid.Column="0" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Button Name="btnOutliers" FontSize="15" Margin="5" IsEnabled="{Binding ActionButtonsEnabled}" >
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="/IndiaTango;component/Images/find_range.png" Width="64" Height="64" />
+                                <TextBlock Text="Fix Outliers" FontSize="15" VerticalAlignment="Center" Margin="5" />
+                            </StackPanel>
+                        </Button>
+
+                    </WrapPanel>
+                </Grid>
             </TabItem>
             <TabItem Header="Calibrate Sensors">
-                <TextBlock Margin="5" Text="Apply a mathematical formula to sensors to account for reported values drifting over time." TextWrapping="Wrap" />
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Margin="5" Text="Apply a mathematical formula to sensors to account for reported values drifting over time." TextWrapping="Wrap" />
+
+                    <WrapPanel Grid.Column="0" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Button Name="btnCalibrate" FontSize="15" Margin="5" IsEnabled="{Binding ActionButtonsEnabled}" >
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="/IndiaTango;component/Images/calibrate_sensor.png" Width="64" Height="64" />
+                                <TextBlock Text="Calibrate Sensors" FontSize="15" VerticalAlignment="Center" Margin="5" />
+                            </StackPanel>
+                        </Button>
+
+                    </WrapPanel>
+                </Grid>
             </TabItem>
             <TabControl.ItemContainerStyle>
                 <Style TargetType="{x:Type TabItem}">

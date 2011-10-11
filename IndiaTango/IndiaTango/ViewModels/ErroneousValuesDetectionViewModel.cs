@@ -21,21 +21,23 @@ namespace IndiaTango.ViewModels
             _windowManager = windowManager;
             _container = container;
 
-            var minMaxRateofChangeDetector = new MinMaxRateOfChangeDetector();
-            minMaxRateofChangeDetector.GraphUpdateNeeded += UpdateGraph;
+            _minMaxRateofChangeDetector = new MinMaxRateOfChangeDetector();
+            _minMaxRateofChangeDetector.GraphUpdateNeeded += UpdateGraph;
 
-            var runningMeanStandardDeviationDetector = new RunningMeanStandardDeviationDetector();
-            runningMeanStandardDeviationDetector.GraphUpdateNeeded += UpdateGraph;
+            _runningMeanStandardDeviationDetector = new RunningMeanStandardDeviationDetector();
+            _runningMeanStandardDeviationDetector.GraphUpdateNeeded += UpdateGraph;
 
-            runningMeanStandardDeviationDetector.RefreshDetectedValues += delegate
+            _runningMeanStandardDeviationDetector.RefreshDetectedValues += delegate
                                                                               {
-                                                                                  if (!_selectedMethods.Contains(runningMeanStandardDeviationDetector))
+                                                                                  if (!_selectedMethods.Contains(_runningMeanStandardDeviationDetector))
                                                                                       return;
-                                                                                  RemoveDetectionMethod(runningMeanStandardDeviationDetector);
-                                                                                  AddDetectionMethod(runningMeanStandardDeviationDetector);
+                                                                                  RemoveDetectionMethod(_runningMeanStandardDeviationDetector);
+                                                                                  AddDetectionMethod(_runningMeanStandardDeviationDetector);
                                                                               };
 
-            DetectionMethods = new List<IDetectionMethod> { new MissingValuesDetector(), minMaxRateofChangeDetector, runningMeanStandardDeviationDetector };
+            _missingValuesDetector = new MissingValuesDetector();
+
+            DetectionMethods = new List<IDetectionMethod> { _missingValuesDetector, _minMaxRateofChangeDetector, _runningMeanStandardDeviationDetector };
 
             var behaviours = new BehaviourManager { AllowMultipleEnabled = true };
 
@@ -136,9 +138,13 @@ namespace IndiaTango.ViewModels
         private DateTime _endSelectionDate;
 
         private bool _buttonsEnabled = true;
-        private bool _canEditDates = false;
+        private bool _canEditDates;
         private DateTime _startTime = DateTime.MinValue;
         private DateTime _endTime = DateTime.MaxValue;
+
+        private readonly MinMaxRateOfChangeDetector _minMaxRateofChangeDetector;
+        private readonly RunningMeanStandardDeviationDetector _runningMeanStandardDeviationDetector;
+        private readonly MissingValuesDetector _missingValuesDetector;
 
         #endregion
 
@@ -230,6 +236,34 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        #region DetectionMethodLimiters
+
+        public void OnlyUseMissingValues()
+        {
+            _selectedMethods.Clear();
+            _selectedMethods.Add(_missingValuesDetector);
+            _missingValuesDetector.IsEnabled = true;
+            DetectionMethods = new List<IDetectionMethod> { _missingValuesDetector };
+        }
+
+        public void OnlyUseStandarDeviation()
+        {
+            _selectedMethods.Clear();
+            _selectedMethods.Add(_runningMeanStandardDeviationDetector);
+            _runningMeanStandardDeviationDetector.IsEnabled = true;
+            DetectionMethods = new List<IDetectionMethod> { _runningMeanStandardDeviationDetector };
+        }
+
+        public void OnlyUseMinMaxRateOfChange()
+        {
+            _selectedMethods.Clear();
+            _selectedMethods.Add(_minMaxRateofChangeDetector);
+            _minMaxRateofChangeDetector.IsEnabled = true;
+            DetectionMethods = new List<IDetectionMethod> { _minMaxRateofChangeDetector };
+        }
+
+        #endregion
+
         #region Public Lists
 
         public List<IDetectionMethod> DetectionMethods { get { return _detectionMethods; } set { _detectionMethods = value; NotifyOfPropertyChange(() => DetectionMethods); } }
@@ -237,7 +271,7 @@ namespace IndiaTango.ViewModels
         public List<GraphableSensor> SensorList { get { return _sensorList; } set { _sensorList = value; NotifyOfPropertyChange(() => SensorList); } }
 
         public List<ErroneousValue> FoundErroneousValues { get { return _foundErroneousValues; } set { _foundErroneousValues = value; NotifyOfPropertyChange(() => FoundErroneousValues); } }
-        
+
         #endregion
 
         #region Undo/Redo
@@ -704,7 +738,7 @@ namespace IndiaTango.ViewModels
                 _selectedSensor.Sensor.CurrentState.Values.Select(x => x.Key).Min()).Max();
             var closestUpper = _selectedSensor.Sensor.CurrentState.Values.Select(x => x.Key).Where(x => x > (value.TimeStamp + give)).DefaultIfEmpty(
                 _selectedSensor.Sensor.CurrentState.Values.Select(x => x.Key).Max()).Min();
-            
+
             _selectedSensor.SetUpperAndLowerBounds(closestLower, closestUpper);
             CalculateDateTimeEndPoints();
 
@@ -914,7 +948,7 @@ namespace IndiaTango.ViewModels
 
                     //Remove any old events
                     erroneousValue.RemoveAllEvents();
-                    
+
                     erroneousValue.GraphCenteringRequested += () => GraphCenteringRequested(value);
                 }
             }

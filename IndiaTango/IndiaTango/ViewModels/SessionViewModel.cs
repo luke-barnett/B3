@@ -804,7 +804,7 @@ namespace IndiaTango.ViewModels
         public void btnWizard()
         {
             var wizard = (WizardViewModel)_container.GetInstance(typeof (WizardViewModel), "WizardViewModel");
-            wizard.Sensors = _ds.Sensors;
+            wizard.Dataset = _ds;
             _windowManager.ShowWindow(wizard);
         }
         #endregion
