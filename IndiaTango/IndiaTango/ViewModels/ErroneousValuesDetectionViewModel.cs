@@ -259,7 +259,7 @@ namespace IndiaTango.ViewModels
         public void OnlyUseMissingValues()
         {
             _selectedMethods.Clear();
-            _selectedMethods.Add(_missingValuesDetector);
+            AddDetectionMethod(_missingValuesDetector);
             _missingValuesDetector.IsEnabled = true;
             DetectionMethods = new List<IDetectionMethod> { _missingValuesDetector };
         }
@@ -267,7 +267,7 @@ namespace IndiaTango.ViewModels
         public void OnlyUseStandarDeviation()
         {
             _selectedMethods.Clear();
-            _selectedMethods.Add(_runningMeanStandardDeviationDetector);
+            AddDetectionMethod(_runningMeanStandardDeviationDetector);
             _runningMeanStandardDeviationDetector.IsEnabled = true;
             DetectionMethods = new List<IDetectionMethod> { _runningMeanStandardDeviationDetector };
         }
@@ -275,7 +275,7 @@ namespace IndiaTango.ViewModels
         public void OnlyUseMinMaxRateOfChange()
         {
             _selectedMethods.Clear();
-            _selectedMethods.Add(_minMaxRateofChangeDetector);
+            AddDetectionMethod(_minMaxRateofChangeDetector);
             _minMaxRateofChangeDetector.IsEnabled = true;
             DetectionMethods = new List<IDetectionMethod> { _minMaxRateofChangeDetector };
         }
@@ -894,7 +894,7 @@ namespace IndiaTango.ViewModels
             var minY = MinimumY();
 
             MaximumMaximum = maxY + (maxY * 0.1);
-            MinimumMinimum = minY - (minY * 0.1);
+            MinimumMinimum = minY - Math.Abs(minY * 0.1);
 
             Maximum = MaximumMaximum;
             Minimum = MinimumMinimum;
