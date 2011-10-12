@@ -255,10 +255,10 @@ namespace IndiaTango.Models
 				throw new ArgumentException("End time must be greater than start time");
 
 			if(origB > origA)
-				throw new ArgumentException("Original B value must be less than original A value");
+				throw new ArgumentException("Calibrated B value must be less than the calibrated A value");
 
 			if (newB > newA)
-				throw new ArgumentException("New B value must be less than new A value");
+				throw new ArgumentException("Current B value must be less than the current A value");
 
 			//The total minutes in the time span
 			double totalMinutes = end.Subtract(start).TotalMinutes;

@@ -37,5 +37,25 @@ namespace IndiaTango.Views
         {
             MinimumValue.GetBindingExpression(TextBox.TextProperty).UpdateSource();
         }
+
+        private void txtCalA_KeyUp(object sender, KeyEventArgs e)
+        {
+            txtCalA.GetBindingExpression(TextBox.TextProperty).UpdateSource();
+        }
+
+        private void txtCalB_KeyUp(object sender, KeyEventArgs e)
+        {
+            txtCalB.GetBindingExpression(TextBox.TextProperty).UpdateSource();
+        }
+
+        private void txtCurA_KeyUp(object sender, KeyEventArgs e)
+        {
+            txtCurA.GetBindingExpression(TextBox.TextProperty).UpdateSource();
+        }
+
+        private void txtCurB_KeyUp(object sender, KeyEventArgs e)
+        {
+            txtCurB.GetBindingExpression(TextBox.TextProperty).UpdateSource();
+        }
     }
 }
