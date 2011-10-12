@@ -26,7 +26,7 @@
 
                     <TextBlock Margin="5" Text="Set up presets, to apply default parameters to sensors based on their name." TextWrapping="Wrap" Grid.Column="0" Grid.Row="0" />
 
-                    <StackPanel Grid.Column="0" Grid.Row="13" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
+                    <StackPanel Grid.Column="0" Grid.Row="13" Grid.ColumnSpan="2" HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal" Margin="40 0">
                         <Button Name="btnPresets" FontSize="15" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Left">
                             <StackPanel Orientation="Horizontal">
                                 <Image Source="/IndiaTango;component/Images/sensor_preset_64.png" Width="64" Height="64" VerticalAlignment="Center" />
@@ -172,10 +172,10 @@
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                         
-                        <WrapPanel Grid.Column="0" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <TextBlock Margin="5" Text="View a list of outliers from a given sensor, based on upper and lower limits, along with maximum rate of change, and correct them accordingly." TextWrapping="Wrap" />
-                            
-                            <Button Name="btnOutliers" FontSize="15" Margin="40,0" IsEnabled="{Binding ActionButtonsEnabled}" HorizontalAlignment="Left">
+                        <TextBlock Margin="5" Text="View a list of outliers from a given sensor, based on upper and lower limits, along with maximum rate of change, and correct them accordingly." TextWrapping="Wrap" />
+
+                        <WrapPanel Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="40,0">
+                            <Button Name="btnOutliers" FontSize="15" Margin="5" IsEnabled="{Binding ActionButtonsEnabled}" HorizontalAlignment="Left">
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/IndiaTango;component/Images/find_range.png" Width="64" Height="64" />
                                     <TextBlock Text="Fix Outliers" FontSize="15" VerticalAlignment="Center" Margin="5" />

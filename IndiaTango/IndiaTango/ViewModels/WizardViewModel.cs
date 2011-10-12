@@ -102,8 +102,13 @@ namespace IndiaTango.ViewModels
             }
             else
             {
-                SelectedSensor = Sensors[_currentSensorIndex];
-                CurrentStep++;
+                if (Sensors.Count == 0 && CurrentStep == 1)
+                    CurrentStep = 4;
+                else
+                {
+                    SelectedSensor = Sensors[_currentSensorIndex];
+                    CurrentStep++;
+                }
             }
         }
 
@@ -129,8 +134,15 @@ namespace IndiaTango.ViewModels
             }
             else
             {
-                SelectedSensor = Sensors[_currentSensorIndex];
-                CurrentStep--;
+                if(CurrentStep == 4 && Sensors.Count == 0)
+                {
+                    CurrentStep = 1;
+                }
+                else
+                {
+                    SelectedSensor = Sensors[_currentSensorIndex];
+                    CurrentStep--;
+                }
             }
         }
 
