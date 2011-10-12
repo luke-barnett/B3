@@ -201,10 +201,24 @@ namespace IndiaTango.ViewModels
             {
                 _dataset = value;
                 SensorList = (from sensor in _dataset.Sensors select new GraphableSensor(sensor)).ToList();
-                if(SensorList.Count == 1)
+                if (SensorList.Count == 1)
                 {
                     SelectedSensor = SensorList[0];
                 }
+            }
+        }
+
+        /// <summary>
+        /// Set this if you only want to use a single sensor, which will be automatically selected
+        /// </summary>
+        public Sensor SingleSensorToUse
+        {
+            set
+            {
+                _dataset = value.Owner;
+                var sensor = new GraphableSensor(value);
+                SensorList = new List<GraphableSensor> { sensor };
+                SelectedSensor = sensor;
             }
         }
 
