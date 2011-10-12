@@ -503,6 +503,21 @@ namespace IndiaTango.ViewModels
                     EventLogger.LogInfo("BackgroundImportThread", "Data import complete.");
                 };
 
+                _bw.RunWorkerCompleted += (obj, ev) =>
+                                              {
+                                                  if (ev.Cancelled)
+                                                      return;
+
+                                                  // Show the wizard every time data is imported?
+                                                  EventLogger.LogInfo("UIThread", "Starting the import wizard...");
+                                                  var wizard = (WizardViewModel)_container.GetInstance(typeof(WizardViewModel), "WizardViewModel");
+                                                  wizard.Dataset = _ds;
+                                                  wizard.Deactivated += (o, e) => EventLogger.LogInfo("WizardView",
+                                                                                                      "Completed the import wizard, ending at step " +
+                                                                                                      wizard.ThisStep);
+                                                  _windowManager.ShowDialog(wizard);
+                                              };
+
                 ImportEnabled = false;
 
                 _bw.RunWorkerAsync();
