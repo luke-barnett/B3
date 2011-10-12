@@ -70,7 +70,7 @@
                     </Grid.ColumnDefinitions>
 
                     <Image Source="/IndiaTango;component/Images/warning_32.png" Width="32" Height="32" VerticalAlignment="Top" Grid.Column="0" Margin="5"/>
-                    <TextBlock Grid.Column="1" Text="This sensor indicates signs of failing, or at least being offline for a period of time. After cleaning up the data and accounting for these values, this warning will disappear." TextWrapping="Wrap" VerticalAlignment="Top" Margin="5" />
+                    <TextBlock Grid.Column="1" Text="This sensor indicates signs of failing, or at least being offline for a period of time. This may be because your 'Failure Detection Threshold' is set too low. After cleaning up the data and accounting for these values, this warning will disappear." TextWrapping="Wrap" VerticalAlignment="Top" Margin="5" />
                 </Grid>
                 
                 <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Name:" Grid.Column="0" Grid.Row="2" ToolTip="A name that identifies this sensor uniquely." />

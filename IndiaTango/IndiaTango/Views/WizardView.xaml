@@ -10,7 +10,9 @@
             <RowDefinition Height="50" />
         </Grid.RowDefinitions>
         
-        <TextBlock Text="{Binding WizardTitle}" FontSize="16" Margin="10" />
+        <TextBlock Text="{Binding WizardTitle}" FontSize="16" Margin="10" HorizontalAlignment="Left" />
+        <TextBlock Text="{Binding ThisStep}" Foreground="OrangeRed" FontSize="16" Margin="10" HorizontalAlignment="Right" />
+        
         <TabControl x:Name="wizardTabs" Grid.Column="0" Grid.Row="1" SelectedIndex="{Binding CurrentStep}">
             <TabItem Header="Presets">
                 <Grid>
@@ -44,7 +46,7 @@
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
-                    <TextBlock Margin="5" Text="Rename sensor names to be more meaningful in the data you use." TextWrapping="Wrap" Grid.Column="0" Grid.Row="0" />
+                    <TextBlock Margin="5" Text="Rename sensors to be more meaningful in the data you use. If you leave a sensor's name unchanged, it will assume its imported name (shown to the left)." TextWrapping="Wrap" Grid.Column="0" Grid.Row="0" />
 
                     <ItemsControl Grid.Column="0" Grid.Row="1" ItemsSource="{Binding SensorsToRename}" HorizontalAlignment="Stretch" Margin="5">
                         <ItemsControl.Template>
@@ -70,7 +72,7 @@
 
                     <TextBlock Margin="5" Text="Fix metadata associated with this sensor." TextWrapping="Wrap" Grid.Column="0" Grid.Row="0" />
 
-                    <GroupBox Grid.Column="0" Grid.Row="1" Header="Selected Sensor Properties"  Margin="5 10 10 10" Padding="5" BorderBrush="OrangeRed">
+                    <GroupBox Grid.Column="0" Grid.Row="1" Header="Properties"  Margin="5 10 10 10" Padding="5" BorderBrush="OrangeRed">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="120" />

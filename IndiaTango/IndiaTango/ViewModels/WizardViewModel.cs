@@ -37,7 +37,35 @@ namespace IndiaTango.ViewModels
         public int CurrentStep
         {
             get { return _currentStep; }
-            set { _currentStep = value; NotifyOfPropertyChange(() => CurrentStep); NotifyOfPropertyChange(() => CanGoBack); NotifyOfPropertyChange(() => CanGoForward); }
+            set
+            {
+                _currentStep = value;
+                
+                NotifyOfPropertyChange(() => CurrentStep);
+                NotifyOfPropertyChange(() => CanGoBack);
+                NotifyOfPropertyChange(() => CanGoForward);
+                NotifyOfPropertyChange(() => ThisStep);
+            }
+        }
+
+        private const string StepSeperator = " of ";
+
+        public string ThisStep
+        {
+            get
+            {
+                if (CurrentStep < 2)
+                    return (CurrentStep + 1) + StepSeperator + TotalSteps;
+                else if (CurrentStep < 4)
+                    return (2 + ((_currentSensorIndex) * 2 + (CurrentStep - 1))) + StepSeperator + TotalSteps;
+                else
+                    return TotalSteps + StepSeperator + TotalSteps;
+            }
+        }
+
+        private int TotalSteps
+        {
+            get { return (Sensors.Count * 2) + 3; }
         }
 
         public string Title
@@ -67,7 +95,7 @@ namespace IndiaTango.ViewModels
                     CurrentStep = 2;
                 }
             }
-            else if(CurrentStep == 0)
+            else if (CurrentStep == 0)
             {
                 SelectedSensor = null;
                 CurrentStep = 1;
@@ -94,7 +122,7 @@ namespace IndiaTango.ViewModels
                     CurrentStep = 3;
                 }
             }
-            else if(CurrentStep == 1)
+            else if (CurrentStep == 1)
             {
                 SelectedSensor = null;
                 CurrentStep = 0;
@@ -321,8 +349,8 @@ namespace IndiaTango.ViewModels
             set
             {
                 _templates = value;
-                
-                foreach(var sensor in Sensors)
+
+                foreach (var sensor in Sensors)
                     foreach (var template in Templates.Where(template => template.Matches(sensor)))
                         template.ProvideDefaultValues(sensor);
             }
