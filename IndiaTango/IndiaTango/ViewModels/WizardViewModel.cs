@@ -17,6 +17,7 @@ namespace IndiaTango.ViewModels
         private IWindowManager _manager;
         private int _currentStep = 0;
         private Dataset _ds = null;
+        private List<TabItem> _tabs;
 
         public WizardViewModel(SimpleContainer container, IWindowManager manager)
         {
