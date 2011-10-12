@@ -276,6 +276,11 @@ namespace IndiaTango.ViewModels
                     Dataset.Sensors.Add(s);
                     SelectedItem = new ListedSensor(s, _ds);
 
+                    // Apply sensor templates
+                    foreach(var t in Templates)
+                        if(t.Matches(s))
+                            t.ProvideDefaultValues(s);
+
                     EventLogger.LogInfo(GetType().ToString(), "Created new sensor. Sensor name: " + s.Name);
                     Common.ShowMessageBox("New sensor created", "The new sensor '" + Name + "' was added successfully.",
                                           false, false);
