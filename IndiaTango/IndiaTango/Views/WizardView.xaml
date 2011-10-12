@@ -12,6 +12,28 @@
         
         <TextBlock Text="{Binding WizardTitle}" FontSize="16" Margin="10" />
         <TabControl x:Name="wizardTabs" Grid.Column="0" Grid.Row="1" SelectedIndex="{Binding CurrentStep}">
+            <TabItem Header="Presets">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Margin="5" Text="Set up presets, to apply default parameters to sensors based on their name." TextWrapping="Wrap" Grid.Column="0" Grid.Row="0" />
+
+                    <StackPanel Grid.Column="0" Grid.Row="13" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
+                        <Button Name="btnPresets" FontSize="15" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Left">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="/IndiaTango;component/Images/sensor_preset_64.png" Width="64" Height="64" VerticalAlignment="Center" />
+                                <TextBlock Text="Presets..." VerticalAlignment="Center" Margin="5" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
             <TabItem Header="Rename Sensors">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -100,15 +122,6 @@
 
                             <ComboBox x:Name="comboSummary" Grid.Column="1" Grid.ColumnSpan="1" Grid.Row="11" IsEnabled="{Binding Editing}" ItemsSource="{Binding SummaryTypes}" Margin="3,7,0,7" SelectedIndex="{Binding SummaryType, Mode=TwoWay, UpdateSourceTrigger=Explicit}" />
                             <TextBlock FontWeight="Bold" Grid.Row="11" Margin="10" Text="Summary type:" TextAlignment="Right" TextWrapping="Wrap" />
-
-                            <StackPanel Grid.Column="0" Grid.Row="13" Grid.ColumnSpan="2" HorizontalAlignment="Right" Orientation="Horizontal">
-                                <Button Name="btnPresets" FontSize="15" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Left">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Image Source="/IndiaTango;component/Images/sensor_preset.png" Width="32" Height="32" VerticalAlignment="Center" />
-                                        <TextBlock Text="Presets..." VerticalAlignment="Center" Margin="5" />
-                                    </StackPanel>
-                                </Button>
-                            </StackPanel>
                         </Grid>
                     </GroupBox>
                 </Grid>
@@ -123,7 +136,7 @@
 
                         <TextBlock Margin="5" Text="This step looks for missing data in the imported dataset, allowing you to fill in these gaps." TextWrapping="Wrap" />
 
-                        <WrapPanel Grid.Column="0" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <WrapPanel Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="40,0">
                             <Button Name="btnMissingValues" FontSize="15" Margin="5" IsEnabled="{Binding ActionButtonsEnabled}" >
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/IndiaTango;component/Images/find_range.png" Width="64" Height="64" />
@@ -141,7 +154,7 @@
 
                         <TextBlock Margin="5" Text="Use standard deviation to display a graph representing expected values, to detect erroneous values." Grid.Column="0" Grid.Row="0" TextWrapping="Wrap" />
 
-                        <WrapPanel Grid.Column="0" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <WrapPanel Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="40,0">
                             <Button Name="btnStdDev" FontSize="15" Margin="5" IsEnabled="{Binding ActionButtonsEnabled}" >
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/IndiaTango;component/Images/graph.png" Width="64" Height="64" />
@@ -160,7 +173,7 @@
                         <WrapPanel Grid.Column="0" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
                             <TextBlock Margin="5" Text="View a list of outliers from a given sensor, based on upper and lower limits, along with maximum rate of change, and correct them accordingly." TextWrapping="Wrap" />
                             
-                            <Button Name="btnOutliers" FontSize="15" Margin="5" IsEnabled="{Binding ActionButtonsEnabled}" >
+                            <Button Name="btnOutliers" FontSize="15" Margin="40,0" IsEnabled="{Binding ActionButtonsEnabled}" HorizontalAlignment="Left">
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/IndiaTango;component/Images/find_range.png" Width="64" Height="64" />
                                     <TextBlock Text="Fix Outliers" FontSize="15" VerticalAlignment="Center" Margin="5" />
@@ -176,7 +189,7 @@
 
                         <TextBlock Margin="5" Text="Apply a mathematical formula to sensors to account for reported values drifting over time." TextWrapping="Wrap" />
 
-                        <WrapPanel Grid.Column="0" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <WrapPanel Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="40,0">
                             <Button Name="btnCalibrate" FontSize="15" Margin="5" IsEnabled="{Binding ActionButtonsEnabled}" >
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/IndiaTango;component/Images/calibrate_sensor.png" Width="64" Height="64" />

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -53,18 +54,23 @@ namespace IndiaTango.ViewModels
 
         public void BtnNext()
         {
-            if (CurrentStep == 2)
+            if (CurrentStep == 3)
             {
                 if (_currentSensorIndex >= Sensors.Count - 1)
                 {
                     SelectedSensor = null;
-                    CurrentStep = 3;
+                    CurrentStep = 4;
                 }
                 else
                 {
                     SelectedSensor = Sensors[++_currentSensorIndex];
-                    CurrentStep = 1;
+                    CurrentStep = 2;
                 }
+            }
+            else if(CurrentStep == 0)
+            {
+                SelectedSensor = null;
+                CurrentStep = 1;
             }
             else
             {
@@ -75,18 +81,23 @@ namespace IndiaTango.ViewModels
 
         public void BtnBack()
         {
-            if (CurrentStep == 1)
+            if (CurrentStep == 2)
             {
                 if (_currentSensorIndex < 1)
                 {
                     SelectedSensor = null;
-                    CurrentStep = 0;
+                    CurrentStep = 1;
                 }
                 else
                 {
                     SelectedSensor = Sensors[--_currentSensorIndex];
-                    CurrentStep = 2;
+                    CurrentStep = 3;
                 }
+            }
+            else if(CurrentStep == 1)
+            {
+                SelectedSensor = null;
+                CurrentStep = 0;
             }
             else
             {
@@ -102,7 +113,7 @@ namespace IndiaTango.ViewModels
 
         public bool CanGoForward
         {
-            get { return CurrentStep < 3; }
+            get { return CurrentStep < 4; }
         }
 
         public void BtnFinish()
@@ -160,7 +171,7 @@ namespace IndiaTango.ViewModels
                  as ErroneousValuesDetectionViewModel);
             if (erroneousValuesView == null)
                 return;
-            erroneousValuesView.DataSet = _ds;
+            erroneousValuesView.SingleSensorToUse = SelectedSensor;
             erroneousValuesView.OnlyUseStandarDeviation();
             _manager.ShowWindow(erroneousValuesView);
         }
@@ -172,7 +183,7 @@ namespace IndiaTango.ViewModels
                  as ErroneousValuesDetectionViewModel);
             if (erroneousValuesView == null)
                 return;
-            erroneousValuesView.DataSet = _ds;
+            erroneousValuesView.SingleSensorToUse = SelectedSensor;
             erroneousValuesView.OnlyUseMissingValues();
             _manager.ShowWindow(erroneousValuesView);
         }
@@ -184,7 +195,7 @@ namespace IndiaTango.ViewModels
                  as ErroneousValuesDetectionViewModel);
             if (erroneousValuesView == null)
                 return;
-            erroneousValuesView.DataSet = _ds;
+            erroneousValuesView.SingleSensorToUse = SelectedSensor;
             erroneousValuesView.OnlyUseMinMaxRateOfChange();
             _manager.ShowWindow(erroneousValuesView);
         }
@@ -192,7 +203,7 @@ namespace IndiaTango.ViewModels
         public void BtnCalibrate()
         {
             var calibrateView = (_container.GetInstance(typeof(CalibrateSensorsViewModel), "CalibrateSensorsViewModel") as CalibrateSensorsViewModel);
-            if(calibrateView == null)
+            if (calibrateView == null)
                 return;
             calibrateView.Dataset = _ds;
             _manager.ShowWindow(calibrateView);
@@ -301,5 +312,32 @@ namespace IndiaTango.ViewModels
         }
 
         public string[] SummaryTypes { get { return new[] { "Average", "Sum" }; } }
+
+        private List<SensorTemplate> _templates;
+
+        public List<SensorTemplate> Templates
+        {
+            get { return _templates ?? (_templates = SensorTemplate.ImportAll()); }
+            set
+            {
+                _templates = value;
+                
+                foreach(var sensor in Sensors)
+                    foreach (var template in Templates.Where(template => template.Matches(sensor)))
+                        template.ProvideDefaultValues(sensor);
+            }
+        }
+
+        public void BtnPresets()
+        {
+            var v = (SensorTemplateManagerViewModel)_container.GetInstance(typeof(SensorTemplateManagerViewModel), "SensorTemplateManagerViewModel");
+            v.Sensors = _ds.Sensors.Select(s => new ListedSensor(s, _ds)).ToList();
+            v.Dataset = Dataset;
+            v.Deactivated += (o, e) =>
+            {
+                Templates = SensorTemplate.ImportAll(); /* Update sensor templates after potential change */
+            };
+            _manager.ShowDialog(v);
+        }
     }
 }
