@@ -148,7 +148,7 @@
 										</StackPanel>
 									</Button>
 
-									<Button Name="btnClear" FontSize="15" Margin="5,0,0,0" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom">
+									<Button Name="btnClearFormula" FontSize="15" Margin="5,0,0,0" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom">
 										<StackPanel Orientation="Horizontal">
 											<Image Source="/IndiaTango;component/Images/delete_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
 											<TextBlock Text="Clear" VerticalAlignment="Center" Margin="5" />
@@ -202,6 +202,13 @@
 											<TextBlock Text="Apply" VerticalAlignment="Center" Margin="5" />
 										</StackPanel>
 									</Button>
+
+                                    <Button Name="btnClearAuto" FontSize="15" Margin="5,0,0,0" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="/IndiaTango;component/Images/delete_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
+                                            <TextBlock Text="Clear" VerticalAlignment="Center" Margin="5" />
+                                        </StackPanel>
+                                    </Button>
                                 </WrapPanel>
                             </Grid>
 						</TabItem>

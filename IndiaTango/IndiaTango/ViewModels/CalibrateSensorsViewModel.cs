@@ -176,7 +176,7 @@ namespace IndiaTango.ViewModels
                 //Console.WriteLine("Formual Validity: " + _validFormula);
 
                 //Uncoment for per character compile checking
-                if(string.IsNullOrWhiteSpace(_formulaText))
+                if (string.IsNullOrWhiteSpace(_formulaText))
                 {
                     ValidFormula = false;
                     return;
@@ -202,7 +202,7 @@ namespace IndiaTango.ViewModels
 
         public bool AutoCalibrationEnabled
         {
-            get { return SelectedSensor != null && _calAValid && _calBValid && _curAValid && _curBValid; }    
+            get { return SelectedSensor != null && _calAValid && _calBValid && _curAValid && _curBValid; }
         }
 
         public bool UseManualCalibration
@@ -229,9 +229,11 @@ namespace IndiaTango.ViewModels
             {
                 _calAText = value;
                 _calAValid = double.TryParse(CalAText, out _calAValue);
-                NotifyOfPropertyChange(() => CalAText); 
+                NotifyOfPropertyChange(() => CalAText);
                 NotifyOfPropertyChange(() => CalABackground);
                 NotifyOfPropertyChange(() => AutoCalibrationEnabled);
+
+                UpdateGraph();
             }
         }
 
@@ -255,6 +257,8 @@ namespace IndiaTango.ViewModels
                 NotifyOfPropertyChange(() => CalBText);
                 NotifyOfPropertyChange(() => CalBBackground);
                 NotifyOfPropertyChange(() => AutoCalibrationEnabled);
+
+                UpdateGraph();
             }
         }
 
@@ -278,6 +282,8 @@ namespace IndiaTango.ViewModels
                 NotifyOfPropertyChange(() => CurAText);
                 NotifyOfPropertyChange(() => CurABackground);
                 NotifyOfPropertyChange(() => AutoCalibrationEnabled);
+
+                UpdateGraph();
             }
         }
 
@@ -301,6 +307,8 @@ namespace IndiaTango.ViewModels
                 NotifyOfPropertyChange(() => CurBText);
                 NotifyOfPropertyChange(() => CurBBackground);
                 NotifyOfPropertyChange(() => AutoCalibrationEnabled);
+
+                UpdateGraph();
             }
         }
 
@@ -723,7 +731,7 @@ namespace IndiaTango.ViewModels
 
         public void btnApplyFormula()
         {
-            if(string.IsNullOrWhiteSpace(_formulaText))
+            if (string.IsNullOrWhiteSpace(_formulaText))
             {
                 ValidFormula = false;
                 return;
@@ -772,7 +780,7 @@ namespace IndiaTango.ViewModels
                 }
 
                 ViewCursor = Cursors.Wait;
-                _eval.EvaluateFormula(_formula, _ds.StartTimeStamp, _ds.EndTimeStamp, skipMissingValues);
+                _eval.EvaluateFormula(_formula, StartTime, EndTime, skipMissingValues);
 
                 ViewCursor = Cursors.Arrow;
 
@@ -799,10 +807,10 @@ namespace IndiaTango.ViewModels
             }
         }
 
-		public void btnApplyAuto()
-		{
-			if(SelectedSensor != null)
-			{
+        public void btnApplyAuto()
+        {
+            if (SelectedSensor != null)
+            {
                 try
                 {
                     SelectedSensor.Sensor.AddState(SelectedSensor.Sensor.CurrentState.Calibrate(StartTime, EndTime,
@@ -812,19 +820,27 @@ namespace IndiaTango.ViewModels
                     Common.RequestReason(SelectedSensor.Sensor, _container, _windowManager, "Calibration CalA='" + _calBValue + "', CalB='" + _calBValue + "', CurA='" + _curAValue + "', CurB='" + _curBValue + "' successfully applied to the sensor.");
 
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Common.ShowMessageBox("An Error Occured", ex.Message, false, true);
                 }
-			}
+            }
 
-			UpdateUndoRedo();
-			UpdateGraph();
-		}
+            UpdateUndoRedo();
+            UpdateGraph();
+        }
 
-        public void btnClear()
+        public void btnClearFormula()
         {
             FormulaText = "";
+        }
+
+        public void btnClearAuto()
+        {
+            CalAText = "";
+            CalBText = "";
+            CurAText = "";
+            CurBText = "";
         }
 
         public void SamplingCapChanged(SelectionChangedEventArgs e)
@@ -882,6 +898,34 @@ namespace IndiaTango.ViewModels
                                                                    (x, index) => index % _sampleRate == 0))
                              : new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints);
             generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour) });
+
+            if(SelectedSensor != null && _calAValid && _curAValid)generatedSeries.Add(new LineSeries
+            {
+                DataSeries =
+                    new DataSeries<DateTime, float>("A Calibration Line",
+                                                    new List<DataPoint<DateTime, float>>()
+                                                        {
+                                                            new DataPoint<DateTime, float>(
+                                                                StartTime, (float) _calAValue),
+                                                            new DataPoint<DateTime, float>(
+                                                                EndTime, (float) _curAValue)
+                                                        }),
+                LineStroke = new SolidColorBrush(Colors.OrangeRed)
+            });
+
+            if(SelectedSensor != null && _calBValid && _curBValid)generatedSeries.Add(new LineSeries
+            {
+                DataSeries =
+                    new DataSeries<DateTime, float>("B Calibration Line",
+                                                    new List<DataPoint<DateTime, float>>()
+                                                                                {
+                                                                                    new DataPoint<DateTime, float>(
+                                                                                        StartTime, (float) _calBValue),
+                                                                                    new DataPoint<DateTime, float>(
+                                                                                        EndTime, (float) _curBValue)
+                                                                                }),
+                LineStroke = new SolidColorBrush(Colors.OrangeRed)
+            });
 
             if (_sampleRate > 1) ShowBackground();
 
