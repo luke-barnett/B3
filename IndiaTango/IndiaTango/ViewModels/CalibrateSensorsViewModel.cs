@@ -590,7 +590,7 @@ namespace IndiaTango.ViewModels
             Common.ShowMessageBox("Formula Help", message, false, false);
         }
 
-        public void btnApply()
+        public void btnApplyFormula()
         {
             if(string.IsNullOrWhiteSpace(_formulaText))
             {
@@ -668,7 +668,7 @@ namespace IndiaTango.ViewModels
             }
         }
 
-		public void btnAuto()
+		public void btnApplyAuto()
 		{
 			string[] values = FormulaText.Split(',');
 			double origA = double.Parse(values[0]);

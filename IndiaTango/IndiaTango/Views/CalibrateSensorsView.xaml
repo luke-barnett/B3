@@ -82,8 +82,15 @@
                         </Button>
                     </WrapPanel>
 
-                    <Rectangle Height="3" Fill="OrangeRed" Margin="5 5 5 0" SnapsToDevicePixels="True" Stroke="White" />
+                    <Rectangle Height="3" Fill="OrangeRed" Margin="5" SnapsToDevicePixels="True" Stroke="White" />
 
+					<StackPanel Orientation="Horizontal" Margin="5">
+						<TextBlock Text="Calibration Method:   "/>
+						<RadioButton Content="Manual    " IsChecked="True" />
+						<RadioButton Content="Automatic"/>
+					</StackPanel>
+					
+					
                     <StackPanel Orientation="Horizontal" Margin="5 5 5 0">
                         <TextBlock Text="Range:" VerticalAlignment="Center" Margin="0 0 10 0" />
                         <ext:DateTimePicker Width="125" Value="{Binding StartTime, Mode=TwoWay}" Format="Custom" FormatString="dd/MM/yy HH:mm" IsEnabled="{Binding CanEditDates}">
@@ -107,39 +114,85 @@
                         </ext:DateTimePicker>
                     </StackPanel>
                     
-                    <TextBlock Text="Enter Formula Below:" Margin="5"/>
-                    
-                    <TextBox Name="txtFormula" Height="70" BorderBrush="OrangeRed" Margin="5 0" Text="{Binding FormulaText, Mode=TwoWay, UpdateSourceTrigger=Explicit}" Background="{Binding FormulaBoxBackground}" KeyUp="TextBox_KeyUp" VerticalScrollBarVisibility="Auto" AcceptsReturn="True" />
-                    
-                    <WrapPanel HorizontalAlignment="Right">
-                        <Button Name="btnHelp" FontSize="15"  HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" >
-                            <StackPanel Orientation="Horizontal">
-                                <Image Source="/IndiaTango;component/Images/help_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
-                                <TextBlock Text="Help" VerticalAlignment="Center" Margin="5" />
-                            </StackPanel>
-                        </Button>
+					<TabControl Padding="4" BorderThickness="0">
+						<!--<TabControl.ItemContainerStyle>
+							<Style TargetType="{x:Type TabItem}">
+								<Setter Property="Visibility" Value="Collapsed" />
+							</Style>
+						</TabControl.ItemContainerStyle>-->
+						
+						<TabItem Header="Manual">
+							<StackPanel>
+								<TextBlock Text="Enter Formula Below:" Margin="5"/>
 
-						<Button Name="btnAuto" FontSize="15"  HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" >
-							<StackPanel Orientation="Horizontal">
-								<Image Source="/IndiaTango;component/Images/right_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
-								<TextBlock Text="Auto" VerticalAlignment="Center" Margin="5" />
+								<TextBox Name="txtFormula" Height="70" BorderBrush="OrangeRed" Margin="5 0" Text="{Binding FormulaText, Mode=TwoWay, UpdateSourceTrigger=Explicit}" Background="{Binding FormulaBoxBackground}" KeyUp="TextBox_KeyUp" VerticalScrollBarVisibility="Auto" AcceptsReturn="True" />
+
+								<WrapPanel HorizontalAlignment="Right">
+									<Button Name="btnHelp" FontSize="15"  HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" >
+										<StackPanel Orientation="Horizontal">
+											<Image Source="/IndiaTango;component/Images/help_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
+											<TextBlock Text="Help" VerticalAlignment="Center" Margin="5" />
+										</StackPanel>
+									</Button>
+									
+									<Button Name="btnApplyFormula" FontSize="15"  HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding ApplyButtonEnabled}" VerticalAlignment="Bottom">
+										<StackPanel Orientation="Horizontal">
+											<Image Source="/IndiaTango;component/Images/right_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
+											<TextBlock Text="Apply" VerticalAlignment="Center" Margin="5" />
+										</StackPanel>
+									</Button>
+
+									<Button Name="btnClear" FontSize="15" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom">
+										<StackPanel Orientation="Horizontal">
+											<Image Source="/IndiaTango;component/Images/delete_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
+											<TextBlock Text="Clear" VerticalAlignment="Center" Margin="5" />
+										</StackPanel>
+									</Button>
+								</WrapPanel>
 							</StackPanel>
-						</Button>
+						</TabItem>
+						
+						<TabItem Header="Auto">
+							<StackPanel>
+								<TextBlock Text="Enter the calibration values below:" Margin="5"/>
+								
+								<Grid Margin="5">
+									<Grid.RowDefinitions>
+										<RowDefinition Height="24"/>
+										<RowDefinition Height="26"/>
+										<RowDefinition Height="26"/>
+									</Grid.RowDefinitions>
 
-						<Button Name="btnApply" FontSize="15"  HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding ApplyButtonEnabled}" VerticalAlignment="Bottom">
-                            <StackPanel Orientation="Horizontal">
-                                <Image Source="/IndiaTango;component/Images/done_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
-                                <TextBlock Text="Apply" VerticalAlignment="Center" Margin="5" />
-                            </StackPanel>
-                        </Button>
-                    
-                        <Button Name="btnClear" FontSize="15" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom">
-                            <StackPanel Orientation="Horizontal">
-                                <Image Source="/IndiaTango;component/Images/delete_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
-                                <TextBlock Text="Clear" VerticalAlignment="Center" Margin="5" />
-                            </StackPanel>
-                        </Button>
-                    </WrapPanel>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="70"/>
+										<ColumnDefinition Width="*"/>
+										<ColumnDefinition Width="*"/>
+									</Grid.ColumnDefinitions>
+
+									<TextBlock Grid.Row="0" Grid.Column="1" Text="A" VerticalAlignment="Center" HorizontalAlignment="Center" />
+									<TextBlock Grid.Row="0" Grid.Column="2" Text="B" VerticalAlignment="Center" HorizontalAlignment="Center" />
+
+									<TextBlock Grid.Row="1" Text="Calibrated" VerticalAlignment="Center" />
+									<TextBlock Grid.Row="2" Grid.Column="0" Text="Current" VerticalAlignment="Center" />
+									
+									<TextBox Name="txtCalA" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Margin="2" />
+									<TextBox Name="txtCalB" Grid.Row="1" Grid.Column="2" VerticalAlignment="Center" Margin="2" />
+									<TextBox Name="txtCurA" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Margin="2" />
+									<TextBox Name="txtCurB" Grid.Row="2" Grid.Column="2" VerticalAlignment="Center" Margin="2" />
+								</Grid>
+
+								
+								<WrapPanel Orientation="Horizontal" HorizontalAlignment="Right">
+									<Button Name="btnApplyAuto" FontSize="15"  HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" >
+										<StackPanel Orientation="Horizontal">
+											<Image Source="/IndiaTango;component/Images/right_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
+											<TextBlock Text="Apply" VerticalAlignment="Center" Margin="5" />
+										</StackPanel>
+									</Button>
+								</WrapPanel>
+							</StackPanel>
+						</TabItem>
+					</TabControl>
 
 
                 </StackPanel>
