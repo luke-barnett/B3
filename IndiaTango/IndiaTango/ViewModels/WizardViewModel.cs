@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -13,11 +11,10 @@ namespace IndiaTango.ViewModels
 {
     class WizardViewModel : BaseViewModel
     {
-        private SimpleContainer _container;
-        private IWindowManager _manager;
-        private int _currentStep = 0;
-        private Dataset _ds = null;
-        private List<TabItem> _tabs;
+        private readonly SimpleContainer _container;
+        private readonly IWindowManager _manager;
+        private int _currentStep;
+        private Dataset _ds;
 
         public WizardViewModel(SimpleContainer container, IWindowManager manager)
         {
@@ -33,7 +30,7 @@ namespace IndiaTango.ViewModels
         public Dataset Dataset
         {
             get { return _ds; }
-            set { _ds = value; NotifyOfPropertyChange(() => Sensors);}
+            set { _ds = value; NotifyOfPropertyChange(() => Sensors); }
         }
 
         public int CurrentStep
@@ -49,17 +46,53 @@ namespace IndiaTango.ViewModels
 
         public string WizardTitle
         {
-            get { return "Fix imported data"; }
+            get { return "Fix imported data" + ((SelectedSensor == null) ? "" : " for " + SelectedSensor.Name); }
         }
 
-        public void btnNext()
+        private int _currentSensorIndex = 0;
+
+        public void BtnNext()
         {
-            CurrentStep = Math.Min(++CurrentStep, 4);
+            if (CurrentStep == 2)
+            {
+                if (_currentSensorIndex >= Sensors.Count - 1)
+                {
+                    SelectedSensor = null;
+                    CurrentStep = 3;
+                }
+                else
+                {
+                    SelectedSensor = Sensors[++_currentSensorIndex];
+                    CurrentStep = 1;
+                }
+            }
+            else
+            {
+                SelectedSensor = Sensors[_currentSensorIndex];
+                CurrentStep++;
+            }
         }
 
-        public void btnBack()
+        public void BtnBack()
         {
-            CurrentStep = Math.Max(--CurrentStep, 0);
+            if (CurrentStep == 1)
+            {
+                if (_currentSensorIndex < 1)
+                {
+                    SelectedSensor = null;
+                    CurrentStep = 0;
+                }
+                else
+                {
+                    SelectedSensor = Sensors[--_currentSensorIndex];
+                    CurrentStep = 2;
+                }
+            }
+            else
+            {
+                SelectedSensor = Sensors[_currentSensorIndex];
+                CurrentStep--;
+            }
         }
 
         public bool CanGoBack
@@ -69,12 +102,12 @@ namespace IndiaTango.ViewModels
 
         public bool CanGoForward
         {
-            get { return CurrentStep < 4; }
+            get { return CurrentStep < 3; }
         }
 
-        public void btnFinish()
+        public void BtnFinish()
         {
-            this.TryClose();
+            TryClose();
         }
 
         public List<Grid> SensorsToRename
@@ -92,8 +125,8 @@ namespace IndiaTango.ViewModels
                                                ? new SolidColorBrush(Color.FromArgb(180, 240, 240, 240))
                                                : Brushes.White
                                    };
-                    item.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
-                    item.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
+                    item.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                    item.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
                     var textbox = new TextBox
                                       {
@@ -120,7 +153,7 @@ namespace IndiaTango.ViewModels
             }
         }
 
-        public void btnStdDev()
+        public void BtnStdDev()
         {
             var erroneousValuesView =
                 (_container.GetInstance(typeof(ErroneousValuesDetectionViewModel), "ErroneousValuesDetectionViewModel")
@@ -132,7 +165,7 @@ namespace IndiaTango.ViewModels
             _manager.ShowWindow(erroneousValuesView);
         }
 
-        public void btnMissingValues()
+        public void BtnMissingValues()
         {
             var erroneousValuesView =
                 (_container.GetInstance(typeof(ErroneousValuesDetectionViewModel), "ErroneousValuesDetectionViewModel")
@@ -144,7 +177,7 @@ namespace IndiaTango.ViewModels
             _manager.ShowWindow(erroneousValuesView);
         }
 
-        public void btnOutliers()
+        public void BtnOutliers()
         {
             var erroneousValuesView =
                 (_container.GetInstance(typeof(ErroneousValuesDetectionViewModel), "ErroneousValuesDetectionViewModel")
@@ -156,11 +189,117 @@ namespace IndiaTango.ViewModels
             _manager.ShowWindow(erroneousValuesView);
         }
 
-        public void btnCalibrate()
+        public void BtnCalibrate()
         {
             var calibrateView = (_container.GetInstance(typeof(CalibrateSensorsViewModel), "CalibrateSensorsViewModel") as CalibrateSensorsViewModel);
+            if(calibrateView == null)
+                return;
             calibrateView.Dataset = _ds;
             _manager.ShowWindow(calibrateView);
         }
+
+        public int ErrorRowHeight
+        {
+            get { return (FailingErrorVisible) ? 60 : 0; }
+        }
+
+        private bool _errorVisible;
+
+        public bool FailingErrorVisible
+        {
+            get { return _errorVisible; }
+            set
+            {
+                _errorVisible = value;
+
+                NotifyOfPropertyChange(() => FailingErrorVisible);
+                NotifyOfPropertyChange(() => ErrorRowHeight);
+            }
+        }
+
+        private Sensor _selectedSensor;
+        public Sensor SelectedSensor
+        {
+            get { return _selectedSensor; }
+            set
+            {
+                _selectedSensor = value;
+
+                NotifyOfPropertyChange(() => Name);
+                NotifyOfPropertyChange(() => Description);
+                NotifyOfPropertyChange(() => LowerLimit);
+                NotifyOfPropertyChange(() => UpperLimit);
+                NotifyOfPropertyChange(() => Unit);
+                NotifyOfPropertyChange(() => MaximumRateOfChange);
+                NotifyOfPropertyChange(() => Manufacturer);
+                NotifyOfPropertyChange(() => SerialNumber);
+                NotifyOfPropertyChange(() => ErrorThreshold);
+                NotifyOfPropertyChange(() => SelectedSensor);
+                NotifyOfPropertyChange(() => WizardTitle);
+            }
+        }
+
+        public string Name { get { return (SelectedSensor == null) ? string.Empty : SelectedSensor.Name; } set { if (SelectedSensor != null) SelectedSensor.Name = value; } }
+        public string Description { get { return (SelectedSensor == null) ? string.Empty : SelectedSensor.Description; } set { if (SelectedSensor != null) SelectedSensor.Description = value; } }
+        public string LowerLimit
+        {
+            get { return (SelectedSensor == null) ? string.Empty : SelectedSensor.LowerLimit.ToString(); }
+            set
+            {
+                float val;
+
+                if (SelectedSensor != null && float.TryParse(value, out val))
+                    SelectedSensor.LowerLimit = val;
+            }
+        }
+        public string UpperLimit
+        {
+            get { return (SelectedSensor == null) ? string.Empty : SelectedSensor.UpperLimit.ToString(); }
+            set
+            {
+                float val;
+
+                if (SelectedSensor != null && float.TryParse(value, out val))
+                    SelectedSensor.UpperLimit = val;
+            }
+        }
+        public string Unit { get { return (SelectedSensor == null) ? string.Empty : SelectedSensor.Unit; } set { if (SelectedSensor != null) SelectedSensor.Unit = value; } }
+        public string MaximumRateOfChange
+        {
+            get { return (SelectedSensor == null) ? string.Empty : SelectedSensor.MaxRateOfChange.ToString(); }
+            set
+            {
+                float val;
+
+                if (SelectedSensor != null && float.TryParse(value, out val))
+                    SelectedSensor.MaxRateOfChange = val;
+            }
+        }
+        public string Manufacturer { get { return (SelectedSensor == null) ? string.Empty : SelectedSensor.Manufacturer; } set { if (SelectedSensor != null) SelectedSensor.Manufacturer = value; } }
+        public string SerialNumber { get { return (SelectedSensor == null) ? string.Empty : SelectedSensor.SerialNumber; } set { if (SelectedSensor != null) SelectedSensor.SerialNumber = value; } }
+        public string ErrorThreshold
+        {
+            get { return (SelectedSensor == null) ? string.Empty : SelectedSensor.ErrorThreshold.ToString(); }
+            set
+            {
+                int val;
+
+                if (SelectedSensor != null && int.TryParse(value, out val))
+                    SelectedSensor.ErrorThreshold = val;
+            }
+        }
+
+        public int SummaryType
+        {
+            get { return (SelectedSensor == null) ? 0 : (int)SelectedSensor.SummaryType; }
+            set
+            {
+                if (SelectedSensor != null)
+                    SelectedSensor.SummaryType = (SummaryType)value;
+                NotifyOfPropertyChange(() => SummaryType);
+            }
+        }
+
+        public string[] SummaryTypes { get { return new[] { "Average", "Sum" }; } }
     }
 }
