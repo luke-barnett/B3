@@ -86,7 +86,7 @@
 
 					<StackPanel Orientation="Horizontal" Margin="5">
 						<TextBlock Text="Calibration Method:   "/>
-						<RadioButton Content="Manual    " IsChecked="True" />
+						<RadioButton Content="Manual    " IsChecked="{Binding UseManualCalibration}"/>
 						<RadioButton Content="Automatic"/>
 					</StackPanel>
 					
@@ -114,49 +114,62 @@
                         </ext:DateTimePicker>
                     </StackPanel>
                     
-					<TabControl Padding="4" BorderThickness="0">
-						<!--<TabControl.ItemContainerStyle>
+					<TabControl Padding="0" Margin="5" BorderThickness="0" SelectedIndex="{Binding SelectedTabIndex}" TabStripPlacement="Top" Height="190" >
+						<TabControl.ItemContainerStyle>
 							<Style TargetType="{x:Type TabItem}">
 								<Setter Property="Visibility" Value="Collapsed" />
 							</Style>
-						</TabControl.ItemContainerStyle>-->
+						</TabControl.ItemContainerStyle>
 						
 						<TabItem Header="Manual">
-							<StackPanel>
-								<TextBlock Text="Enter Formula Below:" Margin="5"/>
+							<Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                
+								<TextBlock Text="Enter Formula Below:" Margin="0,5" Grid.Row="0"/>
 
-								<TextBox Name="txtFormula" Height="70" BorderBrush="OrangeRed" Margin="5 0" Text="{Binding FormulaText, Mode=TwoWay, UpdateSourceTrigger=Explicit}" Background="{Binding FormulaBoxBackground}" KeyUp="TextBox_KeyUp" VerticalScrollBarVisibility="Auto" AcceptsReturn="True" />
+								<TextBox Name="txtFormula" BorderBrush="OrangeRed" Grid.Row="1" Margin="0,0,0,10" Text="{Binding FormulaText, Mode=TwoWay, UpdateSourceTrigger=Explicit}" Background="{Binding FormulaBoxBackground}" KeyUp="TextBox_KeyUp" VerticalScrollBarVisibility="Auto" AcceptsReturn="True" />
 
-								<WrapPanel HorizontalAlignment="Right">
-									<Button Name="btnHelp" FontSize="15"  HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" >
+								<WrapPanel HorizontalAlignment="Right" Grid.Row="2" Margin="0,5,0,0">
+									<Button Name="btnHelp" FontSize="15"  HorizontalAlignment="Left" Margin="5,0" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" >
 										<StackPanel Orientation="Horizontal">
 											<Image Source="/IndiaTango;component/Images/help_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
 											<TextBlock Text="Help" VerticalAlignment="Center" Margin="5" />
 										</StackPanel>
 									</Button>
 									
-									<Button Name="btnApplyFormula" FontSize="15"  HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding ApplyButtonEnabled}" VerticalAlignment="Bottom">
+									<Button Name="btnApplyFormula" FontSize="15"  HorizontalAlignment="Right" Margin="5,0" VerticalContentAlignment="Bottom" IsEnabled="{Binding ApplyButtonEnabled}" VerticalAlignment="Bottom">
 										<StackPanel Orientation="Horizontal">
 											<Image Source="/IndiaTango;component/Images/right_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
 											<TextBlock Text="Apply" VerticalAlignment="Center" Margin="5" />
 										</StackPanel>
 									</Button>
 
-									<Button Name="btnClear" FontSize="15" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom">
+									<Button Name="btnClear" FontSize="15" Margin="5,0,0,0" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom">
 										<StackPanel Orientation="Horizontal">
 											<Image Source="/IndiaTango;component/Images/delete_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
 											<TextBlock Text="Clear" VerticalAlignment="Center" Margin="5" />
 										</StackPanel>
 									</Button>
 								</WrapPanel>
-							</StackPanel>
+                            </Grid>
 						</TabItem>
 						
 						<TabItem Header="Auto">
-							<StackPanel>
-								<TextBlock Text="Enter the calibration values below:" Margin="5"/>
+							<Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                
+								<TextBlock Text="Enter the calibration values below:" Margin="0, 5" Grid.Row="0"/>
 								
-								<Grid Margin="5">
+								<Grid Margin="5" Grid.Row="1">
 									<Grid.RowDefinitions>
 										<RowDefinition Height="24"/>
 										<RowDefinition Height="26"/>
@@ -164,33 +177,33 @@
 									</Grid.RowDefinitions>
 
 									<Grid.ColumnDefinitions>
-										<ColumnDefinition Width="70"/>
+										<ColumnDefinition Width="50"/>
 										<ColumnDefinition Width="*"/>
 										<ColumnDefinition Width="*"/>
 									</Grid.ColumnDefinitions>
 
-									<TextBlock Grid.Row="0" Grid.Column="1" Text="A" VerticalAlignment="Center" HorizontalAlignment="Center" />
-									<TextBlock Grid.Row="0" Grid.Column="2" Text="B" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="Calibrated" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                    <TextBlock Grid.Row="0" Grid.Column="2" Text="Current" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                    
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="A" VerticalAlignment="Center" HorizontalAlignment="Center" />
+									<TextBlock Grid.Row="2" Grid.Column="0" Text="B" VerticalAlignment="Center" HorizontalAlignment="Center" />
 
-									<TextBlock Grid.Row="1" Text="Calibrated" VerticalAlignment="Center" />
-									<TextBlock Grid.Row="2" Grid.Column="0" Text="Current" VerticalAlignment="Center" />
-									
-									<TextBox Name="txtCalA" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Margin="2" />
-									<TextBox Name="txtCalB" Grid.Row="1" Grid.Column="2" VerticalAlignment="Center" Margin="2" />
-									<TextBox Name="txtCurA" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Margin="2" />
-									<TextBox Name="txtCurB" Grid.Row="2" Grid.Column="2" VerticalAlignment="Center" Margin="2" />
+                                    <TextBox Name="txtCalA" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Margin="2" Text="{Binding CalAText, Mode=TwoWay, UpdateSourceTrigger=Explicit}" Background="{Binding CalABackground}" KeyUp="txtCalA_KeyUp" />
+                                    <TextBox Name="txtCalB" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Margin="2" Text="{Binding CalBText, Mode=TwoWay, UpdateSourceTrigger=Explicit}" Background="{Binding CalBBackground}" KeyUp="txtCalB_KeyUp" />
+                                    <TextBox Name="txtCurA" Grid.Row="1" Grid.Column="2" VerticalAlignment="Center" Margin="2" Text="{Binding CurAText, Mode=TwoWay, UpdateSourceTrigger=Explicit}" Background="{Binding CurABackground}" KeyUp="txtCurA_KeyUp" />
+                                    <TextBox Name="txtCurB" Grid.Row="2" Grid.Column="2" VerticalAlignment="Center" Margin="2" Text="{Binding CurBText, Mode=TwoWay, UpdateSourceTrigger=Explicit}" Background="{Binding CurBBackground}" KeyUp="txtCurB_KeyUp" />
 								</Grid>
 
 								
-								<WrapPanel Orientation="Horizontal" HorizontalAlignment="Right">
-									<Button Name="btnApplyAuto" FontSize="15"  HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" >
+								<WrapPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="3">
+									<Button Name="btnApplyAuto" FontSize="15"  HorizontalAlignment="Left" Margin="0" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" IsEnabled="{Binding AutoCalibrationEnabled}" >
 										<StackPanel Orientation="Horizontal">
 											<Image Source="/IndiaTango;component/Images/right_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
 											<TextBlock Text="Apply" VerticalAlignment="Center" Margin="5" />
 										</StackPanel>
 									</Button>
-								</WrapPanel>
-							</StackPanel>
+                                </WrapPanel>
+                            </Grid>
 						</TabItem>
 					</TabControl>
 

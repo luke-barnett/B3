@@ -56,6 +56,22 @@ namespace IndiaTango.ViewModels
         private List<String> _samplingCaps = new List<string>();
         private int _samplingCapIndex;
 
+        private bool _useManualCalibration = true;
+        private bool _autoCalibrationEnabled = true;
+        private string _calAText = "";
+        private string _calBText = "";
+        private string _curAText = "";
+        private string _curBText = "";
+        private double _calAValue = 0;
+        private double _calBValue = 0;
+        private double _curAValue = 0;
+        private double _curBValue = 0;
+        private bool _calAValid;
+        private bool _calBValid;
+        private bool _curAValid;
+        private bool _curBValid;
+
+
         #endregion
 
         public CalibrateSensorsViewModel(IWindowManager windowManager, SimpleContainer container)
@@ -183,6 +199,121 @@ namespace IndiaTango.ViewModels
                 NotifyOfPropertyChange(() => ApplyButtonEnabled);
             }
         }
+
+        public bool AutoCalibrationEnabled
+        {
+            get { return SelectedSensor != null && _calAValid && _calBValid && _curAValid && _curBValid; }    
+        }
+
+        public bool UseManualCalibration
+        {
+            get { return _useManualCalibration; }
+            set
+            {
+                _useManualCalibration = value;
+                NotifyOfPropertyChange(() => UseManualCalibration);
+                NotifyOfPropertyChange(() => SelectedTabIndex);
+            }
+        }
+
+        public int SelectedTabIndex
+        {
+            get { return UseManualCalibration ? 0 : 1; }
+            set { UseManualCalibration = value == 0; }
+        }
+
+        public string CalAText
+        {
+            get { return _calAText; }
+            set
+            {
+                _calAText = value;
+                _calAValid = double.TryParse(CalAText, out _calAValue);
+                NotifyOfPropertyChange(() => CalAText); 
+                NotifyOfPropertyChange(() => CalABackground);
+                NotifyOfPropertyChange(() => AutoCalibrationEnabled);
+            }
+        }
+
+        public Brush CalABackground
+        {
+            get
+            {
+                return _calAValid
+                         ? new SolidColorBrush(Colors.White)
+                         : new SolidColorBrush(Color.FromArgb(126, 255, 69, 0));
+            }
+        }
+
+        public string CalBText
+        {
+            get { return _calBText; }
+            set
+            {
+                _calBText = value;
+                _calBValid = double.TryParse(CalBText, out _calBValue);
+                NotifyOfPropertyChange(() => CalBText);
+                NotifyOfPropertyChange(() => CalBBackground);
+                NotifyOfPropertyChange(() => AutoCalibrationEnabled);
+            }
+        }
+
+        public Brush CalBBackground
+        {
+            get
+            {
+                return _calBValid
+                         ? new SolidColorBrush(Colors.White)
+                         : new SolidColorBrush(Color.FromArgb(126, 255, 69, 0));
+            }
+        }
+
+        public string CurAText
+        {
+            get { return _curAText; }
+            set
+            {
+                _curAText = value;
+                _curAValid = double.TryParse(CurAText, out _curAValue);
+                NotifyOfPropertyChange(() => CurAText);
+                NotifyOfPropertyChange(() => CurABackground);
+                NotifyOfPropertyChange(() => AutoCalibrationEnabled);
+            }
+        }
+
+        public Brush CurABackground
+        {
+            get
+            {
+                return _curAValid
+                         ? new SolidColorBrush(Colors.White)
+                         : new SolidColorBrush(Color.FromArgb(126, 255, 69, 0));
+            }
+        }
+
+        public string CurBText
+        {
+            get { return _curBText; }
+            set
+            {
+                _curBText = value;
+                _curBValid = double.TryParse(CurBText, out _curBValue);
+                NotifyOfPropertyChange(() => CurBText);
+                NotifyOfPropertyChange(() => CurBBackground);
+                NotifyOfPropertyChange(() => AutoCalibrationEnabled);
+            }
+        }
+
+        public Brush CurBBackground
+        {
+            get
+            {
+                return _curBValid
+                         ? new SolidColorBrush(Colors.White)
+                         : new SolidColorBrush(Color.FromArgb(126, 255, 69, 0));
+            }
+        }
+
 
         public bool RedoButtonEnabled
         {
@@ -670,15 +801,21 @@ namespace IndiaTango.ViewModels
 
 		public void btnApplyAuto()
 		{
-			string[] values = FormulaText.Split(',');
-			double origA = double.Parse(values[0]);
-			double origB = double.Parse(values[1]);
-			double newA = double.Parse(values[2]);
-			double newB = double.Parse(values[3]);
-
 			if(SelectedSensor != null)
 			{
-				SelectedSensor.Sensor.AddState(SelectedSensor.Sensor.CurrentState.Calibrate(StartTime, EndTime, origA, origB, newA, newB));
+                try
+                {
+                    SelectedSensor.Sensor.AddState(SelectedSensor.Sensor.CurrentState.Calibrate(StartTime, EndTime,
+                                                                                                _calAValue, _calBValue,
+                                                                                                _curAValue, _curBValue));
+
+                    Common.RequestReason(SelectedSensor.Sensor, _container, _windowManager, "Calibration CalA='" + _calBValue + "', CalB='" + _calBValue + "', CurA='" + _curAValue + "', CurB='" + _curBValue + "' successfully applied to the sensor.");
+
+                }
+                catch(Exception ex)
+                {
+                    Common.ShowMessageBox("An Error Occured", ex.Message, false, true);
+                }
 			}
 
 			UpdateUndoRedo();
