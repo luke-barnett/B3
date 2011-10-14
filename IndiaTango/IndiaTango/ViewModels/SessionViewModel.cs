@@ -525,13 +525,11 @@ namespace IndiaTango.ViewModels
                                           		                      		EventLogger.LogInfo("WizardView", "Completed the import wizard, ending at step " + wizard.ThisStep);
 
 																			//Update any contacts/sites that have changed
-																			AllSites = Site.ImportAll();
-																			AllContacts = Contact.ImportAll();
+                                          		                      	    AllSites = wizard.AllSites;
+                                          		                      	    AllContacts = wizard.AllContacts;
 
-																			//TODO: What the heck is up with it selecting its own site????
 																			Console.WriteLine("selected site = " + wizard.SelectedSite);
 																			Console.WriteLine("ds site = " + _ds.Site);
-																			//SelectedSite = wizard.SelectedSite;
                                           		                      		SelectedSite = _ds.Site;
                                           		                      	};
                                           	
