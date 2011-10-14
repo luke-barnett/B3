@@ -49,7 +49,7 @@ namespace IndiaTango.Tests
         public void TestToString()
         {
             Assert.AreEqual(string.Format("{0} {1}", _value.TimeStamp, _value.Value), _value.ToString());
-            Assert.AreEqual(string.Format("{0} {1} [{2}]", _valueWithDetector.TimeStamp, _valueWithDetector.Value, _valueWithDetector.Detectors[0]), _valueWithDetector.ToString());
+            Assert.AreEqual(string.Format("{0} {1} [{2}]", _valueWithDetector.TimeStamp, _valueWithDetector.Value, _valueWithDetector.Detectors[0].Name), _valueWithDetector.ToString());
         }
 
         [Test]
