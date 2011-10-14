@@ -2,8 +2,8 @@
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization;
-using System.Xml.Serialization;
 
 namespace IndiaTango.Models
 {
@@ -22,7 +22,7 @@ namespace IndiaTango.Models
 		}
 
         private Contact() {} // Necessary for serialisation.
-        private int _id = 0;
+        private int _id;
         
         [DataMember]
         public int ID
@@ -80,7 +80,7 @@ namespace IndiaTango.Models
         /// Gets and sets the email address of the contact, also checks the email for validity
         /// </summary>
         [DataMember(Name="Email")]
-        public string Email { get { return _email; } set { if (EmailIsValid(value)) _email = value; else throw new ArgumentException("Invalid Email Address", "Email"); } }
+        public string Email { get { return _email; } set { if (EmailIsValid(value)) _email = value; else throw new ArgumentException("Invalid Email Address"); } }
 
         /// <summary>
         /// Gets and sets the business name of the contact
@@ -125,12 +125,7 @@ namespace IndiaTango.Models
                     var domainPortions = portions[1].Split('.');
                     if (domainPortions.Length > 1)
                     {
-                        foreach(var domainPart in domainPortions)
-                        {
-                            if (domainPart.Length == 0)
-                                return false;
-                        }
-                        return true;
+                    	return domainPortions.All(domainPart => domainPart.Length != 0);
                     }
                 }
             }
@@ -165,7 +160,6 @@ namespace IndiaTango.Models
 			stream.Close();
 
             // TODO: Next ID for when imported!
-
 			return list;
 		}
 

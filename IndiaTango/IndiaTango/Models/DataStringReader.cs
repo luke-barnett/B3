@@ -6,8 +6,8 @@ namespace IndiaTango.Models
 {
     public class DataStringReader : IDataReader
     {
-        private string sensorInformation;
-        private string buoyInformation;
+        private readonly string _sensorInformation;
+        private readonly string _buoyInformation;
 
         /// <summary>
         /// Creates a new DataStringReader object that reads basic Site and sensor information from a string
@@ -30,16 +30,16 @@ namespace IndiaTango.Models
                 if (partsections[0].CompareTo("Site") == 0)
                 {
                     //If we have already set a value for this then we have something wrong with the data
-                    if (String.IsNullOrEmpty(buoyInformation))
-                        buoyInformation = partsections[1];
+                    if (String.IsNullOrEmpty(_buoyInformation))
+                        _buoyInformation = partsections[1];
                     else
                         throw new FormatException(String.Format("Multiple Site data in {0}", inputString));
                 }
                 else if (partsections[0].CompareTo("Sensors") == 0)
                 {
                     //If we have already set a value for this then we have something wrong with the data
-                    if(String.IsNullOrEmpty(sensorInformation))
-                        sensorInformation = partsections[1];
+                    if(String.IsNullOrEmpty(_sensorInformation))
+                        _sensorInformation = partsections[1];
                     else
                         throw new FormatException(String.Format("Multiple sensors data in {0}", inputString));
                 }
@@ -51,15 +51,13 @@ namespace IndiaTango.Models
 
         public List<Sensor> ReadSensors()
         {
-            var stringSensors = sensorInformation.Split('&');
+            var stringSensors = _sensorInformation.Split('&');
 
             foreach (string sensor in stringSensors)
             {
                 if (!sensor.EndsWith("]"))
                     throw new FormatException(
                         "Sensor readings are malformed; list must start with '[' and end with ']'.");
-
-                var sensorValues = sensor.Split('[');
             }
 
             return stringSensors.Select(stringSensor => new Sensor("Constructed Sensor", "X", null)).ToList();

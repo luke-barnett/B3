@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading;
 
 namespace IndiaTango.Models
 {
@@ -27,10 +25,9 @@ namespace IndiaTango.Models
         private const string Info = "INFO";
         private const string Warning = "WARNING";
         private const string Error = "ERROR";
-        private const string _timeFormatString = "dd/MM/yyyy HH:mm:ss";
         private static StreamWriter _writer;
         private readonly static object Mutex = new object();
-        private static int _logRefNum = 0;
+        private static int _logRefNum;
         #endregion
 
         public static event EventLoggedEventHandler Changed;
@@ -54,7 +51,7 @@ namespace IndiaTango.Models
         /// </summary>
         public static string TimeFormatString
         {
-            get { return _timeFormatString; }
+            get { return "dd/MM/yyyy HH:mm:ss"; }
         }
 
         public static int NextRefNum
@@ -171,7 +168,7 @@ namespace IndiaTango.Models
             if (!File.Exists(LogFilePath))
                 return "";
 
-            using (var sr = new StreamReader(EventLogger.LogFilePath))
+            using (var sr = new StreamReader(LogFilePath))
             {
                 while (sr.Peek() != -1)
                 {
@@ -180,7 +177,7 @@ namespace IndiaTango.Models
                 }
             }
 
-            int currentRef = 0;
+            int currentRef;
             Int32.TryParse(q.Last().Split(' ')[0], out currentRef);
 
             _logRefNum = currentRef + 1;

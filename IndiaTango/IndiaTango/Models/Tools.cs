@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -11,14 +9,14 @@ namespace IndiaTango.Models
 	{
 		public static string GenerateMD5HashFromFile(string filename)
 		{
-			FileStream file = new FileStream(filename, FileMode.Open);
-			StringBuilder builder = new StringBuilder();
+			var file = new FileStream(filename, FileMode.Open);
+			var builder = new StringBuilder();
 			MD5 hasher = new MD5CryptoServiceProvider();
 
-		    byte[] data = new byte[file.Length];
+		    var data = new byte[file.Length];
 		    file.Read(data, 0, data.Length);
 
-		    byte[] buffer = hasher.ComputeHash(data);
+		    var buffer = hasher.ComputeHash(data);
 			file.Close();
 
 			foreach (Byte b in buffer)

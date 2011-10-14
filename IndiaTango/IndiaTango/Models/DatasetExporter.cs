@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading;
-using IndiaTango.ViewModels;
 
 namespace IndiaTango.Models
 {
@@ -119,7 +117,7 @@ namespace IndiaTango.Models
 		{
 			using (StreamWriter writer = File.CreateText(filePath))
 			{
-				var del = ',';
+				const char del = ',';
 				var columnHeadings = dateColumnFormat.Equals(DateColumnFormat.SplitDateColumn)
 				                        	? "dd" + del + "mm" + del + "yyyy" + del + "hh" + del + "nn"
 				                        	: "dd/mm/yyyy" + del + "hhnn"; //Not a typo
@@ -202,11 +200,8 @@ namespace IndiaTango.Models
 	            var line = dateColumnFormat.Equals(DateColumnFormat.SplitDateColumn)
 	                           ? "Day,Month,Year,Hours,Minutes" + ',' 
 	                           : "Date,Time" + ',';
-                foreach (var sensor in Data.Sensors)
-                {
-                    line += sensor.Name + ",";
-                }
-	            line = line.Remove(line.Count() - 2);
+	        	line = Data.Sensors.Aggregate(line, (current, sensor) => current + (sensor.Name + ","));
+	        	line = line.Remove(line.Count() - 2);
                 writer.WriteLine(line);
 	            for (var time = Data.StartTimeStamp; time <= Data.EndTimeStamp; time = time.AddMinutes(Data.DataInterval))
                 {
@@ -219,10 +214,7 @@ namespace IndiaTango.Models
                         LinkedList<int> vals;
                         if (sensor.CurrentState.Changes.TryGetValue(time,out vals))
                         {
-                            foreach (var val in vals)
-                            {
-                                line += val + " ";
-                            }
+                        	line = vals.Aggregate(line, (current, val) => current + (val + " "));
                         }
                         line += ",";
                     }

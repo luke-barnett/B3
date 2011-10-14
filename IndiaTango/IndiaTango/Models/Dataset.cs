@@ -12,8 +12,8 @@ namespace IndiaTango.Models
         private DateTime _startTimeStamp;
         private DateTime _endTimeStamp;
         private List<Sensor> _sensors;
-        private int _expectedDataPointCount = 0;
-        private int _actualDataPointCount = 0;
+        private int _expectedDataPointCount;
+        private int _actualDataPointCount;
         private int _dataInterval;
 
         /// <summary>
@@ -28,11 +28,12 @@ namespace IndiaTango.Models
             _sensors = new List<Sensor>();
         }
 
-        /// <summary>
-        /// Creates a new dataset from a list of sensors. Start and end timestamp will be dynamically created
-        /// </summary>
-        /// <param name="site">The Site that the dataset came from</param>
-        public Dataset(Site site, List<Sensor> sensors)
+    	/// <summary>
+    	/// Creates a new dataset from a list of sensors. Start and end timestamp will be dynamically created
+    	/// </summary>
+    	/// <param name="site">The Site that the dataset came from</param>
+    	/// <param name="sensors">List of sensors belonging to the dataset</param>
+    	public Dataset(Site site, List<Sensor> sensors)
         {
             if (sensors == null)
                 throw new ArgumentException("Please provide a list of sensors that belong to this site.");
@@ -131,15 +132,11 @@ namespace IndiaTango.Models
                         var timesList = new List<DateTime>(timesArray);
                         timesList.Sort();
 
-                        if (_startTimeStamp == null || _startTimeStamp == DateTime.MinValue ||
-                            timesList[0] < _startTimeStamp)
+                        if (_startTimeStamp == DateTime.MinValue || timesList[0] < _startTimeStamp)
                             _startTimeStamp = timesList[0];
 
-                        if (_endTimeStamp == null || _startTimeStamp == DateTime.MinValue ||
-                            timesList[timesList.Count - 1] >
-                            _endTimeStamp)
-                            _endTimeStamp =
-                                timesList[timesList.Count - 1];
+                        if (_startTimeStamp == DateTime.MinValue || timesList[timesList.Count - 1] > _endTimeStamp)
+                            _endTimeStamp = timesList[timesList.Count - 1];
                     }
                 }
 
@@ -196,29 +193,29 @@ namespace IndiaTango.Models
         /// <summary>
         /// This method reads as 'move sensor A to the spot occupied by sensor B'. It moves sensor A to the spot where sensor B was, and moves sensor B one spot below it.
         /// </summary>
-        /// <param name="A">The sensor to be moved.</param>
-        /// <param name="B">The sensor whose spot will become sensor A's new location.</param>
-        public void MoveSensorTo(Sensor A, Sensor B)
+        /// <param name="a">The sensor to be moved.</param>
+        /// <param name="b">The sensor whose spot will become sensor A's new location.</param>
+        public void MoveSensorTo(Sensor a, Sensor b)
         {
-            if (A.Equals(B))
+            if (a.Equals(b))
                 return;
 
             var newIndex = 0;
 
-            var goingDown = Sensors.IndexOf(A) < Sensors.IndexOf(B);
+            var goingDown = Sensors.IndexOf(a) < Sensors.IndexOf(b);
 
             if(goingDown)
-                newIndex = Sensors.IndexOf(B); // Going down - use current index in the list
+                newIndex = Sensors.IndexOf(b); // Going down - use current index in the list
 
-            Sensors.Remove(A);
+            Sensors.Remove(a);
 
             if(!goingDown)
-                newIndex = Sensors.IndexOf(B);
+                newIndex = Sensors.IndexOf(b);
 
             if(newIndex < Sensors.Count)
-                Sensors.Insert(newIndex, A);
+                Sensors.Insert(newIndex, a);
             else
-                Sensors.Add(A);
+                Sensors.Add(a);
         }
 
         public string IdentifiableName

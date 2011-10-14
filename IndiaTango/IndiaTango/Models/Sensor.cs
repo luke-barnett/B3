@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Collections;
 using System.Text.RegularExpressions;
 
 namespace IndiaTango.Models
@@ -347,18 +346,11 @@ namespace IndiaTango.Models
 
         public Dataset Owner { get; private set; }
 
-        private SensorState _rawData = null;
+        private SensorState _rawData;
+
         public SensorState RawData
         {
-            get
-            {
-                if(_rawData == null)
-                    _rawData = new SensorState(DateTime.Now, new Dictionary<DateTime, float>(), "", true, null);
-
-                return _rawData;
-            }
-
-            private set { _rawData = value; }
+            get { return _rawData ?? (_rawData = new SensorState(DateTime.Now, new Dictionary<DateTime, float>(), "", true, null)); }
         }
 
         /// <summary>
@@ -368,7 +360,7 @@ namespace IndiaTango.Models
         /// <returns>A value indicating whether or not this sensor is failing.</returns>
         public bool IsFailing(Dataset dataset)
         {
-            if (IndiaTango.Properties.Settings.Default.IgnoreSensorErrorDetection)
+            if (Properties.Settings.Default.IgnoreSensorErrorDetection)
                 return false;
 
             if (dataset == null)
@@ -467,7 +459,7 @@ namespace IndiaTango.Models
 
         public override string ToString()
         {
-            return this.Name;
+            return Name;
         }
         #endregion
 
@@ -523,7 +515,7 @@ namespace IndiaTango.Models
             // by getting the first two words (even if each word is only a single
             // capital letter, and return them
             // The experts can then specify the depth
-            Regex r = new Regex("(([A-Z])[a-z]*)");
+            var r = new Regex("(([A-Z])[a-z]*)");
 
             MatchCollection mc = r.Matches(Name);
 
