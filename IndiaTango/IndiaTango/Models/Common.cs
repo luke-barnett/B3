@@ -39,7 +39,7 @@ namespace IndiaTango.Models
 
         public static int MaximumGraphablePoints = 15000;
 
-        public static bool HasInitdTaskDlgs = false;
+        public static bool HasInitdTaskDlgs;
         private static List<string> _changeReasons;
 
         public static string ChangeReasonsPath { get { return Path.Combine(AppDataPath,"ChangeReasons.txt"); } }
@@ -49,9 +49,9 @@ namespace IndiaTango.Models
         {
             get
             {
-                var path = Path.Combine(new string[]{
+                var path = Path.Combine(new[]{
                     Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                    "IndiaTango",
+                    "IndiaTango"
                 });
 
                 if (!Directory.Exists(path)) // Creates directory if it doesn't exist, no need to create beforehand
@@ -91,14 +91,14 @@ namespace IndiaTango.Models
                 //Set backgroung to black and transparent (At the same time!!!)
                 window.Background = Brushes.Transparent;
                 HwndSource source = HwndSource.FromHwnd(hwnd);
-                source.CompositionTarget.BackgroundColor = Color.FromArgb(0, 0, 0, 0);
+            	if (source != null && source.CompositionTarget != null) source.CompositionTarget.BackgroundColor = Color.FromArgb(0, 0, 0, 0);
 
-                //Set glass
+            	//Set glass
                 DwmManager.EnableBlurBehind(hwnd);
             }
 
             //Create rectangle and set its position and span
-            Rectangle rectangle = new Rectangle();
+            var rectangle = new Rectangle();
             Grid.SetColumn(rectangle, 0);
             Grid.SetRow(rectangle, 0);
             Grid.SetColumnSpan(rectangle, mainGrid.ColumnDefinitions.Count > 0 ? mainGrid.ColumnDefinitions.Count : 1);
@@ -107,7 +107,7 @@ namespace IndiaTango.Models
             if (useGradient)
             {
                 //Create the gradient brush
-                GradientStopCollection gradients = new GradientStopCollection();
+                var gradients = new GradientStopCollection();
                 if (useGlass && CanUseGlass)
                 {
                     gradients.Add(new GradientStop(Colors.White, 0));
@@ -120,7 +120,7 @@ namespace IndiaTango.Models
                     gradients.Add(new GradientStop(Color.FromRgb(220, 220, 220), 1));
                 }
 
-                rectangle.Fill = new LinearGradientBrush(gradients, new Point(1, 0), new Point(1, 1)); ;
+                rectangle.Fill = new LinearGradientBrush(gradients, new Point(1, 0), new Point(1, 1));
             }
             else
             {
@@ -133,15 +133,15 @@ namespace IndiaTango.Models
 
         public static bool ShowMessageBox(string title, string text, bool showCancel, bool isError)
         {
-            if (CanUseGlass && !System.Diagnostics.Debugger.IsAttached)
+            if (CanUseGlass && !Debugger.IsAttached)
             {
-                TaskDialog dialog = new TaskDialog(title, title, text,
+                var dialog = new TaskDialog(title, title, text,
                                                    (showCancel ? (TaskDialogButton.OK | TaskDialogButton.Cancel) : TaskDialogButton.OK));
                 try
                 {
                     dialog.CustomIcon = isError ? Properties.Resources.error_32 : Properties.Resources.info_32;
                     var result = dialog.Show();
-                    return result.CommonButton == WindowsFormsAero.TaskDialog.Result.OK;
+                    return result.CommonButton == Result.OK;
                 }
                 catch (Exception e)
                 {
@@ -152,15 +152,15 @@ namespace IndiaTango.Models
             else
             {
                 return System.Windows.Forms.MessageBox.Show(text, title,
-                    showCancel ? MessageBoxButtons.OKCancel : MessageBoxButtons.OK, isError ? MessageBoxIcon.Error : MessageBoxIcon.Information) == System.Windows.Forms.DialogResult.OK;
+                    showCancel ? MessageBoxButtons.OKCancel : MessageBoxButtons.OK, isError ? MessageBoxIcon.Error : MessageBoxIcon.Information) == DialogResult.OK;
             }
         }
 
         public static bool ShowMessageBoxWithExpansion(string title, string text, bool showCancel, bool isError, string expansion)
         {
-            if (CanUseGlass && !System.Diagnostics.Debugger.IsAttached)
+            if (CanUseGlass && !Debugger.IsAttached)
             {
-                TaskDialog dialog = new TaskDialog(title, title, text,
+                var dialog = new TaskDialog(title, title, text,
                                                    (showCancel ? (TaskDialogButton.OK | TaskDialogButton.Cancel) : TaskDialogButton.OK));
                 try
                 {
@@ -170,7 +170,7 @@ namespace IndiaTango.Models
                     dialog.ExpandedInformation = expansion;
 
                     var result = dialog.Show();
-                    return result.CommonButton == WindowsFormsAero.TaskDialog.Result.OK;
+                    return result.CommonButton == Result.OK;
                 }
                 catch (Exception e)
                 {
@@ -202,13 +202,13 @@ namespace IndiaTango.Models
 
         public static bool Confirm(string title, string message)
         {
-            if (CanUseGlass && !System.Diagnostics.Debugger.IsAttached)
+            if (CanUseGlass && !Debugger.IsAttached)
             {
-                TaskDialog dialog = new TaskDialog(title, title, message,
+                var dialog = new TaskDialog(title, title, message,
                                                    TaskDialogButton.Yes | TaskDialogButton.No,
                                                    TaskDialogIcon.Warning);
                 var result = dialog.Show();
-                return result.CommonButton == WindowsFormsAero.TaskDialog.Result.Yes;
+                return result.CommonButton == Result.Yes;
             }
             else
             {
@@ -250,7 +250,7 @@ namespace IndiaTango.Models
 
                 var lineSeries = new LineSeries
                                      {
-                                         LineStroke = (series as LineSeries).LineStroke,
+                                         LineStroke = ((LineSeries) series).LineStroke,
                                          DataSeries =
                                              renderFullDataSeries
                                                  ? new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints)
@@ -286,16 +286,16 @@ namespace IndiaTango.Models
             EventLogger.LogInfo("Image Exporter", "Saved graph as image to: " + filename);
         }
 
-        public static void RequestReason(Sensor sensor, SimpleContainer _container, IWindowManager _windowManager, string taskPerformed)
+        public static void RequestReason(Sensor sensor, SimpleContainer container, IWindowManager windowManager, string taskPerformed)
         {
-            RequestReason(new List<Sensor>(){sensor},_container,_windowManager,taskPerformed);
+            RequestReason(new List<Sensor> {sensor},container,windowManager,taskPerformed);
         }
 
-        public static void RequestReason(List<Sensor> sensors, SimpleContainer _container, IWindowManager _windowManager, string taskPerformed)
+        public static void RequestReason(List<Sensor> sensors, SimpleContainer container, IWindowManager windowManager, string taskPerformed)
         {
             if (sensors.Count > 0)
             {
-                var specify = (SpecifyValueViewModel)_container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel");
+                var specify = (SpecifyValueViewModel)container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel");
                 specify.Title = "Log Reason";
                 specify.Message = "Please specify a reason for this change:";
                 specify.ShowComboBox = true;
@@ -315,7 +315,7 @@ namespace IndiaTango.Models
                     AddChangeReason(specify.Text);
                 };
 
-                _windowManager.ShowDialog(specify);
+                windowManager.ShowDialog(specify);
             }
         }
 
@@ -334,7 +334,7 @@ namespace IndiaTango.Models
 
 				if (File.Exists(ChangeReasonsPath))
 				{
-					using (StreamReader reader = new StreamReader(ChangeReasonsPath))
+					using (var reader = new StreamReader(ChangeReasonsPath))
 					{
 						string line;
 						while ((line = reader.ReadLine()) != null)
@@ -354,7 +354,7 @@ namespace IndiaTango.Models
 			_changeReasons.Add(reason);
 			_changeReasons.Sort();
 			
-			using (StreamWriter writer = new StreamWriter(ChangeReasonsPath))
+			using (var writer = new StreamWriter(ChangeReasonsPath))
             {
                 foreach (string changeReason in _changeReasons)
                     writer.WriteLine(changeReason);

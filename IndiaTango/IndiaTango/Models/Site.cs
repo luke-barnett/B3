@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Runtime.Serialization;
 
@@ -238,7 +236,7 @@ namespace IndiaTango.Models
         }
         #endregion
 
-        private static int _nextID = 0;
+        private static int _nextID;
 
         public static int NextID
         {

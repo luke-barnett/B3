@@ -45,19 +45,15 @@ namespace IndiaTango.Models
         /// <returns>The resulting decimal degrees value.</returns>
         private decimal ConvertDMSToDecimalDegrees(string coordinate)
         {
-            decimal degrees;
-            decimal minutes;
-            decimal seconds;
-
-            string[] components = coordinate.Split(' ');
+        	string[] components = coordinate.Split(' ');
 
             if (components.Length == 3)
             {
-                degrees = decimal.Parse(components[0].Substring(1));
+                decimal degrees = decimal.Parse(components[0].Substring(1));
 
-                minutes = decimal.Parse(components[1]) / 60;
+                decimal minutes = decimal.Parse(components[1]) / 60;
 
-                seconds = decimal.Parse(components[2]) / (60 * 60);
+                decimal seconds = decimal.Parse(components[2]) / (60 * 60);
 
                 return coordinate.StartsWith("S") || coordinate.StartsWith("W")
                            ? (degrees + minutes + seconds) * -1
@@ -75,21 +71,18 @@ namespace IndiaTango.Models
         /// <returns>The resulting Degrees Minutes Seconds (DMS) value.</returns>
         private string ConvertDecimalDegreesToDMS(decimal coordinate, bool latitude)
         {
-            decimal degrees;
-            decimal minutes;
-            decimal seconds;
-            string direction = "N";
+        	string direction;
 
-            if (latitude)
+        	if (latitude)
                 direction = (coordinate >= 0) ? "N" : "S";
             else
                 direction = (coordinate >= 0) ? "E" : "W";
 
             coordinate = Math.Abs(coordinate);
 
-            degrees = Decimal.Truncate(coordinate);
-            minutes = Decimal.Truncate((coordinate - degrees) * 60);
-            seconds = Decimal.Truncate((((coordinate - degrees) * 60) - minutes) * 60);
+            decimal degrees = Decimal.Truncate(coordinate);
+            decimal minutes = Decimal.Truncate((coordinate - degrees) * 60);
+            decimal seconds = Decimal.Truncate((((coordinate - degrees) * 60) - minutes) * 60);
 
             return String.Format("{0}{1} {2} {3}", direction, degrees.ToString(), minutes.ToString(), seconds.ToString());
         }
@@ -127,8 +120,8 @@ namespace IndiaTango.Models
 
         public static GPSCoords Parse(string latitude, string longitude)
         {
-            decimal lat = 0;
-            decimal lng = 0;
+            decimal lat;
+            decimal lng;
 
             if (decimal.TryParse(latitude, out lat) && decimal.TryParse(longitude, out lng))
                 return new GPSCoords(lat, lng);

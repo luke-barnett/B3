@@ -8,8 +8,8 @@ namespace IndiaTango.Models
 {
     public class CSVReader : IDataReader
     {
-        private string _filename;
-        private Sensor[] sensors;
+        private readonly string _filename;
+        private Sensor[] _sensors;
         public event ReaderProgressChanged ProgressChanged;
 
         public CSVReader(string fileName)
@@ -32,10 +32,10 @@ namespace IndiaTango.Models
 
         public List<Sensor> ReadSensors(BackgroundWorker asyncWorker, Dataset owner)
         {
-        	if (sensors != null)
-                return sensors.ToList();
+        	if (_sensors != null)
+                return _sensors.ToList();
 
-            sensors = new Sensor[0];
+            _sensors = new Sensor[0];
 
             try
             {
@@ -43,7 +43,6 @@ namespace IndiaTango.Models
                 {
                     var linesInFile = File.ReadLines(_filename).Count();
 					var linesRead = 0d;
-                	var progressValue = 0;
 					var oldProgressValue = 0;
 
                     var sensorNamesString = sr.ReadLine();
@@ -61,25 +60,25 @@ namespace IndiaTango.Models
                     int startOffset = isIndividualDateComponents ? 5 : 2;
 
                     //First two are the time stamp
-                    sensors = new Sensor[sensorNames.Length - startOffset];
+                    _sensors = new Sensor[sensorNames.Length - startOffset];
 
                     for (int i = startOffset; i < sensorNames.Length; i++)
                     {
                         if (asyncWorker != null && asyncWorker.CancellationPending)
                             return null;
 
-                        sensors[i - startOffset] = new Sensor(sensorNames[i], null, owner);
+                        _sensors[i - startOffset] = new Sensor(sensorNames[i], null, owner);
                     }
 
 
-                    string readLine = null;
+                    string readLine;
                     while ((readLine = sr.ReadLine()) != null)
                     {
                         if (asyncWorker != null && asyncWorker.CancellationPending)
                             return null;
 
                     	linesRead++;
-                    	progressValue = (int) (linesRead/linesInFile*100);
+                    	var progressValue = (int) (linesRead/linesInFile*100);
 
 						//We now only trigger the event every time the return value increases.
 						//There seems to be a crazy overhead on firing events, so we only fire it when it matters (when that value has changed)
@@ -87,7 +86,7 @@ namespace IndiaTango.Models
 						//I think we can easily afford to fire only 100 events, rather than ~50000 :) Speedy speed!!!
                     	if(progressValue > oldProgressValue)
                     	{
-                    		OnProgressChanged((object) this,new ReaderProgressChangedArgs(progressValue));
+                    		OnProgressChanged(this,new ReaderProgressChangedArgs(progressValue));
                     		oldProgressValue = progressValue;
                     	}
 
@@ -131,7 +130,7 @@ namespace IndiaTango.Models
 							{
 								try
 								{
-								    sensors[i - startOffset].RawData.Values.Add(timeStamp, float.Parse(values[i]));
+								    _sensors[i - startOffset].RawData.Values.Add(timeStamp, float.Parse(values[i]));
 								}
 								catch (Exception)
 								{
@@ -147,7 +146,7 @@ namespace IndiaTango.Models
                 return null;
             }
             
-            return sensors.ToList();
+            return _sensors.ToList();
         }
 
 

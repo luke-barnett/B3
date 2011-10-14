@@ -8,9 +8,9 @@ namespace IndiaTango.Models
 {
     public class MinMaxRateOfChangeDetector : IDetectionMethod
     {
-        private AboveMaxValueDetector _aboveMaxValue;
-        private BelowMinValueDetector _belowMinValue;
-        private ToHighRateOfChangeDetector _highRateOfChange;
+        private readonly AboveMaxValueDetector _aboveMaxValue;
+        private readonly BelowMinValueDetector _belowMinValue;
+        private readonly ToHighRateOfChangeDetector _highRateOfChange;
         private bool _showMaxMinLines;
 
         public event UpdateGraph GraphUpdateNeeded;
@@ -98,7 +98,7 @@ namespace IndiaTango.Models
 
         public List<IDetectionMethod> Children
         {
-            get { return new List<IDetectionMethod>(){_aboveMaxValue, _belowMinValue, _highRateOfChange}; }
+            get { return new List<IDetectionMethod> {_aboveMaxValue, _belowMinValue, _highRateOfChange}; }
         }
 
         public override string ToString()
