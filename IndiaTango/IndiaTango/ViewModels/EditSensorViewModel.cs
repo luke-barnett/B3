@@ -268,7 +268,7 @@ namespace IndiaTango.ViewModels
                 try
                 {
                     // TODO: more user-friendly conversion messages!
-                    var s = new Sensor(Name, Description, float.Parse(UpperLimit), float.Parse(LowerLimit), Unit, float.Parse(MaximumRateOfChange), Manufacturer, SerialNumber, new Stack<SensorState>(), new Stack<SensorState>(), new List<DateTime>(), int.Parse(ErrorThreshold), _ds, Models.SummaryType.Average);
+                    var s = new Sensor(Name, Description, float.Parse(UpperLimit), float.Parse(LowerLimit), Unit, float.Parse(MaximumRateOfChange), Manufacturer, SerialNumber, new Stack<SensorState>(), new Stack<SensorState>(), new List<DateTime>(), int.Parse(ErrorThreshold), _ds, (SummaryType)SummaryType);
                     
                     if(Dataset.Sensors == null)
                         Dataset.Sensors = new List<Sensor>();

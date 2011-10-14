@@ -46,6 +46,8 @@ namespace IndiaTango.ViewModels
         private ObservableCollection<Site> _allSites = new ObservableCollection<Site>();
         private ObservableCollection<Contact> _allContacts = new ObservableCollection<Contact>();
         private List<NamedBitmap> _siteImages = new List<NamedBitmap>();
+		private const string StepSeperator = " of ";
+
         private int _selectedImage = -1;
 	#endregion
 
@@ -62,13 +64,10 @@ namespace IndiaTango.ViewModels
 			DoneCancelVisible = Visibility.Collapsed;
         }
 
-#region Site View Properties
-		public Visibility SensorWarningVisible
-		{
-			get { return _sensorWarningVis; }
-			set { _sensorWarningVis = value; NotifyOfPropertyChange(() => SensorWarningVisible); }
-		}
+        
+       
 
+#region Site View Properties
 		public bool EditDeleteEnabled
 		{
 			get { return SelectedSite != null; }
@@ -181,6 +180,7 @@ namespace IndiaTango.ViewModels
 			get { return _ds.Site; }
 			set
 			{
+				Console.WriteLine("Selected site changed to: " + value);
 				_ds.Site = value;
 				if (_ds.Site != null)
 				{
@@ -283,6 +283,30 @@ namespace IndiaTango.ViewModels
 #endregion
 
 #region Wizard View Properties
+		public int CurrentStep
+		{
+			get { return _currentStep; }
+			set { _currentStep = value; NotifyOfPropertyChange(() => CurrentStep); NotifyOfPropertyChange(() => CanGoBack); NotifyOfPropertyChange(() => CanGoForward); }
+		}
+
+		public string ThisStep
+		{
+			get
+			{
+				if (CurrentStep < 2)
+					return (CurrentStep + 1) + StepSeperator + TotalSteps;
+				else if (CurrentStep < 4)
+					return (2 + ((_currentSensorIndex) * 2 + (CurrentStep - 1))) + StepSeperator + TotalSteps;
+				else
+					return TotalSteps + StepSeperator + TotalSteps;
+			}
+		}
+
+		private int TotalSteps
+		{
+			get { return (Sensors.Count * 2) + 3; }
+		}
+
         public List<Sensor> Sensors
         {
             get { return _ds.Sensors; }
@@ -294,11 +318,6 @@ namespace IndiaTango.ViewModels
             set { _ds = value; NotifyOfPropertyChange(() => Sensors); }
         }
 
-        public int CurrentStep
-        {
-            get { return _currentStep; }
-            set { _currentStep = value; NotifyOfPropertyChange(() => CurrentStep); NotifyOfPropertyChange(() => CanGoBack); NotifyOfPropertyChange(() => CanGoForward); }
-        }
 
         public string Title
         {
@@ -776,6 +795,10 @@ namespace IndiaTango.ViewModels
 				SelectedSensor = null;
 				CurrentStep = 1;
 			}
+			else if (Sensors.Count == 0 && CurrentStep == 1)
+			{
+				CurrentStep = 4;
+			}
 			else
 			{
 				SelectedSensor = Sensors[_currentSensorIndex];
@@ -803,11 +826,16 @@ namespace IndiaTango.ViewModels
 				SelectedSensor = null;
 				CurrentStep = 0;
 			}
+			else if (CurrentStep == 4 && Sensors.Count == 0)
+			{
+				CurrentStep = 1;
+			}
 			else
 			{
 				SelectedSensor = Sensors[_currentSensorIndex];
 				CurrentStep--;
 			}
+			
 		}
 
 		public void BtnFinish()
