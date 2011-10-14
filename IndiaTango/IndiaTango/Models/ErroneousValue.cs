@@ -8,13 +8,10 @@ namespace IndiaTango.Models
 {
     public class ErroneousValue
     {
-        private bool _hasValue;
-
-        private GraphCenteringCommand _command;
-
-        private event GraphCenteringRequest _realEvent;
-
-        private ArrayList _delegates = new ArrayList();
+        private readonly bool _hasValue;
+        private readonly GraphCenteringCommand _command;
+        private event GraphCenteringRequest RealEvent;
+        private readonly ArrayList _delegates = new ArrayList();
 
         public ErroneousValue(DateTime timeStamp, float value, IDetectionMethod detector)
             : this(timeStamp, value)
@@ -56,13 +53,13 @@ namespace IndiaTango.Models
         {
             add
             {
-                _realEvent += value;
+                RealEvent += value;
                 _delegates.Add(value);
             }
 
             remove
             {
-                _realEvent -= value;
+                RealEvent -= value;
                 _delegates.Remove(value);
             }
         }
@@ -87,20 +84,20 @@ namespace IndiaTango.Models
 
         public override bool Equals(object obj)
         {
-            return (obj != null) && obj.GetType() == GetType() && (obj as ErroneousValue).TimeStamp.CompareTo(TimeStamp) == 0;
+            return (obj != null) && obj.GetType() == GetType() && ((ErroneousValue) obj).TimeStamp.CompareTo(TimeStamp) == 0;
         }
 
         public void RequestGraphCentering()
         {
-            if (_realEvent != null)
-                _realEvent();
+            if (RealEvent != null)
+                RealEvent();
         }
 
         public void RemoveAllEvents()
         {
             foreach (GraphCenteringRequest eventHandler in _delegates)
             {
-                _realEvent -= eventHandler;
+                RealEvent -= eventHandler;
             }
             _delegates.Clear();
         }
@@ -132,6 +129,6 @@ namespace IndiaTango.Models
             return true;
         }
 
-        public event EventHandler CanExecuteChanged;
+    	public event EventHandler CanExecuteChanged;
     }
 }

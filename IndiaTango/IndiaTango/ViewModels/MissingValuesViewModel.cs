@@ -20,7 +20,6 @@ namespace IndiaTango.ViewModels
         private readonly SimpleContainer _container;
         private readonly IWindowManager _windowManager;
         private Sensor _sensor;
-        private int _zoomLevel = 100;
         private List<DateTime> _missingValues = new List<DateTime>();
         private List<DateTime> _selectedValues = new List<DateTime>();
         private Dataset _ds;
@@ -225,7 +224,7 @@ namespace IndiaTango.ViewModels
                 {
                     Minimum = double.Parse(value);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     Minimum = old;
                 }
@@ -260,7 +259,7 @@ namespace IndiaTango.ViewModels
                 {
                     Maximum = double.Parse(value);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     Maximum = old;
                 }
@@ -360,7 +359,7 @@ namespace IndiaTango.ViewModels
                         return;
                     value = float.Parse(specifyVal.Text);
                 }
-                catch (FormatException f)
+                catch (FormatException)
                 {
                     var exit = Common.ShowMessageBox("An Error Occured", "Please enter a valid number.", true, true);
                     if (exit) return;
@@ -477,7 +476,7 @@ namespace IndiaTango.ViewModels
                         return;
                     value = float.Parse(specifyVal.Text);
                 }
-                catch (FormatException f)
+                catch (FormatException)
                 {
                     var exit = Common.ShowMessageBox("An Error Occured", "Please enter a valid number.", true, true);
                     if (exit) return;

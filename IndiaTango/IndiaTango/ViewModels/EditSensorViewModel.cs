@@ -14,7 +14,6 @@ namespace IndiaTango.ViewModels
         private IWindowManager _windowManager;
         private SimpleContainer _container;
         private ListedSensor _selectedItem = null;
-		private bool _tipVisible = false;
         private bool _errorVisible = false;
 		//private List<Sensor> _sensors;
         private List<ListedSensor> _allSensors = new List<ListedSensor>();

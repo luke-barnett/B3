@@ -370,7 +370,7 @@ namespace IndiaTango.ViewModels
                         return;
                     value = float.Parse(specifyVal.Text);
                 }
-                catch (FormatException f)
+                catch (FormatException)
                 {
                     var exit = Common.ShowMessageBox("An Error Occured", "Please enter a valid number.", true, true);
                     if (exit) return;
@@ -529,7 +529,7 @@ namespace IndiaTango.ViewModels
                 {
                     Minimum = double.Parse(value);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     Minimum = old;
                 }
@@ -564,7 +564,7 @@ namespace IndiaTango.ViewModels
                 {
                     Maximum = double.Parse(value);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     Maximum = old;
                 }

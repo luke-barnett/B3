@@ -15,7 +15,6 @@ namespace IndiaTango.ViewModels
         private readonly SimpleContainer _container;
         private bool _buttonsEnabled = true;
         private Dataset dataset { get; set; }
-        private bool datasetLoaded = true;
         private LogWindowViewModel _logWindow;
 
         public MainViewModel(IWindowManager windowManager, SimpleContainer container)

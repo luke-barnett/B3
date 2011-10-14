@@ -34,11 +34,9 @@ namespace IndiaTango.ViewModels
         private Sensor _selectedSensor;
         private bool _errorVisible;
 
-        private bool _siteControlsEnabled;
-        private bool _saveButtonEnabled;
-        private Visibility _createEditDeleteVisible = Visibility.Visible;
-        private Visibility _doneCancelVisible = Visibility.Hidden;
-        private Visibility _sensorWarningVis = Visibility.Collapsed;
+		private bool _siteControlsEnabled;
+		private Visibility _createEditDeleteVisible = Visibility.Visible;
+		private Visibility _doneCancelVisible = Visibility.Hidden;
 
         private Contact _primaryContact;
         private Contact _secondaryContact;

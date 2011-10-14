@@ -178,7 +178,7 @@ namespace IndiaTango.ViewModels
                 {
                     Minimum = double.Parse(value);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     Minimum = old;
                 }
@@ -213,7 +213,7 @@ namespace IndiaTango.ViewModels
                 {
                     Maximum = double.Parse(value);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     Maximum = old;
                 }

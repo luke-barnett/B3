@@ -20,7 +20,6 @@ namespace IndiaTango.ViewModels
         private bool _exportRaw = false;
         private DateColumnFormat _dateColumnFormat;
         private ExportedPoints _exportedPoints;
-        private bool _changesFile;
 
         public ExportViewModel(IWindowManager windowManager, SimpleContainer container)
         {

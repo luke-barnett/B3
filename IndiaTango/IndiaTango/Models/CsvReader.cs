@@ -133,7 +133,7 @@ namespace IndiaTango.Models
 								{
 								    sensors[i - startOffset].RawData.Values.Add(timeStamp, float.Parse(values[i]));
 								}
-								catch (Exception e)
+								catch (Exception)
 								{
 								}
 							}

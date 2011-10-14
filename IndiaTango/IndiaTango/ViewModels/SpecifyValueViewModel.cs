@@ -16,7 +16,6 @@ namespace IndiaTango.ViewModels
         private string _title = "Specify value";
         private List<string> _comboBoxItems;
         private bool _showComboBox = false;
-        private bool _showTextBox = true;
     	private bool _showCancel = false;
     	private bool _canEditComboBox = true;
         private bool _canceled = false;
