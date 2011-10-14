@@ -378,6 +378,8 @@ namespace IndiaTango.ViewModels
 
                     if (_ds.Site.Images != null)
                         _siteImages = _ds.Site.Images.ToList();
+                    else
+						_siteImages = new List<NamedBitmap>();
                 }
                 else
                 {
@@ -805,6 +807,22 @@ namespace IndiaTango.ViewModels
         {
             var wizard = (WizardViewModel)_container.GetInstance(typeof (WizardViewModel), "WizardViewModel");
             wizard.Dataset = _ds;
+        	wizard.SelectedSite = SelectedSite;
+			Console.WriteLine("selected site = " + wizard.SelectedSite);
+			Console.WriteLine("ds site = " + _ds.Site);
+
+        	wizard.Deactivated += delegate
+        	                      	{
+										//Update any contacts/sites that have changed
+										AllSites = Site.ImportAll();
+										AllContacts = Contact.ImportAll();
+
+										//TODO: What the heck is up with it selecting its own site????
+										Console.WriteLine("selected site = " + wizard.SelectedSite);
+										Console.WriteLine("ds site = " + _ds.Site);
+        	                      		SelectedSite = wizard.SelectedSite;
+        	                      	};
+
             _windowManager.ShowWindow(wizard);
         }
         #endregion
