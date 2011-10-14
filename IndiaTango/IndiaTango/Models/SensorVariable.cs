@@ -41,7 +41,6 @@ namespace IndiaTango.Models
         {
             List<SensorVariable> variables = new List<SensorVariable>();
             int i = 0;
-            string var;
 
             foreach (Sensor sensor in sensors)
             {

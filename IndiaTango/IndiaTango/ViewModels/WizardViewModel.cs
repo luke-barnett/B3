@@ -35,10 +35,8 @@ namespace IndiaTango.ViewModels
 		private bool _errorVisible;
 
 		private bool _siteControlsEnabled;
-		private bool _saveButtonEnabled;
 		private Visibility _createEditDeleteVisible = Visibility.Visible;
 		private Visibility _doneCancelVisible = Visibility.Hidden;
-		private Visibility _sensorWarningVis = Visibility.Collapsed;
 
 		private Contact _primaryContact;
         private Contact _secondaryContact;

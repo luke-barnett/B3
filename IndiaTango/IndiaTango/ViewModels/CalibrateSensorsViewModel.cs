@@ -4,10 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Windows;
-//using System.Windows.Controls;
-//using System.Windows.Forms;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -35,7 +32,6 @@ namespace IndiaTango.ViewModels
         private List<SensorVariable> _sensorVariables;
 
         private int _sampleRate;
-        private int _zoomLevel = 100;
         private DateTime _startDateTime, _endDateTime;
         private Cursor _viewCursor = Cursors.Arrow;
         private List<LineSeries> _lineSeries;
@@ -57,7 +53,6 @@ namespace IndiaTango.ViewModels
         private int _samplingCapIndex;
 
         private bool _useManualCalibration = true;
-        private bool _autoCalibrationEnabled = true;
         private string _calAText = "";
         private string _calBText = "";
         private string _curAText = "";
@@ -168,7 +163,7 @@ namespace IndiaTango.ViewModels
                 _formulaText = value;
                 NotifyOfPropertyChange(() => FormulaText);
 
-                if (!IndiaTango.Properties.Settings.Default.EvaluateFormulaOnKeyUp)
+                if (Properties.Settings.Default.EvaluateFormulaOnKeyUp)
                     return;
 
                 //Uncomment for per character validity checking
@@ -337,22 +332,7 @@ namespace IndiaTango.ViewModels
         {
             get
             {
-                return ValidFormula || !IndiaTango.Properties.Settings.Default.EvaluateFormulaOnKeyUp;
-            }
-        }
-
-        public int ZoomLevel
-        {
-            get { return _zoomLevel; }
-            set
-            {
-                _zoomLevel = Math.Max(100, value);
-                _zoomLevel = Math.Min(1000, _zoomLevel);
-
-                NotifyOfPropertyChange(() => ZoomLevel);
-                NotifyOfPropertyChange(() => ZoomText);
-
-                //TODO: Actually zoom
+                return ValidFormula || Properties.Settings.Default.EvaluateFormulaOnKeyUp;
             }
         }
 
@@ -367,11 +347,6 @@ namespace IndiaTango.ViewModels
                 EndTime = _ds.EndTimeStamp;
                 _sensorVariables = SensorVariable.CreateSensorVariablesFromSensors(_ds.Sensors);
             }
-        }
-
-        public string ZoomText
-        {
-            get { return ZoomLevel + "%"; }
         }
 
         public string Title
@@ -545,7 +520,7 @@ namespace IndiaTango.ViewModels
                 {
                     Minimum = double.Parse(value);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     Minimum = old;
                 }
@@ -609,7 +584,7 @@ namespace IndiaTango.ViewModels
                 {
                     Maximum = double.Parse(value);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     Maximum = old;
                 }
