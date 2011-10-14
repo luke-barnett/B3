@@ -69,6 +69,7 @@
     <Compile Include="SensorFailureDetectionTests.cs" />
     <Compile Include="SensorStateTest.cs" />
     <Compile Include="SensorTest.cs" />
+    <Compile Include="StandardDeviationDetectorTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\IndiaTango\IndiaTango.csproj">

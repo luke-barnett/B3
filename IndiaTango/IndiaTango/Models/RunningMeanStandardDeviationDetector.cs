@@ -10,7 +10,7 @@ using Visiblox.Charts;
 
 namespace IndiaTango.Models
 {
-    class RunningMeanStandardDeviationDetector : IDetectionMethod
+    public class RunningMeanStandardDeviationDetector : IDetectionMethod
     {
         private int _smoothingPeriod = 60;
         private int _requestedSmoothingPeriod = 60;
@@ -20,10 +20,17 @@ namespace IndiaTango.Models
         private Dictionary<DateTime, float> _lowerLine = new Dictionary<DateTime, float>();
         private bool _showGraph;
 
+        /// <summary>
+        /// Fired if the graph needs to be updated
+        /// </summary>
         public event UpdateGraph GraphUpdateNeeded;
 
+        /// <summary>
+        /// Fired if the list of detected values needs to be updated
+        /// </summary>
         public event Updated RefreshDetectedValues;
 
+        //The current sensor
         private Sensor _currentSensor;
 
         public override string ToString()
@@ -231,6 +238,23 @@ namespace IndiaTango.Models
             get { return new List<IDetectionMethod>(); }
         }
 
+        public bool IsEnabled { get; set; }
+
+        /// <summary>
+        /// The number of minutes to smooth over
+        /// </summary>
+        public int SmoothingPeriod { get { return _smoothingPeriod; } set { _smoothingPeriod = value; } }
+
+        /// <summary>
+        /// The number of standard deviations to use
+        /// </summary>
+        public float NumberOfStandardDeviations { get { return _numberOfStandardDeviations; } set { _numberOfStandardDeviations = value; } }
+
+        /// <summary>
+        /// Turns on or off Graphing
+        /// </summary>
+        public bool ShowGraph { set { _showGraph = value; } }
+
         private void GenerateUpperAndLowerLines(Sensor sensor)
         {
             //Set Current Sensor
@@ -270,8 +294,6 @@ namespace IndiaTango.Models
                 //Debug.Print("numberOfValues: {0} average: {1} sumOfSquare: {2} stdDev: {3} upper: {4} lower: {5}", meanValues.Count, average, sumOfSquares, standardDeviation, _upperLine[value.Key], _lowerLine[value.Key]);
             }
         }
-
-        public bool IsEnabled { get; set; }
     }
 
     public delegate void Updated();
