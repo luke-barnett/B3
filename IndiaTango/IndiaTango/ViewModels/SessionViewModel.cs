@@ -378,6 +378,8 @@ namespace IndiaTango.ViewModels
 
                     if (_ds.Site.Images != null)
                         _siteImages = _ds.Site.Images.ToList();
+                    else
+						_siteImages = new List<NamedBitmap>();
                 }
                 else
                 {
@@ -504,25 +506,41 @@ namespace IndiaTango.ViewModels
                 };
 
                 _bw.RunWorkerCompleted += (obj, ev) =>
-                                              {
-                                                  if (ev.Cancelled)
-                                                      return;
+                                          	{
+                                          		if (ev.Cancelled)
+                                          			return;
 
-                                                  // Show the wizard every time data is imported?
-                                                  EventLogger.LogInfo("UIThread", "Starting the import wizard...");
-                                                  var wizard = (WizardViewModel)_container.GetInstance(typeof(WizardViewModel), "WizardViewModel");
-                                                  wizard.Dataset = _ds;
-                                                  wizard.Deactivated += (o, e) => EventLogger.LogInfo("WizardView",
-                                                                                                      "Completed the import wizard, ending at step " +
-                                                                                                      wizard.ThisStep);
+                                          		// Show the wizard every time data is imported?
+                                          		EventLogger.LogInfo("UIThread", "Starting the import wizard...");
+                                          		var wizard =
+                                          			(WizardViewModel)
+                                          			_container.GetInstance(typeof (WizardViewModel), "WizardViewModel");
+                                          		wizard.Dataset = _ds;
+
+												Console.WriteLine("selected site = " + wizard.SelectedSite);
+												Console.WriteLine("ds site = " + _ds.Site);
+
+                                          		wizard.Deactivated += (o, e) =>
+                                          		                      	{
+                                          		                      		EventLogger.LogInfo("WizardView", "Completed the import wizard, ending at step " + wizard.ThisStep);
+
+																			//Update any contacts/sites that have changed
+																			AllSites = Site.ImportAll();
+																			AllContacts = Contact.ImportAll();
+
+																			//TODO: What the heck is up with it selecting its own site????
+																			Console.WriteLine("selected site = " + wizard.SelectedSite);
+																			Console.WriteLine("ds site = " + _ds.Site);
+																			//SelectedSite = wizard.SelectedSite;
+                                          		                      		SelectedSite = _ds.Site;
+                                          		                      	};
+                                          	
                                                   _windowManager.ShowDialog(wizard);
                                               };
 
                 ImportEnabled = false;
 
                 _bw.RunWorkerAsync();
-
-
             }
         }
 
@@ -816,12 +834,6 @@ namespace IndiaTango.ViewModels
             }
         }
 
-        public void btnWizard()
-        {
-            var wizard = (WizardViewModel)_container.GetInstance(typeof (WizardViewModel), "WizardViewModel");
-            wizard.Dataset = _ds;
-            _windowManager.ShowWindow(wizard);
-        }
         #endregion
 
         #region Contact Add/Edit/Delete Handlers
