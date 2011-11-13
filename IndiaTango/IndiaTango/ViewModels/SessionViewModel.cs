@@ -49,6 +49,8 @@ namespace IndiaTango.ViewModels
         private ObservableCollection<Contact> _allContacts = new ObservableCollection<Contact>();
         private List<NamedBitmap> _siteImages = new List<NamedBitmap>();
         private int _selectedImage = -1;
+        private Sensor _selectedSensor;
+        private Site _selectedSite;
 
         #endregion
 
@@ -247,7 +249,47 @@ namespace IndiaTango.ViewModels
             }
         }
 
-        public List<Sensor> SelectedSensor = new List<Sensor>();
+        public List<Site> SiteList
+        {
+            get
+            {
+                var dummyContact = new Contact("John", "Doe", "john@doe.org", "Unknown", "???");
+                return SelectedSite != null ? new List<Site> { SelectedSite } : new List<Site> { new Site(99, "Unidentified Site", "No one", dummyContact, dummyContact, dummyContact, new GPSCoords(0, 0)) };
+            }
+        }
+
+        public Site SiteSelected
+        {
+            get { return _selectedSite; }
+            set
+            {
+                _selectedSite = value;
+                if (_selectedSite != null)
+                {
+                    SelectedSensor = null;
+                    //SHOW METADATA
+                }
+                NotifyOfPropertyChange(() => SiteSelected);
+                NotifyOfPropertyChange(() => SelectedSensor);
+            }
+        }
+
+        public Sensor SelectedSensor
+        {
+            get { return _selectedSensor; }
+            set
+            {
+                _selectedSensor = value;
+                if (_selectedSensor != null)
+                {
+                    SiteSelected = null;
+                    //SHOW METADATA VIEW
+                }
+
+                NotifyOfPropertyChange(() => SiteSelected);
+                NotifyOfPropertyChange(() => SelectedSensor);
+            }
+        }
 
         public bool SiteControlsEnabled
         {
@@ -379,7 +421,7 @@ namespace IndiaTango.ViewModels
                     if (_ds.Site.Images != null)
                         _siteImages = _ds.Site.Images.ToList();
                     else
-						_siteImages = new List<NamedBitmap>();
+                        _siteImages = new List<NamedBitmap>();
                 }
                 else
                 {
@@ -404,6 +446,7 @@ namespace IndiaTango.ViewModels
                 NotifyOfPropertyChange(() => EditDeleteEnabled);
                 NotifyOfPropertyChange(() => SiteImages);
                 NotifyOfPropertyChange(() => Title);
+                NotifyOfPropertyChange(() => SiteList);
             }
         }
         #endregion
@@ -506,35 +549,35 @@ namespace IndiaTango.ViewModels
                 };
 
                 _bw.RunWorkerCompleted += (obj, ev) =>
-                                          	{
-                                          		if (ev.Cancelled)
-                                          			return;
+                                            {
+                                                if (ev.Cancelled)
+                                                    return;
 
-                                          		// Show the wizard every time data is imported?
-                                          		EventLogger.LogInfo("UIThread", "Starting the import wizard...");
-                                          		var wizard =
-                                          			(WizardViewModel)
-                                          			_container.GetInstance(typeof (WizardViewModel), "WizardViewModel");
-                                          		wizard.Dataset = _ds;
+                                                // Show the wizard every time data is imported?
+                                                EventLogger.LogInfo("UIThread", "Starting the import wizard...");
+                                                var wizard =
+                                                    (WizardViewModel)
+                                                    _container.GetInstance(typeof(WizardViewModel), "WizardViewModel");
+                                                wizard.Dataset = _ds;
 
-												Console.WriteLine("selected site = " + wizard.SelectedSite);
-												Console.WriteLine("ds site = " + _ds.Site);
+                                                Console.WriteLine("selected site = " + wizard.SelectedSite);
+                                                Console.WriteLine("ds site = " + _ds.Site);
 
-                                          		wizard.Deactivated += (o, e) =>
-                                          		                      	{
-                                          		                      		EventLogger.LogInfo("WizardView", "Completed the import wizard, ending at step " + wizard.ThisStep);
+                                                wizard.Deactivated += (o, e) =>
+                                                                        {
+                                                                            EventLogger.LogInfo("WizardView", "Completed the import wizard, ending at step " + wizard.ThisStep);
 
-																			//Update any contacts/sites that have changed
-                                          		                      	    AllSites = wizard.AllSites;
-                                          		                      	    AllContacts = wizard.AllContacts;
+                                                                            //Update any contacts/sites that have changed
+                                                                            AllSites = wizard.AllSites;
+                                                                            AllContacts = wizard.AllContacts;
 
-																			Console.WriteLine("selected site = " + wizard.SelectedSite);
-																			Console.WriteLine("ds site = " + _ds.Site);
-                                          		                      		SelectedSite = _ds.Site;
-                                          		                      	};
-                                          	
-                                                  _windowManager.ShowDialog(wizard);
-                                              };
+                                                                            Console.WriteLine("selected site = " + wizard.SelectedSite);
+                                                                            Console.WriteLine("ds site = " + _ds.Site);
+                                                                            SelectedSite = _ds.Site;
+                                                                        };
+
+                                                _windowManager.ShowDialog(wizard);
+                                            };
 
                 ImportEnabled = false;
 
@@ -816,19 +859,6 @@ namespace IndiaTango.ViewModels
                     System.Diagnostics.Debug.WriteLine("Cannot cancel data loading thread - " + ex);
                     EventLogger.LogError(GetType().ToString(), "Data import could not be canceled.");
                 }
-            }
-        }
-
-        public void SelectionChanged(SelectionChangedEventArgs e)
-        {
-            foreach (Sensor item in e.RemovedItems)
-            {
-                SelectedSensor.Remove(item);
-            }
-
-            foreach (Sensor item in e.AddedItems)
-            {
-                SelectedSensor.Add(item);
             }
         }
 
