@@ -149,9 +149,9 @@ namespace IndiaTango.ViewModels
         {
             get
             {
-                return ValidFormula
-                           ? new SolidColorBrush(Colors.White)
-                           : new SolidColorBrush(Color.FromArgb(126, 255, 69, 0));
+                return !ValidFormula && Properties.Settings.Default.EvaluateFormulaOnKeyUp
+                           ? new SolidColorBrush(Color.FromArgb(126, 255, 69, 0))
+                           : new SolidColorBrush(Colors.White);
             }
         }
 
@@ -163,7 +163,7 @@ namespace IndiaTango.ViewModels
                 _formulaText = value;
                 NotifyOfPropertyChange(() => FormulaText);
 
-                if (Properties.Settings.Default.EvaluateFormulaOnKeyUp)
+                if (!Properties.Settings.Default.EvaluateFormulaOnKeyUp)
                     return;
 
                 //Uncomment for per character validity checking
@@ -874,33 +874,33 @@ namespace IndiaTango.ViewModels
                              : new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints);
             generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour) });
 
-            if(SelectedSensor != null && _calAValid && _curAValid)generatedSeries.Add(new LineSeries
-            {
-                DataSeries =
-                    new DataSeries<DateTime, float>("A Calibration Line",
-                                                    new List<DataPoint<DateTime, float>>()
+            if (SelectedSensor != null && _calAValid && _curAValid) generatedSeries.Add(new LineSeries
+              {
+                  DataSeries =
+                      new DataSeries<DateTime, float>("A Calibration Line",
+                                                      new List<DataPoint<DateTime, float>>()
                                                         {
                                                             new DataPoint<DateTime, float>(
                                                                 StartTime, (float) _calAValue),
                                                             new DataPoint<DateTime, float>(
                                                                 EndTime, (float) _curAValue)
                                                         }),
-                LineStroke = new SolidColorBrush(Colors.OrangeRed)
-            });
+                  LineStroke = new SolidColorBrush(Colors.OrangeRed)
+              });
 
-            if(SelectedSensor != null && _calBValid && _curBValid)generatedSeries.Add(new LineSeries
-            {
-                DataSeries =
-                    new DataSeries<DateTime, float>("B Calibration Line",
-                                                    new List<DataPoint<DateTime, float>>()
+            if (SelectedSensor != null && _calBValid && _curBValid) generatedSeries.Add(new LineSeries
+              {
+                  DataSeries =
+                      new DataSeries<DateTime, float>("B Calibration Line",
+                                                      new List<DataPoint<DateTime, float>>()
                                                                                 {
                                                                                     new DataPoint<DateTime, float>(
                                                                                         StartTime, (float) _calBValue),
                                                                                     new DataPoint<DateTime, float>(
                                                                                         EndTime, (float) _curBValue)
                                                                                 }),
-                LineStroke = new SolidColorBrush(Colors.OrangeRed)
-            });
+                  LineStroke = new SolidColorBrush(Colors.OrangeRed)
+              });
 
             if (_sampleRate > 1) ShowBackground();
 

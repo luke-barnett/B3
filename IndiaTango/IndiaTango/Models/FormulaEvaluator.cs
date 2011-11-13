@@ -133,11 +133,11 @@ namespace IndiaTango.Models
 			if (results.Errors.Count > 0)
 			{
 				foreach (CompilerError error in results.Errors)
-					Console.WriteLine("Compile Error. Line " +error.Line + ":" + error.ErrorText);
+					Debug.WriteLine("Compile Error. Line " +error.Line + ":" + error.ErrorText);
 			}
 
-            Console.WriteLine("...........................\r\n");
-            Console.WriteLine(_source.ToString());
+            Debug.WriteLine("...........................\r\n");
+            Debug.WriteLine(_source.ToString());
 
             return new Formula(results,_variablesUsed);
         }
@@ -246,7 +246,7 @@ namespace IndiaTango.Models
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error:  An exception occurred while executing the script\n" + ex);
+                Debug.WriteLine("Error:  An exception occurred while executing the script\n" + ex);
             }
         }
 
@@ -289,7 +289,7 @@ namespace IndiaTango.Models
             catch (Exception ex)
             {
                 Common.ShowMessageBoxWithException("Error", "An exception occurred while executing the script", false, true, ex);
-                Console.WriteLine("Error:  An exception occurred while executing the script: \n" + ex);
+                Debug.WriteLine("Error:  An exception occurred while executing the script: \n" + ex);
             }
 
             return null;
