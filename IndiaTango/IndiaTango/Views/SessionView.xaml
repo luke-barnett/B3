@@ -34,183 +34,237 @@
                 <MenuItem Header="_Revert" caliburn:Message.Attach="[Event Click] = [Action btnRevert]" />
             </MenuItem>
         </Menu>
-        <GroupBox Grid.Column="1" Grid.Row="1" Header="Site Properties"  Margin="5 10 10 5" Name="groupBox1" Padding="5" BorderBrush="OrangeRed">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="100*"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
+        <GroupBox Grid.Column="1" Grid.Row="1" Header="{Binding MetadataHeader}"  Margin="5 10 10 5" Name="groupBox1" Padding="5" BorderBrush="OrangeRed">
+            <StackPanel>
+                <Grid Visibility="{Binding SensorMetadataVisibility}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="120" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="{Binding ErrorRowHeight}" />
+                        <RowDefinition Height="5" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="50" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="40"/>
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Name:" Grid.Column="0" Grid.Row="2" ToolTip="A name that identifies this sensor uniquely." />
+                    <TextBox x:Name="txtName" Margin="4" Grid.Column="1" Grid.Row="2" Text="{Binding SensorName, Mode=TwoWay, UpdateSourceTrigger=Explicit}"/>
 
-                <TextBlock Grid.Column="0" Grid.Row="0" Text="Site:" Margin="7" TextAlignment="Right" />
-                <ComboBox ItemsSource="{Binding AllSites, Mode=TwoWay}" SelectedItem="{Binding SelectedSite}" Grid.Column="1" Height="25" Margin="3,4,3,0" VerticalAlignment="Top" Name="comboBuoyList" IsSynchronizedWithCurrentItem="True" IsEnabled="{Binding SiteListEnabled}"/>
+                    <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Description:" Grid.Column="0" Grid.Row="3" ToolTip="A description of this sensor's purpose." />
+                    <TextBox x:Name="txtDescription" Margin="4" Grid.Column="1" Grid.Row="3" Text="{Binding SensorDescription, Mode=TwoWay, UpdateSourceTrigger=Explicit}" />
 
-                <Rectangle Height="3" Fill="OrangeRed" Margin="0,5" Grid.Row="1" Grid.ColumnSpan="5" SnapsToDevicePixels="True" Stroke="White" />
+                    <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Lower Limit:" Grid.Column="0" Grid.Row="4" ToolTip="The minimum value this sensor generally reports." />
+                    <TextBox x:Name="txtLowerLimit" Margin="4" Grid.Column="1" Grid.Row="4" Width="100" HorizontalAlignment="Left" Text="{Binding SensorLowerLimit, Mode=TwoWay, UpdateSourceTrigger=Explicit}"  />
 
+                    <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Upper Limit:" Grid.Column="0" Grid.Row="5" ToolTip="The maximum value this sensor generally reports." />
+                    <TextBox x:Name="txtUpperLimit" Margin="4" Grid.Column="1" Grid.Row="5" Width="100" HorizontalAlignment="Left" Text="{Binding SensorUpperLimit, Mode=TwoWay, UpdateSourceTrigger=Explicit}"   />
 
-                <TextBlock Text="Site Name:" TextAlignment="Right" Grid.Column="0" Grid.Row="3" Margin="7"/>
-                <TextBox Name="txtSiteName" Margin="3" Grid.Column="1" Grid.Row="3" Text="{Binding SiteName}" IsEnabled="{Binding SiteControlsEnabled}" />
+                    <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Unit:" Grid.Column="0" Grid.Row="6" ToolTip="The unit values from this sensor are reported in." />
+                    <TextBox x:Name="txtUnit" Margin="4" Grid.Column="1" Grid.Row="6" Text="{Binding SensorUnit, Mode=TwoWay, UpdateSourceTrigger=Explicit}"  />
 
-                <TextBlock Text="Owner:" TextAlignment="Right" Grid.Column="0" Grid.Row="4" Margin="7"></TextBlock>
-                <TextBox Name="txtOwnerName" Margin="3" Grid.Column="1" Grid.Row="4" Text="{Binding Owner}" IsEnabled="{Binding SiteControlsEnabled}" />
+                    <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Maximum Rate of Change:" TextWrapping="Wrap" Grid.Column="0" Grid.Row="7" ToolTip="The maximum rate of change values reported by this sensor may encounter." />
+                    <TextBox x:Name="txtMaxRateOfChange" Margin="4" Grid.Column="1" Grid.Row="7" Height="25" VerticalAlignment="Top" Text="{Binding SensorMaximumRateOfChange, Mode=TwoWay, UpdateSourceTrigger=Explicit}"  />
 
-                <TextBlock Text="Primary Contact:" TextAlignment="Right" Grid.Column="0" Grid.Row="5" Margin="7"></TextBlock>
-                <ComboBox ItemsSource="{Binding AllContacts, Mode=TwoWay}" SelectedItem="{Binding PrimaryContact}" Grid.Column="1" Grid.Row="5" Height="25" Margin="2,2,2,0" VerticalAlignment="Top" Name="comboPrimaryContact" IsEnabled="{Binding SiteControlsEnabled}"></ComboBox>
-                <Button Name="btnNewPrimary" Grid.Column="2" Grid.Row="5" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="New Contact" Visibility="{Binding DoneCancelVisible}" >
-                    <Image Source="/IndiaTango;component/Images/new_16.png" Width="16" Height="16" />
-                </Button>
-                <Button Name="btnEditPrimary" Grid.Column="3" Grid.Row="5" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="Edit Contact" IsEnabled="{Binding HasSelectedPrimaryContact}" Visibility="{Binding DoneCancelVisible}">
-                    <Image Source="/IndiaTango;component/Images/edit_16.png" Width="16" Height="16" />
-                </Button>
-                <Button Name="btnDelPrimary" Grid.Column="4" Grid.Row="5" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="Delete Contact" IsEnabled="{Binding HasSelectedPrimaryContact}" Visibility="{Binding DoneCancelVisible}">
-                    <Image Source="/IndiaTango;component/Images/delete_16.png" Width="16" Height="16" />
-                </Button>
+                    <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Manufacturer:" Grid.Column="0" Grid.Row="8" ToolTip="A name that identifies this sensor uniquely." />
+                    <TextBox x:Name="txtManufacturer" Margin="4" Grid.Column="1" Grid.Row="8" Text="{Binding SensorManufacturer, Mode=TwoWay, UpdateSourceTrigger=Explicit}" />
 
-                <TextBlock Text="Secondary Contact:" TextAlignment="Right" Grid.Column="0" Grid.Row="6" Margin="7"></TextBlock>
-                <ComboBox ItemsSource="{Binding AllContacts, Mode=TwoWay}" SelectedItem="{Binding SecondaryContact}" Grid.Column="1" Grid.Row="6" Height="25" Margin="2,2,2,0" VerticalAlignment="Top" Name="comboSecondaryContact" IsEnabled="{Binding SiteControlsEnabled}"></ComboBox>
-                <Button Name="btnNewSecondary" Grid.Column="2" Grid.Row="6" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="New Contact" Visibility="{Binding DoneCancelVisible}">
-                    <Image Source="/IndiaTango;component/Images/new_16.png" Width="16" Height="16" />
-                </Button>
-                <Button Name="btnEditSecondary" Grid.Column="3" Grid.Row="6" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="Edit Contact" IsEnabled="{Binding HasSelectedSecondaryContact}" Visibility="{Binding DoneCancelVisible}">
-                    <Image Source="/IndiaTango;component/Images/edit_16.png" Width="16" Height="16" />
-                </Button>
-                <Button Name="btnDelSecondary" Grid.Column="4" Grid.Row="6" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="Delete Contact" IsEnabled="{Binding HasSelectedSecondaryContact}" Visibility="{Binding DoneCancelVisible}">
-                    <Image Source="/IndiaTango;component/Images/delete_16.png" Width="16" Height="16" />
-                </Button>
+                    <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Serial Number:" Grid.Column="0" Grid.Row="9" ToolTip="A serial number associated with this sensor." />
+                    <TextBox x:Name="txtSerial" Margin="4" Grid.Column="1" Grid.Row="9" Text="{Binding SensorSerialNumber, Mode=TwoWay, UpdateSourceTrigger=Explicit}" />
 
-                <TextBlock Text="University Contact:" TextAlignment="Right" Grid.Column="0" Grid.Row="7" Margin="7"></TextBlock>
-                <ComboBox ItemsSource="{Binding AllContacts, Mode=TwoWay}" SelectedItem="{Binding UniversityContact}" Grid.Column="1" Grid.Row="7" Height="25" Margin="2,2,2,0" VerticalAlignment="Top" Name="comboUniContact" IsEnabled="{Binding SiteControlsEnabled}"></ComboBox>
-                <Button Name="btnNewUni" Grid.Column="2" Grid.Row="7" Margin="3,3,3,0" Height="24" VerticalAlignment="Top" ToolTip="New Contact" Visibility="{Binding DoneCancelVisible}">
-                    <Image Source="/IndiaTango;component/Images/new_16.png" Width="16" Height="16" />
-                </Button>
-                <Button Name="btnEditUni" Grid.Column="3" Grid.Row="7" Margin="3,3,3,0" Height="24" VerticalAlignment="Top" ToolTip="Edit Contact" IsEnabled="{Binding HasSelectedUniContact}" Visibility="{Binding DoneCancelVisible}">
-                    <Image Source="/IndiaTango;component/Images/edit_16.png" Width="16" Height="16" />
-                </Button>
-                <Button Name="btnDelUni" Grid.Column="4" Grid.Row="7" Margin="3,3,3,0" Height="24" VerticalAlignment="Top" ToolTip="Delete Contact" IsEnabled="{Binding HasSelectedUniContact}" Visibility="{Binding DoneCancelVisible}">
-                    <Image Source="/IndiaTango;component/Images/delete_16.png" Width="16" Height="16" />
-                </Button>
+                    <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" TextWrapping="Wrap" Text="Failure Detection Threshold:" Grid.Column="0" Grid.Row="10" ToolTip="The number of readings a sensor can be offline for, after which, it is detected as failing." />
+                    <TextBox x:Name="txtErrorThreshold" Margin="4" Grid.Column="1" Grid.Row="10" Width="100" Height="22" VerticalAlignment="Top" HorizontalAlignment="Left" Text="{Binding SensorErrorThreshold, Mode=TwoWay, UpdateSourceTrigger=Explicit}"   />
 
-                <TextBlock Text="GPS Coordinates:" TextAlignment="Right" Grid.Column="0" Grid.Row="8" Margin="7"></TextBlock>
-                <Grid Grid.Column="1" Grid.Row="8" Background="GhostWhite">
+                    <ComboBox x:Name="comboSummary" Grid.Column="1" Grid.ColumnSpan="1" Grid.Row="11" ItemsSource="{Binding SummaryTypes}" Margin="3,7,0,7" SelectedIndex="{Binding SensorSummaryType, Mode=TwoWay, UpdateSourceTrigger=Explicit}" />
+                    <TextBlock FontWeight="Bold" Grid.Row="11" Margin="10" Text="Summary type:" TextAlignment="Right" TextWrapping="Wrap" />
+                </Grid>
+                <Grid Visibility="{Binding SiteMetadataVisibility}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="100*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-                    <TextBlock Text="Lat:" Grid.Column="0" Grid.Row="0" Margin="7" TextAlignment="Right" />
-                    <TextBox Name="Latitude" Grid.Column="1" Grid.Row="0" Margin="3" Text="{Binding Latitude}" ToolTip="Enter latitude in Degrees Minutes Seconds or Decimal Degrees" IsEnabled="{Binding SiteControlsEnabled}" />
+                    <TextBlock Grid.Column="0" Grid.Row="0" Text="Site:" Margin="7" TextAlignment="Right" />
+                    <ComboBox ItemsSource="{Binding AllSites, Mode=TwoWay}" SelectedItem="{Binding SelectedSite}" Grid.Column="1" Height="25" Margin="3,4,3,0" VerticalAlignment="Top" Name="comboBuoyList" IsSynchronizedWithCurrentItem="True" IsEnabled="{Binding SiteListEnabled}"/>
 
-                    <TextBlock Text="Long:" Grid.Column="2" Grid.Row="0" Margin="7" TextAlignment="Right" />
-                    <TextBox Name="Longitude" Grid.Column="3" Grid.Row="0" Margin="3" Text="{Binding Longitude}" ToolTip="Enter longitude in Degrees Minutes Seconds or Decimal Degrees" IsEnabled="{Binding SiteControlsEnabled}"/>
+                    <Rectangle Height="3" Fill="OrangeRed" Margin="0,5" Grid.Row="1" Grid.ColumnSpan="5" SnapsToDevicePixels="True" Stroke="White" />
+
+
+                    <TextBlock Text="Site Name:" TextAlignment="Right" Grid.Column="0" Grid.Row="3" Margin="7"/>
+                    <TextBox Name="txtSiteName" Margin="3" Grid.Column="1" Grid.Row="3" Text="{Binding SiteName}" IsEnabled="{Binding SiteControlsEnabled}" />
+
+                    <TextBlock Text="Owner:" TextAlignment="Right" Grid.Column="0" Grid.Row="4" Margin="7"></TextBlock>
+                    <TextBox Name="txtOwnerName" Margin="3" Grid.Column="1" Grid.Row="4" Text="{Binding Owner}" IsEnabled="{Binding SiteControlsEnabled}" />
+
+                    <TextBlock Text="Primary Contact:" TextAlignment="Right" Grid.Column="0" Grid.Row="5" Margin="7"></TextBlock>
+                    <ComboBox ItemsSource="{Binding AllContacts, Mode=TwoWay}" SelectedItem="{Binding PrimaryContact}" Grid.Column="1" Grid.Row="5" Height="25" Margin="2,2,2,0" VerticalAlignment="Top" Name="comboPrimaryContact" IsEnabled="{Binding SiteControlsEnabled}"></ComboBox>
+                    <Button Name="btnNewPrimary" Grid.Column="2" Grid.Row="5" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="New Contact" Visibility="{Binding DoneCancelVisible}" >
+                        <Image Source="/IndiaTango;component/Images/new_16.png" Width="16" Height="16" />
+                    </Button>
+                    <Button Name="btnEditPrimary" Grid.Column="3" Grid.Row="5" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="Edit Contact" IsEnabled="{Binding HasSelectedPrimaryContact}" Visibility="{Binding DoneCancelVisible}">
+                        <Image Source="/IndiaTango;component/Images/edit_16.png" Width="16" Height="16" />
+                    </Button>
+                    <Button Name="btnDelPrimary" Grid.Column="4" Grid.Row="5" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="Delete Contact" IsEnabled="{Binding HasSelectedPrimaryContact}" Visibility="{Binding DoneCancelVisible}">
+                        <Image Source="/IndiaTango;component/Images/delete_16.png" Width="16" Height="16" />
+                    </Button>
+
+                    <TextBlock Text="Secondary Contact:" TextAlignment="Right" Grid.Column="0" Grid.Row="6" Margin="7"></TextBlock>
+                    <ComboBox ItemsSource="{Binding AllContacts, Mode=TwoWay}" SelectedItem="{Binding SecondaryContact}" Grid.Column="1" Grid.Row="6" Height="25" Margin="2,2,2,0" VerticalAlignment="Top" Name="comboSecondaryContact" IsEnabled="{Binding SiteControlsEnabled}"></ComboBox>
+                    <Button Name="btnNewSecondary" Grid.Column="2" Grid.Row="6" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="New Contact" Visibility="{Binding DoneCancelVisible}">
+                        <Image Source="/IndiaTango;component/Images/new_16.png" Width="16" Height="16" />
+                    </Button>
+                    <Button Name="btnEditSecondary" Grid.Column="3" Grid.Row="6" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="Edit Contact" IsEnabled="{Binding HasSelectedSecondaryContact}" Visibility="{Binding DoneCancelVisible}">
+                        <Image Source="/IndiaTango;component/Images/edit_16.png" Width="16" Height="16" />
+                    </Button>
+                    <Button Name="btnDelSecondary" Grid.Column="4" Grid.Row="6" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="Delete Contact" IsEnabled="{Binding HasSelectedSecondaryContact}" Visibility="{Binding DoneCancelVisible}">
+                        <Image Source="/IndiaTango;component/Images/delete_16.png" Width="16" Height="16" />
+                    </Button>
+
+                    <TextBlock Text="University Contact:" TextAlignment="Right" Grid.Column="0" Grid.Row="7" Margin="7"></TextBlock>
+                    <ComboBox ItemsSource="{Binding AllContacts, Mode=TwoWay}" SelectedItem="{Binding UniversityContact}" Grid.Column="1" Grid.Row="7" Height="25" Margin="2,2,2,0" VerticalAlignment="Top" Name="comboUniContact" IsEnabled="{Binding SiteControlsEnabled}"></ComboBox>
+                    <Button Name="btnNewUni" Grid.Column="2" Grid.Row="7" Margin="3,3,3,0" Height="24" VerticalAlignment="Top" ToolTip="New Contact" Visibility="{Binding DoneCancelVisible}">
+                        <Image Source="/IndiaTango;component/Images/new_16.png" Width="16" Height="16" />
+                    </Button>
+                    <Button Name="btnEditUni" Grid.Column="3" Grid.Row="7" Margin="3,3,3,0" Height="24" VerticalAlignment="Top" ToolTip="Edit Contact" IsEnabled="{Binding HasSelectedUniContact}" Visibility="{Binding DoneCancelVisible}">
+                        <Image Source="/IndiaTango;component/Images/edit_16.png" Width="16" Height="16" />
+                    </Button>
+                    <Button Name="btnDelUni" Grid.Column="4" Grid.Row="7" Margin="3,3,3,0" Height="24" VerticalAlignment="Top" ToolTip="Delete Contact" IsEnabled="{Binding HasSelectedUniContact}" Visibility="{Binding DoneCancelVisible}">
+                        <Image Source="/IndiaTango;component/Images/delete_16.png" Width="16" Height="16" />
+                    </Button>
+
+                    <TextBlock Text="GPS Coordinates:" TextAlignment="Right" Grid.Column="0" Grid.Row="8" Margin="7"></TextBlock>
+                    <Grid Grid.Column="1" Grid.Row="8" Background="GhostWhite">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Lat:" Grid.Column="0" Grid.Row="0" Margin="7" TextAlignment="Right" />
+                        <TextBox Name="Latitude" Grid.Column="1" Grid.Row="0" Margin="3" Text="{Binding Latitude}" ToolTip="Enter latitude in Degrees Minutes Seconds or Decimal Degrees" IsEnabled="{Binding SiteControlsEnabled}" />
+
+                        <TextBlock Text="Long:" Grid.Column="2" Grid.Row="0" Margin="7" TextAlignment="Right" />
+                        <TextBox Name="Longitude" Grid.Column="3" Grid.Row="0" Margin="3" Text="{Binding Longitude}" ToolTip="Enter longitude in Degrees Minutes Seconds or Decimal Degrees" IsEnabled="{Binding SiteControlsEnabled}"/>
+                    </Grid>
+
+                    <TextBlock Text="Images:" TextAlignment="Right" Grid.Column="0" Grid.Row="9" Margin="7"></TextBlock>
+
+                    <ListBox Name="imgList" Grid.Column="1" Grid.Row="9" ItemsSource="{Binding SiteImages}" Margin="5" SelectedIndex="{Binding SelectedImage, Mode=TwoWay}" AllowDrop="{Binding CanDragDropImages}">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="DragEnter">
+                                <caliburn:ActionMessage MethodName="StartImageDrag">
+                                    <caliburn:Parameter Value="$eventArgs" />
+                                </caliburn:ActionMessage>
+                            </i:EventTrigger>
+                            <i:EventTrigger EventName="Drop">
+                                <caliburn:ActionMessage MethodName="DoImageDrag">
+                                    <caliburn:Parameter Value="$eventArgs" />
+                                </caliburn:ActionMessage>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </ListBox>
+
+                    <StackPanel Grid.Column="2" Grid.Row="9" Grid.ColumnSpan="3">
+                        <Button Name="btnNewImage"  Margin="3,5,3,3" Height="24" VerticalAlignment="Top" ToolTip="Add a new image associated with this site" Visibility="{Binding DoneCancelVisible}" HorizontalAlignment="Left">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="/IndiaTango;component/Images/new_16.png" Width="16" Height="16" Margin="3,0" />
+                                <TextBlock Text="Add Image" HorizontalAlignment="Left" />
+                            </StackPanel>
+                        </Button>
+
+                        <Button Name="btnDeleteImage" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="Delete the currently selected image" Visibility="{Binding DoneCancelVisible}" HorizontalAlignment="Left">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="/IndiaTango;component/Images/delete_16.png" Width="16" Height="16" Margin="3,0" />
+                                <TextBlock Text="Delete Image"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+
+                    <Button Name="btnSensors" Grid.Column="0" Grid.Row="10" FontSize="15" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding ActionButtonsEnabled}" VerticalAlignment="Top">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/IndiaTango;component/Images/sensor_32.png" Width="32" Height="32" SnapsToDevicePixels="True" HorizontalAlignment="Left"/>
+                            <TextBlock Text="Sensors" HorizontalAlignment="Center" Margin="5" />
+                        </StackPanel>
+                    </Button>
+
+                    <TextBlock Grid.Row="10" Grid.Column="1" Visibility="{Binding SensorWarningVisible}" Margin="5" Padding="5" Background="Orange" TextWrapping="Wrap" TextAlignment="Left" Text="One or more of the sensors you imported shows signs of failure. Click 'Sensors' to identify them" />
+
+
+
+
+
+                    <Rectangle Height="3" Fill="OrangeRed" Margin="0,5" Grid.Row="11" Grid.ColumnSpan="5" SnapsToDevicePixels="True" Stroke="White" />
+
+                    <Button Name="btnSiteCreate" Grid.Row="12" Grid.Column="0" FontSize="15" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Visibility="{Binding CreateEditDeleteVisible}">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/IndiaTango;component/Images/new_site.png" Width="32" Height="32" VerticalAlignment="Top" SnapsToDevicePixels="True" HorizontalAlignment="Left" />
+                            <TextBlock Text="New Site" VerticalAlignment="Center" Margin="5" />
+                        </StackPanel>
+                    </Button>
+
+                    <StackPanel  Grid.Row="12" Grid.Column="1" Grid.ColumnSpan="5" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Name="btnSiteDone" FontSize="15" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Visibility="{Binding DoneCancelVisible}" VerticalAlignment="Bottom" SnapsToDevicePixels="True">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="/IndiaTango;component/Images/save_32.png" Width="32" Height="32" />
+                                <TextBlock Text="Save" VerticalAlignment="Center" Margin="5" />
+                            </StackPanel>
+                        </Button>
+
+                        <!--WPF is doing crazy things to these icons. Im not sure why they get blurred as is seen in the save icon-->
+                        <Button Name="btnSiteCancel" FontSize="15" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Visibility="{Binding DoneCancelVisible}" VerticalAlignment="Bottom">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="/IndiaTango;component/Images/cancel_32.png" Width="32" Height="32" VerticalAlignment="Top" SnapsToDevicePixels="True" HorizontalAlignment="Left" />
+                                <TextBlock Text="Cancel" VerticalAlignment="Center" Margin="5" />
+                            </StackPanel>
+                        </Button>
+
+                        <Button Name="btnSiteEdit" FontSize="15" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Visibility="{Binding CreateEditDeleteVisible}" IsEnabled="{Binding EditDeleteEnabled}" VerticalAlignment="Bottom">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="/IndiaTango;component/Images/edit_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="False" />
+                                <TextBlock Text="Edit" VerticalAlignment="Center" Margin="5" />
+                            </StackPanel>
+                        </Button>
+
+                        <Button Name="btnSiteDelete" FontSize="15"  HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Visibility="{Binding CreateEditDeleteVisible}" IsEnabled="{Binding EditDeleteEnabled}" VerticalAlignment="Bottom">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="/IndiaTango;component/Images/delete_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
+                                <TextBlock Text="Delete" VerticalAlignment="Center" Margin="5" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
                 </Grid>
-
-                <TextBlock Text="Images:" TextAlignment="Right" Grid.Column="0" Grid.Row="9" Margin="7"></TextBlock>
-
-                <ListBox Name="imgList" Grid.Column="1" Grid.Row="9" ItemsSource="{Binding SiteImages}" Margin="5" SelectedIndex="{Binding SelectedImage, Mode=TwoWay}" AllowDrop="{Binding CanDragDropImages}">
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="DragEnter">
-                            <caliburn:ActionMessage MethodName="StartImageDrag">
-                                <caliburn:Parameter Value="$eventArgs" />
-                            </caliburn:ActionMessage>
-                        </i:EventTrigger>
-                        <i:EventTrigger EventName="Drop">
-                            <caliburn:ActionMessage MethodName="DoImageDrag">
-                                <caliburn:Parameter Value="$eventArgs" />
-                            </caliburn:ActionMessage>
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
-                </ListBox>
-
-                <StackPanel Grid.Column="2" Grid.Row="9" Grid.ColumnSpan="3">
-                    <Button Name="btnNewImage"  Margin="3,5,3,3" Height="24" VerticalAlignment="Top" ToolTip="Add a new image associated with this site" Visibility="{Binding DoneCancelVisible}" HorizontalAlignment="Left">
-                        <StackPanel Orientation="Horizontal">
-                            <Image Source="/IndiaTango;component/Images/new_16.png" Width="16" Height="16" Margin="3,0" />
-                            <TextBlock Text="Add Image" HorizontalAlignment="Left" />
-                        </StackPanel>
-                    </Button>
-
-                    <Button Name="btnDeleteImage" Margin="3" Height="24" VerticalAlignment="Top" ToolTip="Delete the currently selected image" Visibility="{Binding DoneCancelVisible}" HorizontalAlignment="Left">
-                        <StackPanel Orientation="Horizontal">
-                            <Image Source="/IndiaTango;component/Images/delete_16.png" Width="16" Height="16" Margin="3,0" />
-                            <TextBlock Text="Delete Image"/>
-                        </StackPanel>
-                    </Button>
-                </StackPanel>
-
-                <Button Name="btnSensors" Grid.Column="0" Grid.Row="10" FontSize="15" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding ActionButtonsEnabled}" VerticalAlignment="Top">
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="/IndiaTango;component/Images/sensor_32.png" Width="32" Height="32" SnapsToDevicePixels="True" HorizontalAlignment="Left"/>
-                        <TextBlock Text="Sensors" HorizontalAlignment="Center" Margin="5" />
-                    </StackPanel>
-                </Button>
-
-                <TextBlock Grid.Row="10" Grid.Column="1" Visibility="{Binding SensorWarningVisible}" Margin="5" Padding="5" Background="Orange" TextWrapping="Wrap" TextAlignment="Left" Text="One or more of the sensors you imported shows signs of failure. Click 'Sensors' to identify them" />
-
-
-
-
-
-                <Rectangle Height="3" Fill="OrangeRed" Margin="0,5" Grid.Row="11" Grid.ColumnSpan="5" SnapsToDevicePixels="True" Stroke="White" />
-
-                <Button Name="btnSiteCreate" Grid.Row="12" Grid.Column="0" FontSize="15" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Visibility="{Binding CreateEditDeleteVisible}">
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="/IndiaTango;component/Images/new_site.png" Width="32" Height="32" VerticalAlignment="Top" SnapsToDevicePixels="True" HorizontalAlignment="Left" />
-                        <TextBlock Text="New Site" VerticalAlignment="Center" Margin="5" />
-                    </StackPanel>
-                </Button>
-
-                <StackPanel  Grid.Row="12" Grid.Column="1" Grid.ColumnSpan="5" Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Name="btnSiteDone" FontSize="15" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Visibility="{Binding DoneCancelVisible}" VerticalAlignment="Bottom" SnapsToDevicePixels="True">
-                        <StackPanel Orientation="Horizontal">
-                            <Image Source="/IndiaTango;component/Images/save_32.png" Width="32" Height="32" />
-                            <TextBlock Text="Save" VerticalAlignment="Center" Margin="5" />
-                        </StackPanel>
-                    </Button>
-
-                    <!--WPF is doing crazy things to these icons. Im not sure why they get blurred as is seen in the save icon-->
-                    <Button Name="btnSiteCancel" FontSize="15" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Visibility="{Binding DoneCancelVisible}" VerticalAlignment="Bottom">
-                        <StackPanel Orientation="Horizontal">
-                            <Image Source="/IndiaTango;component/Images/cancel_32.png" Width="32" Height="32" VerticalAlignment="Top" SnapsToDevicePixels="True" HorizontalAlignment="Left" />
-                            <TextBlock Text="Cancel" VerticalAlignment="Center" Margin="5" />
-                        </StackPanel>
-                    </Button>
-
-                    <Button Name="btnSiteEdit" FontSize="15" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Visibility="{Binding CreateEditDeleteVisible}" IsEnabled="{Binding EditDeleteEnabled}" VerticalAlignment="Bottom">
-                        <StackPanel Orientation="Horizontal">
-                            <Image Source="/IndiaTango;component/Images/edit_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="False" />
-                            <TextBlock Text="Edit" VerticalAlignment="Center" Margin="5" />
-                        </StackPanel>
-                    </Button>
-
-                    <Button Name="btnSiteDelete" FontSize="15"  HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Visibility="{Binding CreateEditDeleteVisible}" IsEnabled="{Binding EditDeleteEnabled}" VerticalAlignment="Bottom">
-                        <StackPanel Orientation="Horizontal">
-                            <Image Source="/IndiaTango;component/Images/delete_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
-                            <TextBlock Text="Delete" VerticalAlignment="Center" Margin="5" />
-                        </StackPanel>
-                    </Button>
-                </StackPanel>
-            </Grid>
+            </StackPanel>
         </GroupBox>
 
         <GroupBox Grid.Column="0" Grid.Row="1" Header="Actions" Name="groupBox2" Margin="10 10 5 5" Padding="0" BorderBrush="OrangeRed">

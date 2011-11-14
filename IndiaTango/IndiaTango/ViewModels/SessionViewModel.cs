@@ -166,6 +166,11 @@ namespace IndiaTango.ViewModels
             get { return string.Format("{0}", (_ds != null ? _ds.IdentifiableName : Common.UnknownSite)); }
         }
 
+        public string MetadataHeader
+        {
+            get { return SelectedSensor == null ? "Site Properties" : string.Format("{0} Properties", SelectedSensor.Name); }
+        }
+
         public double ProgressBarPercent
         {
             get { return _progressBarPercent; }
@@ -271,6 +276,9 @@ namespace IndiaTango.ViewModels
                 }
                 NotifyOfPropertyChange(() => SiteSelected);
                 NotifyOfPropertyChange(() => SelectedSensor);
+                NotifyOfPropertyChange(() => MetadataHeader);
+                NotifyOfPropertyChange(() => SensorMetadataVisibility);
+                NotifyOfPropertyChange(() => SiteMetadataVisibility);
             }
         }
 
@@ -288,8 +296,179 @@ namespace IndiaTango.ViewModels
 
                 NotifyOfPropertyChange(() => SiteSelected);
                 NotifyOfPropertyChange(() => SelectedSensor);
+                NotifyOfPropertyChange(() => MetadataHeader);
+                NotifyOfPropertyChange(() => SensorMetadataVisibility);
+                NotifyOfPropertyChange(() => SiteMetadataVisibility);
+
+                NotifyOfPropertyChange(() => SensorName);
+                NotifyOfPropertyChange(() => SensorDescription);
+                NotifyOfPropertyChange(() => SensorLowerLimit);
+                NotifyOfPropertyChange(() => SensorUpperLimit);
+                NotifyOfPropertyChange(() => SensorUnit);
+                NotifyOfPropertyChange(() => SensorMaximumRateOfChange);
+                NotifyOfPropertyChange(() => SensorManufacturer);
+                NotifyOfPropertyChange(() => SensorSerialNumber);
+                NotifyOfPropertyChange(() => SensorErrorThreshold);
+                NotifyOfPropertyChange(() => SensorSummaryType);
             }
         }
+
+        public Visibility SensorMetadataVisibility
+        {
+            get { return _selectedSensor == null ? Visibility.Collapsed : Visibility.Visible; }
+        }
+
+        public Visibility SiteMetadataVisibility
+        {
+            get { return _selectedSensor == null ? Visibility.Visible : Visibility.Collapsed; }
+        }
+
+        #region SensorMetaData
+
+        public string SensorName
+        {
+            get { return _selectedSensor != null ? _selectedSensor.Name : "!!!!"; }
+            set
+            {
+                if (_selectedSensor != null)
+                {
+                    _selectedSensor.Name = value;
+                }
+                
+                NotifyOfPropertyChange(() => SensorList);
+            }
+        }
+
+        public string SensorDescription
+        {
+            get { return _selectedSensor != null ? _selectedSensor.Description : "!!!!"; }
+            set
+            {
+                if (_selectedSensor != null)
+                    _selectedSensor.Description = value;
+            }
+        }
+
+        public string SensorLowerLimit
+        {
+            get { return _selectedSensor != null ? _selectedSensor.LowerLimit.ToString() : "!!!!"; }
+            set
+            {
+                if (_selectedSensor != null)
+                {
+                    try
+                    {
+                        _selectedSensor.LowerLimit = int.Parse(value);
+                    }
+                    catch (Exception)
+                    {
+                        NotifyOfPropertyChange(() => SensorLowerLimit);
+                    }
+                }
+            }
+        }
+
+        public string SensorUpperLimit
+        {
+            get { return _selectedSensor != null ? _selectedSensor.UpperLimit.ToString() : "!!!!"; }
+            set
+            {
+                if (_selectedSensor != null)
+                {
+                    try
+                    {
+                        _selectedSensor.UpperLimit = int.Parse(value);
+                    }
+                    catch (Exception)
+                    {
+                        NotifyOfPropertyChange(() => SensorUpperLimit);
+                    }
+                }
+            }
+        }
+
+        public string SensorUnit
+        {
+            get { return _selectedSensor != null ? _selectedSensor.Unit : "!!!!"; }
+            set
+            {
+                if (_selectedSensor != null)
+                    _selectedSensor.Unit = value;
+            }
+        }
+
+        public string SensorMaximumRateOfChange
+        {
+            get { return _selectedSensor != null ? _selectedSensor.MaxRateOfChange.ToString() : "!!!!"; }
+            set
+            {
+                if (_selectedSensor != null)
+                {
+                    try
+                    {
+                        _selectedSensor.MaxRateOfChange = int.Parse(value);
+                    }
+                    catch (Exception)
+                    {
+                        NotifyOfPropertyChange(() => SensorMaximumRateOfChange);
+                    }
+                }
+            }
+        }
+
+        public string SensorManufacturer
+        {
+            get { return _selectedSensor != null ? _selectedSensor.Manufacturer : "!!!!"; }
+            set
+            {
+                if (_selectedSensor != null)
+                    _selectedSensor.Manufacturer = value;
+            }
+        }
+
+        public string SensorSerialNumber
+        {
+            get { return _selectedSensor != null ? _selectedSensor.SerialNumber : "!!!!"; }
+            set
+            {
+                if (_selectedSensor != null)
+                    _selectedSensor.SerialNumber = value;
+            }
+        }
+
+        public string SensorErrorThreshold
+        {
+            get { return _selectedSensor != null ? _selectedSensor.ErrorThreshold.ToString() : "!!!!"; }
+            set
+            {
+                if (_selectedSensor != null)
+                {
+                    try
+                    {
+                        _selectedSensor.ErrorThreshold = int.Parse(value);
+                    }
+                    catch (Exception)
+                    {
+                        NotifyOfPropertyChange(() => SensorErrorThreshold);
+                    }
+                }
+            }
+        }
+
+        public string[] SummaryTypes { get { return new[] { "Average", "Sum" }; } }
+
+        public int SensorSummaryType
+        {
+            get { return (_selectedSensor == null) ? 0 : (int)SelectedSensor.SummaryType; }
+            set
+            {
+                if (_selectedSensor != null)
+                    SelectedSensor.SummaryType = (SummaryType)value;
+                NotifyOfPropertyChange(() => SensorSummaryType);
+            }
+        }
+
+        #endregion
 
         public bool SiteControlsEnabled
         {
