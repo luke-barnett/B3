@@ -43,7 +43,17 @@ namespace IndiaTango.Models
 
         public static string GetSensorLogPath(string sensorName)
         {
-            return Path.Combine(Common.AppDataPath, "Logs", "SensorLog-" + sensorName + ".txt");
+            return Path.Combine(Common.AppDataPath, "Logs", "SensorLogs", sensorName + ".txt");
+        }
+
+        public static string GetSiteLogPath(Dataset dataSet)
+        {
+            return Path.Combine(Common.AppDataPath, "Logs", dataSet.IdentifiableName, "log.txt");
+        }
+
+        public static string GetSensorLogPathForSensorBelongingToSite(string sensorName, Dataset dataSet)
+        {
+            return Path.Combine(Common.AppDataPath, "Logs", dataSet.IdentifiableName, "SensorLogs", sensorName + ".txt");
         }
 
         /// <summary>
@@ -123,7 +133,7 @@ namespace IndiaTango.Models
         /// <returns></returns>
         public static string LogInfo(Dataset site, string threadName, string eventDetails)
         {
-            return LogBase(Info, threadName, eventDetails, null);
+            return site == null ? LogBase(Info, threadName, eventDetails, null) : LogBase(Info, threadName, eventDetails, GetSiteLogPath(site));
         }
 
         /// <summary>
@@ -135,7 +145,7 @@ namespace IndiaTango.Models
         /// <returns></returns>
         public static string LogWarning(Dataset site, string threadName, string eventDetails)
         {
-            return LogBase(Warning, threadName, eventDetails, null);
+            return site == null ? LogBase(Warning, threadName, eventDetails, null) : LogBase(Warning, threadName, eventDetails, GetSiteLogPath(site));
         }
 
         /// <summary>
@@ -147,7 +157,7 @@ namespace IndiaTango.Models
         /// <returns></returns>
         public static string LogError(Dataset site, string threadName, string eventDetails)
         {
-            return LogBase(Error, threadName, eventDetails, null);
+            return site == null ? LogBase(Error, threadName, eventDetails, null) : LogBase(Error, threadName, eventDetails, GetSiteLogPath(site));
         }
 
         /// <summary>
@@ -159,7 +169,7 @@ namespace IndiaTango.Models
         /// <returns></returns>
         public static string LogSensorInfo(Dataset site, string sensorName, string eventDetails)
         {
-            return LogBase(Info, sensorName, eventDetails, GetSensorLogPath(sensorName));
+            return site == null ? LogBase(Info, sensorName, eventDetails, GetSensorLogPath(sensorName)) : LogBase(Info, sensorName, eventDetails, GetSensorLogPathForSensorBelongingToSite(sensorName, site));
         }
 
         public static string GetLast20()
