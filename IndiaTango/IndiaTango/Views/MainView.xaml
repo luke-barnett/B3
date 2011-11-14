@@ -21,7 +21,7 @@
                 <Setter.Value>
                     <StackPanel Orientation="Vertical">
                         <Image Source="/IndiaTango;component/Images/open.png" Width="64" Height="64" />
-                        <TextBlock Text="Load Session"/>
+                        <TextBlock Text="Load Site"/>
                     </StackPanel>
                 </Setter.Value>
             </Setter>
@@ -31,7 +31,7 @@
                         <Setter.Value>
                             <StackPanel Orientation="Vertical">
                                 <Image Source="/IndiaTango;component/Images/open2.png" Width="64" Height="64" />
-                                <TextBlock Text="Load Session"/>
+                                <TextBlock Text="Load Site"/>
                             </StackPanel>
                         </Setter.Value>
                     </Setter>
@@ -76,7 +76,7 @@
             <Button Grid.Row="0" Grid.Column="0" Name="BtnNew"  FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10" VerticalContentAlignment="Bottom" IsEnabled="{Binding ButtonsEnabled}">
                 <StackPanel Orientation="Vertical">
                     <Image Source="/IndiaTango;component/Images/new.png" Width="64" Height="64" />
-                    <TextBlock Text="New Session" HorizontalAlignment="Center" />
+                    <TextBlock Text="New Site" HorizontalAlignment="Center" />
                 </StackPanel>
             </Button>
 
