@@ -678,7 +678,16 @@ namespace IndiaTango.ViewModels
 
                     reader.ProgressChanged += ImportProgressChanged;
 
-                    var readSensors = reader.ReadSensors(_bw, _ds);  // Prevent null references
+                    List<Sensor> readSensors = null;
+
+                    try
+                    {
+                        readSensors = reader.ReadSensors(_bw, _ds);  // Prevent null references
+                    }
+                    catch(Exception e)
+                    {
+                        Common.ShowMessageBoxWithException("Failed Import", "Bad File Format", false, true, e);
+                    }
 
                     if (readSensors == null)
                     {
