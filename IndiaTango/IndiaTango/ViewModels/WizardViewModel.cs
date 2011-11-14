@@ -548,7 +548,7 @@ namespace IndiaTango.ViewModels
             {
                 if (Common.Confirm("Confirm Delete", "Are you sure you want to delete this site?"))
                 {
-                    EventLogger.LogInfo(GetType().ToString(), "Site deleted. Site name: " + SelectedSite.Name);
+                    EventLogger.LogInfo(_ds, GetType().ToString(), "Site deleted. Site name: " + SelectedSite.Name);
 
                     var allSites = AllSites;
                     allSites.Remove(SelectedSite);
@@ -579,7 +579,7 @@ namespace IndiaTango.ViewModels
                     SelectedSite.Name = SiteName;
                     SelectedSite.UniversityContact = UniversityContact;
                     SelectedSite.Images = _siteImages.ToList();
-                    EventLogger.LogInfo(GetType().ToString(), "Site saved. Site name: " + SelectedSite.Name);
+                    EventLogger.LogInfo(_ds, GetType().ToString(), "Site saved. Site name: " + SelectedSite.Name);
                 }
                 //else if creating a new one
                 else
@@ -589,7 +589,7 @@ namespace IndiaTango.ViewModels
                     _allSites.Add(b);
                     Site.ExportAll(_allSites);
                     SelectedSite = b;
-                    EventLogger.LogInfo(GetType().ToString(), "Site created. Site name: " + SelectedSite.Name);
+                    EventLogger.LogInfo(_ds, GetType().ToString(), "Site created. Site name: " + SelectedSite.Name);
                 }
 
                 Site.ExportAll(_allSites);
@@ -601,7 +601,7 @@ namespace IndiaTango.ViewModels
             catch (Exception e)
             {
                 Common.ShowMessageBox("Error", e.Message, false, true);
-                EventLogger.LogError(GetType().ToString(), "Tried to create site but failed. Details: " + e.Message);
+                EventLogger.LogError(_ds, GetType().ToString(), "Tried to create site but failed. Details: " + e.Message);
             }
         }
 

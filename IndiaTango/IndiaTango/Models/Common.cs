@@ -187,7 +187,7 @@ namespace IndiaTango.Models
 
         public static bool ShowMessageBoxWithException(string title, string text, bool showCancel, bool isError, Exception ex)
         {
-            EventLogger.LogError("MessageBoxWithException", "An exception was thrown. " + ex.Message);
+            EventLogger.LogError(null, "MessageBoxWithException", "An exception was thrown. " + ex.Message);
 
             return ShowMessageBoxWithExpansion(title, text, showCancel, isError, ex.Message);
         }
@@ -283,7 +283,7 @@ namespace IndiaTango.Models
             //Reset the invalidation handler
             InvalidationHandler.ForceImmediateInvalidate = false;
 
-            EventLogger.LogInfo("Image Exporter", "Saved graph as image to: " + filename);
+            EventLogger.LogInfo(null, "Image Exporter", "Saved graph as image to: " + filename);
         }
 
         public static void RequestReason(Sensor sensor, SimpleContainer container, IWindowManager windowManager, string taskPerformed)

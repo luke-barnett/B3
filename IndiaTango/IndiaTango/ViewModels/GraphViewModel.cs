@@ -518,7 +518,7 @@ namespace IndiaTango.ViewModels
             var exportView = (_container.GetInstance(typeof (ExportToImageViewModel), "ExportToImageViewModel") as ExportToImageViewModel);
             if(exportView == null)
             {
-                EventLogger.LogError("Image Exporter","Failed to get a export image view");
+                EventLogger.LogError(null, "Image Exporter","Failed to get a export image view");
                 return;
             }
 

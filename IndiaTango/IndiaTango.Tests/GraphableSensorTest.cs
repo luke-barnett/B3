@@ -9,45 +9,45 @@ namespace IndiaTango.Tests
     [TestFixture]
     class GraphableSensorTest
     {
-        private GraphableSensor sensor;
-        private DateTime baseDate;
+        private GraphableSensor _gSensor;
+        private DateTime _baseDate;
 
         [SetUp]
         public void SetUp()
         {
             var rawSensor = new Sensor("Temperature", "Temperature at 30m", 40, 20, "C", 20, "Temperature Sensors Ltd.", "1102123", null);
 
-            rawSensor.AddState(new SensorState(DateTime.Now));
+            rawSensor.AddState(new SensorState(rawSensor, DateTime.Now));
 
-            baseDate = DateTime.Now;
+            _baseDate = DateTime.Now;
 
-            rawSensor.CurrentState.Values.Add(baseDate, 15);
-            rawSensor.CurrentState.Values.Add(baseDate.AddMinutes(15), 20);
-            rawSensor.CurrentState.Values.Add(baseDate.AddMinutes(30), 25);
+            rawSensor.CurrentState.Values.Add(_baseDate, 15);
+            rawSensor.CurrentState.Values.Add(_baseDate.AddMinutes(15), 20);
+            rawSensor.CurrentState.Values.Add(_baseDate.AddMinutes(30), 25);
 
-            sensor = new GraphableSensor(rawSensor);
+            _gSensor = new GraphableSensor(rawSensor);
         }
-        
+
         [Test]
         public void ColourTesting()
         {
-            Assert.IsNotNull(sensor.Colour);
+            Assert.IsNotNull(_gSensor.Colour);
 
-            sensor.Colour = Colors.Black;
+            _gSensor.Colour = Colors.Black;
 
-            Assert.AreEqual(sensor.Colour, Colors.Black);
+            Assert.AreEqual(_gSensor.Colour, Colors.Black);
         }
 
         [Test]
         public void GetSensor()
         {
-            Assert.IsNotNull(sensor.Sensor);
+            Assert.IsNotNull(_gSensor.Sensor);
         }
 
         [Test]
         public void DataPointsTest()
         {
-            var dataPoints = sensor.DataPoints.ToArray();
+            var dataPoints = _gSensor.DataPoints.ToArray();
             Assert.AreEqual(15, dataPoints[0].Y);
             Assert.AreEqual(20, dataPoints[1].Y);
             Assert.AreEqual(25, dataPoints[2].Y);
@@ -56,46 +56,46 @@ namespace IndiaTango.Tests
         [Test]
         public void SetBoundsTest()
         {
-            sensor.SetUpperAndLowerBounds(baseDate.AddMinutes(10), baseDate.AddMinutes(28));
-            Assert.AreEqual(1, sensor.DataPoints.Count());
+            _gSensor.SetUpperAndLowerBounds(_baseDate.AddMinutes(10), _baseDate.AddMinutes(28));
+            Assert.AreEqual(1, _gSensor.DataPoints.Count());
         }
 
         [Test]
         public void SetAndRemoveBoundsTest()
         {
             SetBoundsTest();
-            sensor.RemoveBounds();
-            Assert.AreEqual(3, sensor.DataPoints.Count());
+            _gSensor.RemoveBounds();
+            Assert.AreEqual(3, _gSensor.DataPoints.Count());
         }
 
         [Test]
         public void GetUpperBoundsTest()
         {
-            Assert.AreEqual(DateTime.MinValue, sensor.UpperBound);
+            Assert.AreEqual(DateTime.MinValue, _gSensor.UpperBound);
             SetBoundsTest();
-            Assert.AreEqual(baseDate.AddMinutes(28), sensor.UpperBound);
-            sensor.RemoveBounds();
-            Assert.AreEqual(DateTime.MinValue, sensor.UpperBound);
+            Assert.AreEqual(_baseDate.AddMinutes(28), _gSensor.UpperBound);
+            _gSensor.RemoveBounds();
+            Assert.AreEqual(DateTime.MinValue, _gSensor.UpperBound);
         }
 
         [Test]
         public void GetLowerBoundsTest()
         {
-            Assert.AreEqual(DateTime.MinValue, sensor.LowerBound);
+            Assert.AreEqual(DateTime.MinValue, _gSensor.LowerBound);
             SetBoundsTest();
-            Assert.AreEqual(baseDate.AddMinutes(10), sensor.LowerBound);
-            sensor.RemoveBounds();
-            Assert.AreEqual(DateTime.MinValue, sensor.LowerBound);
+            Assert.AreEqual(_baseDate.AddMinutes(10), _gSensor.LowerBound);
+            _gSensor.RemoveBounds();
+            Assert.AreEqual(DateTime.MinValue, _gSensor.LowerBound);
         }
 
         [Test]
         public void GetBoundsSet()
         {
-            Assert.AreEqual(false, sensor.BoundsSet);
+            Assert.AreEqual(false, _gSensor.BoundsSet);
             SetBoundsTest();
-            Assert.AreEqual(true, sensor.BoundsSet);
-            sensor.RemoveBounds();
-            Assert.AreEqual(false, sensor.BoundsSet);
+            Assert.AreEqual(true, _gSensor.BoundsSet);
+            _gSensor.RemoveBounds();
+            Assert.AreEqual(false, _gSensor.BoundsSet);
         }
     }
 }

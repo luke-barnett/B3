@@ -252,17 +252,17 @@ namespace IndiaTango.Models
 
         public static void ExportAll(ObservableCollection<Site> buoys)
         {
-            EventLogger.LogInfo("IndiaTango.Site.cs", "Site list export started.");
+            EventLogger.LogInfo(null, "IndiaTango.Site.cs", "Site list export started.");
             var dcs = new DataContractSerializer(typeof(ObservableCollection<Site>));
             var stream = new FileStream(ExportPath, FileMode.Create);
             dcs.WriteObject(stream, buoys);
             stream.Close();
-            EventLogger.LogInfo("IndiaTango.Site.cs", "Site list export complete. File saved to: " + ExportPath);
+            EventLogger.LogInfo(null, "IndiaTango.Site.cs", "Site list export complete. File saved to: " + ExportPath);
         }
 
         public static ObservableCollection<Site> ImportAll()
         {
-            EventLogger.LogInfo("IndiaTango.Site.cs", "Site list import started. Loading from: " + ExportPath);
+            EventLogger.LogInfo(null, "IndiaTango.Site.cs", "Site list import started. Loading from: " + ExportPath);
             var dcs = new DataContractSerializer(typeof(ObservableCollection<Site>));
 
             if (!File.Exists(ExportPath))
@@ -286,7 +286,7 @@ namespace IndiaTango.Models
                         s.UniversityContact = c;
                 }
 
-            EventLogger.LogInfo("IndiaTango.Site.cs", "Site list import complete.");
+            EventLogger.LogInfo(null, "IndiaTango.Site.cs", "Site list import complete.");
             return list;
         }
 

@@ -44,23 +44,23 @@ namespace IndiaTango.Tests
         [Test]
         public void InformationLogTest()
         {
-            Assert.AreEqual(EventLogger.NextRefNum + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       Thread-1                  Application started", EventLogger.LogInfo(_threadOne.Name, "Application started"));
-            Assert.AreEqual(EventLogger.NextRefNum + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       Thread-1                  Loaded CSV File", EventLogger.LogInfo(_threadOne.Name, "Loaded CSV File"));
-            Assert.AreEqual(EventLogger.NextRefNum + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       A_LONG_THREAD_NAME_IS_THI Loaded CSV File", EventLogger.LogInfo(_longThreadName.Name, "Loaded CSV File"));
+            Assert.AreEqual(EventLogger.NextRefNum + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       Thread-1                  Application started", EventLogger.LogInfo(null, _threadOne.Name, "Application started"));
+            Assert.AreEqual(EventLogger.NextRefNum + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       Thread-1                  Loaded CSV File", EventLogger.LogInfo(null, _threadOne.Name, "Loaded CSV File"));
+            Assert.AreEqual(EventLogger.NextRefNum + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       A_LONG_THREAD_NAME_IS_THI Loaded CSV File", EventLogger.LogInfo(null, _longThreadName.Name, "Loaded CSV File"));
         }
 
         [Test]
         public void WarningLogTest()
         {
-            Assert.AreEqual(EventLogger.NextRefNum + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    WARNING    GUI Thread                Levels of Low IQ detected", EventLogger.LogWarning(_guiThread.Name, "Levels of Low IQ detected"));
-            Assert.AreEqual(EventLogger.NextRefNum + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    WARNING    GUI Thread                Just another silly test", EventLogger.LogWarning(_guiThread.Name, "Just another silly test"));
+            Assert.AreEqual(EventLogger.NextRefNum + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    WARNING    GUI Thread                Levels of Low IQ detected", EventLogger.LogWarning(null, _guiThread.Name, "Levels of Low IQ detected"));
+            Assert.AreEqual(EventLogger.NextRefNum + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    WARNING    GUI Thread                Just another silly test", EventLogger.LogWarning(null, _guiThread.Name, "Just another silly test"));
         }
 
         [Test]
         public void ErrorLogTest()
         {
-            Assert.AreEqual(EventLogger.NextRefNum + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    ERROR      Thread-0                  Application fatal error or something", EventLogger.LogError(_threadZero.Name, "Application fatal error or something"));
-            Assert.AreEqual(EventLogger.NextRefNum + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    ERROR      Thread-0                  User has uploaded a picture of a cat, not a .csv file", EventLogger.LogError(_threadZero.Name, "User has uploaded a picture of a cat, not a .csv file"));
+            Assert.AreEqual(EventLogger.NextRefNum + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    ERROR      Thread-0                  Application fatal error or something", EventLogger.LogError(null, _threadZero.Name, "Application fatal error or something"));
+            Assert.AreEqual(EventLogger.NextRefNum + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    ERROR      Thread-0                  User has uploaded a picture of a cat, not a .csv file", EventLogger.LogError(null, _threadZero.Name, "User has uploaded a picture of a cat, not a .csv file"));
         }
         #endregion
 
@@ -68,40 +68,40 @@ namespace IndiaTango.Tests
         [Test]
         public void InformationLogNullThreadTest()
         {
-            Assert.AreEqual(EventLogger.NextRefNum + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       <No Thread Name>          Levels of Low IQ detected", EventLogger.LogInfo(null, "Levels of Low IQ detected"));
+            Assert.AreEqual(EventLogger.NextRefNum + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       <No Thread Name>          Levels of Low IQ detected", EventLogger.LogInfo(null, null, "Levels of Low IQ detected"));
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void InformationLogNullDetailsTest()
         {
-            Assert.AreEqual(EventLogger.NextRefNum + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       GUI Thread                ", EventLogger.LogInfo(_guiThread.Name, ""));
+            Assert.AreEqual(EventLogger.NextRefNum + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       GUI Thread                ", EventLogger.LogInfo(null, _guiThread.Name, ""));
         }
 
         [Test]
         public void WarningLogNullThreadTest()
         {
-            Assert.AreEqual(EventLogger.NextRefNum + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    WARNING    <No Thread Name>          Levels of Low IQ detected", EventLogger.LogWarning(null, "Levels of Low IQ detected"));
+            Assert.AreEqual(EventLogger.NextRefNum + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    WARNING    <No Thread Name>          Levels of Low IQ detected", EventLogger.LogWarning(null, null, "Levels of Low IQ detected"));
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void WarningLogNullDetailsTest()
         {
-            Assert.AreEqual(EventLogger.NextRefNum + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    WARNING    GUI Thread                ", EventLogger.LogWarning(_guiThread.Name, ""));
+            Assert.AreEqual(EventLogger.NextRefNum + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    WARNING    GUI Thread                ", EventLogger.LogWarning(null, _guiThread.Name, ""));
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void ErrorLogNullDetailsTest()
         {
-            Assert.AreEqual(EventLogger.NextRefNum + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    ERROR      GUI Thread                ", EventLogger.LogError(_guiThread.Name, ""));
+            Assert.AreEqual(EventLogger.NextRefNum + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    ERROR      GUI Thread                ", EventLogger.LogError(null, _guiThread.Name, ""));
         }
 
         [Test]
         public void ErrorLogNullThreadTest()
         {
-            Assert.AreEqual(EventLogger.NextRefNum + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    ERROR      <No Thread Name>          Levels of Low IQ detected", EventLogger.LogError(null, "Levels of Low IQ detected"));
+            Assert.AreEqual(EventLogger.NextRefNum + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    ERROR      <No Thread Name>          Levels of Low IQ detected", EventLogger.LogError(null, null, "Levels of Low IQ detected"));
         }
         #endregion
 
@@ -135,7 +135,7 @@ namespace IndiaTango.Tests
 
         public static void WriteError()
         {
-            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + " ERROR    " + Thread.CurrentThread.Name + "                   ", EventLogger.LogError(Thread.CurrentThread.Name, "Weow weow weow"));
+            Assert.AreEqual(DateTime.Now.ToString(EventLogger.TimeFormatString) + " ERROR    " + Thread.CurrentThread.Name + "                   ", EventLogger.LogError(null, Thread.CurrentThread.Name, "Weow weow weow"));
         }
         #endregion
 
@@ -143,27 +143,27 @@ namespace IndiaTango.Tests
         [Test]
         public void LogSensorInfoTest()
         {
-            Assert.AreEqual(EventLogger.NextRefNum + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       Temperature               Because we can.", EventLogger.LogSensorInfo("Temperature", "Because we can."));
+            Assert.AreEqual(EventLogger.NextRefNum + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       Temperature               Because we can.", EventLogger.LogSensorInfo(null, "Temperature", "Because we can."));
 
-            Assert.AreEqual(EventLogger.NextRefNum + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       This Sensor               Because we can.", EventLogger.LogSensorInfo("This Sensor", "Because we can."));
+            Assert.AreEqual(EventLogger.NextRefNum + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       This Sensor               Because we can.", EventLogger.LogSensorInfo(null, "This Sensor", "Because we can."));
         }
 
         [Test]
         public void LogSensorChangeTest()
         {
-            var state = new SensorState(DateTime.Now,
+            var state = new SensorState(null, DateTime.Now,
                                         new Dictionary<DateTime, float> { { new DateTime(2011, 5, 5, 5, 5, 0), 2000 } }, null);
             state.Reason = "Because we can.";
             var result = state.LogChange("Temperature", "Extrapolation performed.");
 
-            Assert.AreEqual(EventLogger.NextRefNum-1 + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       Temperature               Extrapolation performed. Reason: Because we can.", result);
+            Assert.AreEqual(EventLogger.NextRefNum - 1 + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       Temperature               Extrapolation performed. Reason: Because we can.", result);
 
-            state = new SensorState(DateTime.Now,
+            state = new SensorState(null, DateTime.Now,
                                         new Dictionary<DateTime, float> { { new DateTime(2011, 5, 5, 5, 5, 0), 2000 } }, null);
             state.Reason = "Because we can.";
             result = state.LogChange("Temperature", "Did some awesome work on the dataset.");
 
-            Assert.AreEqual(EventLogger.NextRefNum-1 + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       Temperature               Did some awesome work on the dataset. Reason: Because we can.", result);
+            Assert.AreEqual(EventLogger.NextRefNum - 1 + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       Temperature               Did some awesome work on the dataset. Reason: Because we can.", result);
         }
 
         [Test]
@@ -171,26 +171,26 @@ namespace IndiaTango.Tests
         {
             var sensorLogPath = Path.Combine(EventLogger.GetSensorLogPath("Temperature"));
             var sensorTwoLogPath = Path.Combine(EventLogger.GetSensorLogPath("Temperature20"));
-            
-            if(File.Exists(sensorLogPath))
+
+            if (File.Exists(sensorLogPath))
                 File.Delete(sensorLogPath);
 
             if (File.Exists(sensorTwoLogPath))
                 File.Delete(sensorTwoLogPath);
 
-            var state = new SensorState(DateTime.Now,
+            var state = new SensorState(null, DateTime.Now,
                                         new Dictionary<DateTime, float> { { new DateTime(2011, 5, 5, 5, 5, 0), 2000 } }, null);
             state.Reason = "Because we can.";
             state.LogChange("Temperature", "Extrapolation performed.");
 
-            Assert.AreEqual(EventLogger.NextRefNum-1 + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       Temperature               Extrapolation performed. Reason: Because we can.\r\n", File.ReadAllText(sensorLogPath));
+            Assert.AreEqual(EventLogger.NextRefNum - 1 + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       Temperature               Extrapolation performed. Reason: Because we can.\r\n", File.ReadAllText(sensorLogPath));
 
-            state = new SensorState(DateTime.Now,
+            state = new SensorState(null, DateTime.Now,
                                         new Dictionary<DateTime, float> { { new DateTime(2011, 5, 5, 5, 5, 0), 2000 } }, null);
             state.Reason = "Because we can.";
             state.LogChange("Temperature20", "Extrapolation performed.");
 
-            Assert.AreEqual(EventLogger.NextRefNum-1 + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       Temperature20             Extrapolation performed. Reason: Because we can.\r\n", File.ReadAllText(sensorTwoLogPath));
+            Assert.AreEqual(EventLogger.NextRefNum - 1 + " " + DateTime.Now.ToString(EventLogger.TimeFormatString) + "    INFO       Temperature20             Extrapolation performed. Reason: Because we can.\r\n", File.ReadAllText(sensorTwoLogPath));
 
             Assert.IsTrue(File.Exists(sensorLogPath));
             Assert.IsTrue(File.Exists(sensorTwoLogPath));

@@ -16,7 +16,7 @@ namespace IndiaTango.Tests
         {
             _detector = new RunningMeanStandardDeviationDetector { SmoothingPeriod = 240, NumberOfStandardDeviations = 0.5f };
             _sensor = new Sensor("Test Sensor", "Used in testing", 100, 10, "Unit", 5, "Acme", "ABCD", new Dataset(null) { DataInterval = 60 });
-            _sensor.AddState(new SensorState(DateTime.Now));
+            _sensor.AddState(new SensorState(_sensor, DateTime.Now));
             _sensor.CurrentState.Values.Add(DateTime.Now.AddHours(1), 5);
             _sensor.CurrentState.Values.Add(DateTime.Now.AddHours(2), 5);
             _sensor.CurrentState.Values.Add(DateTime.Now.AddHours(3), 5);

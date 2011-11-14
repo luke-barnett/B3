@@ -322,7 +322,7 @@ namespace IndiaTango.ViewModels
 
         public void btnMakeZero()
         {
-            EventLogger.LogInfo(GetType().ToString(), "Value updation started.");
+            EventLogger.LogInfo(_ds, GetType().ToString(), "Value updation started.");
 
             if (_selectedValues.Count == 0)
                 return;
@@ -341,7 +341,7 @@ namespace IndiaTango.ViewModels
         public void btnSpecify()
         {
             //TODO refactor
-            EventLogger.LogInfo(GetType().ToString(), "Value updation started.");
+            EventLogger.LogInfo(_ds, GetType().ToString(), "Value updation started.");
 
             if (_selectedValues.Count == 0)
                 return;
@@ -389,7 +389,7 @@ namespace IndiaTango.ViewModels
 
         public void btnExtrapolate()
         {
-            EventLogger.LogInfo(GetType().ToString(), "Value extrapolation invoked.");
+            EventLogger.LogInfo(_ds, GetType().ToString(), "Value extrapolation invoked.");
 
             if (SelectedSensor == null)
             {

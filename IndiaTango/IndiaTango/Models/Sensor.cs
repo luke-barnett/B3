@@ -350,7 +350,7 @@ namespace IndiaTango.Models
 
         public SensorState RawData
         {
-            get { return _rawData ?? (_rawData = new SensorState(DateTime.Now, new Dictionary<DateTime, float>(), "", true, null)); }
+            get { return _rawData ?? (_rawData = new SensorState(this, DateTime.Now, new Dictionary<DateTime, float>(), "", true, null)); }
         }
 
         /// <summary>

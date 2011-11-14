@@ -21,26 +21,27 @@ namespace IndiaTango.Models
         private Dictionary<DateTime, float> _lowerLine;
         private Dictionary<DateTime, LinkedList<int>> _changes;
         private bool _isRaw = false;
+        private Sensor _owner;
 
         public SensorState Clone()
         {
             var d = _valueList.ToDictionary(v => v.Key, v => v.Value);
             var c = _changes.ToDictionary(v => v.Key, v => v.Value);
-            var s = new SensorState(d,c);
-            
+            var s = new SensorState(_owner, d, c);
+
             return s;
         }
 
         #region Constructors
-        public SensorState(Dictionary<DateTime, float> valueList, string reason, Dictionary<DateTime, LinkedList<int>> changes ) : this(DateTime.Now, valueList, reason, false, changes) { }
-        public SensorState(Dictionary<DateTime, float> valueList,Dictionary<DateTime,LinkedList<int>> changes) : this(DateTime.Now, valueList, changes) { }
+        public SensorState(Sensor owner, Dictionary<DateTime, float> valueList, string reason, Dictionary<DateTime, LinkedList<int>> changes) : this(owner, DateTime.Now, valueList, reason, false, changes) { }
+        public SensorState(Sensor owner, Dictionary<DateTime, float> valueList, Dictionary<DateTime, LinkedList<int>> changes) : this(owner, DateTime.Now, valueList, changes) { }
 
         /// <summary>
         /// Creates a new sensor state with the specified timestamp representing the date it was last edited.
         /// </summary>
         /// <param name="editTimestamp">A DateTime object representing the last edit date and time for this sensor state.</param>
-        public SensorState(DateTime editTimestamp)
-            : this(editTimestamp, new Dictionary<DateTime, float>(), new Dictionary<DateTime, LinkedList<int>>())
+        public SensorState(Sensor owner, DateTime editTimestamp)
+            : this(owner, editTimestamp, new Dictionary<DateTime, float>(), new Dictionary<DateTime, LinkedList<int>>())
         {
         }
 
@@ -49,16 +50,17 @@ namespace IndiaTango.Models
         /// </summary>
         /// <param name="editTimestamp">A DateTime object representing the last edit date and time for this sensor state.</param>
         /// <param name="valueList">A list of data values, representing values recorded in this sensor state.</param>
-        public SensorState(DateTime editTimestamp, Dictionary<DateTime, float> valueList, Dictionary<DateTime,LinkedList<int>> changes) : this(editTimestamp, valueList, "", false, changes) { }
+        public SensorState(Sensor owner, DateTime editTimestamp, Dictionary<DateTime, float> valueList, Dictionary<DateTime, LinkedList<int>> changes) : this(owner, editTimestamp, valueList, "", false, changes) { }
 
         /// <summary>
         /// Creates a new sensor state with the specified timestamp representing the date it was last edited, a list of values representing data values recorded in this state, and a reason for the changes stored in this state.
         /// </summary>
+        /// <param name="owner">The sensor the sensor state belongs to</param>
         /// <param name="editTimestamp">A DateTime object representing the last edit date and time for this sensor state.</param>
         /// <param name="valueList">A list of data values, representing values recorded in this sensor state.</param>
         /// <param name="reason">A string indicating the reason for the changes made in this state.</param>
         /// <param name="isRaw">Whether or not this represents the sensors raw data.</param>
-        public SensorState(DateTime editTimestamp, Dictionary<DateTime, float> valueList, string reason, bool isRaw, Dictionary<DateTime, LinkedList<int>> changes)
+        public SensorState(Sensor owner, DateTime editTimestamp, Dictionary<DateTime, float> valueList, string reason, bool isRaw, Dictionary<DateTime, LinkedList<int>> changes)
         {
             if (valueList == null)
                 throw new ArgumentNullException("The list of values in this state cannot be null.");
@@ -68,9 +70,10 @@ namespace IndiaTango.Models
             _valueList = valueList;
             _isRaw = isRaw;
             _changes = changes ?? new Dictionary<DateTime, LinkedList<int>>();
+            _owner = owner;
         }
 
-#endregion
+        #endregion
 
         [DataMember]
         public Dictionary<DateTime, LinkedList<int>> Changes
@@ -78,7 +81,7 @@ namespace IndiaTango.Models
             get { return _changes; }
             set { _changes = value; }
         }
-        
+
         [DataMember]
         public bool IsRaw
         {
@@ -249,66 +252,66 @@ namespace IndiaTango.Models
             return sum / count;
         }
 
-		public SensorState Calibrate(DateTime start, DateTime end, double origA, double origB, double newA, double newB)
-		{
-			if(start >= end)
-				throw new ArgumentException("End time must be greater than start time");
+        public SensorState Calibrate(DateTime start, DateTime end, double origA, double origB, double newA, double newB)
+        {
+            if (start >= end)
+                throw new ArgumentException("End time must be greater than start time");
 
-			if(origB > origA)
-				throw new ArgumentException("Calibrated B value must be less than the calibrated A value");
+            if (origB > origA)
+                throw new ArgumentException("Calibrated B value must be less than the calibrated A value");
 
-			if (newB > newA)
-				throw new ArgumentException("Current B value must be less than the current A value");
+            if (newB > newA)
+                throw new ArgumentException("Current B value must be less than the current A value");
 
-			//The total minutes in the time span
-			double totalMinutes = end.Subtract(start).TotalMinutes;
+            //The total minutes in the time span
+            double totalMinutes = end.Subtract(start).TotalMinutes;
 
-			//The distance from the median line to the A and B points
-			double origMedianDistance = (origA - origB) / 2;
-			double newMedianDistance = (newA - newB) / 2;
+            //The distance from the median line to the A and B points
+            double origMedianDistance = (origA - origB) / 2;
+            double newMedianDistance = (newA - newB) / 2;
 
-			//The largest distance the points must move to normalise them with the median line
-			double normalisationDistance = newMedianDistance - origMedianDistance;
+            //The largest distance the points must move to normalise them with the median line
+            double normalisationDistance = newMedianDistance - origMedianDistance;
 
-			//The largest distance the points must move from the normalised position, to the calibrated (correct) position
-			double calibrationDistance = (newB + newMedianDistance) - (origB + origMedianDistance);
+            //The largest distance the points must move from the normalised position, to the calibrated (correct) position
+            double calibrationDistance = (newB + newMedianDistance) - (origB + origMedianDistance);
 
-			//The increment that must be made per minute to normalise the points above and below the median line
-			double normalisationIncrement = normalisationDistance / totalMinutes;			
-			double calibrationIncrement = calibrationDistance / totalMinutes;
+            //The increment that must be made per minute to normalise the points above and below the median line
+            double normalisationIncrement = normalisationDistance / totalMinutes;
+            double calibrationIncrement = calibrationDistance / totalMinutes;
 
-			//The gradients of the lines
-			double slopeA = (newA - origA)/totalMinutes;
-			double slopeMedian = ((newB + newMedianDistance) - (origB + origMedianDistance))/totalMinutes;
+            //The gradients of the lines
+            double slopeA = (newA - origA) / totalMinutes;
+            double slopeMedian = ((newB + newMedianDistance) - (origB + origMedianDistance)) / totalMinutes;
 
-			//The y-intercepts of the lines
-			double interceptA = origA;
-			double interceptMedian = origB + origMedianDistance;
+            //The y-intercepts of the lines
+            double interceptA = origA;
+            double interceptMedian = origB + origMedianDistance;
 
-			//Copy!
-			SensorState newState = Clone();
+            //Copy!
+            SensorState newState = Clone();
 
-			foreach (var value in Values)
-			{
-				if(value.Key < start || value.Key > end)
-					continue;
+            foreach (var value in Values)
+            {
+                if (value.Key < start || value.Key > end)
+                    continue;
 
-				double timeDiff = value.Key.Subtract(start).TotalMinutes;
-				double normalisationScale = GetRelativePositionBetweenLines(interceptA, interceptMedian, slopeA, slopeMedian, timeDiff, value.Value);
+                double timeDiff = value.Key.Subtract(start).TotalMinutes;
+                double normalisationScale = GetRelativePositionBetweenLines(interceptA, interceptMedian, slopeA, slopeMedian, timeDiff, value.Value);
 
-				newState.Values[value.Key] = (float)(value.Value - (normalisationScale * normalisationIncrement + calibrationIncrement) * timeDiff);
-			}
+                newState.Values[value.Key] = (float)(value.Value - (normalisationScale * normalisationIncrement + calibrationIncrement) * timeDiff);
+            }
 
-			return newState;
-		}
+            return newState;
+        }
 
-		private double GetRelativePositionBetweenLines(double intercept1, double intercept2, double slope1, double slope2, double x, double y)
-		{
-			double y1 = slope1*x + intercept1;
-			double y2 = slope2*x + intercept2;
+        private double GetRelativePositionBetweenLines(double intercept1, double intercept2, double slope1, double slope2, double x, double y)
+        {
+            double y1 = slope1 * x + intercept1;
+            double y2 = slope2 * x + intercept2;
 
-			return (y - y2)/Math.Abs(y1 - y2);
-		}
+            return (y - y2) / Math.Abs(y1 - y2);
+        }
 
 
         /// <summary>
@@ -319,7 +322,7 @@ namespace IndiaTango.Models
         /// <returns>A sensor state with the extrapolated data.</returns>
         public SensorState Extrapolate(List<DateTime> valuesToExtrapolate, Dataset ds)
         {
-            EventLogger.LogInfo(GetType().ToString(), "Starting extrapolation process");
+            EventLogger.LogInfo(_owner.Owner, GetType().ToString(), "Starting extrapolation process");
 
             if (valuesToExtrapolate == null)
                 throw new ArgumentNullException("You must specify a list of keys.");
@@ -511,7 +514,7 @@ namespace IndiaTango.Models
 
         public string LogChange(string sensorName, string taskPerformed)
         {
-            return EventLogger.LogSensorInfo(sensorName, taskPerformed + " Reason: " + Reason);
+            return _owner != null ? EventLogger.LogSensorInfo(_owner.Owner, sensorName, taskPerformed + " Reason: " + Reason) : EventLogger.LogSensorInfo(null, sensorName, taskPerformed + " Reason: " + Reason);
         }
 
         public Dictionary<DateTime, float> UpperLine
@@ -524,10 +527,10 @@ namespace IndiaTango.Models
             get { return _lowerLine; }
         }
 
-		private bool IsPointAbove(double x1, double y1, double x2, double y2, double xPoint, double yPoint)
-		{
-			return ((x2 - x1)*(yPoint - y1) - (y2 - y1)*(xPoint - x1)) > 0;
-		}
+        private bool IsPointAbove(double x1, double y1, double x2, double y2, double xPoint, double yPoint)
+        {
+            return ((x2 - x1) * (yPoint - y1) - (y2 - y1) * (xPoint - x1)) > 0;
+        }
 
 
     }

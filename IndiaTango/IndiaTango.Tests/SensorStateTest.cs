@@ -14,8 +14,8 @@ namespace IndiaTango.Tests
         private DateTime testDate = new DateTime(2011, 08, 09, 12, 18, 54);
         private SensorState testSensorState;
         private DateTime modifiedDate = new DateTime(2011, 11, 17, 5, 0, 0);
-        private Dictionary<DateTime,float> valueList ;
-        private Dictionary<DateTime,float> secondValueList;
+        private Dictionary<DateTime, float> valueList;
+        private Dictionary<DateTime, float> secondValueList;
         private string _reason = "Updated because values were wrong";
         private DateTime baseDate = new DateTime(2011, 5, 7, 12, 15, 0);
         private Contact _sampleContact = new Contact("Steven", "McTainsh", "steven@mctainsh.com", "Awesome", "1212121");
@@ -24,14 +24,14 @@ namespace IndiaTango.Tests
         [SetUp]
         public void Setup()
         {
-            testSensorState = new SensorState(testDate);
+            _testSensor = new Sensor("Temperature1", "Temp at 100m", 100, 0, "C", 2, "Awesome", "AW3S0ME", null);
+            testSensorState = new SensorState(_testSensor, testDate);
             valueList = new Dictionary<DateTime, float>();
-            secondValueList = new Dictionary<DateTime, float>(); 
+            secondValueList = new Dictionary<DateTime, float>();
             valueList.Add(testDate, 55.2f);
             valueList.Add(modifiedDate, 63.77f);
             secondValueList.Add(new DateTime(2005, 11, 3, 14, 27, 12), 22.7f);
             secondValueList.Add(new DateTime(2005, 12, 4, 14, 27, 28), 22.3f);
-            _testSensor = new Sensor("Temperature1", "Temp at 100m", 100, 0, "C", 2, "Awesome", "AW3S0ME", null);
         }
 
         #region Timestamp Tests
@@ -40,19 +40,19 @@ namespace IndiaTango.Tests
         {
             Assert.IsTrue(DateTime.Compare(testSensorState.EditTimestamp, testDate) == 0);
 
-            SensorState modifiedSensorState = new SensorState(modifiedDate);
+            SensorState modifiedSensorState = new SensorState(_testSensor, modifiedDate);
             Assert.IsTrue(DateTime.Compare(modifiedDate, modifiedSensorState.EditTimestamp) == 0);
         }
 
         [Test]
         public void SetEditTimestamp()
         {
-            SensorState modifiedSensorState = new SensorState(testDate);
+            SensorState modifiedSensorState = new SensorState(_testSensor, testDate);
             modifiedSensorState.EditTimestamp = modifiedDate;
 
             Assert.IsTrue(DateTime.Compare(modifiedDate, modifiedSensorState.EditTimestamp) == 0);
 
-            SensorState augustSensorState = new SensorState(modifiedDate);
+            SensorState augustSensorState = new SensorState(_testSensor, modifiedDate);
             augustSensorState.EditTimestamp = testDate;
             Assert.IsTrue(DateTime.Compare(testDate, augustSensorState.EditTimestamp) == 0);
         }
@@ -62,25 +62,25 @@ namespace IndiaTango.Tests
         [Test]
         public void GetValues()
         {
-            SensorState valueSensorState = new SensorState(testDate, valueList, null);
+            SensorState valueSensorState = new SensorState(_testSensor, testDate, valueList, null);
             Assert.IsTrue(AllDataValuesCorrect(valueSensorState, valueList));
 
-            SensorState secondValueSensorState = new SensorState(modifiedDate, secondValueList, null);
+            SensorState secondValueSensorState = new SensorState(_testSensor, modifiedDate, secondValueList, null);
             Assert.IsTrue(AllDataValuesCorrect(secondValueSensorState, secondValueList));
 
-            SensorState listCountWrongSensorState = new SensorState(testDate, valueList, null);
-            var inconsistentValues = new Dictionary<DateTime, float>{ {testDate, 55.2f}, {modifiedDate, 63.77f}, {modifiedDate.AddDays(1), 77.77f} };
+            SensorState listCountWrongSensorState = new SensorState(_testSensor, testDate, valueList, null);
+            var inconsistentValues = new Dictionary<DateTime, float> { { testDate, 55.2f }, { modifiedDate, 63.77f }, { modifiedDate.AddDays(1), 77.77f } };
             Assert.IsFalse(AllDataValuesCorrect(listCountWrongSensorState, inconsistentValues));
         }
 
         [Test]
         public void SetValues()
         {
-            SensorState valueSensorState = new SensorState(testDate, valueList, null);
+            SensorState valueSensorState = new SensorState(_testSensor, testDate, valueList, null);
             valueSensorState.Values = valueList;
             Assert.IsTrue(AllDataValuesCorrect(valueSensorState, valueList));
 
-            SensorState secondValueSensorState = new SensorState(modifiedDate, secondValueList, null);
+            SensorState secondValueSensorState = new SensorState(_testSensor, modifiedDate, secondValueList, null);
             secondValueSensorState.Values = secondValueList;
             Assert.IsTrue(AllDataValuesCorrect(secondValueSensorState, secondValueList));
         }
@@ -91,30 +91,30 @@ namespace IndiaTango.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void NullValueList()
         {
-            var testState = new SensorState(DateTime.Now, null, null);
+            var testState = new SensorState(_testSensor, DateTime.Now, null, null);
         }
 
         [Test]
         public void AllowConstructionWithOnlyEditTimestamp()
         {
-            var testState = new SensorState(DateTime.Now);
+            var testState = new SensorState(_testSensor, DateTime.Now);
             Assert.Pass();
         }
 
         [Test]
         public void SetsRawCorrectlyOnConstruction()
         {
-            var testState = new SensorState(DateTime.Now, new Dictionary<DateTime, float>(), "", true, null);
+            var testState = new SensorState(_testSensor, DateTime.Now, new Dictionary<DateTime, float>(), "", true, null);
             Assert.IsTrue(testState.IsRaw);
 
-            testState = new SensorState(DateTime.Now, new Dictionary<DateTime, float>(), "", false, null);
+            testState = new SensorState(_testSensor, DateTime.Now, new Dictionary<DateTime, float>(), "", false, null);
             Assert.IsTrue(!testState.IsRaw);
         }
 
         [Test]
         public void ConstructionWithOnlyEditTimestampCreatesNewList()
         {
-            var testState = new SensorState(DateTime.Now.AddDays(20));
+            var testState = new SensorState(_testSensor, DateTime.Now.AddDays(20));
 
             Assert.NotNull(testState.Values);
             Assert.IsTrue(testState.Values.Count == 0);
@@ -122,7 +122,7 @@ namespace IndiaTango.Tests
         #endregion
 
         #region Test Convenience Methods
-        private bool AllDataValuesCorrect(SensorState sensorState, Dictionary<DateTime,float> listOfValues)
+        private bool AllDataValuesCorrect(SensorState sensorState, Dictionary<DateTime, float> listOfValues)
         {
             if (sensorState.Values.Count != listOfValues.Count)
                 return false;
@@ -130,7 +130,7 @@ namespace IndiaTango.Tests
             //for (int i = 0; i < listOfValues.Count; i++)
             //    if (!sensorState.Values[i].Equals(listOfValues[i]))
             //        return false;
-            foreach(var key in listOfValues.Keys)
+            foreach (var key in listOfValues.Keys)
             {
                 if (!listOfValues.Keys.Contains(key))
                     return false;
@@ -155,28 +155,28 @@ namespace IndiaTango.Tests
                                        new DateTime(2011, 8, 20, 1, 30, 0),
                                        new DateTime(2011, 8, 20, 1, 45, 0)
                                    };
-            var sensorState = new SensorState(new DateTime(2011, 8, 23, 0, 0, 0));
+            var sensorState = new SensorState(_testSensor, new DateTime(2011, 8, 23, 0, 0, 0));
             sensorState.Values = new Dictionary<DateTime, float>
                                      {
                                          {new DateTime(2011, 8, 20, 0, 0, 0), 100},
                                          {new DateTime(2011, 8, 20, 2, 0, 0), 50}
                                      };
-            Assert.AreEqual(missingDates, sensorState.GetMissingTimes(15,new DateTime(2011, 8, 20, 0, 0, 0),new DateTime(2011, 8, 20, 2, 0, 0)));
+            Assert.AreEqual(missingDates, sensorState.GetMissingTimes(15, new DateTime(2011, 8, 20, 0, 0, 0), new DateTime(2011, 8, 20, 2, 0, 0)));
         }
 
         [Test]
         public void GetsChangeReasonCorrectly()
         {
-            
-            var s = new SensorState(DateTime.Now,
-                                    new Dictionary<DateTime, float> { { new DateTime(2011, 5, 7, 12, 20, 0), 200} }, _reason, true, null);
+
+            var s = new SensorState(_testSensor, DateTime.Now,
+                                    new Dictionary<DateTime, float> { { new DateTime(2011, 5, 7, 12, 20, 0), 200 } }, _reason, true, null);
             Assert.AreEqual(_reason, s.Reason);
         }
 
         [Test]
         public void SetsChangeReasonCorrectly()
         {
-            var s = new SensorState(DateTime.Now,
+            var s = new SensorState(_testSensor, DateTime.Now,
                                     new Dictionary<DateTime, float> { { new DateTime(2011, 5, 7, 12, 20, 0), 200 } }, null);
             Assert.AreEqual("", s.Reason);
 
@@ -187,24 +187,24 @@ namespace IndiaTango.Tests
         [Test]
         public void EqualityTest()
         {
-            var A = new SensorState(baseDate,
+            var a = new SensorState(_testSensor, baseDate,
                                     new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 200 }, { baseDate.AddMinutes(30), 200 }, { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 200 } }, null);
-            var B = new SensorState(baseDate,
+            var b = new SensorState(_testSensor, baseDate,
                                     new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 200 }, { baseDate.AddMinutes(30), 200 }, { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 200 } }, null);
-            var C = new SensorState(baseDate,
+            var c = new SensorState(_testSensor, baseDate,
                                     new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 200 }, { baseDate.AddMinutes(30), 10 }, { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 50 } }, null);
-            var D = new SensorState(baseDate,
+            var d = new SensorState(_testSensor, baseDate,
                                     new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 200 }, { baseDate.AddMinutes(30), 200 }, { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 200 } }, null);
-            var E = new SensorState(baseDate.AddHours(50),
+            var e = new SensorState(_testSensor, baseDate.AddHours(50),
                                     new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 200 }, { baseDate.AddMinutes(30), 200 }, { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 200 } }, null);
-            var F = new SensorState(baseDate,
+            var f = new SensorState(_testSensor, baseDate,
                                     new Dictionary<DateTime, float> { { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 200 }, { baseDate.AddMinutes(75), 200 }, { baseDate.AddMinutes(90), 200 } }, null);
 
-            Assert.AreEqual(A, B);
-            Assert.AreNotEqual(B, C);
-            Assert.AreNotEqual(C, D);
-            Assert.AreNotEqual(D, E);
-            Assert.AreNotEqual(E, F);
+            Assert.AreEqual(a, b);
+            Assert.AreNotEqual(b, c);
+            Assert.AreNotEqual(c, d);
+            Assert.AreNotEqual(d, e);
+            Assert.AreNotEqual(e, f);
         }
 
         #region Extrapolation Test
@@ -214,11 +214,11 @@ namespace IndiaTango.Tests
         {
             var ds =
                 new Dataset(new Site(10, "Lake Rotorua", "Steven McTainsh", _sampleContact, _sampleContact,
-                                     _sampleContact, new GPSCoords(50, 50)), new List<Sensor> { { _testSensor }});
-            
-            var A = new SensorState(baseDate,
+                                     _sampleContact, new GPSCoords(50, 50)), new List<Sensor> { { _testSensor } });
+
+            var a = new SensorState(_testSensor, baseDate,
                                        new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 200 }, { baseDate.AddMinutes(30), 200 }, { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 200 } }, null);
-            A.Extrapolate(new List<DateTime>(), ds);
+            a.Extrapolate(new List<DateTime>(), ds);
 
         }
 
@@ -228,11 +228,11 @@ namespace IndiaTango.Tests
         {
             var ds =
                 new Dataset(new Site(10, "Lake Rotorua", "Steven McTainsh", _sampleContact, _sampleContact,
-                                     _sampleContact, new GPSCoords(50, 50)), new List<Sensor> { { _testSensor } });
+                                     _sampleContact, new GPSCoords(50, 50)), new List<Sensor> { _testSensor });
 
-            var A = new SensorState(baseDate,
+            var a = new SensorState(_testSensor, baseDate,
                                        new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 200 }, { baseDate.AddMinutes(30), 200 }, { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 200 } }, null);
-            A.Extrapolate(null, ds);
+            a.Extrapolate(null, ds);
 
         }
 
@@ -244,7 +244,7 @@ namespace IndiaTango.Tests
                 new Dataset(new Site(10, "Lake Rotorua", "Steven McTainsh", _sampleContact, _sampleContact,
                                      _sampleContact, new GPSCoords(50, 50)), new List<Sensor> { { _testSensor } });
 
-            var A = new SensorState(baseDate,
+            var A = new SensorState(_testSensor, baseDate,
                                        new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 200 }, { baseDate.AddMinutes(30), 200 }, { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 200 } }, null);
             A.Extrapolate(new List<DateTime> { { baseDate.AddMinutes(60) } }, null);
 
@@ -255,13 +255,13 @@ namespace IndiaTango.Tests
         {
             var ds =
                 new Dataset(new Site(10, "Lake Rotorua", "Steven McTainsh", _sampleContact, _sampleContact,
-                                     _sampleContact, new GPSCoords(50, 50)), new List<Sensor> { { _testSensor } });
+                                     _sampleContact, new GPSCoords(50, 50)), new List<Sensor> { _testSensor });
             ds.DataInterval = 15;
 
-            var A = new SensorState(baseDate,
+            var a = new SensorState(_testSensor, baseDate,
                                        new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 50 }, { baseDate.AddMinutes(30), 100 }, { baseDate.AddMinutes(60), 200 } }, null);
 
-            var state = A.Extrapolate(new List<DateTime> { baseDate.AddMinutes(45) }, ds);
+            var state = a.Extrapolate(new List<DateTime> { baseDate.AddMinutes(45) }, ds);
 
             Assert.AreEqual(150, state.Values[baseDate.AddMinutes(45)]);
         }
@@ -274,7 +274,7 @@ namespace IndiaTango.Tests
                                      _sampleContact, new GPSCoords(50, 50)), new List<Sensor> { { _testSensor } });
             ds.DataInterval = 15;
 
-            var A = new SensorState(baseDate,
+            var A = new SensorState(_testSensor, baseDate,
                                        new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 50 }, { baseDate.AddMinutes(60), 200 } }, null);
 
             var state = A.Extrapolate(new List<DateTime> { baseDate.AddMinutes(30), baseDate.AddMinutes(45) }, ds);
@@ -293,7 +293,7 @@ namespace IndiaTango.Tests
             var list = new List<DateTime>();
             list.Add(date);
 
-            var oldState = new SensorState(DateTime.Now, new Dictionary<DateTime, float>(), null);
+            var oldState = new SensorState(_testSensor, DateTime.Now, new Dictionary<DateTime, float>(), null);
             var newState = oldState.MakeZero(list);
 
             Assert.AreEqual(0, newState.Values[date]);
@@ -309,7 +309,7 @@ namespace IndiaTango.Tests
             list.Add(date.AddMinutes(30));
             list.Add(date.AddMinutes(45));
 
-            var oldState = new SensorState(DateTime.Now, new Dictionary<DateTime, float>(), null);
+            var oldState = new SensorState(_testSensor, DateTime.Now, new Dictionary<DateTime, float>(), null);
             oldState.Values.Add(date, 5000);
 
             var newState = oldState.MakeZero(list);
@@ -324,7 +324,7 @@ namespace IndiaTango.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void NullZeroValueList()
         {
-            var oldState = new SensorState(DateTime.Now, new Dictionary<DateTime, float>(), null);
+            var oldState = new SensorState(_testSensor, DateTime.Now, new Dictionary<DateTime, float>(), null);
             oldState.MakeZero(null);
         }
 
@@ -337,7 +337,7 @@ namespace IndiaTango.Tests
             var list = new List<DateTime>();
             list.Add(date);
 
-            var oldState = new SensorState(DateTime.Now, new Dictionary<DateTime, float>(), null);
+            var oldState = new SensorState(_testSensor, DateTime.Now, new Dictionary<DateTime, float>(), null);
             var newState = oldState.MakeValue(list, 5);
 
             Assert.AreEqual(5, newState.Values[date]);
@@ -353,7 +353,7 @@ namespace IndiaTango.Tests
             list.Add(date.AddMinutes(30));
             list.Add(date.AddMinutes(45));
 
-            var oldState = new SensorState(DateTime.Now, new Dictionary<DateTime, float>(), null);
+            var oldState = new SensorState(_testSensor, DateTime.Now, new Dictionary<DateTime, float>(), null);
             oldState.Values.Add(date, 5000);
 
             var newState = oldState.MakeValue(list, 20);
@@ -368,7 +368,7 @@ namespace IndiaTango.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void NullMakeValueList()
         {
-            var oldState = new SensorState(DateTime.Now, new Dictionary<DateTime, float>(), null);
+            var oldState = new SensorState(_testSensor, DateTime.Now, new Dictionary<DateTime, float>(), null);
             oldState.MakeValue(null, 5);
         }
         #endregion
@@ -419,8 +419,8 @@ namespace IndiaTango.Tests
             Assert.Contains(date3, outliers);
             testSensorState.Values.Add(date6, 2);
             outliers = testSensorState.GetOutliersFromStdDev(15, date1, date6, 1, 4);
-            Assert.Contains(date4,outliers);
-            
+            Assert.Contains(date4, outliers);
+
         }
 
         #endregion

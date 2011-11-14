@@ -275,7 +275,7 @@ namespace IndiaTango.ViewModels
                     Dataset.Sensors.Add(s);
                     SelectedItem = new ListedSensor(s, _ds);
 
-                    EventLogger.LogInfo(GetType().ToString(), "Created new sensor. Sensor name: " + s.Name);
+                    EventLogger.LogInfo(_ds, GetType().ToString(), "Created new sensor. Sensor name: " + s.Name);
                     Common.ShowMessageBox("New sensor created", "The new sensor '" + Name + "' was added successfully.",
                                           false, false);
                     endEditing();
@@ -283,7 +283,7 @@ namespace IndiaTango.ViewModels
                 catch (Exception e)
                 {
                 	Common.ShowMessageBox("Format Error", e.Message, false, true);
-                    EventLogger.LogWarning(GetType().ToString(), "Attempted to create new sensor, but failed. Details: " + e.Message);
+                    EventLogger.LogWarning(_ds, GetType().ToString(), "Attempted to create new sensor, but failed. Details: " + e.Message);
                 }
             }
             else
@@ -301,13 +301,13 @@ namespace IndiaTango.ViewModels
                     SelectedItem.Sensor.SerialNumber = SerialNumber;
                     SelectedItem.Sensor.ErrorThreshold = int.Parse(ErrorThreshold);
                     SelectedItem.Sensor.SummaryType = (SummaryType)SummaryType;
-                    EventLogger.LogInfo(GetType().ToString(), "Saved existing sensor. Sensor name: " + Name);
+                    EventLogger.LogInfo(_ds, GetType().ToString(), "Saved existing sensor. Sensor name: " + Name);
                     endEditing();
                 }
                 catch (Exception e)
                 {
                 	Common.ShowMessageBox("An Error Occured", e.Message, false, true);
-                    EventLogger.LogWarning(GetType().ToString(), "Attempted to save existing sensor, but failed. Details: " + e.Message);
+                    EventLogger.LogWarning(_ds, GetType().ToString(), "Attempted to save existing sensor, but failed. Details: " + e.Message);
                 }
             }
         }
@@ -317,7 +317,7 @@ namespace IndiaTango.ViewModels
             if(SelectedItem != null && SelectedItem.Sensor != null && Common.Confirm("Really delete sensor?", "Are you sure you want to permanently delete this sensor?"))
             {
                 Dataset.Sensors.Remove(SelectedItem.Sensor);
-                EventLogger.LogInfo(GetType().ToString(), "Deleted existing sensor. Sensor name: " + SelectedItem.Sensor.Name);
+                EventLogger.LogInfo(_ds, GetType().ToString(), "Deleted existing sensor. Sensor name: " + SelectedItem.Sensor.Name);
                 Common.ShowMessageBox("Sensor removed", "The selected sensor was successfully deleted.",
                                           false, false);
                 endEditing();

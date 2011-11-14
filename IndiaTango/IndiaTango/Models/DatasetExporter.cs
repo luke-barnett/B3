@@ -74,7 +74,7 @@ namespace IndiaTango.Models
         /// <param name="exportRaw">Whether to export the raw data or the current state.</param>
 		public void Export(string filePath, ExportFormat format,bool includeEmptyLines, bool addMetaDataFile, bool includeChangeLog, ExportedPoints exportedPoints, DateColumnFormat dateColumnFormat, bool exportRaw)
 		{
-            EventLogger.LogInfo(GetType().ToString(), "Data export started.");
+            EventLogger.LogInfo(Data, GetType().ToString(), "Data export started.");
 
 			if (String.IsNullOrWhiteSpace(filePath))
 				throw new ArgumentNullException("filePath cannot be null");
@@ -101,7 +101,7 @@ namespace IndiaTango.Models
                 if (includeChangeLog)
                     ExportChangesFile(filePath, changeLogFilePath, dateColumnFormat);
 
-                EventLogger.LogInfo(GetType().ToString(), "Data export complete. File saved to: " + filePath);
+                EventLogger.LogInfo(Data, GetType().ToString(), "Data export complete. File saved to: " + filePath);
 			}
 			else if (format.Equals(ExportFormat.XLSX))
 			{

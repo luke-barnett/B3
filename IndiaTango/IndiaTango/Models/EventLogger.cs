@@ -38,7 +38,7 @@ namespace IndiaTango.Models
         /// </summary>
         public static string LogFilePath
         {
-            get { return Path.Combine(Common.AppDataPath,"Logs","log.txt") ; }
+            get { return Path.Combine(Common.AppDataPath, "Logs", "log.txt"); }
         }
 
         public static string GetSensorLogPath(string sensorName)
@@ -94,11 +94,11 @@ namespace IndiaTango.Models
             if (threadName.Contains("IndiaTango."))
                 threadName = threadName.Substring("IndiaTango.".Length);
 
-            string logString = _logRefNum +" "+ DateTime.Now.ToString(TimeFormatString) + "    " + logType.PadRight(10).Substring(0, 10) + " " + threadName.PadRight(25).Substring(0, 25) + " " + eventDetails;
-            
+            string logString = _logRefNum + " " + DateTime.Now.ToString(TimeFormatString) + "    " + logType.PadRight(10).Substring(0, 10) + " " + threadName.PadRight(25).Substring(0, 25) + " " + eventDetails;
+
             WriteLogToFile(logString, destFile);
 
-            OnLogEvent(null,new EventLoggedArgs(logString));
+            OnLogEvent(null, new EventLoggedArgs(logString));
 
             _logRefNum++;
 
@@ -113,13 +113,15 @@ namespace IndiaTango.Models
         #endregion
 
         #region PublicMethods
+
         /// <summary>
         /// Logs an informative event to the log file, containing the current time, thread name and details of the event
         /// </summary>
+        /// <param name="site">The site this log belongs to</param>
         /// <param name="threadName">The name of the thread calling this Method. For Background workers, supply a brief description of the threads purpose</param>
         /// <param name="eventDetails">The specific details of the event that are to be written to file</param>
         /// <returns></returns>
-        public static string LogInfo(string threadName, string eventDetails)
+        public static string LogInfo(Dataset site, string threadName, string eventDetails)
         {
             return LogBase(Info, threadName, eventDetails, null);
         }
@@ -127,10 +129,11 @@ namespace IndiaTango.Models
         /// <summary>
         /// Logs a warning event to the log file, containing the current time, thread name and details of the event
         /// </summary>
+        /// <param name="site">The site this log belongs to</param>
         /// <param name="threadName">The name of the thread calling this Method. For Background workers, supply a brief description of the threads purpose</param>
         /// <param name="eventDetails">The specific details of the event that are to be written to file</param>
         /// <returns></returns>
-        public static string LogWarning(string threadName, string eventDetails)
+        public static string LogWarning(Dataset site, string threadName, string eventDetails)
         {
             return LogBase(Warning, threadName, eventDetails, null);
         }
@@ -138,10 +141,11 @@ namespace IndiaTango.Models
         /// <summary>
         /// Logs an error event to the log file, containing the current time, thread name and details of the event
         /// </summary>
+        /// <param name="site">The site this log belongs to</param>
         /// <param name="threadName">The name of the thread calling this Method. For Background workers, supply a brief description of the threads purpose</param>
         /// <param name="eventDetails">The specific details of the event that are to be written to file</param>
         /// <returns></returns>
-        public static string LogError(string threadName, string eventDetails)
+        public static string LogError(Dataset site, string threadName, string eventDetails)
         {
             return LogBase(Error, threadName, eventDetails, null);
         }
@@ -149,10 +153,11 @@ namespace IndiaTango.Models
         /// <summary>
         /// Logs a change to a sensor, to an individual file for each sensor.
         /// </summary>
+        /// <param name="site">The site this log belongs to</param>
         /// <param name="sensorName"></param>
         /// <param name="eventDetails"></param>
         /// <returns></returns>
-        public static string LogSensorInfo(string sensorName, string eventDetails)
+        public static string LogSensorInfo(Dataset site, string sensorName, string eventDetails)
         {
             return LogBase(Info, sensorName, eventDetails, GetSensorLogPath(sensorName));
         }

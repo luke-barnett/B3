@@ -626,12 +626,12 @@ namespace IndiaTango.ViewModels
         #region Event Handlers
         public void OnLoaded()
         {
-            EventLogger.LogInfo(GetType().ToString(), "Session loaded.");
+            EventLogger.LogInfo(_ds, GetType().ToString(), "Session loaded.");
         }
 
         public void OnUnloaded()
         {
-            EventLogger.LogInfo(GetType().ToString(), "Session closed.");
+            EventLogger.LogInfo(_ds, GetType().ToString(), "Session closed.");
         }
 
         public void btnImport()
@@ -670,7 +670,7 @@ namespace IndiaTango.ViewModels
 
                 _bw.DoWork += delegate(object sender, DoWorkEventArgs eventArgs)
                 {
-                    EventLogger.LogInfo("BackgroundImportThread", "Data import started.");
+                    EventLogger.LogInfo(_ds, "BackgroundImportThread", "Data import started.");
                     ActionButtonsEnabled = false;
                     ProgressBarVisible = Visibility.Visible;
 
@@ -726,7 +726,7 @@ namespace IndiaTango.ViewModels
                     NotifyOfPropertyChange(() => Title);
                     ImportEnabled = true;
                     ProgressBarVisible = Visibility.Hidden;
-                    EventLogger.LogInfo("BackgroundImportThread", "Data import complete.");
+                    EventLogger.LogInfo(_ds, "BackgroundImportThread", "Data import complete.");
                 };
 
                 _bw.RunWorkerCompleted += (obj, ev) =>
@@ -735,7 +735,7 @@ namespace IndiaTango.ViewModels
                                                     return;
 
                                                 // Show the wizard every time data is imported?
-                                                EventLogger.LogInfo("UIThread", "Starting the import wizard...");
+                                                EventLogger.LogInfo(_ds, "UIThread", "Starting the import wizard...");
                                                 var wizard =
                                                     (WizardViewModel)
                                                     _container.GetInstance(typeof(WizardViewModel), "WizardViewModel");
@@ -746,7 +746,7 @@ namespace IndiaTango.ViewModels
 
                                                 wizard.Deactivated += (o, e) =>
                                                                         {
-                                                                            EventLogger.LogInfo("WizardView", "Completed the import wizard, ending at step " + wizard.ThisStep);
+                                                                            EventLogger.LogInfo(_ds, "WizardView", "Completed the import wizard, ending at step " + wizard.ThisStep);
 
                                                                             //Update any contacts/sites that have changed
                                                                             AllSites = wizard.AllSites;
@@ -788,7 +788,7 @@ namespace IndiaTango.ViewModels
 
         public void btnSave()
         {
-            EventLogger.LogInfo(GetType().ToString(), "Session save started.");
+            EventLogger.LogInfo(_ds, GetType().ToString(), "Session save started.");
             var saveFileDialog = new SaveFileDialog { Filter = "Session Files|*.indiatango" };
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
@@ -797,7 +797,7 @@ namespace IndiaTango.ViewModels
                                  {
                                      using (var stream = new FileStream(saveFileDialog.FileName, FileMode.Create))
                                          new BinaryFormatter().Serialize(stream, _ds);
-                                     EventLogger.LogInfo(GetType().ToString(), string.Format("Session save complete. File saved to: {0}", saveFileDialog.FileName));
+                                     EventLogger.LogInfo(_ds, GetType().ToString(), string.Format("Session save complete. File saved to: {0}", saveFileDialog.FileName));
                                  };
                 bw.RunWorkerCompleted += (o, e) =>
                                              {
@@ -811,7 +811,7 @@ namespace IndiaTango.ViewModels
                 bw.RunWorkerAsync();
             }
             else
-                EventLogger.LogInfo(GetType().ToString(), "Session save aborted");
+                EventLogger.LogInfo(_ds, GetType().ToString(), "Session save aborted");
 
         }
 
@@ -903,7 +903,7 @@ namespace IndiaTango.ViewModels
             {
                 if (Common.Confirm("Confirm Delete", "Are you sure you want to delete this site?"))
                 {
-                    EventLogger.LogInfo(GetType().ToString(), "Site deleted. Site name: " + SelectedSite.Name);
+                    EventLogger.LogInfo(null, GetType().ToString(), "Site deleted. Site name: " + SelectedSite.Name);
 
                     var allSites = AllSites;
                     allSites.Remove(SelectedSite);
@@ -934,7 +934,7 @@ namespace IndiaTango.ViewModels
                     SelectedSite.Name = SiteName;
                     SelectedSite.UniversityContact = UniversityContact;
                     SelectedSite.Images = _siteImages.ToList();
-                    EventLogger.LogInfo(GetType().ToString(), "Site saved. Site name: " + SelectedSite.Name);
+                    EventLogger.LogInfo(_ds, GetType().ToString(), "Site saved. Site name: " + SelectedSite.Name);
                 }
                 //else if creating a new one
                 else
@@ -944,7 +944,7 @@ namespace IndiaTango.ViewModels
                     _allSites.Add(b);
                     Site.ExportAll(_allSites);
                     SelectedSite = b;
-                    EventLogger.LogInfo(GetType().ToString(), "Site created. Site name: " + SelectedSite.Name);
+                    EventLogger.LogInfo(_ds, GetType().ToString(), "Site created. Site name: " + SelectedSite.Name);
                 }
 
                 Site.ExportAll(_allSites);
@@ -956,7 +956,7 @@ namespace IndiaTango.ViewModels
             catch (Exception e)
             {
                 Common.ShowMessageBox("Error", e.Message, false, true);
-                EventLogger.LogError(GetType().ToString(), "Tried to create site but failed. Details: " + e.Message);
+                EventLogger.LogError(_ds, GetType().ToString(), "Tried to create site but failed. Details: " + e.Message);
             }
         }
 
@@ -1033,14 +1033,14 @@ namespace IndiaTango.ViewModels
                 {
                     _bw.CancelAsync();
                     ActionButtonsEnabled = true;
-                    EventLogger.LogWarning(GetType().ToString(), "Data import canceled by user.");
+                    EventLogger.LogWarning(_ds, GetType().ToString(), "Data import canceled by user.");
                 }
                 catch (InvalidOperationException ex)
                 {
                     Common.ShowMessageBox("Error", "You cannot cancel the loading of this data set at this time. Try again later.",
                                           false, true);
                     System.Diagnostics.Debug.WriteLine("Cannot cancel data loading thread - " + ex);
-                    EventLogger.LogError(GetType().ToString(), "Data import could not be canceled.");
+                    EventLogger.LogError(_ds, GetType().ToString(), "Data import could not be canceled.");
                 }
             }
         }
@@ -1149,7 +1149,7 @@ namespace IndiaTango.ViewModels
                 {
                     //If we don't  then add it as a new sensor
                     _ds.Sensors.Add(newSensor);
-                    EventLogger.LogInfo("Importer", "Added new sensor: " + newSensor.Name);
+                    EventLogger.LogInfo(_ds, "Importer", "Added new sensor: " + newSensor.Name);
                 }
                 else
                 {
@@ -1170,10 +1170,10 @@ namespace IndiaTango.ViewModels
                     {
                         //Insert new state
                         matchingSensor.AddState(newState);
-                        EventLogger.LogSensorInfo(matchingSensor.Name, "Added values from new import");
+                        EventLogger.LogSensorInfo(_ds, matchingSensor.Name, "Added values from new import");
                     }
                     else
-                        EventLogger.LogSensorInfo(matchingSensor.Name, "Matched to imported sensor but no new values found");
+                        EventLogger.LogSensorInfo(_ds, matchingSensor.Name, "Matched to imported sensor but no new values found");
                 }
             }
         }

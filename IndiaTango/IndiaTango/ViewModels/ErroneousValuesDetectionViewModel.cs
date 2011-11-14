@@ -580,7 +580,7 @@ namespace IndiaTango.ViewModels
                                          };
             ButtonsEnabled = false;
             StartWaiting("Setting values to zero");
-            EventLogger.LogInfo(GetType().ToString(), "Value updation started.");
+            EventLogger.LogInfo(_dataset, GetType().ToString(), "Value updation started.");
             bw.RunWorkerAsync();
 
         }
@@ -617,7 +617,7 @@ namespace IndiaTango.ViewModels
                                              };
                 ButtonsEnabled = false;
                 StartWaiting("Setting values to " + value);
-                EventLogger.LogInfo(GetType().ToString(), "Value updation started.");
+                EventLogger.LogInfo(_dataset, GetType().ToString(), "Value updation started.");
                 bw.RunWorkerAsync();
 
             }

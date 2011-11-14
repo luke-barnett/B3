@@ -34,7 +34,7 @@ namespace IndiaTango.ViewModels
 
         public void BtnNew()
         {
-            EventLogger.LogInfo(GetType().ToString(), "Starting a new session...");
+            EventLogger.LogInfo(null, GetType().ToString(), "Starting a new session...");
             System.Diagnostics.Debug.Print("Window manager null {0}", _windowManager == null);
             System.Diagnostics.Debug.Print("container null {0}", _container == null);
             _windowManager.ShowWindow(_container.GetInstance(typeof(SessionViewModel), "SessionViewModel"));
@@ -42,7 +42,7 @@ namespace IndiaTango.ViewModels
         
         public void BtnLoad()
         {
-            EventLogger.LogInfo(GetType().ToString(), "Loading a session...");
+            EventLogger.LogInfo(null, GetType().ToString(), "Loading a session...");
             var openFileDialog = new OpenFileDialog { Filter = "Session Files|*.indiatango" };
             
             if(openFileDialog.ShowDialog() == DialogResult.OK)
@@ -52,10 +52,10 @@ namespace IndiaTango.ViewModels
                 var bw = new BackgroundWorker();
                 bw.DoWork += (o, e) =>
                                  {
-                                     EventLogger.LogInfo("Loading", "Started loading from file");
+                                     EventLogger.LogInfo(null, "Loading", "Started loading from file");
                                      using (var stream = new FileStream(openFileDialog.FileName, FileMode.Open))
                                          e.Result = new BinaryFormatter().Deserialize(stream);
-                                     EventLogger.LogInfo("Loading", "Loading from file completed");
+                                     EventLogger.LogInfo(null, "Loading", "Loading from file completed");
                                  };
                 bw.RunWorkerCompleted += (o, e) =>
                                              {
@@ -66,7 +66,7 @@ namespace IndiaTango.ViewModels
 
                                                  ApplicationCursor = Cursors.Arrow;
                                                  ButtonsEnabled = true;
-                                                 EventLogger.LogInfo(GetType().ToString(), "Loading Session View");
+                                                 EventLogger.LogInfo(null, GetType().ToString(), "Loading Session View");
                                                  _windowManager.ShowWindow(sessionView);
                                              };
                 bw.RunWorkerAsync();
@@ -82,12 +82,12 @@ namespace IndiaTango.ViewModels
 
         public void OnLoaded()
         {
-            EventLogger.LogInfo(GetType().ToString(), "Program started.");
+            EventLogger.LogInfo(null, GetType().ToString(), "Program started.");
         }
 
         public void OnUnloaded()
         {
-            EventLogger.LogInfo(GetType().ToString(), "Program exited.");
+            EventLogger.LogInfo(null, GetType().ToString(), "Program exited.");
         }
 
         public void BtnLog()

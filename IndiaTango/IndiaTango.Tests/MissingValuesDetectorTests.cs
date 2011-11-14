@@ -37,7 +37,7 @@ namespace IndiaTango.Tests
 
             var sensor = new Sensor("Dummy Sensor", "Does stuff", 10, 0, "C", 5, "Tim's Workshop", "AAAAA", dataSet);
 
-            sensor.AddState(new SensorState(DateTime.Now));
+            sensor.AddState(new SensorState(sensor, DateTime.Now));
             sensor.CurrentState.Values.Add(new DateTime(1990, 5, 1, 4, 0, 0), 15);
             sensor.CurrentState.Values.Add(new DateTime(1990, 5, 1, 5, 0, 0), 15);
             sensor.CurrentState.Values.Add(new DateTime(1991, 8, 2, 0, 0, 0), 15);

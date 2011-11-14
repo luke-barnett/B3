@@ -77,7 +77,7 @@ namespace IndiaTango.ViewModels
                 Common.ShowMessageBoxWithException("Exporting Image Failed",
                                                    "Sorry something went wrong when we where exporting to an image",
                                                    false, true, e);
-                EventLogger.LogError("Image Exporter", e.Message);
+                EventLogger.LogError(null, "Image Exporter", e.Message);
             }
         }
 
