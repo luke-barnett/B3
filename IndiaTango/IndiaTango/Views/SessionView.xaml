@@ -2,6 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+        xmlns:toolkit="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit/extended"
         xmlns:caliburn="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro"
         Title="{Binding Title}" Icon="{Binding Icon}" Height="702" Width="950" WindowStartupLocation="CenterScreen" Loaded="OnLoaded" Cursor="{Binding ApplicationCursor}">
     <i:Interaction.Triggers>
@@ -27,13 +28,6 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Menu IsMainMenu="True" Grid.Row="0" Grid.ColumnSpan="2">
-            <MenuItem Header="_Data">
-                <MenuItem Header="_Import" caliburn:Message.Attach="[Event Click] = [Action btnImport]" />
-                <MenuItem Header="_Export" caliburn:Message.Attach="[Event Click] = [Action btnExport]" />
-                <MenuItem Header="_Revert" caliburn:Message.Attach="[Event Click] = [Action btnRevert]" />
-            </MenuItem>
-        </Menu>
         <GroupBox Grid.Column="1" Grid.Row="1" Header="{Binding MetadataHeader}"  Margin="5 10 10 5" Name="groupBox1" Padding="5" BorderBrush="OrangeRed">
             <StackPanel>
                 <Grid Visibility="{Binding SensorMetadataVisibility}">
@@ -291,13 +285,28 @@
                         </StackPanel>
                     </Button>
 
-                    <Button Name="btnGraph" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding ActionButtonsEnabled}">
+                    <!--<Button Name="btnGraph" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding ActionButtonsEnabled}">
                         <StackPanel Orientation="Vertical">
                             <Image Source="/IndiaTango;component/Images/graph.png" Width="64" Height="64" />
                             <TextBlock Text="Graph Data"/>
                         </StackPanel>
-                    </Button>
+                    </Button>-->
 
+                    <toolkit:SplitButton Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom">
+                        <StackPanel Orientation="Vertical">
+                            <Image Source="/IndiaTango;component/Images/graph.png" Width="64" Height="64" />
+                            <TextBlock Text="Data" HorizontalAlignment="Center" FontSize="15"/>
+                        </StackPanel>
+                        <toolkit:SplitButton.DropDownContent>
+                            <StackPanel>
+                                <MenuItem Header="_Import" caliburn:Message.Attach="[Event Click] = [Action btnImport]" />
+                                <MenuItem Header="_Export" caliburn:Message.Attach="[Event Click] = [Action btnExport]" IsEnabled="{Binding ActionButtonsEnabled}" />
+                                <MenuItem Header="_Revert" caliburn:Message.Attach="[Event Click] = [Action btnRevert]" IsEnabled="{Binding ActionButtonsEnabled}" />
+                                <MenuItem Header="_Graph" caliburn:Message.Attach="[Event Click] = [Action btnGraph]" IsEnabled="{Binding ActionButtonsEnabled}" />
+                            </StackPanel>
+                        </toolkit:SplitButton.DropDownContent>
+                    </toolkit:SplitButton>
+                    
                     <Button Name="btnCalibrate" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding ActionButtonsEnabled}">
                         <StackPanel Orientation="Vertical">
                             <Image Source="/IndiaTango;component/Images/calibrate_sensor.png" Width="64" Height="64" />
