@@ -153,8 +153,7 @@ namespace IndiaTango.ViewModels
 
             return panel;
         }
-
-
+        
         public Visibility SensorWarningVisible
         {
             get { return _sensorWarningVis; }
@@ -274,8 +273,6 @@ namespace IndiaTango.ViewModels
                     SelectedSensor = null;
                     //SHOW METADATA
                 }
-                NotifyOfPropertyChange(() => SiteSelected);
-                NotifyOfPropertyChange(() => SelectedSensor);
                 NotifyOfPropertyChange(() => MetadataHeader);
                 NotifyOfPropertyChange(() => SensorMetadataVisibility);
                 NotifyOfPropertyChange(() => SiteMetadataVisibility);
@@ -288,18 +285,15 @@ namespace IndiaTango.ViewModels
             set
             {
                 _selectedSensor = value;
-                if (_selectedSensor != null)
-                {
-                    SiteSelected = null;
-                    //SHOW METADATA VIEW
-                }
 
-                NotifyOfPropertyChange(() => SiteSelected);
-                NotifyOfPropertyChange(() => SelectedSensor);
                 NotifyOfPropertyChange(() => MetadataHeader);
                 NotifyOfPropertyChange(() => SensorMetadataVisibility);
                 NotifyOfPropertyChange(() => SiteMetadataVisibility);
 
+                if (_selectedSensor == null) return;
+
+                SiteSelected = null;
+                
                 NotifyOfPropertyChange(() => SensorName);
                 NotifyOfPropertyChange(() => SensorDescription);
                 NotifyOfPropertyChange(() => SensorLowerLimit);
@@ -330,12 +324,11 @@ namespace IndiaTango.ViewModels
             get { return _selectedSensor != null ? _selectedSensor.Name : "!!!!"; }
             set
             {
-                if (_selectedSensor != null)
+                if (_selectedSensor != null && !string.IsNullOrWhiteSpace(value))
                 {
                     _selectedSensor.Name = value;
+                    SensorList = new List<Sensor>(SensorList);
                 }
-                
-                NotifyOfPropertyChange(() => SensorList);
             }
         }
 
@@ -753,6 +746,8 @@ namespace IndiaTango.ViewModels
                                                                             Console.WriteLine("selected site = " + wizard.SelectedSite);
                                                                             Console.WriteLine("ds site = " + _ds.Site);
                                                                             SelectedSite = _ds.Site;
+
+                                                                            SensorList = new List<Sensor>(SensorList);
                                                                         };
 
                                                 _windowManager.ShowDialog(wizard);
