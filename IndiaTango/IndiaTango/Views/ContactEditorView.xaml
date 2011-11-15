@@ -62,7 +62,7 @@
                 <Border BorderBrush="OrangeRed" BorderThickness="0 1 0 0" Grid.ColumnSpan="3" Margin="0 -5 0 0"></Border>
                 <Button Name="btnSave" Grid.Column="1" Grid.Row="0" Margin="3">
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="/IndiaTango;component/Images/save_32.png" Width="32" Height="32" HorizontalAlignment="Left" />
+                        <Image Source="/B3;component/Images/save_32.png" Width="32" Height="32" HorizontalAlignment="Left" />
                         <TextBlock Text="Save" FontSize="15" Margin="5" HorizontalAlignment="Center" />
                     </StackPanel>
                 </Button>
@@ -70,7 +70,7 @@
 
                 <Button Name="btnCancel" Grid.Column="2" Grid.Row="0" Margin="3">
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="/IndiaTango;component/Images/cancel_32.png" Width="32" Height="32" />
+                        <Image Source="/B3;component/Images/cancel_32.png" Width="32" Height="32" />
                         <TextBlock Text="Cancel" FontSize="15" Margin="5" />
                     </StackPanel>
                 </Button>

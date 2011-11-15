@@ -30,7 +30,7 @@
                     <WrapPanel Margin="0">
                         <ext:SplitButton Name="btnUndo" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding UndoButtonEnabled}" IsOpen="{Binding ShowUndoStates, Mode=TwoWay}">
                             <StackPanel Orientation="Vertical">
-                                <Image Source="/IndiaTango;component/Images/undo.png" Width="64" Height="64" />
+                                <Image Source="/B3;component/Images/undo.png" Width="64" Height="64" />
                                 <TextBlock Text="Undo" HorizontalAlignment="Center" />
                             </StackPanel>
                             <i:Interaction.Triggers>
@@ -53,7 +53,7 @@
 
                         <ext:SplitButton Name="btnRedo" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding RedoButtonEnabled}" IsOpen="{Binding ShowRedoStates, Mode=TwoWay}">
                             <StackPanel Orientation="Vertical">
-                                <Image Source="/IndiaTango;component/Images/redo.png" Width="64" Height="64" />
+                                <Image Source="/B3;component/Images/redo.png" Width="64" Height="64" />
                                 <TextBlock Text="Redo" HorizontalAlignment="Center" />
                             </StackPanel>
                             <i:Interaction.Triggers>
@@ -76,7 +76,7 @@
 
                         <Button Name="btnDone" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" >
                             <StackPanel Orientation="Vertical">
-                                <Image Source="/IndiaTango;component/Images/done_64.png" Width="64" Height="64" />
+                                <Image Source="/B3;component/Images/done_64.png" Width="64" Height="64" />
                                 <TextBlock Text="Done" HorizontalAlignment="Center" />
                             </StackPanel>
                         </Button>
@@ -136,21 +136,21 @@
 								<WrapPanel HorizontalAlignment="Right" Grid.Row="2" Margin="0,5,0,0">
 									<Button Name="btnHelp" FontSize="15"  HorizontalAlignment="Left" Margin="5,0" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" >
 										<StackPanel Orientation="Horizontal">
-											<Image Source="/IndiaTango;component/Images/help_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
+											<Image Source="/B3;component/Images/help_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
 											<TextBlock Text="Help" VerticalAlignment="Center" Margin="5" />
 										</StackPanel>
 									</Button>
 									
 									<Button Name="btnApplyFormula" FontSize="15"  HorizontalAlignment="Right" Margin="5,0" VerticalContentAlignment="Bottom" IsEnabled="{Binding ApplyButtonEnabled}" VerticalAlignment="Bottom">
 										<StackPanel Orientation="Horizontal">
-											<Image Source="/IndiaTango;component/Images/right_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
+											<Image Source="/B3;component/Images/right_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
 											<TextBlock Text="Apply" VerticalAlignment="Center" Margin="5" />
 										</StackPanel>
 									</Button>
 
 									<Button Name="btnClearFormula" FontSize="15" Margin="5,0,0,0" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom">
 										<StackPanel Orientation="Horizontal">
-											<Image Source="/IndiaTango;component/Images/delete_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
+											<Image Source="/B3;component/Images/delete_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
 											<TextBlock Text="Clear" VerticalAlignment="Center" Margin="5" />
 										</StackPanel>
 									</Button>
@@ -198,14 +198,14 @@
 								<WrapPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="3">
 									<Button Name="btnApplyAuto" FontSize="15"  HorizontalAlignment="Left" Margin="0" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" IsEnabled="{Binding AutoCalibrationEnabled}" >
 										<StackPanel Orientation="Horizontal">
-											<Image Source="/IndiaTango;component/Images/right_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
+											<Image Source="/B3;component/Images/right_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
 											<TextBlock Text="Apply" VerticalAlignment="Center" Margin="5" />
 										</StackPanel>
 									</Button>
 
                                     <Button Name="btnClearAuto" FontSize="15" Margin="5,0,0,0" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom">
                                         <StackPanel Orientation="Horizontal">
-                                            <Image Source="/IndiaTango;component/Images/delete_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
+                                            <Image Source="/B3;component/Images/delete_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
                                             <TextBlock Text="Clear" VerticalAlignment="Center" Margin="5" />
                                         </StackPanel>
                                     </Button>

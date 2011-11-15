@@ -42,7 +42,7 @@
 
 		<Button Grid.Column="1" Grid.Row="5" Grid.ColumnSpan="2" Name="SaveImage" HorizontalAlignment="Right" FontSize="15">
 			<StackPanel Orientation="Horizontal">
-				<Image Source="/IndiaTango;component/Images/export_graph.png" Width="32" Height="32" VerticalAlignment="Center" />
+				<Image Source="/B3;component/Images/export_graph.png" Width="32" Height="32" VerticalAlignment="Center" />
 				<TextBlock Text="Export Graph" VerticalAlignment="Center" Margin="5" />
 			</StackPanel>
 		</Button>

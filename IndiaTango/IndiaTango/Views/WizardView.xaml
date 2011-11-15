@@ -63,35 +63,35 @@
 							<TextBlock Grid.Column="0" Grid.Row="5" Margin="7" Text="Primary Contact:" TextAlignment="Right" />
 							<ComboBox Grid.Column="1" Grid.Row="5" Height="25" IsEnabled="{Binding SiteControlsEnabled}" ItemsSource="{Binding AllContacts, Mode=TwoWay}" Margin="2,2,2,0" Name="comboPrimaryContact" SelectedItem="{Binding PrimaryContact}" VerticalAlignment="Top" />
 							<Button Grid.Column="2" Grid.Row="5" Height="24" Margin="3" Name="btnNewPrimary" ToolTip="New Contact" VerticalAlignment="Top" Visibility="{Binding DoneCancelVisible}">
-								<Image Height="16" Source="/IndiaTango;component/Images/new_16.png" Width="16" />
+								<Image Height="16" Source="/B3;component/Images/new_16.png" Width="16" />
 							</Button>
 							<Button Grid.Column="3" Grid.Row="5" Height="24" IsEnabled="{Binding HasSelectedPrimaryContact}" Margin="3" Name="btnEditPrimary" ToolTip="Edit Contact" VerticalAlignment="Top" Visibility="{Binding DoneCancelVisible}">
-								<Image Height="16" Source="/IndiaTango;component/Images/edit_16.png" Width="16" />
+								<Image Height="16" Source="/B3;component/Images/edit_16.png" Width="16" />
 							</Button>
 							<Button Grid.Column="4" Grid.Row="5" Height="24" IsEnabled="{Binding HasSelectedPrimaryContact}" Margin="3" Name="btnDelPrimary" ToolTip="Delete Contact" VerticalAlignment="Top" Visibility="{Binding DoneCancelVisible}">
-								<Image Height="16" Source="/IndiaTango;component/Images/delete_16.png" Width="16" />
+								<Image Height="16" Source="/B3;component/Images/delete_16.png" Width="16" />
 							</Button>
 							<TextBlock Grid.Column="0" Grid.Row="6" Margin="7" Text="Secondary Contact:" TextAlignment="Right" />
 							<ComboBox Grid.Column="1" Grid.Row="6" Height="25" IsEnabled="{Binding SiteControlsEnabled}" ItemsSource="{Binding AllContacts, Mode=TwoWay}" Margin="2,2,2,0" Name="comboSecondaryContact" SelectedItem="{Binding SecondaryContact}" VerticalAlignment="Top" />
 							<Button Grid.Column="2" Grid.Row="6" Height="24" Margin="3" Name="btnNewSecondary" ToolTip="New Contact" VerticalAlignment="Top" Visibility="{Binding DoneCancelVisible}">
-								<Image Height="16" Source="/IndiaTango;component/Images/new_16.png" Width="16" />
+								<Image Height="16" Source="/B3;component/Images/new_16.png" Width="16" />
 							</Button>
 							<Button Grid.Column="3" Grid.Row="6" Height="24" IsEnabled="{Binding HasSelectedSecondaryContact}" Margin="3" Name="btnEditSecondary" ToolTip="Edit Contact" VerticalAlignment="Top" Visibility="{Binding DoneCancelVisible}">
-								<Image Height="16" Source="/IndiaTango;component/Images/edit_16.png" Width="16" />
+								<Image Height="16" Source="/B3;component/Images/edit_16.png" Width="16" />
 							</Button>
 							<Button Grid.Column="4" Grid.Row="6" Height="24" IsEnabled="{Binding HasSelectedSecondaryContact}" Margin="3" Name="btnDelSecondary" ToolTip="Delete Contact" VerticalAlignment="Top" Visibility="{Binding DoneCancelVisible}">
-								<Image Height="16" Source="/IndiaTango;component/Images/delete_16.png" Width="16" />
+								<Image Height="16" Source="/B3;component/Images/delete_16.png" Width="16" />
 							</Button>
 							<TextBlock Grid.Column="0" Grid.Row="7" Margin="7" Text="University Contact:" TextAlignment="Right" />
 							<ComboBox Grid.Column="1" Grid.Row="7" Height="25" IsEnabled="{Binding SiteControlsEnabled}" ItemsSource="{Binding AllContacts, Mode=TwoWay}" Margin="2,2,2,0" Name="comboUniContact" SelectedItem="{Binding UniversityContact}" VerticalAlignment="Top" />
 							<Button Grid.Column="2" Grid.Row="7" Height="24" Margin="3,3,3,0" Name="btnNewUni" ToolTip="New Contact" VerticalAlignment="Top" Visibility="{Binding DoneCancelVisible}">
-								<Image Height="16" Source="/IndiaTango;component/Images/new_16.png" Width="16" />
+								<Image Height="16" Source="/B3;component/Images/new_16.png" Width="16" />
 							</Button>
 							<Button Grid.Column="3" Grid.Row="7" Height="24" IsEnabled="{Binding HasSelectedUniContact}" Margin="3,3,3,0" Name="btnEditUni" ToolTip="Edit Contact" VerticalAlignment="Top" Visibility="{Binding DoneCancelVisible}">
-								<Image Height="16" Source="/IndiaTango;component/Images/edit_16.png" Width="16" />
+								<Image Height="16" Source="/B3;component/Images/edit_16.png" Width="16" />
 							</Button>
 							<Button Grid.Column="4" Grid.Row="7" Height="24" IsEnabled="{Binding HasSelectedUniContact}" Margin="3,3,3,0" Name="btnDelUni" ToolTip="Delete Contact" VerticalAlignment="Top" Visibility="{Binding DoneCancelVisible}">
-								<Image Height="16" Source="/IndiaTango;component/Images/delete_16.png" Width="16" />
+								<Image Height="16" Source="/B3;component/Images/delete_16.png" Width="16" />
 							</Button>
 							<TextBlock Grid.Column="0" Grid.Row="8" Margin="7" Text="GPS Coordinates:" TextAlignment="Right" />
 							<Grid Background="GhostWhite" Grid.Column="1" Grid.Row="8">
@@ -124,13 +124,13 @@
 							<StackPanel Grid.Column="2" Grid.ColumnSpan="3" Grid.Row="9">
 								<Button Height="24" HorizontalAlignment="Left" Margin="3,5,3,3" Name="btnNewImage" ToolTip="Add a new image associated with this site" VerticalAlignment="Top" Visibility="{Binding DoneCancelVisible}">
 									<StackPanel Orientation="Horizontal">
-										<Image Height="16" Margin="3,0" Source="/IndiaTango;component/Images/new_16.png" Width="16" />
+										<Image Height="16" Margin="3,0" Source="/B3;component/Images/new_16.png" Width="16" />
 										<TextBlock HorizontalAlignment="Left" Text="Add Image" />
 									</StackPanel>
 								</Button>
 								<Button Height="24" HorizontalAlignment="Left" Margin="3" Name="btnDeleteImage" ToolTip="Delete the currently selected image" VerticalAlignment="Top" Visibility="{Binding DoneCancelVisible}">
 									<StackPanel Orientation="Horizontal">
-										<Image Height="16" Margin="3,0" Source="/IndiaTango;component/Images/delete_16.png" Width="16" />
+										<Image Height="16" Margin="3,0" Source="/B3;component/Images/delete_16.png" Width="16" />
 										<TextBlock Text="Delete Image" />
 									</StackPanel>
 								</Button>
@@ -139,32 +139,32 @@
 							<Rectangle Fill="OrangeRed" Grid.ColumnSpan="5" Grid.Row="11" Height="3" Margin="0,5" SnapsToDevicePixels="True" Stroke="White" />
 							<Button FontSize="15" Grid.Column="0" Grid.Row="12" HorizontalAlignment="Left" Margin="5" Name="btnSiteCreate" VerticalContentAlignment="Bottom" Visibility="{Binding CreateEditDeleteVisible}">
 								<StackPanel Orientation="Horizontal">
-									<Image Height="32" HorizontalAlignment="Left" SnapsToDevicePixels="True" Source="/IndiaTango;component/Images/new_site.png" VerticalAlignment="Top" Width="32" />
+									<Image Height="32" HorizontalAlignment="Left" SnapsToDevicePixels="True" Source="/B3;component/Images/new_site.png" VerticalAlignment="Top" Width="32" />
 									<TextBlock Margin="5" Text="New Site" VerticalAlignment="Center" />
 								</StackPanel>
 							</Button>
 							<StackPanel Grid.Column="1" Grid.ColumnSpan="5" Grid.Row="12" HorizontalAlignment="Right" Orientation="Horizontal">
 								<Button FontSize="15" HorizontalAlignment="Left" Margin="5" Name="btnSiteDone" SnapsToDevicePixels="True" VerticalAlignment="Bottom" VerticalContentAlignment="Bottom" Visibility="{Binding DoneCancelVisible}">
 									<StackPanel Orientation="Horizontal">
-										<Image Height="32" Source="/IndiaTango;component/Images/save_32.png" Width="32" />
+										<Image Height="32" Source="/B3;component/Images/save_32.png" Width="32" />
 										<TextBlock Margin="5" Text="Save" VerticalAlignment="Center" />
 									</StackPanel>
 								</Button>
 								<Button FontSize="15" HorizontalAlignment="Left" Margin="5" Name="btnSiteCancel" VerticalAlignment="Bottom" VerticalContentAlignment="Bottom" Visibility="{Binding DoneCancelVisible}">
 									<StackPanel Orientation="Horizontal">
-										<Image Height="32" HorizontalAlignment="Left" SnapsToDevicePixels="True" Source="/IndiaTango;component/Images/cancel_32.png" VerticalAlignment="Top" Width="32" />
+										<Image Height="32" HorizontalAlignment="Left" SnapsToDevicePixels="True" Source="/B3;component/Images/cancel_32.png" VerticalAlignment="Top" Width="32" />
 										<TextBlock Margin="5" Text="Cancel" VerticalAlignment="Center" />
 									</StackPanel>
 								</Button>
 								<Button FontSize="15" HorizontalAlignment="Left" IsEnabled="{Binding EditDeleteEnabled}" Margin="5" Name="btnSiteEdit" VerticalAlignment="Bottom" VerticalContentAlignment="Bottom" Visibility="{Binding CreateEditDeleteVisible}">
 									<StackPanel Orientation="Horizontal">
-										<Image Height="32" HorizontalAlignment="Left" SnapsToDevicePixels="False" Source="/IndiaTango;component/Images/edit_32.png" VerticalAlignment="Top" Width="32" />
+										<Image Height="32" HorizontalAlignment="Left" SnapsToDevicePixels="False" Source="/B3;component/Images/edit_32.png" VerticalAlignment="Top" Width="32" />
 										<TextBlock Margin="5" Text="Edit" VerticalAlignment="Center" />
 									</StackPanel>
 								</Button>
 								<Button FontSize="15" HorizontalAlignment="Left" IsEnabled="{Binding EditDeleteEnabled}" Margin="5" Name="btnSiteDelete" VerticalAlignment="Bottom" VerticalContentAlignment="Bottom" Visibility="{Binding CreateEditDeleteVisible}">
 									<StackPanel Orientation="Horizontal">
-										<Image Height="32" HorizontalAlignment="Left" SnapsToDevicePixels="True" Source="/IndiaTango;component/Images/delete_32.png" VerticalAlignment="Top" Width="32" />
+										<Image Height="32" HorizontalAlignment="Left" SnapsToDevicePixels="True" Source="/B3;component/Images/delete_32.png" VerticalAlignment="Top" Width="32" />
 										<TextBlock Margin="5" Text="Delete" VerticalAlignment="Center" />
 									</StackPanel>
 								</Button>
@@ -189,7 +189,7 @@
 					<StackPanel Grid.Column="0" Grid.Row="13" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
 						<Button Name="btnPresets" FontSize="15" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Left">
 							<StackPanel Orientation="Horizontal">
-								<Image Source="/IndiaTango;component/Images/sensor_preset_64.png" Width="64" Height="64" VerticalAlignment="Center" />
+								<Image Source="/B3;component/Images/sensor_preset_64.png" Width="64" Height="64" VerticalAlignment="Center" />
 								<TextBlock Text="Presets..." VerticalAlignment="Center" Margin="5" />
 							</StackPanel>
 						</Button>
@@ -311,7 +311,7 @@
                         <WrapPanel Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="40,0">
                             <Button Name="btnMissingValues" FontSize="15" Margin="5"  >
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="/IndiaTango;component/Images/find_range.png" Width="64" Height="64" />
+                                    <Image Source="/B3;component/Images/find_range.png" Width="64" Height="64" />
                                     <TextBlock Text="Find Missing Values" FontSize="15" VerticalAlignment="Center" Margin="5" />
                                 </StackPanel>
                             </Button>
@@ -329,7 +329,7 @@
                         <WrapPanel Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="40,0">
                             <Button Name="btnStdDev" FontSize="15" Margin="5"  >
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="/IndiaTango;component/Images/graph.png" Width="64" Height="64" />
+                                    <Image Source="/B3;component/Images/graph.png" Width="64" Height="64" />
                                     <TextBlock Text="Fix Data based on Standard Deviation" FontSize="15" VerticalAlignment="Center" Margin="5" />
                                 </StackPanel>
                             </Button>
@@ -347,7 +347,7 @@
                         <WrapPanel Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="40,0">
                             <Button Name="btnOutliers" FontSize="15" Margin="5" IsEnabled="{Binding ActionButtonsEnabled}" HorizontalAlignment="Left">
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="/IndiaTango;component/Images/find_range.png" Width="64" Height="64" />
+                                    <Image Source="/B3;component/Images/find_range.png" Width="64" Height="64" />
                                     <TextBlock Text="Fix Outliers" FontSize="15" VerticalAlignment="Center" Margin="5" />
                                 </StackPanel>
                             </Button>
@@ -364,7 +364,7 @@
                         <WrapPanel Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="40,0">
                             <Button Name="btnCalibrate" FontSize="15" Margin="5"  >
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="/IndiaTango;component/Images/calibrate_sensor.png" Width="64" Height="64" />
+                                    <Image Source="/B3;component/Images/calibrate_sensor.png" Width="64" Height="64" />
                                     <TextBlock Text="Calibrate Sensors" FontSize="15" VerticalAlignment="Center" Margin="5" />
                                 </StackPanel>
                             </Button>
@@ -386,7 +386,7 @@
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
-                    <Image Source="/IndiaTango;component/Images/wizard_fistpump.png" Width="256" Height="256" Grid.Row="0" />
+                    <Image Source="/B3;component/Images/wizard_fistpump.png" Width="256" Height="256" Grid.Row="0" />
                     
                     <TextBlock Margin="5" Text="Congratulations!" TextAlignment="Center" FontSize="24" FontWeight="Bold" TextWrapping="Wrap" Grid.Column="0" Grid.Row="1" />
                     <TextBlock x:Name="wizardCongrats" Margin="5" TextAlignment="Center" FontSize="16" TextWrapping="Wrap" Grid.Column="0" Grid.Row="2" />
@@ -410,21 +410,21 @@
 
             <Button Name="btnBack" FontSize="15"  HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" Grid.Column="1" IsEnabled="{Binding CanGoBack}">
                 <StackPanel Orientation="Horizontal">
-                    <Image Source="/IndiaTango;component/Images/left_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
+                    <Image Source="/B3;component/Images/left_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
                     <TextBlock Text="Back" VerticalAlignment="Center" Margin="5" />
                 </StackPanel>
             </Button>
 
             <Button Name="btnNext" FontSize="15"  HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" Grid.Column="2" IsEnabled="{Binding CanGoForward}" Click="BtnNextClick">
                 <StackPanel Orientation="Horizontal">
-                    <Image Source="/IndiaTango;component/Images/right_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
+                    <Image Source="/B3;component/Images/right_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
                     <TextBlock Text="Next" VerticalAlignment="Center" Margin="5" />
                 </StackPanel>
             </Button>
 
             <Button Name="btnFinish" FontSize="15"  HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" Grid.Column="3">
                 <StackPanel Orientation="Horizontal">
-                    <Image Source="/IndiaTango;component/Images/done_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
+                    <Image Source="/B3;component/Images/done_32.png" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" SnapsToDevicePixels="True" />
                     <TextBlock Text="Finish" VerticalAlignment="Center" Margin="5" />
                 </StackPanel>
             </Button>

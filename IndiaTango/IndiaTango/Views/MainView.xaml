@@ -20,7 +20,7 @@
             <Setter Property="Content">
                 <Setter.Value>
                     <StackPanel Orientation="Vertical">
-                        <Image Source="/IndiaTango;component/Images/open.png" Width="64" Height="64" />
+                        <Image Source="/B3;component/Images/open.png" Width="64" Height="64" />
                         <TextBlock Text="Load Site"/>
                     </StackPanel>
                 </Setter.Value>
@@ -30,7 +30,7 @@
                     <Setter Property="Content">
                         <Setter.Value>
                             <StackPanel Orientation="Vertical">
-                                <Image Source="/IndiaTango;component/Images/open2.png" Width="64" Height="64" />
+                                <Image Source="/B3;component/Images/open2.png" Width="64" Height="64" />
                                 <TextBlock Text="Load Site"/>
                             </StackPanel>
                         </Setter.Value>
@@ -53,7 +53,7 @@
 
         <Grid Grid.Row="0" Grid.Column="0">
             <!--Do not change this images layout settings. It scales incorrectly if it is set to centre itself automatically-->
-            <Image Source="/IndiaTango;component/Images/B3_icon.png" MaxWidth="200" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,20,0" />
+            <Image Source="/B3;component/Images/B3_icon.png" MaxWidth="200" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,20,0" />
         </Grid>
 
         <StackPanel Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" Name="stackPanel1" VerticalAlignment="Top" Width="228" Margin="0,15,0,0">
@@ -75,7 +75,7 @@
             
             <Button Grid.Row="0" Grid.Column="0" Name="BtnNew"  FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10" VerticalContentAlignment="Bottom" IsEnabled="{Binding ButtonsEnabled}">
                 <StackPanel Orientation="Vertical">
-                    <Image Source="/IndiaTango;component/Images/new.png" Width="64" Height="64" />
+                    <Image Source="/B3;component/Images/new.png" Width="64" Height="64" />
                     <TextBlock Text="New Site" HorizontalAlignment="Center" />
                 </StackPanel>
             </Button>
@@ -85,13 +85,13 @@
 
             <Button Grid.Row="0" Grid.Column="2" Name="BtnSettings" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10" VerticalContentAlignment="Bottom" IsEnabled="{Binding ButtonsEnabled}">
                 <StackPanel Orientation="Vertical">
-                    <Image Source="/IndiaTango;component/Images/settings_64.png" Width="64" Height="64" />
+                    <Image Source="/B3;component/Images/settings_64.png" Width="64" Height="64" />
                     <TextBlock Text="Settings..." HorizontalAlignment="Center" />
                 </StackPanel>
             </Button>
             <!--<Button Grid.Row="0" Grid.Column="3" Name="BtnLog"  FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10" VerticalContentAlignment="Bottom" IsEnabled="{Binding ButtonsEnabled}">
                 <StackPanel Orientation="Vertical">
-                    <Image Source="/IndiaTango;component/Images/log_64.png" Width="64" Height="64" />
+                    <Image Source="/B3;component/Images/log_64.png" Width="64" Height="64" />
                     <TextBlock Text="Show Log" HorizontalAlignment="Center" />
                 </StackPanel>
             </Button>-->

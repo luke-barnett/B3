@@ -43,7 +43,7 @@ namespace IndiaTango.Models
         private static List<string> _changeReasons;
 
         public static string ChangeReasonsPath { get { return Path.Combine(AppDataPath,"ChangeReasons.txt"); } }
-        public static string Icon { get { return "/IndiaTango;component/Images/icon.ico"; } }
+        public static string Icon { get { return "/B3;component/Images/icon.ico"; } }
         public static string TestDataPath { get { return "../../Test Data/"; } }
         public static string AppDataPath
         {
@@ -76,9 +76,9 @@ namespace IndiaTango.Models
     	public static bool CanUseGlass = WindowsFormsAero.OsSupport.IsVistaOrBetter &&
     	                                 WindowsFormsAero.OsSupport.IsCompositionEnabled;
     	                                 
-        public static string AddIcon { get { return "/IndiaTango;component/Images/plus.png"; } }
-        public static string EditIcon { get { return "/IndiaTango;component/Images/pencil.png"; } }
-        public static string DeleteIcon { get { return "/IndiaTango;component/Images/cross-script.png"; } }
+        public static string AddIcon { get { return "/B3;component/Images/plus.png"; } }
+        public static string EditIcon { get { return "/B3;component/Images/pencil.png"; } }
+        public static string DeleteIcon { get { return "/B3;component/Images/cross-script.png"; } }
 
         public static void SetFancyBackground(Window window, Grid mainGrid, bool useGlass, bool useGradient)
         {

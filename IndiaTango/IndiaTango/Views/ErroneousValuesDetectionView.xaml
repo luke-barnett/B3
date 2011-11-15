@@ -90,7 +90,7 @@
                     <WrapPanel Margin="5">
                         <toolkit:SplitButton FontSize="15" Width="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding UndoButtonEnabled}" IsOpen="{Binding ShowUndoStates, Mode=TwoWay}">
                             <StackPanel Orientation="Horizontal">
-                                <Image Source="/IndiaTango;component/Images/cancel_32.png" Width="32" Height="32" />
+                                <Image Source="/B3;component/Images/cancel_32.png" Width="32" Height="32" />
                                 <TextBlock Text=" Undo" HorizontalAlignment="Center" VerticalAlignment="Center" />
                             </StackPanel>
                             <i:Interaction.Triggers>
@@ -113,7 +113,7 @@
 
                         <toolkit:SplitButton FontSize="15" Width="100" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding RedoButtonEnabled}" IsOpen="{Binding ShowRedoStates, Mode=TwoWay}">
                             <StackPanel Orientation="Horizontal">
-                                <Image Source="/IndiaTango;component/Images/redo_32.png" Width="32" Height="32" />
+                                <Image Source="/B3;component/Images/redo_32.png" Width="32" Height="32" />
                                 <TextBlock Text=" Redo" VerticalAlignment="Center" />
                             </StackPanel>
                             <i:Interaction.Triggers>
@@ -136,7 +136,7 @@
 
                         <Button IsEnabled="{Binding ButtonsEnabled}" Name="BtnDone" FontSize="15" Width="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" >
                             <StackPanel Orientation="Horizontal">
-                                <Image Source="/IndiaTango;component/Images/done_32.png" Width="32" Height="32" />
+                                <Image Source="/B3;component/Images/done_32.png" Width="32" Height="32" />
                                 <TextBlock Text=" Done" VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>
@@ -147,21 +147,21 @@
                     <WrapPanel Margin="5">
                         <Button IsEnabled="{Binding ActionButtonsEnabled}" Name="BtnExtrapolate" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom">
                             <StackPanel Orientation="Vertical">
-                                <Image Source="/IndiaTango;component/Images/graph_extrapolate.png" Width="64" Height="64" />
+                                <Image Source="/B3;component/Images/graph_extrapolate.png" Width="64" Height="64" />
                                 <TextBlock Text="Extrapolate" HorizontalAlignment="Center" />
                             </StackPanel>
                         </Button>
 
                         <Button IsEnabled="{Binding ActionButtonsEnabled}" Name="BtnMakeZero" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom">
                             <StackPanel Orientation="Vertical">
-                                <Image Source="/IndiaTango;component/Images/graph_zero.png" Width="64" Height="64" />
+                                <Image Source="/B3;component/Images/graph_zero.png" Width="64" Height="64" />
                                 <TextBlock Text="Make Zero" HorizontalAlignment="Center" />
                             </StackPanel>
                         </Button>
 
                         <Button IsEnabled="{Binding ActionButtonsEnabled}" Name="BtnSpecify" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom">
                             <StackPanel Orientation="Vertical">
-                                <Image Source="/IndiaTango;component/Images/graph_specify.png" Width="64" Height="64" />
+                                <Image Source="/B3;component/Images/graph_specify.png" Width="64" Height="64" />
                                 <TextBlock Text="Specify Value" HorizontalAlignment="Center" />
                             </StackPanel>
                         </Button>

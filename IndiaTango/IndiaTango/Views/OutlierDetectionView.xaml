@@ -79,7 +79,7 @@
                     <WrapPanel Margin="5">
                         <ext:SplitButton Name="btnUndo" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding UndoButtonEnabled}" IsOpen="{Binding ShowUndoStates, Mode=TwoWay}">
                             <StackPanel Orientation="Vertical">
-                                <Image Source="/IndiaTango;component/Images/undo.png" Width="64" Height="64" />
+                                <Image Source="/B3;component/Images/undo.png" Width="64" Height="64" />
                                 <TextBlock Text="Undo" HorizontalAlignment="Center" />
                             </StackPanel>
                             <i:Interaction.Triggers>
@@ -102,7 +102,7 @@
 
                         <ext:SplitButton Name="btnRedo" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" IsEnabled="{Binding RedoButtonEnabled}" IsOpen="{Binding ShowRedoStates, Mode=TwoWay}">
                             <StackPanel Orientation="Vertical">
-                                <Image Source="/IndiaTango;component/Images/redo.png" Width="64" Height="64" />
+                                <Image Source="/B3;component/Images/redo.png" Width="64" Height="64" />
                                 <TextBlock Text="Redo" HorizontalAlignment="Center" />
                             </StackPanel>
                             <i:Interaction.Triggers>
@@ -125,7 +125,7 @@
 
                         <Button Name="btnDone" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" >
                             <StackPanel Orientation="Vertical">
-                                <Image Source="/IndiaTango;component/Images/done_64.png" Width="64" Height="64" />
+                                <Image Source="/B3;component/Images/done_64.png" Width="64" Height="64" />
                                 <TextBlock Text="Done" HorizontalAlignment="Center" />
                             </StackPanel>
                         </Button>
@@ -136,21 +136,21 @@
                     <WrapPanel Margin="5">
                         <Button Name="btnRemove" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" >
                             <StackPanel Orientation="Vertical">
-                                <Image Source="/IndiaTango;component/Images/remove_point.png" Width="64" Height="64" />
+                                <Image Source="/B3;component/Images/remove_point.png" Width="64" Height="64" />
                                 <TextBlock Text="Remove value" HorizontalAlignment="Center" />
                             </StackPanel>
                         </Button>
 
                         <Button Name="btnMakeZero" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom">
                             <StackPanel Orientation="Vertical">
-                                <Image Source="/IndiaTango;component/Images/graph_zero.png" Width="64" Height="64" />
+                                <Image Source="/B3;component/Images/graph_zero.png" Width="64" Height="64" />
                                 <TextBlock Text="Make Zero" HorizontalAlignment="Center" />
                             </StackPanel>
                         </Button>
 
                         <Button Name="btnSpecify" FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5" VerticalContentAlignment="Bottom" >
                             <StackPanel Orientation="Vertical">
-                                <Image Source="/IndiaTango;component/Images/graph_specify.png" Width="64" Height="64" />
+                                <Image Source="/B3;component/Images/graph_specify.png" Width="64" Height="64" />
                                 <TextBlock Text="Specify Value" HorizontalAlignment="Center" />
                             </StackPanel>
                         </Button>

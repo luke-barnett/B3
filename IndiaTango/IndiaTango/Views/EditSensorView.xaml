@@ -70,7 +70,7 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
 
-                    <Image Source="/IndiaTango;component/Images/warning_32.png" Width="32" Height="32" VerticalAlignment="Top" Grid.Column="0" Margin="5"/>
+                    <Image Source="/B3;component/Images/warning_32.png" Width="32" Height="32" VerticalAlignment="Top" Grid.Column="0" Margin="5"/>
                     <TextBlock Grid.Column="1" Text="This sensor indicates signs of failing, or at least being offline for a period of time. After cleaning up the data and accounting for these values, this warning will disappear." TextWrapping="Wrap" VerticalAlignment="Top" Margin="5" />
                 </Grid>
                 
@@ -114,49 +114,49 @@
                 <StackPanel Grid.Column="0" Grid.Row="13" Grid.ColumnSpan="2" HorizontalAlignment="Right" Orientation="Horizontal">
                     <Button Name="btnNew" FontSize="15" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Left" Visibility="{Binding NewVisible}">
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="/IndiaTango;component/Images/new.png" Width="32" Height="32" VerticalAlignment="Center" />
+                            <Image Source="/B3;component/Images/new.png" Width="32" Height="32" VerticalAlignment="Center" />
                             <TextBlock Text="New" VerticalAlignment="Center" Margin="5" />
                         </StackPanel>
                     </Button>
                     
                     <Button Name="btnPresets" FontSize="15" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Left">
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="/IndiaTango;component/Images/sensor_preset.png" Width="32" Height="32" VerticalAlignment="Center" />
+                            <Image Source="/B3;component/Images/sensor_preset.png" Width="32" Height="32" VerticalAlignment="Center" />
                             <TextBlock Text="Presets..." VerticalAlignment="Center" Margin="5" />
                         </StackPanel>
                     </Button>
                     
                     <Button Name="btnSave" FontSize="15" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" Visibility="{Binding SaveCancelVisible}" HorizontalAlignment="Left">
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="/IndiaTango;component/Images/save_32.png" Width="32" Height="32" VerticalAlignment="Center" />
+                            <Image Source="/B3;component/Images/save_32.png" Width="32" Height="32" VerticalAlignment="Center" />
                             <TextBlock Text="Save" VerticalAlignment="Center" Margin="5" />
                         </StackPanel>
                     </Button>
 
                     <Button Name="btnCancel" FontSize="15" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" Visibility="{Binding SaveCancelVisible}">
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="/IndiaTango;component/Images/cancel_32.png" Width="32" Height="32" VerticalAlignment="Center" />
+                            <Image Source="/B3;component/Images/cancel_32.png" Width="32" Height="32" VerticalAlignment="Center" />
                             <TextBlock Text="Cancel" VerticalAlignment="Center" Margin="5" />
                         </StackPanel>
                     </Button>
 
                     <Button Name="btnEdit" FontSize="15" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Visibility="{Binding EditDoneVisible}" VerticalAlignment="Bottom" IsEnabled="{Binding HasSelectedSensor}">
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="/IndiaTango;component/Images/edit_32.png" Width="32" Height="32" VerticalAlignment="Center"  />
+                            <Image Source="/B3;component/Images/edit_32.png" Width="32" Height="32" VerticalAlignment="Center"  />
                             <TextBlock Text="Edit" VerticalAlignment="Center" Margin="5" />
                         </StackPanel>
                     </Button>
 
                     <Button Name="btnDelete" FontSize="15" HorizontalAlignment="Left" Margin="5" VerticalContentAlignment="Bottom" Visibility="{Binding EditDoneVisible}" VerticalAlignment="Bottom" IsEnabled="{Binding HasSelectedSensor}">
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="/IndiaTango;component/Images/delete_32.png" Width="32" Height="32" VerticalAlignment="Center"  />
+                            <Image Source="/B3;component/Images/delete_32.png" Width="32" Height="32" VerticalAlignment="Center"  />
                             <TextBlock Text="Delete" VerticalAlignment="Center" Margin="5" />
                         </StackPanel>
                     </Button>
 
                     <Button Name="btnDone" FontSize="15" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Left" Visibility="{Binding EditDoneVisible}">
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="/IndiaTango;component/Images/done_32.png" Width="32" Height="32" VerticalAlignment="Center" />
+                            <Image Source="/B3;component/Images/done_32.png" Width="32" Height="32" VerticalAlignment="Center" />
                             <TextBlock Text="Done" VerticalAlignment="Center" Margin="5" />
                         </StackPanel>
                     </Button>

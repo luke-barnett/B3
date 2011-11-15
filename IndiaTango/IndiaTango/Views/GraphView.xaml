@@ -169,7 +169,7 @@
 					</i:EventTrigger>
 				</i:Interaction.Triggers>
 				<StackPanel Orientation="Horizontal">
-					<Image Source="/IndiaTango;component/Images/export_graph.png" Width="32" Height="32" VerticalAlignment="Center" />
+					<Image Source="/B3;component/Images/export_graph.png" Width="32" Height="32" VerticalAlignment="Center" />
 					<TextBlock Text="Export" VerticalAlignment="Center" Margin="5" />
 				</StackPanel>
 			</Button>

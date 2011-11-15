@@ -15,7 +15,7 @@ namespace IndiaTango.ViewModels
 
         public new string Icon
         {
-            get { return (_contact == null) ? "/IndiaTango;component/Images/new_16.png" : "/IndiaTango;component/Images/edit_16.png"; }
+            get { return (_contact == null) ? "/B3;component/Images/new_16.png" : "/B3;component/Images/edit_16.png"; }
         }
 
         public ContactEditorViewModel(IWindowManager manager, SimpleContainer container)
