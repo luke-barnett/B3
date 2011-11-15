@@ -72,7 +72,11 @@
                     <TextBox x:Name="txtUnit" Margin="4" Grid.Column="1" Grid.Row="7" Text="{Binding SensorUnit, Mode=TwoWay, UpdateSourceTrigger=Explicit}" TextChanged="UpdateSensorUnit"  />
 
                     <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Maximum Rate of Change:" TextWrapping="Wrap" Grid.Column="0" Grid.Row="8" ToolTip="The maximum rate of change values reported by this sensor may encounter." />
-                    <TextBox x:Name="txtMaxRateOfChange" Margin="4" Grid.Column="1" Grid.Row="8" Height="25" VerticalAlignment="Top" Text="{Binding SensorMaximumRateOfChange, Mode=TwoWay, UpdateSourceTrigger=Explicit}" TextChanged="UpdateSensorMaxRateOfChange"  />
+                    
+                    <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="8" VerticalAlignment="Center">
+                        <TextBox x:Name="txtMaxRateOfChange" Margin="4" Width="100" Height="25" Text="{Binding SensorMaximumRateOfChange, Mode=TwoWay, UpdateSourceTrigger=Explicit}" TextChanged="UpdateSensorMaxRateOfChange"  />
+                        <TextBlock Text="(per interval)" VerticalAlignment="Center" />
+                    </StackPanel>
 
                     <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Manufacturer:" Grid.Column="0" Grid.Row="9" ToolTip="A name that identifies this sensor uniquely." />
                     <TextBox x:Name="txtManufacturer" Margin="4" Grid.Column="1" Grid.Row="9" Text="{Binding SensorManufacturer, Mode=TwoWay, UpdateSourceTrigger=Explicit}" TextChanged="UpdateSensorManufacturer" />
