@@ -763,6 +763,18 @@ namespace IndiaTango.ViewModels
 
         }
 
+        public void SaveDataSet()
+        {
+            var bw = new BackgroundWorker();
+            bw.RunWorkerCompleted += (o, e) =>
+                                         {
+                                             Debug.WriteLine("Saving completed");
+                                             StopWaiting();
+                                         };
+            StartWaiting("Saving");
+            Common.SaveSession(bw, _dataset);
+        }
+
         #endregion
 
         private void FindErroneousValues()

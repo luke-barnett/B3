@@ -47,7 +47,6 @@ namespace IndiaTango.ViewModels
             
             if(openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                Common.SaveFileLocation = openFileDialog.FileName;
                 ApplicationCursor = Cursors.Wait;
                 ButtonsEnabled = false;
                 var bw = new BackgroundWorker();
@@ -63,7 +62,9 @@ namespace IndiaTango.ViewModels
                                                  if (e.Cancelled || e.Error != null)
                                                      return;
                                                  var sessionView = (SessionViewModel)_container.GetInstance(typeof(SessionViewModel), "SessionViewModel");
-                                                 sessionView.Dataset = (Dataset) e.Result;
+                                                 var dataSet = (Dataset) e.Result;
+                                                 dataSet.SaveLocation = openFileDialog.FileName;
+                                                 sessionView.Dataset = dataSet;
 
                                                  ApplicationCursor = Cursors.Arrow;
                                                  ButtonsEnabled = true;

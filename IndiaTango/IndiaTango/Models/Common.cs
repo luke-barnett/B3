@@ -380,7 +380,6 @@ namespace IndiaTango.Models
             }
         }
 
-        public static string SaveFileLocation;
         public static void SaveSession(BackgroundWorker delegatedBackgroundWorker, Dataset sessionToSave)
         {
             EventLogger.LogInfo(sessionToSave, "Save daemon", "Session save started.");
@@ -388,25 +387,25 @@ namespace IndiaTango.Models
             if (delegatedBackgroundWorker == null)
                 delegatedBackgroundWorker = new BackgroundWorker();
 
-            if (string.IsNullOrWhiteSpace(SaveFileLocation))
+            if (string.IsNullOrWhiteSpace(sessionToSave.SaveLocation))
             {
                 var saveFileDialog = new SaveFileDialog { Filter = "Site Files|*.b3" };
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                    SaveFileLocation = saveFileDialog.FileName;
+                    sessionToSave.SaveLocation = saveFileDialog.FileName;
             }
 
-            if (!string.IsNullOrWhiteSpace(SaveFileLocation))
+            if (!string.IsNullOrWhiteSpace(sessionToSave.SaveLocation))
             {
                 delegatedBackgroundWorker.DoWork += (o, e) =>
                                  {
-                                     using (var stream = new FileStream(SaveFileLocation, FileMode.Create))
+                                     using (var stream = new FileStream(sessionToSave.SaveLocation, FileMode.Create))
                                          new BinaryFormatter().Serialize(stream, sessionToSave);
-                                     EventLogger.LogInfo(sessionToSave, "Save [Background Worker]", string.Format("Session save complete. File saved to: {0}", SaveFileLocation));
+                                     EventLogger.LogInfo(sessionToSave, "Save [Background Worker]", string.Format("Session save complete. File saved to: {0}", sessionToSave.SaveLocation));
                                  };
-                delegatedBackgroundWorker.RunWorkerAsync();
             }
             else
                 EventLogger.LogInfo(sessionToSave, "Save daemon", "Session save aborted");
+            delegatedBackgroundWorker.RunWorkerAsync();
         }
     }
 }

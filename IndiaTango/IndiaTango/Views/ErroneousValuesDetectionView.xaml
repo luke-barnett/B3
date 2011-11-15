@@ -6,6 +6,7 @@
         xmlns:charts="clr-namespace:Visiblox.Charts;assembly=Visiblox.Charts"
         xmlns:toolkit="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit/extended"
         xmlns:multiseries="clr-namespace:IndiaTango.MultiSeriesBinding"
+        xmlns:models="clr-namespace:IndiaTango.Models"
         Title="{Binding Title}" Icon="{Binding Icon}" Cursor="{Binding ViewCursor}" Height="700" Width="1150" WindowStartupLocation="CenterScreen">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closing">
@@ -13,6 +14,12 @@
                 <cal:Parameter Value="$eventArgs" />
             </cal:ActionMessage>
         </i:EventTrigger>
+        <models:InputBindingTrigger>
+            <models:InputBindingTrigger.InputBinding>
+                <KeyBinding Modifiers="Ctrl" Key="S" />
+            </models:InputBindingTrigger.InputBinding>
+            <cal:ActionMessage MethodName="SaveDataSet" />
+        </models:InputBindingTrigger>
     </i:Interaction.Triggers>
     <Grid>
         <Grid.ColumnDefinitions>

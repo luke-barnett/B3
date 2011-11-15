@@ -222,5 +222,8 @@ namespace IndiaTango.Models
         {
             get { return (Site != null && !string.IsNullOrWhiteSpace(Site.Name)) ? Site.Name : Common.UnknownSite; }
         }
+
+        [NonSerialized]
+        public string SaveLocation = string.Empty;
     }
 }
