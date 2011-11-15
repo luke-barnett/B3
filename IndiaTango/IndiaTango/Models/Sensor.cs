@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
+using System.Windows.Media;
 
 namespace IndiaTango.Models
 {
@@ -151,6 +152,8 @@ namespace IndiaTango.Models
             ErrorThreshold = errorThreshold;
             Owner = owner;
             _summaryType = sType;
+
+            Colour = Color.FromRgb((byte)(Common.Generator.Next()), (byte)(Common.Generator.Next()), (byte)(Common.Generator.Next()));
         }
 
         #endregion
@@ -336,6 +339,12 @@ namespace IndiaTango.Models
         {
             get { return (UndoStack.Count != 0) ? UndoStack.Peek() : RawData; }
         }
+
+        /// <summary>
+        /// The colour to use when graphing the sensor
+        /// </summary>
+        [DataMember]
+        public Color Colour { get; set; }
 
         [DataMember]
         public int ErrorThreshold

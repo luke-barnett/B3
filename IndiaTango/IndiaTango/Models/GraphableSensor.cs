@@ -24,8 +24,6 @@ namespace IndiaTango.Models
         public GraphableSensor(Sensor baseSensor)
         {
             Sensor = baseSensor;
-            //Create a random colour
-            Colour = Color.FromRgb((byte)(Common.Generator.Next()), (byte)(Common.Generator.Next()), (byte)(Common.Generator.Next()));
 
             DataPoints = null;
         }
@@ -54,7 +52,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// The colour to use for the line series
         /// </summary>
-        public Color Colour { get; set; }
+        public Color Colour { get { return Sensor.Colour; } set { Sensor.Colour = value; } }
 
         public Color RawDataColour
         {
