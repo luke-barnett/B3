@@ -253,6 +253,12 @@ namespace IndiaTango.Models
         public string Description { get; set; }
 
         /// <summary>
+        /// Gets or sets the depth of the sensor
+        /// </summary>
+        [DataMember]
+        public string Depth { get; set; }
+
+        /// <summary>
         /// Gets or sets the lower limit for values reported by this sensor.
         /// </summary>
         [DataMember]

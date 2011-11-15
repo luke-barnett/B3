@@ -425,6 +425,7 @@ namespace IndiaTango.ViewModels
 
                 NotifyOfPropertyChange(() => Name);
                 NotifyOfPropertyChange(() => Description);
+                NotifyOfPropertyChange(() => Depth);
                 NotifyOfPropertyChange(() => LowerLimit);
                 NotifyOfPropertyChange(() => UpperLimit);
                 NotifyOfPropertyChange(() => Unit);
@@ -440,6 +441,8 @@ namespace IndiaTango.ViewModels
         public string Name { get { return (SelectedSensor == null) ? string.Empty : SelectedSensor.Name; } set { if (SelectedSensor != null) SelectedSensor.Name = value; } }
 
         public string Description { get { return (SelectedSensor == null) ? string.Empty : SelectedSensor.Description; } set { if (SelectedSensor != null) SelectedSensor.Description = value; } }
+
+        public string Depth { get { return (SelectedSensor == null) ? string.Empty : SelectedSensor.Depth; } set { if (SelectedSensor != null) SelectedSensor.Depth = value; } }
 
         public string LowerLimit
         {

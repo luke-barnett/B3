@@ -51,6 +51,7 @@ namespace IndiaTango.ViewModels
         private int _selectedImage = -1;
         private Sensor _selectedSensor;
         private Site _selectedSite;
+        private bool _showingSiteMetaData = true;
 
         #endregion
 
@@ -153,7 +154,7 @@ namespace IndiaTango.ViewModels
 
             return panel;
         }
-        
+
         public Visibility SensorWarningVisible
         {
             get { return _sensorWarningVis; }
@@ -167,7 +168,7 @@ namespace IndiaTango.ViewModels
 
         public string MetadataHeader
         {
-            get { return SelectedSensor == null ? "Site Properties" : string.Format("{0} Properties", SelectedSensor.Name); }
+            get { return _showingSiteMetaData ? "Site Properties" : string.Format("{0} Properties", SelectedSensor.Name); }
         }
 
         public double ProgressBarPercent
@@ -268,14 +269,6 @@ namespace IndiaTango.ViewModels
             set
             {
                 _selectedSite = value;
-                if (_selectedSite != null)
-                {
-                    SelectedSensor = null;
-                    //SHOW METADATA
-                }
-                NotifyOfPropertyChange(() => MetadataHeader);
-                NotifyOfPropertyChange(() => SensorMetadataVisibility);
-                NotifyOfPropertyChange(() => SiteMetadataVisibility);
             }
         }
 
@@ -285,36 +278,17 @@ namespace IndiaTango.ViewModels
             set
             {
                 _selectedSensor = value;
-
-                NotifyOfPropertyChange(() => MetadataHeader);
-                NotifyOfPropertyChange(() => SensorMetadataVisibility);
-                NotifyOfPropertyChange(() => SiteMetadataVisibility);
-
-                if (_selectedSensor == null) return;
-
-                SiteSelected = null;
-                
-                NotifyOfPropertyChange(() => SensorName);
-                NotifyOfPropertyChange(() => SensorDescription);
-                NotifyOfPropertyChange(() => SensorLowerLimit);
-                NotifyOfPropertyChange(() => SensorUpperLimit);
-                NotifyOfPropertyChange(() => SensorUnit);
-                NotifyOfPropertyChange(() => SensorMaximumRateOfChange);
-                NotifyOfPropertyChange(() => SensorManufacturer);
-                NotifyOfPropertyChange(() => SensorSerialNumber);
-                NotifyOfPropertyChange(() => SensorErrorThreshold);
-                NotifyOfPropertyChange(() => SensorSummaryType);
             }
         }
 
         public Visibility SensorMetadataVisibility
         {
-            get { return _selectedSensor == null ? Visibility.Collapsed : Visibility.Visible; }
+            get { return _showingSiteMetaData ? Visibility.Collapsed : Visibility.Visible; }
         }
 
         public Visibility SiteMetadataVisibility
         {
-            get { return _selectedSensor == null ? Visibility.Visible : Visibility.Collapsed; }
+            get { return _showingSiteMetaData ? Visibility.Visible : Visibility.Collapsed; }
         }
 
         #region SensorMetaData
@@ -339,6 +313,16 @@ namespace IndiaTango.ViewModels
             {
                 if (_selectedSensor != null)
                     _selectedSensor.Description = value;
+            }
+        }
+
+        public string SensorDepth
+        {
+            get { return _selectedSensor != null ? _selectedSensor.Depth : "!!!!"; }
+            set
+            {
+                if (_selectedSensor != null)
+                    _selectedSensor.Depth = value;
             }
         }
 
@@ -684,7 +668,7 @@ namespace IndiaTango.ViewModels
                     {
                         readSensors = reader.ReadSensors(_bw, _ds);  // Prevent null references
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                         Common.ShowMessageBoxWithException("Failed Import", "Bad File Format", false, true, e);
                     }
@@ -1045,6 +1029,18 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        public void SiteHasBeenSelected()
+        {
+            Debug.WriteLine("Resetting SiteSelected");
+            ShowSiteData();
+        }
+
+        public void SensorHasBeenSelected()
+        {
+            Debug.WriteLine("Resetting Selected Sensor");
+            ShowSensorData();
+        }
+
         #endregion
 
         #region Contact Add/Edit/Delete Handlers
@@ -1206,5 +1202,35 @@ namespace IndiaTango.ViewModels
             InsertImagesForSite(acceptedFiles.ToArray());
         }
         #endregion
+
+        private void ShowSensorData()
+        {
+            _showingSiteMetaData = false;
+
+            NotifyOfPropertyChange(() => MetadataHeader);
+            NotifyOfPropertyChange(() => SensorMetadataVisibility);
+            NotifyOfPropertyChange(() => SiteMetadataVisibility);
+
+            NotifyOfPropertyChange(() => SensorName);
+            NotifyOfPropertyChange(() => SensorDescription);
+            NotifyOfPropertyChange(() => SensorDepth);
+            NotifyOfPropertyChange(() => SensorLowerLimit);
+            NotifyOfPropertyChange(() => SensorUpperLimit);
+            NotifyOfPropertyChange(() => SensorUnit);
+            NotifyOfPropertyChange(() => SensorMaximumRateOfChange);
+            NotifyOfPropertyChange(() => SensorManufacturer);
+            NotifyOfPropertyChange(() => SensorSerialNumber);
+            NotifyOfPropertyChange(() => SensorErrorThreshold);
+            NotifyOfPropertyChange(() => SensorSummaryType);
+        }
+
+        private void ShowSiteData()
+        {
+            _showingSiteMetaData = true;
+
+            NotifyOfPropertyChange(() => MetadataHeader);
+            NotifyOfPropertyChange(() => SensorMetadataVisibility);
+            NotifyOfPropertyChange(() => SiteMetadataVisibility);
+        }
     }
 }

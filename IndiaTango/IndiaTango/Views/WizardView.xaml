@@ -248,6 +248,7 @@
                                 <RowDefinition Height="30" />
                                 <RowDefinition Height="30" />
                                 <RowDefinition Height="30" />
+                                <RowDefinition Height="30" />
                                 <RowDefinition Height="50" />
                                 <RowDefinition Height="30" />
                                 <RowDefinition Height="30" />
@@ -263,29 +264,32 @@
                             <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Description:" Grid.Column="0" Grid.Row="3" ToolTip="A description of this sensor's purpose." />
                             <TextBox x:Name="txtDescription" Margin="4" Grid.Column="1" Grid.Row="3" Text="{Binding Description, Mode=TwoWay, UpdateSourceTrigger=Explicit}" />
 
-                            <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Lower Limit:" Grid.Column="0" Grid.Row="4" ToolTip="The minimum value this sensor generally reports." />
-                            <TextBox x:Name="txtLowerLimit" Margin="4" Grid.Column="1" Grid.Row="4" Width="100" HorizontalAlignment="Left" Text="{Binding LowerLimit, Mode=TwoWay, UpdateSourceTrigger=Explicit}"  />
+                            <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Depth:" Grid.Column="0" Grid.Row="4" ToolTip="The depth of the Sensor" />
+                            <TextBox x:Name="txtDepth" Margin="4" Grid.Column="1" Grid.Row="4" Width="100" HorizontalAlignment="Left" Text="{Binding Depth, Mode=TwoWay, UpdateSourceTrigger=Explicit}"  />
 
-                            <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Upper Limit:" Grid.Column="0" Grid.Row="5" ToolTip="The maximum value this sensor generally reports." />
-                            <TextBox x:Name="txtUpperLimit" Margin="4" Grid.Column="1" Grid.Row="5" Width="100" HorizontalAlignment="Left" Text="{Binding UpperLimit, Mode=TwoWay, UpdateSourceTrigger=Explicit}"   />
+                            <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Lower Limit:" Grid.Column="0" Grid.Row="5" ToolTip="The minimum value this sensor generally reports." />
+                            <TextBox x:Name="txtLowerLimit" Margin="4" Grid.Column="1" Grid.Row="5" Width="100" HorizontalAlignment="Left" Text="{Binding LowerLimit, Mode=TwoWay, UpdateSourceTrigger=Explicit}"  />
 
-                            <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Unit:" Grid.Column="0" Grid.Row="6" ToolTip="The unit values from this sensor are reported in." />
-                            <TextBox x:Name="txtUnit" Margin="4" Grid.Column="1" Grid.Row="6" Text="{Binding Unit, Mode=TwoWay, UpdateSourceTrigger=Explicit}"  />
+                            <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Upper Limit:" Grid.Column="0" Grid.Row="6" ToolTip="The maximum value this sensor generally reports." />
+                            <TextBox x:Name="txtUpperLimit" Margin="4" Grid.Column="1" Grid.Row="6" Width="100" HorizontalAlignment="Left" Text="{Binding UpperLimit, Mode=TwoWay, UpdateSourceTrigger=Explicit}"   />
 
-                            <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Maximum Rate of Change:" TextWrapping="Wrap" Grid.Column="0" Grid.Row="7" ToolTip="The maximum rate of change values reported by this sensor may encounter." />
-                            <TextBox x:Name="txtMaxRateOfChange" Margin="4" Grid.Column="1" Grid.Row="7" Height="25" VerticalAlignment="Top" Text="{Binding MaximumRateOfChange, Mode=TwoWay, UpdateSourceTrigger=Explicit}"  />
+                            <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Unit:" Grid.Column="0" Grid.Row="7" ToolTip="The unit values from this sensor are reported in." />
+                            <TextBox x:Name="txtUnit" Margin="4" Grid.Column="1" Grid.Row="7" Text="{Binding Unit, Mode=TwoWay, UpdateSourceTrigger=Explicit}"  />
 
-                            <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Manufacturer:" Grid.Column="0" Grid.Row="8" ToolTip="A name that identifies this sensor uniquely." />
-                            <TextBox x:Name="txtManufacturer" Margin="4" Grid.Column="1" Grid.Row="8" Text="{Binding Manufacturer, Mode=TwoWay, UpdateSourceTrigger=Explicit}" />
+                            <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Maximum Rate of Change:" TextWrapping="Wrap" Grid.Column="0" Grid.Row="8" ToolTip="The maximum rate of change values reported by this sensor may encounter." />
+                            <TextBox x:Name="txtMaxRateOfChange" Margin="4" Grid.Column="1" Grid.Row="8" Height="25" VerticalAlignment="Top" Text="{Binding MaximumRateOfChange, Mode=TwoWay, UpdateSourceTrigger=Explicit}"  />
 
-                            <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Serial Number:" Grid.Column="0" Grid.Row="9" ToolTip="A serial number associated with this sensor." />
-                            <TextBox x:Name="txtSerial" Margin="4" Grid.Column="1" Grid.Row="9" Text="{Binding SerialNumber, Mode=TwoWay, UpdateSourceTrigger=Explicit}" />
+                            <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Manufacturer:" Grid.Column="0" Grid.Row="9" ToolTip="A name that identifies this sensor uniquely." />
+                            <TextBox x:Name="txtManufacturer" Margin="4" Grid.Column="1" Grid.Row="9" Text="{Binding Manufacturer, Mode=TwoWay, UpdateSourceTrigger=Explicit}" />
 
-                            <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" TextWrapping="Wrap" Text="Failure Detection Threshold:" Grid.Column="0" Grid.Row="10" ToolTip="The number of readings a sensor can be offline for, after which, it is detected as failing." />
-                            <TextBox x:Name="txtErrorThreshold" Margin="4" Grid.Column="1" Grid.Row="10" Width="100" Height="22" VerticalAlignment="Top" HorizontalAlignment="Left" Text="{Binding ErrorThreshold, Mode=TwoWay, UpdateSourceTrigger=Explicit}"   />
+                            <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Serial Number:" Grid.Column="0" Grid.Row="10" ToolTip="A serial number associated with this sensor." />
+                            <TextBox x:Name="txtSerial" Margin="4" Grid.Column="1" Grid.Row="10" Text="{Binding SerialNumber, Mode=TwoWay, UpdateSourceTrigger=Explicit}" />
 
-                            <ComboBox x:Name="comboSummary" Grid.Column="1" Grid.ColumnSpan="1" Grid.Row="11" ItemsSource="{Binding SummaryTypes}" Margin="3,7,0,7" SelectedIndex="{Binding SummaryType, Mode=TwoWay, UpdateSourceTrigger=Explicit}" />
-                            <TextBlock FontWeight="Bold" Grid.Row="11" Margin="10" Text="Summary type:" TextAlignment="Right" TextWrapping="Wrap" />
+                            <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" TextWrapping="Wrap" Text="Failure Detection Threshold:" Grid.Column="0" Grid.Row="11" ToolTip="The number of readings a sensor can be offline for, after which, it is detected as failing." />
+                            <TextBox x:Name="txtErrorThreshold" Margin="4" Grid.Column="1" Grid.Row="11" Width="100" Height="22" VerticalAlignment="Top" HorizontalAlignment="Left" Text="{Binding ErrorThreshold, Mode=TwoWay, UpdateSourceTrigger=Explicit}"   />
+
+                            <ComboBox x:Name="comboSummary" Grid.Column="1" Grid.ColumnSpan="1" Grid.Row="12" ItemsSource="{Binding SummaryTypes}" Margin="3,7,0,7" SelectedIndex="{Binding SummaryType, Mode=TwoWay, UpdateSourceTrigger=Explicit}" />
+                            <TextBlock FontWeight="Bold" Grid.Row="12" Margin="10" Text="Summary type:" TextAlignment="Right" TextWrapping="Wrap" />
                         </Grid>
                     </GroupBox>
                 </Grid>

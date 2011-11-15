@@ -54,6 +54,7 @@
                     <RowDefinition Height="30" />
                     <RowDefinition Height="30" />
                     <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
                     <RowDefinition Height="50" />
                     <RowDefinition Height="30" />
                     <RowDefinition Height="30" />
@@ -79,29 +80,32 @@
                 <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Description:" Grid.Column="0" Grid.Row="3" ToolTip="A description of this sensor's purpose." />
                 <TextBox Margin="4" Grid.Column="1" Grid.Row="3" Text="{Binding Description, Mode=TwoWay}" IsEnabled="{Binding Editing}" />
 
-                <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Lower Limit:" Grid.Column="0" Grid.Row="4" ToolTip="The minimum value this sensor generally reports." />
-                <TextBox Margin="4" Grid.Column="1" Grid.Row="4" Width="100" HorizontalAlignment="Left" Text="{Binding LowerLimit, Mode=TwoWay}"  IsEnabled="{Binding Editing}" />
+                <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Depth:" Grid.Column="0" Grid.Row="4" ToolTip="The depth of the sensor" />
+                <TextBox Margin="4" Grid.Column="1" Grid.Row="4" Width="100" HorizontalAlignment="Left" Text="{Binding Depth, Mode=TwoWay}" IsEnabled="{Binding Editing}" />
 
-                <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Upper Limit:" Grid.Column="0" Grid.Row="5" ToolTip="The maximum value this sensor generally reports." />
-                <TextBox Margin="4" Grid.Column="1" Grid.Row="5" Width="100" HorizontalAlignment="Left" Text="{Binding UpperLimit, Mode=TwoWay}"  IsEnabled="{Binding Editing}" />
+                <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Lower Limit:" Grid.Column="0" Grid.Row="5" ToolTip="The minimum value this sensor generally reports." />
+                <TextBox Margin="4" Grid.Column="1" Grid.Row="5" Width="100" HorizontalAlignment="Left" Text="{Binding LowerLimit, Mode=TwoWay}"  IsEnabled="{Binding Editing}" />
 
-                <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Unit:" Grid.Column="0" Grid.Row="6" ToolTip="The unit values from this sensor are reported in." />
-                <TextBox Margin="4" Grid.Column="1" Grid.Row="6" Text="{Binding Unit, Mode=TwoWay}"  IsEnabled="{Binding Editing}" />
+                <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Upper Limit:" Grid.Column="0" Grid.Row="6" ToolTip="The maximum value this sensor generally reports." />
+                <TextBox Margin="4" Grid.Column="1" Grid.Row="6" Width="100" HorizontalAlignment="Left" Text="{Binding UpperLimit, Mode=TwoWay}"  IsEnabled="{Binding Editing}" />
 
-                <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Maximum Rate of Change:" TextWrapping="Wrap" Grid.Column="0" Grid.Row="7" ToolTip="The maximum rate of change values reported by this sensor may encounter." />
-                <TextBox Margin="4" Grid.Column="1" Grid.Row="7" Height="25" VerticalAlignment="Top" Text="{Binding MaximumRateOfChange, Mode=TwoWay}" IsEnabled="{Binding Editing}" />
+                <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Unit:" Grid.Column="0" Grid.Row="7" ToolTip="The unit values from this sensor are reported in." />
+                <TextBox Margin="4" Grid.Column="1" Grid.Row="7" Text="{Binding Unit, Mode=TwoWay}"  IsEnabled="{Binding Editing}" />
 
-                <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Manufacturer:" Grid.Column="0" Grid.Row="8" ToolTip="A name that identifies this sensor uniquely." />
-                <TextBox Margin="4" Grid.Column="1" Grid.Row="8" Text="{Binding Manufacturer, Mode=TwoWay}" IsEnabled="{Binding Editing}" />
+                <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Maximum Rate of Change:" TextWrapping="Wrap" Grid.Column="0" Grid.Row="8" ToolTip="The maximum rate of change values reported by this sensor may encounter." />
+                <TextBox Margin="4" Grid.Column="1" Grid.Row="8" Height="25" VerticalAlignment="Top" Text="{Binding MaximumRateOfChange, Mode=TwoWay}" IsEnabled="{Binding Editing}" />
 
-                <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Serial Number:" Grid.Column="0" Grid.Row="9" ToolTip="A serial number associated with this sensor." />
-                <TextBox Margin="4" Grid.Column="1" Grid.Row="9" Text="{Binding SerialNumber, Mode=TwoWay}" IsEnabled="{Binding Editing}" />
+                <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Manufacturer:" Grid.Column="0" Grid.Row="9" ToolTip="A name that identifies this sensor uniquely." />
+                <TextBox Margin="4" Grid.Column="1" Grid.Row="9" Text="{Binding Manufacturer, Mode=TwoWay}" IsEnabled="{Binding Editing}" />
 
-                <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" TextWrapping="Wrap" Text="Failure Detection Threshold:" Grid.Column="0" Grid.Row="10" ToolTip="The number of readings a sensor can be offline for, after which, it is detected as failing." />
-                <TextBox Margin="4" Grid.Column="1" Grid.Row="10" Width="100" Height="22" VerticalAlignment="Top" HorizontalAlignment="Left" Text="{Binding ErrorThreshold, Mode=TwoWay}"  IsEnabled="{Binding Editing}" />
+                <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" Text="Serial Number:" Grid.Column="0" Grid.Row="10" ToolTip="A serial number associated with this sensor." />
+                <TextBox Margin="4" Grid.Column="1" Grid.Row="10" Text="{Binding SerialNumber, Mode=TwoWay}" IsEnabled="{Binding Editing}" />
 
-                <ComboBox Grid.Column="1" Grid.ColumnSpan="1" Grid.Row="11" IsEnabled="{Binding Editing}" ItemsSource="{Binding SummaryTypes}" Margin="3,7,0,7" SelectedIndex="{Binding SummaryType, Mode=TwoWay}" />
-                <TextBlock FontWeight="Bold" Grid.Row="11" Margin="10" Text="Summary type:" TextAlignment="Right" TextWrapping="Wrap" />
+                <TextBlock FontWeight="Bold" Margin="10 5" TextAlignment="Right" TextWrapping="Wrap" Text="Failure Detection Threshold:" Grid.Column="0" Grid.Row="11" ToolTip="The number of readings a sensor can be offline for, after which, it is detected as failing." />
+                <TextBox Margin="4" Grid.Column="1" Grid.Row="11" Width="100" Height="22" VerticalAlignment="Top" HorizontalAlignment="Left" Text="{Binding ErrorThreshold, Mode=TwoWay}"  IsEnabled="{Binding Editing}" />
+
+                <ComboBox Grid.Column="1" Grid.ColumnSpan="1" Grid.Row="12" IsEnabled="{Binding Editing}" ItemsSource="{Binding SummaryTypes}" Margin="3,7,0,7" SelectedIndex="{Binding SummaryType, Mode=TwoWay}" />
+                <TextBlock FontWeight="Bold" Grid.Row="12" Margin="10" Text="Summary type:" TextAlignment="Right" TextWrapping="Wrap" />
 
                 <StackPanel Grid.Column="0" Grid.Row="13" Grid.ColumnSpan="2" HorizontalAlignment="Right" Orientation="Horizontal">
                     <Button Name="btnNew" FontSize="15" Margin="5" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Left" Visibility="{Binding NewVisible}">

@@ -17,10 +17,11 @@ namespace IndiaTango.Views
 
         private void BtnNextClick(object sender, RoutedEventArgs e)
         {
-            if (wizardTabs.SelectedIndex != 1)
+            if (wizardTabs.SelectedIndex != 3)
                 return;
 
             txtDescription.GetBindingExpression(TextBox.TextProperty).UpdateSource();
+            txtDepth.GetBindingExpression(TextBox.TextProperty).UpdateSource();
             txtName.GetBindingExpression(TextBox.TextProperty).UpdateSource();
             txtErrorThreshold.GetBindingExpression(TextBox.TextProperty).UpdateSource();
             txtManufacturer.GetBindingExpression(TextBox.TextProperty).UpdateSource();

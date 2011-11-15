@@ -155,6 +155,7 @@ namespace IndiaTango.ViewModels
                 {
                     Name = _selectedItem.Sensor.Name;
                     Description = _selectedItem.Sensor.Description;
+                    Depth = _selectedItem.Sensor.Depth;
                     LowerLimit = _selectedItem.Sensor.LowerLimit.ToString();
                     UpperLimit = _selectedItem.Sensor.UpperLimit.ToString();
                     Unit = _selectedItem.Sensor.Unit;
@@ -168,6 +169,7 @@ namespace IndiaTango.ViewModels
                 {
                     Name = "";
                     Description = "";
+                    Depth = "";
                     LowerLimit = "0";
                     UpperLimit = "0";
                     Unit = "";
@@ -184,6 +186,7 @@ namespace IndiaTango.ViewModels
 
 				NotifyOfPropertyChange(() => Name);
 				NotifyOfPropertyChange(() => Description);
+                NotifyOfPropertyChange(() => Depth);
 				NotifyOfPropertyChange(() => LowerLimit);
 				NotifyOfPropertyChange(() => UpperLimit);
 				NotifyOfPropertyChange(() => Unit);
@@ -241,6 +244,7 @@ namespace IndiaTango.ViewModels
         public string Manufacturer { get; set; }
         public string SerialNumber { get; set; }
         public string ErrorThreshold { get; set; }
+        public string Depth { get; set; }
 
         public Visibility NewVisible
         {
@@ -267,7 +271,7 @@ namespace IndiaTango.ViewModels
                 try
                 {
                     // TODO: more user-friendly conversion messages!
-                    var s = new Sensor(Name, Description, float.Parse(UpperLimit), float.Parse(LowerLimit), Unit, float.Parse(MaximumRateOfChange), Manufacturer, SerialNumber, new Stack<SensorState>(), new Stack<SensorState>(), new List<DateTime>(), int.Parse(ErrorThreshold), _ds, (SummaryType)SummaryType);
+                    var s = new Sensor(Name, Description, float.Parse(UpperLimit), float.Parse(LowerLimit), Unit, float.Parse(MaximumRateOfChange), Manufacturer, SerialNumber, new Stack<SensorState>(), new Stack<SensorState>(), new List<DateTime>(), int.Parse(ErrorThreshold), _ds, (SummaryType)SummaryType) { Depth = Depth};
                     
                     if(Dataset.Sensors == null)
                         Dataset.Sensors = new List<Sensor>();
@@ -293,6 +297,7 @@ namespace IndiaTango.ViewModels
                 {
                     SelectedItem.Sensor.Name = Name;
                     SelectedItem.Sensor.Description = Description;
+                    SelectedItem.Sensor.Depth = Depth;
                     SelectedItem.Sensor.UpperLimit = float.Parse(UpperLimit);
                     SelectedItem.Sensor.LowerLimit = float.Parse(LowerLimit);
                     SelectedItem.Sensor.Unit = Unit;
