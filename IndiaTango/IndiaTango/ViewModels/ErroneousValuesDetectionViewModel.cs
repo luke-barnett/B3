@@ -53,11 +53,13 @@ namespace IndiaTango.ViewModels
                                              var endTime = (DateTime)e.SecondPoint.X;
                                              _selectedSensor.SetUpperAndLowerBounds(startTime, endTime);
                                              CalculateDateTimeEndPoints();
+                                             FoundErroneousValues = FoundErroneousValues.Where(x => x.TimeStamp >= StartTime && x.TimeStamp <= EndTime).ToList();
                                          };
             _zooming.ZoomResetRequested += o =>
                                               {
                                                   _selectedSensor.RemoveBounds();
                                                   CalculateDateTimeEndPoints();
+                                                  RefreshDetectedValues();
                                               };
 
             behaviours.Behaviours.Add(_zooming);
@@ -156,9 +158,8 @@ namespace IndiaTango.ViewModels
             {
                 if (_selectedSensor == null)
                     return string.Format("[{0}] Erroneous Values Detection", (_dataset != null) ? _sensorList[0].Sensor.Owner.IdentifiableName : Common.UnknownSite);
-                else
-                    return string.Format("[{0}] Erroneous Values Detection - {1} {2}",
-                        (_dataset != null) ? _sensorList[0].Sensor.Owner.IdentifiableName : Common.UnknownSite, _selectedSensor.Sensor.Name, (!string.IsNullOrWhiteSpace(_selectedSensor.Sensor.Depth) ? string.Format("[{0}]", _selectedSensor.Sensor.Depth) : ""));
+                return string.Format("[{0}] Erroneous Values Detection - {1} {2}",
+                                     (_dataset != null) ? _sensorList[0].Sensor.Owner.IdentifiableName : Common.UnknownSite, _selectedSensor.Sensor.Name, (!string.IsNullOrWhiteSpace(_selectedSensor.Sensor.Depth) ? string.Format("[{0}]", _selectedSensor.Sensor.Depth) : ""));
             }
         }
 
@@ -992,7 +993,7 @@ namespace IndiaTango.ViewModels
                                  foreach (var detectionMethod in methods)
                                  {
                                      StartWaiting(string.Format("Checking {0}", detectionMethod.Name));
-                                     AddToMissingValues(detectionMethod.GetDetectedValues(SelectedSensor.Sensor));
+                                     AddToMissingValues(detectionMethod.GetDetectedValues(SelectedSensor.Sensor).Where(x => x.TimeStamp >= StartTime && x.TimeStamp <= EndTime));
                                  }
                              };
 
@@ -1007,6 +1008,12 @@ namespace IndiaTango.ViewModels
             StartWaiting("Looking for values...");
             Debug.WriteLine("Starting check");
             bw.RunWorkerAsync();
+        }
+
+        private void RefreshDetectedValues()
+        {
+            FoundErroneousValues.Clear();
+            CheckTheseMethods(_selectedMethods);
         }
 
         private void UpdateUndoRedo()
@@ -1072,7 +1079,7 @@ namespace IndiaTango.ViewModels
 
             SelectedDetectionMethod = methodToAdd;
 
-            if (_selectedSensor == null || methodToAdd == null)
+            if (_selectedSensor == null)
                 return;
 
             CheckTheseMethods(new Collection<IDetectionMethod> { methodToAdd });
