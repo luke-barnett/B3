@@ -4,6 +4,7 @@
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:toolkit="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit/extended"
         xmlns:caliburn="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro"
+        xmlns:models="clr-namespace:IndiaTango.Models"
         Title="{Binding Title}" Icon="{Binding Icon}" Height="702" Width="950" WindowStartupLocation="CenterScreen" Loaded="OnLoaded" Cursor="{Binding ApplicationCursor}">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
@@ -12,6 +13,12 @@
         <i:EventTrigger EventName="Unloaded">
             <caliburn:ActionMessage MethodName="OnUnloaded" />
         </i:EventTrigger>
+        <models:InputBindingTrigger>
+            <models:InputBindingTrigger.InputBinding>
+                <KeyBinding Modifiers="Ctrl" Key="S" />
+            </models:InputBindingTrigger.InputBinding>
+            <caliburn:ActionMessage MethodName="btnSave" />
+        </models:InputBindingTrigger>
     </i:Interaction.Triggers>
 
     <Window.TaskbarItemInfo>

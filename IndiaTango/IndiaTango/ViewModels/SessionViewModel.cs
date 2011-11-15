@@ -772,6 +772,9 @@ namespace IndiaTango.ViewModels
 
         public void btnSave()
         {
+            if(!ActionButtonsEnabled)
+                return;
+
             var bw = new BackgroundWorker();
 
             bw.RunWorkerCompleted += (o, e) =>
