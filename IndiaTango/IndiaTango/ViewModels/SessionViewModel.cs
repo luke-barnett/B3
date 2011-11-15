@@ -78,6 +78,8 @@ namespace IndiaTango.ViewModels
                 _ds = value;
                 ActionButtonsEnabled = true;
                 SaveButtonEnabled = true;
+                StatusLabelText = "";
+
                 //Sigh
                 if (_ds.Site == null)
                     return;
@@ -89,7 +91,7 @@ namespace IndiaTango.ViewModels
                 SecondaryContact = _ds.Site.SecondaryContact;
                 UniversityContact = _ds.Site.UniversityContact;
 
-                StatusLabelText = "";
+                
 
                 /*NotifyOfPropertyChange(() => SelectedSite);
                 NotifyOfPropertyChange(() => SiteName);
@@ -772,9 +774,6 @@ namespace IndiaTango.ViewModels
 
         public void btnSave()
         {
-            if(!ActionButtonsEnabled)
-                return;
-
             var bw = new BackgroundWorker();
 
             bw.RunWorkerCompleted += (o, e) =>
