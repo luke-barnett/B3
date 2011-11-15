@@ -284,7 +284,7 @@ namespace IndiaTango.ViewModels
 
         public List<String> SamplingCaps { get { return _samplingCaps; } set { _samplingCaps = value; NotifyOfPropertyChange(() => SamplingCaps); } }
 
-		public Visibility ExportButtonVisible { get { return _selectedSensors.Count > 0 ? Visibility.Visible : Visibility.Collapsed; } }
+        public Visibility ExportButtonVisible { get { return _selectedSensors.Count > 0 ? Visibility.Visible : Visibility.Collapsed; } }
         public int SelectedSamplingCapIndex
         {
             get { return _samplingCapIndex; }
@@ -330,7 +330,7 @@ namespace IndiaTango.ViewModels
             Debug.WriteLine("Adding sensor {0} to selected sensors", sensor.Sensor);
             _selectedSensors.Add(sensor);
             RedrawGraph();
-			NotifyOfPropertyChange(() => ExportButtonVisible);
+            NotifyOfPropertyChange(() => ExportButtonVisible);
         }
 
         /// <summary>
@@ -344,7 +344,7 @@ namespace IndiaTango.ViewModels
             Debug.WriteLine("Removing sensor {0} to selected sensors", sensor.Sensor);
             _selectedSensors.Remove(sensor);
             RedrawGraph();
-			NotifyOfPropertyChange(() => ExportButtonVisible);
+            NotifyOfPropertyChange(() => ExportButtonVisible);
         }
 
         /// <summary>
@@ -352,10 +352,16 @@ namespace IndiaTango.ViewModels
         /// </summary>
         private void RedrawGraph()
         {
-            ChartTitle = (_selectedSensors.Count > 0) ? _selectedSensors[0].Sensor.Name : String.Empty;
+            ChartTitle = (_selectedSensors.Count > 0) ? (string.IsNullOrWhiteSpace(_selectedSensors[0].Sensor.Depth)
+                                   ? string.Format(" and {0}", _selectedSensors[0].Sensor.Name)
+                                   : string.Format(" and {0} [{1}]", _selectedSensors[0].Sensor.Name,
+                                                   _selectedSensors[i].Sensor.Depth)) : String.Empty;
 
             for (var i = 1; i < _selectedSensors.Count; i++)
-                ChartTitle += " vs. " + _selectedSensors[i].Sensor.Name;
+                ChartTitle += (string.IsNullOrWhiteSpace(_selectedSensors[i].Sensor.Depth)
+                                   ? string.Format(" and {0}", _selectedSensors[i].Sensor.Name)
+                                   : string.Format(" and {0} [{1}]", _selectedSensors[i].Sensor.Name,
+                                                   _selectedSensors[i].Sensor.Depth));
 
             YAxisTitle = ((from sensor in _selectedSensors select sensor.Sensor.Unit).Distinct().Count() == 1) ? _selectedSensors[0].Sensor.Unit : String.Empty;
 
@@ -507,7 +513,7 @@ namespace IndiaTango.ViewModels
         /// <param name="chart"></param>
         public void ExportGraph(Chart chart)
         {
-            if(_selectedSensors.Count == 0)
+            if (_selectedSensors.Count == 0)
             {
                 Common.ShowMessageBox("No Graph Showing",
                                       "You haven't selected a sensor to graph so there is nothing to export!", false,
@@ -515,10 +521,10 @@ namespace IndiaTango.ViewModels
                 return;
             }
 
-            var exportView = (_container.GetInstance(typeof (ExportToImageViewModel), "ExportToImageViewModel") as ExportToImageViewModel);
-            if(exportView == null)
+            var exportView = (_container.GetInstance(typeof(ExportToImageViewModel), "ExportToImageViewModel") as ExportToImageViewModel);
+            if (exportView == null)
             {
-                EventLogger.LogError(null, "Image Exporter","Failed to get a export image view");
+                EventLogger.LogError(null, "Image Exporter", "Failed to get a export image view");
                 return;
             }
 

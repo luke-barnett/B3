@@ -351,7 +351,7 @@ namespace IndiaTango.ViewModels
 
         public string Title
         {
-            get { return string.Format("[{1}] Calibrate Sensors{0}", (SelectedSensor != null ? " - " + SelectedSensor.Sensor.Name : ""), (Dataset != null ? Dataset.IdentifiableName : Common.UnknownSite)); }
+            get { return string.Format("[{1}] Calibrate Sensors{0}", (SelectedSensor != null ? string.IsNullOrWhiteSpace(SelectedSensor.Sensor.Depth) ? string.Format(" - {0}", SelectedSensor.Sensor.Name) : string.Format(" - {0} [{1}]", SelectedSensor.Sensor.Name, SelectedSensor.Sensor.Depth) : ""), (Dataset != null ? Dataset.IdentifiableName : Common.UnknownSite)); }
         }
 
         public String SensorName
