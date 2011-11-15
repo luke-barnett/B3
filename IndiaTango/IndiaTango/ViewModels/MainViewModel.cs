@@ -47,6 +47,7 @@ namespace IndiaTango.ViewModels
             
             if(openFileDialog.ShowDialog() == DialogResult.OK)
             {
+                Common.SaveFileLocation = openFileDialog.FileName;
                 ApplicationCursor = Cursors.Wait;
                 ButtonsEnabled = false;
                 var bw = new BackgroundWorker();
