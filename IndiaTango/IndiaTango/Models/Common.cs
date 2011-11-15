@@ -36,7 +36,7 @@ namespace IndiaTango.Models
         public static extern int DeleteObject(IntPtr hObject);
 
         public static string TagLine { get { return "QAQC for boys"; } }
-        public static string ApplicationTitle { get { return "Codename B3"; } }
+        public static string ApplicationTitle { get { return "B3"; } }
         public static string Version { get { return string.Format("alpha version {0}", Assembly.GetExecutingAssembly().GetName().Version); } }
         public static string Creators { get { return "Developed by:\r\nSteven McTainsh\r\nLuke Barnett\r\nMichael Baumberger\r\nKerry Arts"; } }
 
