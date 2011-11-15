@@ -344,7 +344,7 @@ namespace IndiaTango.Models
         /// The colour to use when graphing the sensor
         /// </summary>
         [DataMember]
-        public Color Colour { get; set; }
+        public Colour Colour { get; set; }
 
         [DataMember]
         public int ErrorThreshold

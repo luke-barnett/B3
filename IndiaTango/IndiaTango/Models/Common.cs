@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
@@ -19,6 +21,7 @@ using WindowsFormsAero.Dwm;
 using WindowsFormsAero.TaskDialog;
 using Brushes = System.Windows.Media.Brushes;
 using Color = System.Windows.Media.Color;
+using Cursors = System.Windows.Input.Cursors;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
 using Path = System.IO.Path;
 using Point = System.Windows.Point;
@@ -32,8 +35,8 @@ namespace IndiaTango.Models
         [DllImport("gdi32")]
         public static extern int DeleteObject(IntPtr hObject);
 
-		public static string TagLine { get { return "QAQC for boys"; } }
-    	public static string ApplicationTitle { get { return "Codename B3"; } }
+        public static string TagLine { get { return "QAQC for boys"; } }
+        public static string ApplicationTitle { get { return "Codename B3"; } }
         public static string Version { get { return string.Format("alpha version {0}", Assembly.GetExecutingAssembly().GetName().Version); } }
         public static string Creators { get { return "Developed by:\r\nSteven McTainsh\r\nLuke Barnett\r\nMichael Baumberger\r\nKerry Arts"; } }
 
@@ -42,7 +45,7 @@ namespace IndiaTango.Models
         public static bool HasInitdTaskDlgs;
         private static List<string> _changeReasons;
 
-        public static string ChangeReasonsPath { get { return Path.Combine(AppDataPath,"ChangeReasons.txt"); } }
+        public static string ChangeReasonsPath { get { return Path.Combine(AppDataPath, "ChangeReasons.txt"); } }
         public static string Icon { get { return "/B3;component/Images/icon.ico"; } }
         public static string TestDataPath { get { return "../../Test Data/"; } }
         public static string AppDataPath
@@ -73,9 +76,9 @@ namespace IndiaTango.Models
             }
         }
 
-    	public static bool CanUseGlass = WindowsFormsAero.OsSupport.IsVistaOrBetter &&
-    	                                 WindowsFormsAero.OsSupport.IsCompositionEnabled;
-    	                                 
+        public static bool CanUseGlass = WindowsFormsAero.OsSupport.IsVistaOrBetter &&
+                                         WindowsFormsAero.OsSupport.IsCompositionEnabled;
+
         public static string AddIcon { get { return "/B3;component/Images/plus.png"; } }
         public static string EditIcon { get { return "/B3;component/Images/pencil.png"; } }
         public static string DeleteIcon { get { return "/B3;component/Images/cross-script.png"; } }
@@ -91,9 +94,9 @@ namespace IndiaTango.Models
                 //Set backgroung to black and transparent (At the same time!!!)
                 window.Background = Brushes.Transparent;
                 HwndSource source = HwndSource.FromHwnd(hwnd);
-            	if (source != null && source.CompositionTarget != null) source.CompositionTarget.BackgroundColor = Color.FromArgb(0, 0, 0, 0);
+                if (source != null && source.CompositionTarget != null) source.CompositionTarget.BackgroundColor = Color.FromArgb(0, 0, 0, 0);
 
-            	//Set glass
+                //Set glass
                 DwmManager.EnableBlurBehind(hwnd);
             }
 
@@ -227,14 +230,14 @@ namespace IndiaTango.Models
 
             Debug.WriteLine("Creating new chart");
             var clone = new Chart();
-            
+
             clone.Width = clone.Height = double.NaN;
             clone.HorizontalAlignment = HorizontalAlignment.Stretch;
             clone.VerticalAlignment = VerticalAlignment.Stretch;
             clone.Margin = new Thickness();
 
             clone.Title = elementToRender.Title;
-            clone.XAxis = new DateTimeAxis { Title = "Date"};
+            clone.XAxis = new DateTimeAxis { Title = "Date" };
             clone.YAxis = new LinearAxis { Range = (IRange<double>)elementToRender.YAxis.Range, Title = elementToRender.YAxis.Title };
 
             for (var i = 0; i < elementToRender.Series.Count; i++)
@@ -242,7 +245,7 @@ namespace IndiaTango.Models
                 var series = elementToRender.Series[i];
                 var sensor = sensors[i];
 
-                if(sensor.Sensor.Name != series.DataSeries.Title)
+                if (sensor.Sensor.Name != series.DataSeries.Title)
                 {
                     Debug.WriteLine("Mismatched titles! Oh Dear!");
                     continue;
@@ -250,7 +253,7 @@ namespace IndiaTango.Models
 
                 var lineSeries = new LineSeries
                                      {
-                                         LineStroke = ((LineSeries) series).LineStroke,
+                                         LineStroke = ((LineSeries)series).LineStroke,
                                          DataSeries =
                                              renderFullDataSeries
                                                  ? new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints)
@@ -260,8 +263,8 @@ namespace IndiaTango.Models
             }
 
             var size = new Size(width, height);
-            
-            Debug.WriteLine("Rendering new chart of size {0}",size);
+
+            Debug.WriteLine("Rendering new chart of size {0}", size);
             clone.Measure(size);
             clone.Arrange(new Rect(size));
             clone.UpdateLayout();
@@ -288,7 +291,7 @@ namespace IndiaTango.Models
 
         public static void RequestReason(Sensor sensor, SimpleContainer container, IWindowManager windowManager, string taskPerformed)
         {
-            RequestReason(new List<Sensor> {sensor},container,windowManager,taskPerformed);
+            RequestReason(new List<Sensor> { sensor }, container, windowManager, taskPerformed);
         }
 
         public static void RequestReason(List<Sensor> sensors, SimpleContainer container, IWindowManager windowManager, string taskPerformed)
@@ -328,39 +331,39 @@ namespace IndiaTango.Models
 
         public static List<string> GetChangeReasons()
         {
-			if(_changeReasons == null)
-			{
-				_changeReasons = new List<string>();
+            if (_changeReasons == null)
+            {
+                _changeReasons = new List<string>();
 
-				if (File.Exists(ChangeReasonsPath))
-				{
-					using (var reader = new StreamReader(ChangeReasonsPath))
-					{
-						string line;
-						while ((line = reader.ReadLine()) != null)
-							_changeReasons.Add(line);
-					}
-				}
-			}
+                if (File.Exists(ChangeReasonsPath))
+                {
+                    using (var reader = new StreamReader(ChangeReasonsPath))
+                    {
+                        string line;
+                        while ((line = reader.ReadLine()) != null)
+                            _changeReasons.Add(line);
+                    }
+                }
+            }
 
-			return _changeReasons;
+            return _changeReasons;
         }
 
         public static void AddChangeReason(string reason)
         {
-			if (String.IsNullOrWhiteSpace(reason) || _changeReasons.Contains(reason))
-				return;
+            if (String.IsNullOrWhiteSpace(reason) || _changeReasons.Contains(reason))
+                return;
 
-			_changeReasons.Add(reason);
-			_changeReasons.Sort();
-			
-			using (var writer = new StreamWriter(ChangeReasonsPath))
+            _changeReasons.Add(reason);
+            _changeReasons.Sort();
+
+            using (var writer = new StreamWriter(ChangeReasonsPath))
             {
                 foreach (string changeReason in _changeReasons)
                     writer.WriteLine(changeReason);
             }
 
-			Debug.WriteLine("Added change reason: '" + reason + "'");
+            Debug.WriteLine("Added change reason: '" + reason + "'");
         }
 
         public static ImageSource BitmapToImageSource(Bitmap bitmap)
@@ -368,13 +371,42 @@ namespace IndiaTango.Models
             var hbitmap = bitmap.GetHbitmap();
             try
             {
-                return Imaging.CreateBitmapSourceFromHBitmap(hbitmap, IntPtr.Zero, 
+                return Imaging.CreateBitmapSourceFromHBitmap(hbitmap, IntPtr.Zero,
                     Int32Rect.Empty, BitmapSizeOptions.FromWidthAndHeight(bitmap.Width, bitmap.Height));
             }
             finally
             {
                 DeleteObject(hbitmap);
             }
+        }
+
+        public static string SaveFileLocation;
+        public static void SaveSession(BackgroundWorker delegatedBackgroundWorker, Dataset sessionToSave)
+        {
+            EventLogger.LogInfo(sessionToSave, "Save daemon", "Session save started.");
+
+            if (delegatedBackgroundWorker == null)
+                delegatedBackgroundWorker = new BackgroundWorker();
+
+            if (string.IsNullOrWhiteSpace(SaveFileLocation))
+            {
+                var saveFileDialog = new SaveFileDialog { Filter = "Site Files|*.b3" };
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                    SaveFileLocation = saveFileDialog.FileName;
+            }
+
+            if (!string.IsNullOrWhiteSpace(SaveFileLocation))
+            {
+                delegatedBackgroundWorker.DoWork += (o, e) =>
+                                 {
+                                     using (var stream = new FileStream(SaveFileLocation, FileMode.Create))
+                                         new BinaryFormatter().Serialize(stream, sessionToSave);
+                                     EventLogger.LogInfo(sessionToSave, "Save [Background Worker]", string.Format("Session save complete. File saved to: {0}", SaveFileLocation));
+                                 };
+                delegatedBackgroundWorker.RunWorkerAsync();
+            }
+            else
+                EventLogger.LogInfo(sessionToSave, "Save daemon", "Session save aborted");
         }
     }
 }

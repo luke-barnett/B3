@@ -772,30 +772,20 @@ namespace IndiaTango.ViewModels
 
         public void btnSave()
         {
-            EventLogger.LogInfo(_ds, GetType().ToString(), "Session save started.");
-            var saveFileDialog = new SaveFileDialog { Filter = "Session Files|*.indiatango" };
-            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            var bw = new BackgroundWorker();
+
+            bw.RunWorkerCompleted += (o, e) =>
             {
-                var bw = new BackgroundWorker();
-                bw.DoWork += (o, e) =>
-                                 {
-                                     using (var stream = new FileStream(saveFileDialog.FileName, FileMode.Create))
-                                         new BinaryFormatter().Serialize(stream, _ds);
-                                     EventLogger.LogInfo(_ds, GetType().ToString(), string.Format("Session save complete. File saved to: {0}", saveFileDialog.FileName));
-                                 };
-                bw.RunWorkerCompleted += (o, e) =>
-                                             {
-                                                 ApplicationCursor = Cursors.Arrow;
-                                                 ImportEnabled = true;
-                                                 ActionButtonsEnabled = true;
-                                             };
-                ApplicationCursor = Cursors.Wait;
-                ImportEnabled = false;
-                ActionButtonsEnabled = false;
-                bw.RunWorkerAsync();
-            }
-            else
-                EventLogger.LogInfo(_ds, GetType().ToString(), "Session save aborted");
+                ApplicationCursor = Cursors.Arrow;
+                ImportEnabled = true;
+                ActionButtonsEnabled = true;
+            };
+
+            ApplicationCursor = Cursors.Wait;
+            ImportEnabled = false;
+            ActionButtonsEnabled = false;
+            
+            Common.SaveSession(bw, _ds);
 
         }
 
