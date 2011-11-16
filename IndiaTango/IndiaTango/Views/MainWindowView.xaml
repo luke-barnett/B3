@@ -4,7 +4,7 @@
         xmlns:cal="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:charts="clr-namespace:Visiblox.Charts;assembly=Visiblox.Charts"
-        Title="{Binding Title}" Height="600" Width="800">
+        xmlns:multiseries="clr-namespace:IndiaTango.MultiSeriesBinding" Title="{Binding Title}" Icon="{Binding Icon}" Height="600" Width="800">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closing">
             <cal:ActionMessage MethodName="ClosingRequested">
@@ -12,6 +12,7 @@
             </cal:ActionMessage>
         </i:EventTrigger>
     </i:Interaction.Triggers>
+        
     <Grid x:Name="LayoutRoot">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -31,15 +32,60 @@
         <Grid Grid.Row="1" x:Name="MainSection">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="2*" />
             </Grid.ColumnDefinitions>
             
-            <Grid Grid.Column="0" x:Name="DataSection">
+            <Grid Grid.Column="0" x:Name="DataSection" Margin="5,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <Grid Grid.Row="0" x:Name="TableSection">
+                
+                <Grid Grid.Row="0" x:Name="TableSection" Margin="0,0,0,5">
+                    <ListView ItemsSource="{Binding GraphableSensors}">
+                        <ListView.View>
+                            <GridView AllowsColumnReorder="True">
+                                <GridView.Columns>
+                                    <GridViewColumn Header="Edit">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <CheckBox Content="{Binding This}" />
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="Graph">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <CheckBox Content="{Binding This}">
+                                                    <i:Interaction.Triggers>
+                                                        <i:EventTrigger EventName="Checked">
+                                                            <cal:ActionMessage MethodName="AddToGraph">
+                                                                <cal:Parameter Value="$eventArgs" />
+                                                            </cal:ActionMessage>
+                                                        </i:EventTrigger>
+                                                        <i:EventTrigger EventName="Unchecked">
+                                                            <cal:ActionMessage MethodName="RemoveFromGraph">
+                                                                <cal:Parameter Value="$eventArgs" />
+                                                            </cal:ActionMessage>
+                                                        </i:EventTrigger>
+                                                    </i:Interaction.Triggers>
+                                                </CheckBox>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Sensor.Name}" />
+                                    <GridViewColumn Header="Depth" DisplayMemberBinding="{Binding Sensor.Depth}" />
+                                    <GridViewColumn Header="Unit" DisplayMemberBinding="{Binding Sensor.Unit}" />
+                                    <GridViewColumn Header="Upper Limit" DisplayMemberBinding="{Binding Sensor.UpperLimit}" />
+                                    <GridViewColumn Header="Lower Limit" DisplayMemberBinding="{Binding Sensor.LowerLimit}" />
+                                    <GridViewColumn Header="Max Rate of Change" DisplayMemberBinding="{Binding Sensor.MaxRateOfChange}" />
+                                    <GridViewColumn Header="Manufacturer" DisplayMemberBinding="{Binding Sensor.Manufacturer}" />
+                                    <GridViewColumn Header="Serial Number" DisplayMemberBinding="{Binding Sensor.SerialNumber}" />
+                                    <GridViewColumn Header="Description" DisplayMemberBinding="{Binding Sensor.Description}" />
+                                </GridView.Columns>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
                 </Grid>
                 
                 <Grid Grid.Row="1" x:Name="TabSection">
@@ -61,8 +107,15 @@
                         <ComboBox ItemsSource="{Binding SiteNames}" Width="150" SelectedIndex="{Binding ChosenSelectedIndex, Mode=TwoWay}" cal:Message.Attach="[Event SelectionChanged] = [Action UpdateSelectedSite]" />
                     </StackPanel>
                 </Grid>
-                <Grid Grid.Row="1" x:Name="GraphSection">
-                    <charts:Chart />
+                <Grid Grid.Row="1" x:Name="GraphSection" Margin="5">
+                    <charts:Chart x:Name="MainChart" Title="{Binding ChartTitle}" Grid.Row="0" Behaviour="{Binding Behaviour}" multiseries:MultiSeries.Source="{Binding ChartSeries}">
+                        <charts:Chart.YAxis>
+                            <charts:LinearAxis Title="{Binding YAxisTitle}" Range="{Binding Range, Mode=TwoWay}" />
+                        </charts:Chart.YAxis>
+                        <charts:Chart.XAxis>
+                            <charts:DateTimeAxis Title="Date" />
+                        </charts:Chart.XAxis>
+                    </charts:Chart>
                 </Grid>
             </Grid>
             

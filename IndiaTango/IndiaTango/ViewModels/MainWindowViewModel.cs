@@ -6,8 +6,10 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Forms;
+using System.Windows.Media;
 using Caliburn.Micro;
 using IndiaTango.Models;
+using Visiblox.Charts;
 
 namespace IndiaTango.ViewModels
 {
@@ -17,8 +19,9 @@ namespace IndiaTango.ViewModels
         {
             _windowManager = windowManager;
             _container = container;
-        }
 
+            _selectedSensors = new List<GraphableSensor>();
+        }
 
         #region Private Parameters
 
@@ -30,16 +33,12 @@ namespace IndiaTango.ViewModels
         /// The container holding all the views
         /// </summary>
         private readonly SimpleContainer _container;
-
         /// <summary>
         /// The current data set being used
         /// </summary>
         private Dataset _currentDataset;
-
         private string[] _dataSetFiles;
-
         private int _chosenSelectedIndex;
-
         #region Progress Values
 
         private int _progressValue;
@@ -48,9 +47,16 @@ namespace IndiaTango.ViewModels
         private string _waitText;
 
         #endregion
-
         private string _title = "B3";
-
+        #region Chart
+        private List<LineSeries> _chartSeries;
+        private BehaviourManager _behaviour;
+        private string _chartTitle;
+        private string _yAxisTitle;
+        private DoubleRange _range;
+        private readonly List<GraphableSensor> _selectedSensors;
+        private int _sampleRate;
+        #endregion
         #endregion
 
         #region Public Parameters
@@ -66,6 +72,7 @@ namespace IndiaTango.ViewModels
                 _currentDataset = value;
                 Debug.WriteLine("Updating for new Dataset");
                 //TODO: Refresh the everythings
+                UpdateGUI();
             }
         }
 
@@ -104,7 +111,7 @@ namespace IndiaTango.ViewModels
                 _chosenSelectedIndex = value;
             }
         }
-        
+
         #region Progress Values
 
         /// <summary>
@@ -143,7 +150,7 @@ namespace IndiaTango.ViewModels
             {
                 _waitText = value;
                 NotifyOfPropertyChange(() => WaitEventString);
-                if(!_waitText.Contains("Importing from"))
+                if (!_waitText.Contains("Importing from"))
                     EventLogger.LogInfo(CurrentDataset, "Wait Event String", string.Format("Updated to {0}", _waitText));
             }
         }
@@ -171,15 +178,111 @@ namespace IndiaTango.ViewModels
 
         #endregion
 
+        /// <summary>
+        /// The Title to show for the window
+        /// </summary>
         public string Title
         {
             get { return _title; }
             set { _title = value; NotifyOfPropertyChange(() => Title); }
         }
 
+        /// <summary>
+        /// The Sensors for the currently selected dataset
+        /// </summary>
+        public List<Sensor> Sensors
+        {
+            get { return (CurrentDataset != null) ? CurrentDataset.Sensors : new List<Sensor>(); }
+        }
+
+        /// <summary>
+        /// The current datasets sensors as Graphable Sensors
+        /// </summary>
+        public List<GraphableSensor> GraphableSensors
+        {
+            get { return (from sensor in Sensors select new GraphableSensor(sensor)).ToList(); }
+        }
+
+        #region Charting
+
+        /// <summary>
+        /// The list of Line Series that the Chart pulls from
+        /// </summary>
+        public List<LineSeries> ChartSeries { get { return _chartSeries; } set { _chartSeries = value; NotifyOfPropertyChange(() => ChartSeries); } }
+        /// <summary>
+        /// The Behaviour Manager for the Chart
+        /// </summary>
+        public BehaviourManager Behaviour { get { return _behaviour; } set { _behaviour = value; NotifyOfPropertyChange(() => Behaviour); } }
+        /// <summary>
+        /// The Chart Title
+        /// </summary>
+        public string ChartTitle { get { return _chartTitle; } set { _chartTitle = value; NotifyOfPropertyChange(() => ChartTitle); } }
+        /// <summary>
+        /// The YAxis label for the chart
+        /// </summary>
+        public string YAxisTitle { get { return _yAxisTitle; } set { _yAxisTitle = value; NotifyOfPropertyChange(() => YAxisTitle); } }
+        /// <summary>
+        /// The YAxis range on the graph
+        /// </summary>
+        public DoubleRange Range { get { return _range; } set { _range = value; NotifyOfPropertyChange(() => Range); } }
+        #endregion
+
         #endregion
 
         #region Private Methods
+
+        private void UpdateGUI()
+        {
+            NotifyOfPropertyChange(() => Sensors);
+            NotifyOfPropertyChange(() => GraphableSensors);
+        }
+
+        private void UpdateGraph()
+        {
+            ChartTitle = (_selectedSensors.Count > 0) ? (string.IsNullOrWhiteSpace(_selectedSensors[0].Sensor.Depth)
+                                   ? string.Format("{0}", _selectedSensors[0].Sensor.Name)
+                                   : string.Format("{0} [{1}]", _selectedSensors[0].Sensor.Name,
+                                                   _selectedSensors[0].Sensor.Depth)) : String.Empty;
+
+            for (var i = 1; i < _selectedSensors.Count; i++)
+                ChartTitle += (string.IsNullOrWhiteSpace(_selectedSensors[i].Sensor.Depth)
+                                   ? string.Format(" and {0}", _selectedSensors[i].Sensor.Name)
+                                   : string.Format(" and {0} [{1}]", _selectedSensors[i].Sensor.Name,
+                                                   _selectedSensors[i].Sensor.Depth));
+
+            YAxisTitle = ((from sensor in _selectedSensors select sensor.Sensor.Unit).Distinct().Count() == 1) ? _selectedSensors[0].Sensor.Unit : String.Empty;
+
+            SampleValues(Common.MaximumGraphablePoints, _selectedSensors);
+        }
+
+        private void SampleValues(int numberOfPoints, ICollection<GraphableSensor> sensors)
+        {
+            var generatedSeries = new List<LineSeries>();
+
+            HideBackground();
+
+            foreach (var sensor in sensors)
+            {
+                _sampleRate = sensor.DataPoints.Count() / (numberOfPoints / sensors.Count);
+                Debug.Print("Number of points: {0} Max Number {1} Sampling rate {2}", sensor.DataPoints.Count(), numberOfPoints, _sampleRate);
+
+                var series = (_sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints.Where((x, index) => index % _sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints);
+                generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour) });
+                if (_sampleRate > 1) ShowBackground();
+            }
+
+            ChartSeries = generatedSeries;
+        }
+
+        public void HideBackground()
+        {
+            //TODO: Write This
+        }
+
+        public void ShowBackground()
+        {
+            //TODO: Write this
+        }
 
         #endregion
 
@@ -234,6 +337,8 @@ namespace IndiaTango.ViewModels
                                  {
                                      //TODO: MATCH ALREADY EXISTING SENSORS
                                      CurrentDataset.Sensors = sensors;
+
+                                     UpdateGUI();
                                  }
                              };
 
@@ -375,6 +480,25 @@ namespace IndiaTango.ViewModels
             //TODO: Check for save
 
             Debug.WriteLine("Closing Program");
+        }
+
+        public void AddToGraph(RoutedEventArgs eventArgs)
+        {
+            var checkBox = (System.Windows.Controls.CheckBox)eventArgs.Source;
+            var graphableSensor = (GraphableSensor)checkBox.Content;
+            _selectedSensors.Add(graphableSensor);
+            Debug.Print("{0} was added to the graph list", graphableSensor.Sensor);
+            UpdateGraph();
+        }
+
+        public void RemoveFromGraph(RoutedEventArgs eventArgs)
+        {
+            var checkBox = (System.Windows.Controls.CheckBox)eventArgs.Source;
+            var graphableSensor = (GraphableSensor)checkBox.Content;
+            if (_selectedSensors.Contains(graphableSensor))
+                _selectedSensors.Remove(graphableSensor);
+            Debug.Print("{0} was removed from the graph list", graphableSensor.Sensor);
+            UpdateGraph();
         }
 
         #endregion

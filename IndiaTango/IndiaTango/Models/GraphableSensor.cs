@@ -133,7 +133,7 @@ namespace IndiaTango.Models
         /// <returns>The ToString result from the sensor</returns>
         public override string ToString()
         {
-            return Sensor.ToString();
+            return "";
         }
 
         /// <summary>
