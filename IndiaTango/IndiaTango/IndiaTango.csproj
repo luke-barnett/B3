@@ -124,6 +124,7 @@
     <Compile Include="ViewModels\GraphViewModel.cs" />
     <Compile Include="ViewModels\LogWindowViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\MissingValuesViewModel.cs" />
     <Compile Include="ViewModels\OutlierDetectionViewModel.cs" />
     <Compile Include="ViewModels\SensorTemplateManagerViewModel.cs" />
@@ -161,6 +162,9 @@
     </Compile>
     <Compile Include="Views\MainView.xaml.cs">
       <DependentUpon>MainView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\MainWindowView.xaml.cs">
+      <DependentUpon>MainWindowView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MissingValuesView.xaml.cs">
       <DependentUpon>MissingValuesView.xaml</DependentUpon>
@@ -262,6 +266,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\MainView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\MainWindowView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -42,12 +42,12 @@ namespace IndiaTango.Models
                 throw new ArgumentException("ID number must a non-negative integer");
             if(String.IsNullOrEmpty(name))
                 throw new ArgumentException("Site must not be empty");
-            if(String.IsNullOrEmpty(owner))
+            /*if(String.IsNullOrEmpty(owner))
                 throw new ArgumentException("Owner must not be empty");
             if(primaryContact == null)
                 throw new ArgumentException("Primary contact must not be null");
             if(gpsLocation == null)
-                throw new ArgumentException("GPS Location must be supplied");
+                throw new ArgumentException("GPS Location must be supplied");*/
 
             _iD = iD;
             _name = name;

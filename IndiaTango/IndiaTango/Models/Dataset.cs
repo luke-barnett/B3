@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace IndiaTango.Models
 {
@@ -28,12 +30,12 @@ namespace IndiaTango.Models
             _sensors = new List<Sensor>();
         }
 
-    	/// <summary>
-    	/// Creates a new dataset from a list of sensors. Start and end timestamp will be dynamically created
-    	/// </summary>
-    	/// <param name="site">The Site that the dataset came from</param>
-    	/// <param name="sensors">List of sensors belonging to the dataset</param>
-    	public Dataset(Site site, List<Sensor> sensors)
+        /// <summary>
+        /// Creates a new dataset from a list of sensors. Start and end timestamp will be dynamically created
+        /// </summary>
+        /// <param name="site">The Site that the dataset came from</param>
+        /// <param name="sensors">List of sensors belonging to the dataset</param>
+        public Dataset(Site site, List<Sensor> sensors)
         {
             if (sensors == null)
                 throw new ArgumentException("Please provide a list of sensors that belong to this site.");
@@ -82,16 +84,16 @@ namespace IndiaTango.Models
         [DataMember]
         public List<Sensor> Sensors
         {
-        	get { return _sensors; }
-        	set
-        	{
+            get { return _sensors; }
+            set
+            {
                 if (value == null)
                     throw new ArgumentException("Sensors cannot be null");
 
-        	    _sensors = value;
+                _sensors = value;
 
 
-                if(Sensors.Count > 0 && Sensors[0] != null && Sensors[0].CurrentState != null)
+                if (Sensors.Count > 0 && Sensors[0] != null && Sensors[0].CurrentState != null)
                 {
                     var intervalMap = new Dictionary<int, int>();
                     var prevDate = DateTime.MinValue;
@@ -101,11 +103,11 @@ namespace IndiaTango.Models
                     foreach (var date in Sensors[0].CurrentState.Values.Keys)
                     {
                         var interval = (int)(date - prevDate).TotalMinutes;
-                        
+
                         if (intervalMap.ContainsKey(interval))
                             intervalMap[interval]++;
                         else
-                            intervalMap.Add(interval,1);
+                            intervalMap.Add(interval, 1);
 
                         prevDate = date;
                     }
@@ -113,7 +115,7 @@ namespace IndiaTango.Models
                     foreach (var pair in intervalMap)
                         if (pair.Value > currentHighest.Value)
                             currentHighest = pair;
-                    
+
 
                     _dataInterval = currentHighest.Key;
                 }
@@ -141,10 +143,10 @@ namespace IndiaTango.Models
                 }
 
                 _expectedDataPointCount = (int)Math.Floor(EndTimeStamp.Subtract(StartTimeStamp).TotalMinutes / DataInterval) + 1;
-        	}
+            }
         }
 
-    	/// <summary>
+        /// <summary>
         /// Adds a sensor to the list of sensors
         /// </summary>
         /// <param name="sensor">The sensor to be added to the list of sensors</param>
@@ -154,9 +156,9 @@ namespace IndiaTango.Models
                 throw new ArgumentException("Sensor cannot be null");
 
             // Force an update of the start and end timestamps - very important!
-    	    var sensorList = Sensors;
-    	    sensorList.Add(sensor);
-    	    Sensors = sensorList;
+            var sensorList = Sensors;
+            sensorList.Add(sensor);
+            Sensors = sensorList;
         }
 
         /// <summary>
@@ -204,15 +206,15 @@ namespace IndiaTango.Models
 
             var goingDown = Sensors.IndexOf(a) < Sensors.IndexOf(b);
 
-            if(goingDown)
+            if (goingDown)
                 newIndex = Sensors.IndexOf(b); // Going down - use current index in the list
 
             Sensors.Remove(a);
 
-            if(!goingDown)
+            if (!goingDown)
                 newIndex = Sensors.IndexOf(b);
 
-            if(newIndex < Sensors.Count)
+            if (newIndex < Sensors.Count)
                 Sensors.Insert(newIndex, a);
             else
                 Sensors.Add(a);
@@ -223,7 +225,33 @@ namespace IndiaTango.Models
             get { return (Site != null && !string.IsNullOrWhiteSpace(Site.Name)) ? Site.Name : Common.UnknownSite; }
         }
 
-        [NonSerialized]
-        public string SaveLocation = string.Empty;
+        public string SaveLocation
+        {
+            get
+            {
+                return Path.Combine(Common.DatasetSaveLocation, string.Format("{0}.b3", _site.Name));
+            }
+        }
+
+        public static string[] GetAllDataSetFileNames()
+        {
+            return Directory.Exists(Common.DatasetSaveLocation) ? Directory.GetFiles(Common.DatasetSaveLocation, "*.b3") : new string[0];
+        }
+
+        public static Dataset LoadDataSet(string fileName)
+        {
+            EventLogger.LogInfo(null, "Loading", "Started loading from file: " + fileName);
+            using (var stream = new FileStream(fileName, FileMode.Open))
+                return (Dataset)new BinaryFormatter().Deserialize(stream);
+        }
+
+        public void SaveToFile()
+        {
+            if (!Directory.Exists(Common.DatasetSaveLocation))
+                Directory.CreateDirectory(Common.DatasetSaveLocation);
+
+            using (var stream = new FileStream(SaveLocation, FileMode.Create))
+                new BinaryFormatter().Serialize(stream, this);
+        }
     }
 }

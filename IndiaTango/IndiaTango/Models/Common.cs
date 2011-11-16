@@ -21,7 +21,6 @@ using WindowsFormsAero.Dwm;
 using WindowsFormsAero.TaskDialog;
 using Brushes = System.Windows.Media.Brushes;
 using Color = System.Windows.Media.Color;
-using Cursors = System.Windows.Input.Cursors;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
 using Path = System.IO.Path;
 using Point = System.Windows.Point;
@@ -48,13 +47,14 @@ namespace IndiaTango.Models
         public static string ChangeReasonsPath { get { return Path.Combine(AppDataPath, "ChangeReasons.txt"); } }
         public static string Icon { get { return "/B3;component/Images/icon.ico"; } }
         public static string TestDataPath { get { return "../../Test Data/"; } }
+        public static string DatasetSaveLocation { get { return Path.Combine(AppDataPath, "Sites"); } }
         public static string AppDataPath
         {
             get
             {
                 var path = Path.Combine(new[]{
                     Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                    "IndiaTango"
+                    "B3"
                 });
 
                 if (!Directory.Exists(path)) // Creates directory if it doesn't exist, no need to create beforehand
@@ -390,8 +390,8 @@ namespace IndiaTango.Models
             if (string.IsNullOrWhiteSpace(sessionToSave.SaveLocation))
             {
                 var saveFileDialog = new SaveFileDialog { Filter = "Site Files|*.b3" };
-                if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                    sessionToSave.SaveLocation = saveFileDialog.FileName;
+                /*if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                    sessionToSave.SaveLocation = saveFileDialog.FileName;*/
             }
 
             if (!string.IsNullOrWhiteSpace(sessionToSave.SaveLocation))

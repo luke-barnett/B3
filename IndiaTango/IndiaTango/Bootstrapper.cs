@@ -31,6 +31,7 @@ namespace IndiaTango
             _container.RegisterPerRequest(typeof(ErroneousValuesDetectionViewModel), "ErroneousValuesDetectionViewModel", typeof(ErroneousValuesDetectionViewModel));
             _container.RegisterPerRequest(typeof(UseSelectedRangeViewModel), "UseSelectedRangeViewModel", typeof(UseSelectedRangeViewModel));
             _container.RegisterPerRequest(typeof(WizardViewModel), "WizardViewModel", typeof(WizardViewModel));
+            _container.RegisterSingleton(typeof(MainWindowViewModel), "MainWindowViewModel", typeof(MainWindowViewModel));
 
             _container.RegisterInstance(typeof(IWindowManager), null, new WindowManager());
             _container.RegisterInstance(typeof(SimpleContainer), null, _container);
@@ -53,7 +54,8 @@ namespace IndiaTango
 
         protected override void OnStartup(object sender, System.Windows.StartupEventArgs e)
         {
-            (_container.GetInstance(typeof(IWindowManager), null) as IWindowManager).ShowWindow(_container.GetInstance(typeof(MainViewModel), "MainViewModel"));
+            //(_container.GetInstance(typeof(IWindowManager), null) as IWindowManager).ShowWindow(_container.GetInstance(typeof(MainViewModel), "MainViewModel"));
+            (_container.GetInstance(typeof(IWindowManager), null) as IWindowManager).ShowWindow(_container.GetInstance(typeof(MainWindowViewModel), "MainWindowViewModel"));
         }
     }
 }

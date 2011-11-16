@@ -63,7 +63,7 @@ namespace IndiaTango.ViewModels
                                                      return;
                                                  var sessionView = (SessionViewModel)_container.GetInstance(typeof(SessionViewModel), "SessionViewModel");
                                                  var dataSet = (Dataset) e.Result;
-                                                 dataSet.SaveLocation = openFileDialog.FileName;
+                                                 //dataSet.SaveLocation = openFileDialog.FileName;
                                                  sessionView.Dataset = dataSet;
 
                                                  ApplicationCursor = Cursors.Arrow;
