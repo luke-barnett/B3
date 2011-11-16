@@ -4,7 +4,7 @@
         xmlns:cal="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:charts="clr-namespace:Visiblox.Charts;assembly=Visiblox.Charts"
-        Title="Title" Height="600" Width="800">
+        Title="{Binding Title}" Height="600" Width="800">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closing">
             <cal:ActionMessage MethodName="ClosingRequested">
@@ -58,7 +58,7 @@
                 <Grid Grid.Row="0" x:Name="RightSectionHeader">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <TextBlock Text="Current Site:" Margin="10,0" VerticalAlignment="Center" />
-                        <ComboBox ItemsSource="{Binding SiteNames}" Width="150" SelectedIndex="{Binding ChosenSelectedIndex, Mode=TwoWay}" />
+                        <ComboBox ItemsSource="{Binding SiteNames}" Width="150" SelectedIndex="{Binding ChosenSelectedIndex, Mode=TwoWay}" cal:Message.Attach="[Event SelectionChanged] = [Action UpdateSelectedSite]" />
                     </StackPanel>
                 </Grid>
                 <Grid Grid.Row="1" x:Name="GraphSection">
@@ -70,7 +70,7 @@
         <Grid Grid.Row="2" x:Name="BottomBar">
             <StackPanel x:Name="ProgressSection" Orientation="Horizontal" HorizontalAlignment="Right" Visibility="{Binding ProgressAreaVisibility}">
                 <TextBlock Text="{Binding WaitEventString}" />
-                <ProgressBar Minimum="0" Maximum="100" IsIndeterminate="{Binding ProgressIndeterminate}" Value="{Binding ProgressValue}" />
+                <ProgressBar Width="100" Minimum="0" Maximum="100" IsIndeterminate="{Binding ProgressIndeterminate}" Value="{Binding ProgressValue}" />
             </StackPanel>
         </Grid>
     </Grid>

@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
+using System.Windows.Forms;
 using Caliburn.Micro;
 using IndiaTango.Models;
 
@@ -23,11 +25,11 @@ namespace IndiaTango.ViewModels
         /// <summary>
         /// The Window Manger from Caliburn Micro
         /// </summary>
-        private IWindowManager _windowManager;
+        private readonly IWindowManager _windowManager;
         /// <summary>
         /// The container holding all the views
         /// </summary>
-        private SimpleContainer _container;
+        private readonly SimpleContainer _container;
 
         /// <summary>
         /// The current data set being used
@@ -61,6 +63,7 @@ namespace IndiaTango.ViewModels
             {
                 _currentDataset = value;
                 Debug.WriteLine("Updating for new Dataset");
+                //TODO: Refresh the everythings
             }
         }
 
@@ -97,25 +100,6 @@ namespace IndiaTango.ViewModels
             set
             {
                 _chosenSelectedIndex = value;
-                NotifyOfPropertyChange(() => ChosenSelectedIndex);
-
-                //Load the Dataset
-                if (CurrentDataset != null && (DataSetFiles[ChosenSelectedIndex] == CurrentDataset.Site.Name))
-                    return;
-
-                var bw = new BackgroundWorker();
-
-                bw.DoWork += (o, e) =>
-                                 {
-                                     CurrentDataset = Dataset.LoadDataSet(DataSetFiles[_chosenSelectedIndex]);
-                                 };
-                bw.RunWorkerCompleted += (o, e) =>
-                                             {
-                                                 //TODO: Reset all waiting
-                                             };
-                //TODO: Freeze all users work while we load
-
-                bw.RunWorkerAsync();
             }
         }
 
@@ -158,6 +142,7 @@ namespace IndiaTango.ViewModels
             {
                 _waitText = value;
                 NotifyOfPropertyChange(() => WaitEventString);
+                EventLogger.LogInfo(CurrentDataset, "Wait Event String", string.Format("Updated to {0}", _waitText));
             }
         }
 
@@ -204,15 +189,49 @@ namespace IndiaTango.ViewModels
                 return;
             }
 
-            var bw = new BackgroundWorker();
+            var bw = new BackgroundWorker { WorkerSupportsCancellation = true, WorkerReportsProgress = true };
+
+            var openFileDialog = new OpenFileDialog { Filter = "CSV Files|*.csv" };
+
+            if (openFileDialog.ShowDialog() != DialogResult.OK)
+                return;
 
             bw.DoWork += (o, e) =>
                              {
+                                 ShowProgressArea = true;
+                                 ProgressIndeterminate = false;
+                                 ProgressValue = 0;
 
+                                 var reader = new CSVReader(openFileDialog.FileName);
+
+                                 reader.ProgressChanged += (sender, args) =>
+                                                               {
+                                                                   ProgressValue = args.Progress;
+                                                                   WaitEventString =
+                                                                       string.Format("Importing from {0} {1}%",
+                                                                                     openFileDialog.FileName,
+                                                                                     ProgressValue);
+                                                               };
+                                 List<Sensor> sensors = null;
+                                 try
+                                 {
+                                     sensors = reader.ReadSensors();
+                                 }
+                                 catch (Exception ex)
+                                 {
+                                     Common.ShowMessageBoxWithException("Failed Import", "Bad File Format", false, true, ex);
+                                 }
+
+                                 if (sensors != null)
+                                 {
+                                     //TODO: MATCH ALREADY EXISTING SENSORS
+                                     CurrentDataset.Sensors = sensors;
+                                 }
                              };
 
             bw.RunWorkerCompleted += (o, e) =>
                                          {
+                                             ShowProgressArea = false;
                                              //TODO: Re-enable the things that we disabled
                                          };
             //TODO: Disable the things
@@ -261,6 +280,81 @@ namespace IndiaTango.ViewModels
         public void Exit()
         {
             TryClose();
+        }
+
+        /// <summary>
+        /// Update the selected site to the one corresponding to the selected index
+        /// </summary>
+        public void UpdateSelectedSite()
+        {
+
+            var saveFirst = false;
+
+            if (CurrentDataset != null)
+            {
+                //Do we want to save the dataset?
+                var userPrompt = _container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel") as SpecifyValueViewModel;
+
+                if (userPrompt == null)
+                {
+                    EventLogger.LogError(CurrentDataset, "Changing Sites", "PROMPT DIDN'T LOAD MEGA FAILURE");
+                    return;
+                }
+
+                userPrompt.Title = "Shall I Save?";
+                userPrompt.Message =
+                    string.Format(
+                        "Do you want to save \"{0}\" before changing dataset \n\r (unsaved progress WILL be lost) ",
+                        CurrentDataset.Site.Name);
+                userPrompt.ShowCancel = true;
+                userPrompt.ShowComboBox = true;
+                userPrompt.ComboBoxItems = new List<string> { "Yes", "No" };
+                userPrompt.CanEditComboBox = false;
+                userPrompt.ComboBoxSelectedIndex = 0;
+
+                _windowManager.ShowDialog(userPrompt);
+
+                if (userPrompt.WasCanceled)
+                    return;
+
+                if (userPrompt.ComboBoxSelectedIndex == 0)
+                    saveFirst = true;
+            }
+
+            Debug.Print("Chosen Selected Index {0}", _chosenSelectedIndex);
+
+            foreach (var file in DataSetFiles)
+            {
+                Debug.WriteLine(file);
+            }
+
+            Debug.Print("Chosen file is {0}", DataSetFiles[_chosenSelectedIndex]);
+
+            var bw = new BackgroundWorker();
+
+            bw.DoWork += (o, e) =>
+            {
+                ProgressIndeterminate = true;
+                ShowProgressArea = true;
+
+                if (saveFirst)
+                {
+                    EventLogger.LogInfo(CurrentDataset, "Closing Save", "Saving to file before close");
+                    WaitEventString = string.Format("Saving {0} to file", CurrentDataset.Site.Name);
+                    CurrentDataset.SaveToFile();
+                }
+                WaitEventString = string.Format("Loading from {0}", DataSetFiles[_chosenSelectedIndex]);
+                CurrentDataset = Dataset.LoadDataSet(DataSetFiles[_chosenSelectedIndex]);
+                EventLogger.LogInfo(null, "Loaded dataset", string.Format("Loaded {0}", DataSetFiles[_chosenSelectedIndex]));
+            };
+            bw.RunWorkerCompleted += (o, e) =>
+            {
+                ShowProgressArea = false;
+                //TODO: Reset all waiting
+            };
+            //TODO: Freeze all users work while we load
+
+            bw.RunWorkerAsync();
         }
 
         #endregion
