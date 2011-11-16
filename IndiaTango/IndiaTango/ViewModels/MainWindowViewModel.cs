@@ -49,6 +49,8 @@ namespace IndiaTango.ViewModels
 
         #endregion
 
+        private string _title = "B3";
+
         #endregion
 
         #region Public Parameters
@@ -102,8 +104,7 @@ namespace IndiaTango.ViewModels
                 _chosenSelectedIndex = value;
             }
         }
-
-
+        
         #region Progress Values
 
         /// <summary>
@@ -142,7 +143,8 @@ namespace IndiaTango.ViewModels
             {
                 _waitText = value;
                 NotifyOfPropertyChange(() => WaitEventString);
-                EventLogger.LogInfo(CurrentDataset, "Wait Event String", string.Format("Updated to {0}", _waitText));
+                if(!_waitText.Contains("Importing from"))
+                    EventLogger.LogInfo(CurrentDataset, "Wait Event String", string.Format("Updated to {0}", _waitText));
             }
         }
 
@@ -169,6 +171,12 @@ namespace IndiaTango.ViewModels
 
         #endregion
 
+        public string Title
+        {
+            get { return _title; }
+            set { _title = value; NotifyOfPropertyChange(() => Title); }
+        }
+
         #endregion
 
         #region Private Methods
@@ -191,7 +199,7 @@ namespace IndiaTango.ViewModels
 
             var bw = new BackgroundWorker { WorkerSupportsCancellation = true, WorkerReportsProgress = true };
 
-            var openFileDialog = new OpenFileDialog { Filter = "CSV Files|*.csv" };
+            var openFileDialog = new OpenFileDialog { Filter = @"CSV Files|*.csv" };
 
             if (openFileDialog.ShowDialog() != DialogResult.OK)
                 return;
@@ -350,6 +358,7 @@ namespace IndiaTango.ViewModels
             bw.RunWorkerCompleted += (o, e) =>
             {
                 ShowProgressArea = false;
+                Title = string.Format("B3: {0}", CurrentDataset.Site.Name);
                 //TODO: Reset all waiting
             };
             //TODO: Freeze all users work while we load

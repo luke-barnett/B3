@@ -69,7 +69,7 @@
         </Grid>
         <Grid Grid.Row="2" x:Name="BottomBar">
             <StackPanel x:Name="ProgressSection" Orientation="Horizontal" HorizontalAlignment="Right" Visibility="{Binding ProgressAreaVisibility}">
-                <TextBlock Text="{Binding WaitEventString}" />
+                <TextBlock Text="{Binding WaitEventString}" Margin="0,0,5,0" />
                 <ProgressBar Width="100" Minimum="0" Maximum="100" IsIndeterminate="{Binding ProgressIndeterminate}" Value="{Binding ProgressValue}" />
             </StackPanel>
         </Grid>
