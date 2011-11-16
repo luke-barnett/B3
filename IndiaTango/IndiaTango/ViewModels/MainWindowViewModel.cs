@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Windows;
 using Caliburn.Micro;
 using IndiaTango.Models;
 
@@ -37,6 +38,15 @@ namespace IndiaTango.ViewModels
 
         private int _chosenSelectedIndex;
 
+        #region Progress Values
+
+        private int _progressValue;
+        private bool _progressIndeterminate;
+        private bool _showProgressArea;
+        private string _waitText;
+
+        #endregion
+
         #endregion
 
         #region Public Parameters
@@ -63,6 +73,9 @@ namespace IndiaTango.ViewModels
 
         #region Public Properties
 
+        /// <summary>
+        /// The list of site names
+        /// </summary>
         public string[] SiteNames
         {
             get
@@ -75,9 +88,12 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// The currently selected site index
+        /// </summary>
         public int ChosenSelectedIndex
         {
-            get { return (CurrentDataset != null) ?  _chosenSelectedIndex : -1; }
+            get { return (CurrentDataset != null) ? _chosenSelectedIndex : -1; }
             set
             {
                 _chosenSelectedIndex = value;
@@ -103,6 +119,71 @@ namespace IndiaTango.ViewModels
             }
         }
 
+
+        #region Progress Values
+
+        /// <summary>
+        /// The current value of the progress bar
+        /// </summary>
+        public int ProgressValue
+        {
+            get { return _progressValue; }
+            set
+            {
+                _progressValue = value;
+                NotifyOfPropertyChange(() => ProgressValue);
+            }
+        }
+
+        /// <summary>
+        /// Whether or not the progress is indeterminate
+        /// </summary>
+        public bool ProgressIndeterminate
+        {
+            get { return _progressIndeterminate; }
+            set
+            {
+                _progressIndeterminate = value;
+                NotifyOfPropertyChange(() => ProgressIndeterminate);
+            }
+        }
+
+        /// <summary>
+        /// The string to describe the progress
+        /// </summary>
+        public string WaitEventString
+        {
+            get { return _waitText; }
+            set
+            {
+                _waitText = value;
+                NotifyOfPropertyChange(() => WaitEventString);
+            }
+        }
+
+        /// <summary>
+        /// Whether or not to show the progress area
+        /// </summary>
+        public bool ShowProgressArea
+        {
+            get { return _showProgressArea; }
+            set
+            {
+                _showProgressArea = value;
+                NotifyOfPropertyChange(() => ProgressAreaVisibility);
+            }
+        }
+
+        /// <summary>
+        /// The visibility of the progress area
+        /// </summary>
+        public Visibility ProgressAreaVisibility
+        {
+            get { return ShowProgressArea ? Visibility.Visible : Visibility.Collapsed; }
+        }
+
+        #endregion
+
         #endregion
 
         #region Private Methods
@@ -116,7 +197,26 @@ namespace IndiaTango.ViewModels
         /// </summary>
         public void Import()
         {
+            if (CurrentDataset == null)
+            {
+                Common.ShowMessageBox("No Current Site", "You need to select or create a site before you can import",
+                                      false, false);
+                return;
+            }
 
+            var bw = new BackgroundWorker();
+
+            bw.DoWork += (o, e) =>
+                             {
+
+                             };
+
+            bw.RunWorkerCompleted += (o, e) =>
+                                         {
+                                             //TODO: Re-enable the things that we disabled
+                                         };
+            //TODO: Disable the things
+            bw.RunWorkerAsync();
         }
 
         /// <summary>

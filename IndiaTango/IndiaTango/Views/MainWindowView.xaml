@@ -16,6 +16,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         
         <Menu Grid.Row="0" x:Name="MainMenu" IsMainMenu="True">
@@ -64,6 +65,13 @@
                     <charts:Chart />
                 </Grid>
             </Grid>
+            
+        </Grid>
+        <Grid Grid.Row="2" x:Name="BottomBar">
+            <StackPanel x:Name="ProgressSection" Orientation="Horizontal" HorizontalAlignment="Right" Visibility="{Binding ProgressAreaVisibility}">
+                <TextBlock Text="{Binding WaitEventString}" />
+                <ProgressBar Minimum="0" Maximum="100" IsIndeterminate="{Binding ProgressIndeterminate}" Value="{Binding ProgressValue}" />
+            </StackPanel>
         </Grid>
     </Grid>
 </Window>
