@@ -5,11 +5,13 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Media;
 using Caliburn.Micro;
 using IndiaTango.Models;
 using Visiblox.Charts;
+using DataGrid = System.Windows.Controls.DataGrid;
 
 namespace IndiaTango.ViewModels
 {
@@ -21,6 +23,39 @@ namespace IndiaTango.ViewModels
             _container = container;
 
             _selectedSensors = new List<GraphableSensor>();
+
+            #region Set Up Behaviours
+
+            var behaviourManager = new BehaviourManager { AllowMultipleEnabled = true };
+
+            #region Zoom Behaviour
+            var zoomBehaviour = new CustomZoomBehaviour { IsEnabled = !_inSelectionMode };
+            zoomBehaviour.ZoomRequested += (o, e) =>
+            {
+                StartTime = (DateTime)e.FirstPoint.X;
+                EndTime = (DateTime)e.SecondPoint.X;
+                foreach (var sensor in _selectedSensors)
+                {
+                    sensor.SetUpperAndLowerBounds(StartTime, EndTime);
+                }
+                SampleValues(Common.MaximumGraphablePoints, _selectedSensors);
+            };
+            zoomBehaviour.ZoomResetRequested += o =>
+            {
+                foreach (var sensor in _selectedSensors)
+                {
+                    sensor.RemoveBounds();
+                }
+                SampleValues(Common.MaximumGraphablePoints, _selectedSensors);
+                CalculateGraphedEndPoints();
+            };
+
+            behaviourManager.Behaviours.Add(zoomBehaviour);
+            #endregion
+
+            Behaviour = behaviourManager;
+
+            #endregion
         }
 
         #region Private Parameters
@@ -56,6 +91,9 @@ namespace IndiaTango.ViewModels
         private DoubleRange _range;
         private readonly List<GraphableSensor> _selectedSensors;
         private int _sampleRate;
+        private DateTime _startTime;
+        private DateTime _endTime;
+        private bool _inSelectionMode;
         #endregion
         #endregion
 
@@ -225,6 +263,14 @@ namespace IndiaTango.ViewModels
         /// The YAxis range on the graph
         /// </summary>
         public DoubleRange Range { get { return _range; } set { _range = value; NotifyOfPropertyChange(() => Range); } }
+        /// <summary>
+        /// The start of the time period being displayed
+        /// </summary>
+        public DateTime StartTime { get { return _startTime; } set { _startTime = value; NotifyOfPropertyChange(() => StartTime); } }
+        /// <summary>
+        /// The end of the time period being displayed
+        /// </summary>
+        public DateTime EndTime { get { return _endTime; } set { _endTime = value; NotifyOfPropertyChange(() => EndTime); } }
         #endregion
 
         #endregion
@@ -253,6 +299,7 @@ namespace IndiaTango.ViewModels
             YAxisTitle = ((from sensor in _selectedSensors select sensor.Sensor.Unit).Distinct().Count() == 1) ? _selectedSensors[0].Sensor.Unit : String.Empty;
 
             SampleValues(Common.MaximumGraphablePoints, _selectedSensors);
+            CalculateGraphedEndPoints();
         }
 
         private void SampleValues(int numberOfPoints, ICollection<GraphableSensor> sensors)
@@ -274,14 +321,46 @@ namespace IndiaTango.ViewModels
             ChartSeries = generatedSeries;
         }
 
-        public void HideBackground()
+        private void HideBackground()
         {
             //TODO: Write This
         }
 
-        public void ShowBackground()
+        private void ShowBackground()
         {
             //TODO: Write this
+        }
+
+        private void CalculateGraphedEndPoints()
+        {
+            var minimum = DateTime.MaxValue;
+            var maximum = DateTime.MinValue;
+
+            foreach (var sensor in _selectedSensors)
+            {
+                if (sensor.DataPoints.Count() <= 0) continue;
+
+                var first = sensor.DataPoints.First().X;
+                var last = sensor.DataPoints.Last().X;
+
+                if (first < minimum)
+                    minimum = first;
+
+                if (last > maximum)
+                    maximum = last;
+            }
+
+            if(minimum > maximum)
+            {
+                var temp = minimum;
+                minimum = maximum;
+                maximum = temp;
+            }
+
+            Debug.WriteLine("Calculated the first point {0} and the last point {1}", minimum, maximum);
+            StartTime = minimum;
+            EndTime = maximum;
+            Debug.WriteLine("As a result start {0} and end {1}", StartTime, EndTime);
         }
 
         #endregion
@@ -499,6 +578,23 @@ namespace IndiaTango.ViewModels
                 _selectedSensors.Remove(graphableSensor);
             Debug.Print("{0} was removed from the graph list", graphableSensor.Sensor);
             UpdateGraph();
+        }
+
+        public void CheckEdit(DataGridCellEditEndingEventArgs eventArgs, DataGrid dataGrid)
+        {
+            Debug.Print("Current selected value is {0}", dataGrid.SelectedValue);
+            Debug.Print("The editing element is a {0}", eventArgs.EditingElement);
+            if((string)eventArgs.Column.Header == "Depth")
+            {
+                try
+                {
+
+                }
+                catch (Exception)
+                {
+                    eventArgs.Cancel = true;
+                }
+            }
         }
 
         #endregion

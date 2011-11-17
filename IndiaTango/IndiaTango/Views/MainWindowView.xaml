@@ -12,14 +12,14 @@
             </cal:ActionMessage>
         </i:EventTrigger>
     </i:Interaction.Triggers>
-        
+
     <Grid x:Name="LayoutRoot">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        
+
         <Menu Grid.Row="0" x:Name="MainMenu" IsMainMenu="True">
             <MenuItem Header="_File">
                 <MenuItem Header="_Import" cal:Message.Attach="[Event Click] = [Action Import]" />
@@ -28,70 +28,74 @@
                 <MenuItem Header="_Exit" cal:Message.Attach="[Event Click] = [Action Exit]" />
             </MenuItem>
         </Menu>
-        
+
         <Grid Grid.Row="1" x:Name="MainSection">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="2*" />
             </Grid.ColumnDefinitions>
-            
+
             <Grid Grid.Column="0" x:Name="DataSection" Margin="5,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                
+
                 <Grid Grid.Row="0" x:Name="TableSection" Margin="0,0,0,5">
-                    <ListView ItemsSource="{Binding GraphableSensors}">
-                        <ListView.View>
-                            <GridView AllowsColumnReorder="True">
-                                <GridView.Columns>
-                                    <GridViewColumn Header="Edit">
-                                        <GridViewColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <CheckBox Content="{Binding This}" />
-                                            </DataTemplate>
-                                        </GridViewColumn.CellTemplate>
-                                    </GridViewColumn>
-                                    <GridViewColumn Header="Graph">
-                                        <GridViewColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <CheckBox Content="{Binding This}">
-                                                    <i:Interaction.Triggers>
-                                                        <i:EventTrigger EventName="Checked">
-                                                            <cal:ActionMessage MethodName="AddToGraph">
-                                                                <cal:Parameter Value="$eventArgs" />
-                                                            </cal:ActionMessage>
-                                                        </i:EventTrigger>
-                                                        <i:EventTrigger EventName="Unchecked">
-                                                            <cal:ActionMessage MethodName="RemoveFromGraph">
-                                                                <cal:Parameter Value="$eventArgs" />
-                                                            </cal:ActionMessage>
-                                                        </i:EventTrigger>
-                                                    </i:Interaction.Triggers>
-                                                </CheckBox>
-                                            </DataTemplate>
-                                        </GridViewColumn.CellTemplate>
-                                    </GridViewColumn>
-                                    <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Sensor.Name}" />
-                                    <GridViewColumn Header="Depth" DisplayMemberBinding="{Binding Sensor.Depth}" />
-                                    <GridViewColumn Header="Unit" DisplayMemberBinding="{Binding Sensor.Unit}" />
-                                    <GridViewColumn Header="Upper Limit" DisplayMemberBinding="{Binding Sensor.UpperLimit}" />
-                                    <GridViewColumn Header="Lower Limit" DisplayMemberBinding="{Binding Sensor.LowerLimit}" />
-                                    <GridViewColumn Header="Max Rate of Change" DisplayMemberBinding="{Binding Sensor.MaxRateOfChange}" />
-                                    <GridViewColumn Header="Manufacturer" DisplayMemberBinding="{Binding Sensor.Manufacturer}" />
-                                    <GridViewColumn Header="Serial Number" DisplayMemberBinding="{Binding Sensor.SerialNumber}" />
-                                    <GridViewColumn Header="Description" DisplayMemberBinding="{Binding Sensor.Description}" />
-                                </GridView.Columns>
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
+                    <DataGrid x:Name="DataGrid" ItemsSource="{Binding GraphableSensors}" AlternatingRowBackground="LightGray" AlternationCount="2" AutoGenerateColumns="False" CanUserReorderColumns="True" FrozenColumnCount="3">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="CellEditEnding">
+                                <cal:ActionMessage MethodName="CheckEdit">
+                                    <cal:Parameter Value="$eventArgs" />
+                                    <cal:Parameter Value="{Binding ElementName=DataGrid}" />
+                                </cal:ActionMessage>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="Edit">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <CheckBox Content="{Binding This}" HorizontalAlignment="Center" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Graph">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <CheckBox Content="{Binding This}" HorizontalAlignment="Center">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="Checked">
+                                                    <cal:ActionMessage MethodName="AddToGraph">
+                                                        <cal:Parameter Value="$eventArgs" />
+                                                    </cal:ActionMessage>
+                                                </i:EventTrigger>
+                                                <i:EventTrigger EventName="Unchecked">
+                                                    <cal:ActionMessage MethodName="RemoveFromGraph">
+                                                        <cal:Parameter Value="$eventArgs" />
+                                                    </cal:ActionMessage>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </CheckBox>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Name" Binding="{Binding Sensor.Name}" />
+                            <DataGridTextColumn Header="Depth" Binding="{Binding Sensor.Depth}" />
+                            <DataGridTextColumn Header="Unit" Binding="{Binding Sensor.Unit}" />
+                            <DataGridTextColumn Header="Upper Limit" Binding="{Binding Sensor.UpperLimit}" />
+                            <DataGridTextColumn Header="Lower Limit" Binding="{Binding Sensor.LowerLimit}" />
+                            <DataGridTextColumn Header="Max Rate of Change" Binding="{Binding Sensor.MaxRateOfChange}" />
+                            <DataGridTextColumn Header="Manufacturer" Binding="{Binding Sensor.Manufacturer}" />
+                            <DataGridTextColumn Header="Serial Number" Binding="{Binding Sensor.SerialNumber}" />
+                            <DataGridTextColumn Header="Description" Binding="{Binding Sensor.Description}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
                 </Grid>
-                
+
                 <Grid Grid.Row="1" x:Name="TabSection">
                     <TabControl>
                         <TabItem Header="Outlier Detection">
-                            
+
                         </TabItem>
                     </TabControl>
                 </Grid>
@@ -118,7 +122,7 @@
                     </charts:Chart>
                 </Grid>
             </Grid>
-            
+
         </Grid>
         <Grid Grid.Row="2" x:Name="BottomBar">
             <StackPanel x:Name="ProgressSection" Orientation="Horizontal" HorizontalAlignment="Right" Visibility="{Binding ProgressAreaVisibility}">
