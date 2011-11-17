@@ -607,6 +607,28 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        public void ShowSiteInformation()
+        {
+            if(CurrentDataset == null)
+            {
+                Common.ShowMessageBox("No Site Selected",
+                                      "To view site information you must first select or create a site", false, false);
+                return;
+            }
+
+            var view = _container.GetInstance(typeof(EditSiteDataViewModel), "EditSiteDataViewModel") as EditSiteDataViewModel;
+
+            if (view == null)
+            {
+                EventLogger.LogError(null, "Loading Site Editor", "Critical! Failed to get a View!!");
+                return;
+            }
+
+            view.DataSet = CurrentDataset;
+
+            _windowManager.ShowDialog(view);
+        }
+
         #endregion
     }
 }

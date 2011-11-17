@@ -32,6 +32,7 @@ namespace IndiaTango
             _container.RegisterPerRequest(typeof(UseSelectedRangeViewModel), "UseSelectedRangeViewModel", typeof(UseSelectedRangeViewModel));
             _container.RegisterPerRequest(typeof(WizardViewModel), "WizardViewModel", typeof(WizardViewModel));
             _container.RegisterSingleton(typeof(MainWindowViewModel), "MainWindowViewModel", typeof(MainWindowViewModel));
+            _container.RegisterPerRequest(typeof(EditSiteDataViewModel), "EditSiteDataViewModel", typeof(EditSiteDataViewModel));
 
             _container.RegisterInstance(typeof(IWindowManager), null, new WindowManager());
             _container.RegisterInstance(typeof(SimpleContainer), null, _container);

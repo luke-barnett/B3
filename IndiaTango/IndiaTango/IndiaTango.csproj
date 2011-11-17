@@ -119,6 +119,7 @@
     <Compile Include="ViewModels\ContactEditorViewModel.cs" />
     <Compile Include="ViewModels\CalibrateSensorsViewModel.cs" />
     <Compile Include="ViewModels\EditSensorViewModel.cs" />
+    <Compile Include="ViewModels\EditSiteDataViewModel.cs" />
     <Compile Include="ViewModels\ErroneousValuesDetectionViewModel.cs" />
     <Compile Include="ViewModels\ExportToImageViewModel.cs" />
     <Compile Include="ViewModels\ExportViewModel.cs" />
@@ -142,6 +143,9 @@
     </Compile>
     <Compile Include="Views\CalibrateSensorsView.xaml.cs">
       <DependentUpon>CalibrateSensorsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EditSiteDataView.xaml.cs">
+      <DependentUpon>EditSiteDataView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ErroneousValuesDetectionView.xaml.cs">
       <DependentUpon>ErroneousValuesDetectionView.xaml</DependentUpon>
@@ -241,6 +245,10 @@
     <Page Include="Views\CalibrateSensorsView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\EditSiteDataView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\ErroneousValuesDetectionView.xaml">
       <SubType>Designer</SubType>
