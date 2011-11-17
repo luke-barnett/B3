@@ -13,6 +13,12 @@
                 <cal:Parameter Value="$eventArgs" />
             </cal:ActionMessage>
         </i:EventTrigger>
+        <models:InputBindingTrigger>
+            <models:InputBindingTrigger.InputBinding>
+                <KeyBinding Modifiers="Ctrl" Key="S" />
+            </models:InputBindingTrigger.InputBinding>
+            <cal:ActionMessage MethodName="Save" />
+        </models:InputBindingTrigger>
     </i:Interaction.Triggers>
 
     <Window.Resources>
