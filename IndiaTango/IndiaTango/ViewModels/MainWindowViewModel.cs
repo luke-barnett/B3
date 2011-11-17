@@ -109,7 +109,6 @@ namespace IndiaTango.ViewModels
             {
                 _currentDataset = value;
                 Debug.WriteLine("Updating for new Dataset");
-                //TODO: Refresh the everythings
                 UpdateGUI();
             }
         }
@@ -285,16 +284,10 @@ namespace IndiaTango.ViewModels
 
         private void UpdateGraph()
         {
-            ChartTitle = (_selectedSensors.Count > 0) ? (string.IsNullOrWhiteSpace(_selectedSensors[0].Sensor.Depth.ToString())
-                                   ? string.Format("{0}", _selectedSensors[0].Sensor.Name)
-                                   : string.Format("{0} [{1}]", _selectedSensors[0].Sensor.Name,
-                                                   _selectedSensors[0].Sensor.Depth)) : String.Empty;
+            ChartTitle = (_selectedSensors.Count > 0) ? string.Format("{0} [{1}m]", _selectedSensors[0].Sensor.Name, _selectedSensors[0].Sensor.Depth) : String.Empty;
 
             for (var i = 1; i < _selectedSensors.Count; i++)
-                ChartTitle += (string.IsNullOrWhiteSpace(_selectedSensors[i].Sensor.Depth.ToString())
-                                   ? string.Format(" and {0}", _selectedSensors[i].Sensor.Name)
-                                   : string.Format(" and {0} [{1}]", _selectedSensors[i].Sensor.Name,
-                                                   _selectedSensors[i].Sensor.Depth));
+                ChartTitle += string.Format(" and {0} [{1}m]", _selectedSensors[i].Sensor.Name, _selectedSensors[i].Sensor.Depth);
 
             YAxisTitle = ((from sensor in _selectedSensors select sensor.Sensor.Unit).Distinct().Count() == 1) ? _selectedSensors[0].Sensor.Unit : String.Empty;
 
@@ -350,7 +343,7 @@ namespace IndiaTango.ViewModels
                     maximum = last;
             }
 
-            if(minimum > maximum)
+            if (minimum > maximum)
             {
                 var temp = minimum;
                 minimum = maximum;
@@ -443,7 +436,24 @@ namespace IndiaTango.ViewModels
         /// </summary>
         public void Save()
         {
+            if (CurrentDataset == null)
+                return;
 
+            var bw = new BackgroundWorker();
+
+            bw.DoWork += (o, e) =>
+                             {
+                                 WaitEventString = string.Format("Saving {0} to file", CurrentDataset.Site.Name);
+                                 CurrentDataset.SaveToFile();
+                             };
+            bw.RunWorkerCompleted += (o, e) =>
+                                         {
+                                             ShowProgressArea = false;
+                                             //TODO: Renable locked out features
+                                         };
+            ProgressIndeterminate = true;
+            ShowProgressArea = true;
+            bw.RunWorkerAsync();
         }
 
         /// <summary>
@@ -584,7 +594,7 @@ namespace IndiaTango.ViewModels
         {
             Debug.Print("Current selected value is {0}", dataGrid.SelectedValue);
             Debug.Print("The editing element is a {0}", eventArgs.EditingElement);
-            if((string)eventArgs.Column.Header == "Depth")
+            if ((string)eventArgs.Column.Header == "Depth")
             {
                 try
                 {
