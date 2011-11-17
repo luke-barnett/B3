@@ -4,7 +4,9 @@
         xmlns:cal="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:charts="clr-namespace:Visiblox.Charts;assembly=Visiblox.Charts"
-        xmlns:multiseries="clr-namespace:IndiaTango.MultiSeriesBinding" Title="{Binding Title}" Icon="{Binding Icon}" Height="600" Width="800">
+        xmlns:multiseries="clr-namespace:IndiaTango.MultiSeriesBinding"
+        xmlns:models="clr-namespace:IndiaTango.Models"
+        Title="{Binding Title}" Icon="{Binding Icon}" Height="600" Width="800">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closing">
             <cal:ActionMessage MethodName="ClosingRequested">
@@ -12,6 +14,10 @@
             </cal:ActionMessage>
         </i:EventTrigger>
     </i:Interaction.Triggers>
+
+    <Window.Resources>
+        <models:IntegerStringConverter x:Key="intStringConverter" />
+    </Window.Resources>
 
     <Grid x:Name="LayoutRoot">
         <Grid.RowDefinitions>
@@ -80,11 +86,11 @@
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                             <DataGridTextColumn Header="Name" Binding="{Binding Sensor.Name}" />
-                            <DataGridTextColumn Header="Depth" Binding="{Binding Sensor.Depth}" />
-                            <DataGridTextColumn Header="Unit" Binding="{Binding Sensor.Unit}" />
-                            <DataGridTextColumn Header="Upper Limit" Binding="{Binding Sensor.UpperLimit}" />
-                            <DataGridTextColumn Header="Lower Limit" Binding="{Binding Sensor.LowerLimit}" />
-                            <DataGridTextColumn Header="Max Rate of Change" Binding="{Binding Sensor.MaxRateOfChange}" />
+                            <DataGridTextColumn Header="Depth" Binding="{Binding Sensor.Depth, Converter={StaticResource intStringConverter}}" />
+                            <DataGridTextColumn Header="Unit" Binding="{Binding Sensor.Unit}"/>
+                            <DataGridTextColumn Header="Upper Limit" Binding="{Binding Sensor.UpperLimit, Converter={StaticResource intStringConverter}}" />
+                            <DataGridTextColumn Header="Lower Limit" Binding="{Binding Sensor.LowerLimit, Converter={StaticResource intStringConverter}}" />
+                            <DataGridTextColumn Header="Max Rate of Change" Binding="{Binding Sensor.MaxRateOfChange, Converter={StaticResource intStringConverter}}" />
                             <DataGridTextColumn Header="Manufacturer" Binding="{Binding Sensor.Manufacturer}" />
                             <DataGridTextColumn Header="Serial Number" Binding="{Binding Sensor.SerialNumber}" />
                             <DataGridTextColumn Header="Description" Binding="{Binding Sensor.Description}" />

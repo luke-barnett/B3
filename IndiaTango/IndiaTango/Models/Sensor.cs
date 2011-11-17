@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
@@ -8,27 +9,31 @@ using System.Windows.Media;
 
 namespace IndiaTango.Models
 {
-    public enum SummaryType { Average=0, Sum=1 }
+    public enum SummaryType { Average = 0, Sum = 1 }
     /// <summary>
     /// Represents a Sensor, which resembles a sensor attached to a buoy, measuring a given water quality parameter.
     /// </summary>
     [Serializable]
     [DataContract]
-    public class Sensor
+    public class Sensor : INotifyPropertyChanged
     {
         #region Private Members
         private Stack<SensorState> _undoStack;
         private Stack<SensorState> _redoStack;
         private List<DateTime> _calibrationDates;
         private string _name;
+        private string _description;
+        private string _depth;
         private string _unit;
+        private float _maxRateOfChange;
+        private string _manufacturer;
         private int _errorThreshold;
         private string _serialNumber;
+        private Colour _colour;
         private float _lowerLimit;
         private float _upperLimit;
         private SummaryType _summaryType;
         #endregion
-
 
         #region Constructors
         /// <summary>
@@ -78,7 +83,7 @@ namespace IndiaTango.Models
         /// <param name="owner">The dataset owner of the sensor</param>
         public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, string manufacturer, string serial, Stack<SensorState> undoStack, Stack<SensorState> redoStack, List<DateTime> calibrationDates, Dataset owner) : this(name, description, upperLimit, lowerLimit, unit, maxRateOfChange, manufacturer, serial, undoStack, redoStack, calibrationDates, Properties.Settings.Default.DefaultErrorThreshold, owner) { }
 
-         /// <summary>
+        /// <summary>
         /// Creates a new sensor.
         /// </summary>
         /// <param name="name">The name of the sensor.</param>
@@ -94,7 +99,7 @@ namespace IndiaTango.Models
         /// <param name="calibrationDates">A list of dates, on which calibration was performed.</param>
         /// <param name="errorThreshold">The number of times a failure-indicating value can occur before this sensor is flagged as failing.</param>
         /// <param name="owner">The dataset that owns the sensor</param>
-        public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, string manufacturer, string serial, Stack<SensorState> undoStack, Stack<SensorState> redoStack, List<DateTime> calibrationDates, int errorThreshold, Dataset owner):this(name,description,upperLimit,lowerLimit,unit,maxRateOfChange,manufacturer,serial,undoStack,redoStack,calibrationDates,errorThreshold,owner,SummaryType.Average){}
+        public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, string manufacturer, string serial, Stack<SensorState> undoStack, Stack<SensorState> redoStack, List<DateTime> calibrationDates, int errorThreshold, Dataset owner) : this(name, description, upperLimit, lowerLimit, unit, maxRateOfChange, manufacturer, serial, undoStack, redoStack, calibrationDates, errorThreshold, owner, SummaryType.Average) { }
 
         /// <summary>
         /// Creates a new sensor.
@@ -116,25 +121,25 @@ namespace IndiaTango.Models
         public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, string manufacturer, string serial, Stack<SensorState> undoStack, Stack<SensorState> redoStack, List<DateTime> calibrationDates, int errorThreshold, Dataset owner, SummaryType sType)
         {
             if (name == "")
-                throw new ArgumentNullException("Sensor name cannot be empty.");
+                throw new ArgumentNullException("Name");
 
             if (unit == "")
-                throw new ArgumentNullException("Sensor Unit cannot be empty.");
+                throw new ArgumentNullException("Unit");
 
             if (serial == null)
-                throw new ArgumentNullException("Serial Number cannot be null.");
+                throw new ArgumentNullException("Serial");
 
             if (calibrationDates == null)
-                throw new ArgumentNullException("The list of calibration dates cannot be null.");
+                throw new ArgumentNullException("CalibrationDates");
 
             if (undoStack == null)
-                throw new ArgumentNullException("The undo stack cannot be null");
+                throw new ArgumentNullException("UndoStack");
 
             if (redoStack == null)
-                throw new ArgumentNullException("The redo stack cannot be null.");
+                throw new ArgumentNullException("RedoStack");
 
-            if(upperLimit <= lowerLimit)
-                throw new ArgumentOutOfRangeException("Upper limit for this sensor must be greater than the lower limit.");
+            if (upperLimit <= lowerLimit)
+                throw new ArgumentOutOfRangeException("UpperLimit");
 
             _name = name;
             RawName = name;
@@ -175,7 +180,7 @@ namespace IndiaTango.Models
             {
                 // Return a stack that cannot be modified externally
                 // Since it going to be iterated over in order anyway (and there'll only be approx. 5 times at any one time)...
-				return _redoStack.ToList().AsReadOnly();
+                return _redoStack.ToList().AsReadOnly();
             }
         }
 
@@ -188,7 +193,7 @@ namespace IndiaTango.Models
             get { return _undoStack; }
             set
             {
-                if(value == null)
+                if (value == null)
                     throw new FormatException("The undo stack cannot be null.");
 
                 _undoStack = value;
@@ -204,7 +209,7 @@ namespace IndiaTango.Models
             get { return _redoStack; }
             set
             {
-                if(value == null)
+                if (value == null)
                     throw new FormatException("The redo stack cannot be null.");
 
                 _redoStack = value;
@@ -220,7 +225,7 @@ namespace IndiaTango.Models
             get { return _calibrationDates; }
             set
             {
-                if(value == null)
+                if (value == null)
                     throw new FormatException("The list of calibration dates cannot be null.");
 
                 _calibrationDates = value;
@@ -240,12 +245,11 @@ namespace IndiaTango.Models
         public string Name
         {
             get { return _name; }
-            set 
+            set
             {
-                if (value == "")
-                    throw new FormatException("Sensor name cannot be empty.");
-
-                _name = value; 
+                if (value != "")
+                    _name = value;
+                FirePropertyChanged("Name");
             }
         }
 
@@ -253,13 +257,29 @@ namespace IndiaTango.Models
         /// Gets or sets the description of this sensor's purpose or function.
         /// </summary>
         [DataMember]
-        public string Description { get; set; }
+        public string Description
+        {
+            get { return _description; }
+            set
+            {
+                _description = value;
+                FirePropertyChanged("Description");
+            }
+        }
 
         /// <summary>
         /// Gets or sets the depth of the sensor
         /// </summary>
         [DataMember]
-        public string Depth { get; set; }
+        public string Depth
+        {
+            get { return _depth; }
+            set
+            {
+                _depth = value;
+                FirePropertyChanged("Depth");
+            }
+        }
 
         /// <summary>
         /// Gets or sets the lower limit for values reported by this sensor.
@@ -270,10 +290,16 @@ namespace IndiaTango.Models
             get { return _lowerLimit; }
             set
             {
-                if(value > UpperLimit)
-                    throw new ArgumentOutOfRangeException("Lower limit must be lower than upper limit.");
+                if (value > UpperLimit)
+                {
+                    _lowerLimit = UpperLimit;
+                    UpperLimit = value;
+                    EventLogger.LogSensorInfo(Owner, Name, "Swapping Upper and Lower Limit as Lower Limit > Upper Limit");
+                }
+                else
+                    _lowerLimit = value;
 
-                _lowerLimit = value;
+                FirePropertyChanged("LowerLimit");
             }
         }
 
@@ -286,10 +312,15 @@ namespace IndiaTango.Models
             get { return _upperLimit; }
             set
             {
-                if(value < LowerLimit)
-                    throw new ArgumentOutOfRangeException("Upper limit must be greater than lower limit.");
-
-                _upperLimit = value;
+                if (value < LowerLimit)
+                {
+                    _upperLimit = LowerLimit;
+                    LowerLimit = value;
+                    EventLogger.LogSensorInfo(Owner, Name, "Swapping Upper and Lower Limit as Upper Limit < Lower Limit");
+                }
+                else
+                    _upperLimit = value;
+                FirePropertyChanged("UpperLimit");
             }
         }
 
@@ -302,8 +333,9 @@ namespace IndiaTango.Models
             get { return _unit; }
             set
             {
-                if(value == "") throw new FormatException("Sensor Unit cannot be empty.");
-                _unit = value;
+                if (value != "")
+                    _unit = value;
+                FirePropertyChanged("Unit");
             }
         }
 
@@ -311,13 +343,33 @@ namespace IndiaTango.Models
         /// Gets or sets the maximum rate of change allowed for values reported by this sensor.
         /// </summary>
         [DataMember]
-        public float MaxRateOfChange { get; set; }
+        public float MaxRateOfChange
+        {
+            get
+            {
+                return _maxRateOfChange;
+            }
+            set
+            {
+                _maxRateOfChange = value;
+                FirePropertyChanged("MaxRateOfChange");
+            }
+        }
 
         /// <summary>
         /// Gets or sets the name of the manufacturer of this sensor.
         /// </summary>
         [DataMember]
-        public string Manufacturer { get; set; }
+        public string Manufacturer
+        {
+            get { return _manufacturer; }
+
+            set
+            {
+                _manufacturer = value;
+                FirePropertyChanged("Manufacturer");
+            }
+        }
 
         /// <summary>
         /// Gets or sets the serial number of this sensor
@@ -329,9 +381,10 @@ namespace IndiaTango.Models
             set
             {
                 if (value == null)
-                    throw new ArgumentNullException("The serial number for this sensor cannot be null.");
+                    throw new ArgumentNullException(string.Format("{0} cannot be null", "Serial Number"));
 
                 _serialNumber = value;
+                FirePropertyChanged("SerialNumber");
             }
         }
 
@@ -344,15 +397,23 @@ namespace IndiaTango.Models
         /// The colour to use when graphing the sensor
         /// </summary>
         [DataMember]
-        public Colour Colour { get; set; }
+        public Colour Colour
+        {
+            get { return _colour; }
+            set
+            {
+                _colour = value;
+                FirePropertyChanged("Colour");
+            }
+        }
 
         [DataMember]
         public int ErrorThreshold
-        { 
+        {
             get { return _errorThreshold; }
             set
             {
-                if (value < 1) 
+                if (value < 1)
                     throw new ArgumentException("Error threshold for any given sensor must be at least 1.");
 
                 _errorThreshold = value;
@@ -381,7 +442,7 @@ namespace IndiaTango.Models
             if (dataset == null)
                 throw new NullReferenceException("You must provide a non-null dataset.");
 
-            if(CurrentState == null)
+            if (CurrentState == null)
                 throw new NullReferenceException("No active sensor state exists for this sensor, so you can't detect whether it is failing or not.");
 
             if (CurrentState.Values.Count == 0)
@@ -412,7 +473,11 @@ namespace IndiaTango.Models
         public SummaryType SummaryType
         {
             get { return _summaryType; }
-            set { _summaryType = value; }
+            set
+            {
+                _summaryType = value;
+                FirePropertyChanged("SummaryType");
+            }
         }
         #endregion
 
@@ -423,7 +488,7 @@ namespace IndiaTango.Models
         public void Undo()
         {
             // This is because the undo stack has to have at least one item on it - the current state
-            if(UndoStack.Count < 1)
+            if (UndoStack.Count < 1)
                 throw new InvalidOperationException("Undo is not possible at this stage. There are no more possible states to undo to.");
 
             RedoStack.Push(UndoStack.Pop());
@@ -434,7 +499,7 @@ namespace IndiaTango.Models
         /// </summary>
         public void Redo()
         {
-            if(RedoStack.Count == 0)
+            if (RedoStack.Count == 0)
                 throw new InvalidOperationException("Redo is not possible at this stage. There are no more possible states to redo to.");
 
             UndoStack.Push(RedoStack.Pop());
@@ -446,17 +511,17 @@ namespace IndiaTango.Models
         /// <param name="newState"></param>
         public void AddState(SensorState newState)
         {
-            if(UndoStack.Count == 5)
+            if (UndoStack.Count == 5)
             {
                 // Remove from the bottom, so reverse and pop, then reverse again
                 var reverse = new Stack<SensorState>();
 
-                while(_undoStack.Count > 0)
+                while (_undoStack.Count > 0)
                     reverse.Push(_undoStack.Pop());
 
                 reverse.Pop();
 
-                while(reverse.Count > 0)
+                while (reverse.Count > 0)
                     UndoStack.Push(reverse.Pop());
             }
 
@@ -466,8 +531,8 @@ namespace IndiaTango.Models
 
         public void RevertToRaw()
         {
-			while(UndoStack.Count > 0)
-				RedoStack.Push(UndoStack.Pop());
+            while (UndoStack.Count > 0)
+                RedoStack.Push(UndoStack.Pop());
 
             UndoStack.Clear();
         }
@@ -489,7 +554,7 @@ namespace IndiaTango.Models
             if (sensor != null)
             {
                 // Exists
-                while(UndoStack.Count > 0)
+                while (UndoStack.Count > 0)
                 {
                     // Keep undoing until at desired state
                     if (UndoStack.Peek() != sensor)
@@ -532,18 +597,27 @@ namespace IndiaTango.Models
             // The experts can then specify the depth
             var r = new Regex("(([A-Z])[a-z]*)");
 
-            MatchCollection mc = r.Matches(Name);
+            var mc = r.Matches(Name);
 
             if (mc.Count > 0)
             {
                 if (mc.Count == 1)
                     return mc[0].Captures[0].Value;
-                else
-                    return mc[0].Captures[0].Value + mc[1].Captures[0].Value;
+                return mc[0].Captures[0].Value + mc[1].Captures[0].Value;
             }
-            else
-                return Name;
 
+            return Name;
+        }
+
+        [field: NonSerialized]
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void FirePropertyChanged(string propertyThatChanged)
+        {
+            if (PropertyChanged != null && !string.IsNullOrWhiteSpace(propertyThatChanged))
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyThatChanged));
+            }
         }
     }
 }
