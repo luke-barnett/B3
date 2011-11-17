@@ -352,13 +352,13 @@ namespace IndiaTango.ViewModels
         /// </summary>
         private void RedrawGraph()
         {
-            ChartTitle = (_selectedSensors.Count > 0) ? (string.IsNullOrWhiteSpace(_selectedSensors[0].Sensor.Depth)
+            ChartTitle = (_selectedSensors.Count > 0) ? (string.IsNullOrWhiteSpace(_selectedSensors[0].Sensor.Depth.ToString())
                                    ? string.Format(" and {0}", _selectedSensors[0].Sensor.Name)
                                    : string.Format(" and {0} [{1}]", _selectedSensors[0].Sensor.Name,
                                                    _selectedSensors[0].Sensor.Depth)) : String.Empty;
 
             for (var i = 1; i < _selectedSensors.Count; i++)
-                ChartTitle += (string.IsNullOrWhiteSpace(_selectedSensors[i].Sensor.Depth)
+                ChartTitle += (string.IsNullOrWhiteSpace(_selectedSensors[i].Sensor.Depth.ToString())
                                    ? string.Format(" and {0}", _selectedSensors[i].Sensor.Name)
                                    : string.Format(" and {0} [{1}]", _selectedSensors[i].Sensor.Name,
                                                    _selectedSensors[i].Sensor.Depth));

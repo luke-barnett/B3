@@ -23,7 +23,7 @@ namespace IndiaTango.Models
         private List<DateTime> _calibrationDates;
         private string _name;
         private string _description;
-        private string _depth;
+        private float _depth;
         private string _unit;
         private float _maxRateOfChange;
         private string _manufacturer;
@@ -271,7 +271,7 @@ namespace IndiaTango.Models
         /// Gets or sets the depth of the sensor
         /// </summary>
         [DataMember]
-        public string Depth
+        public float Depth
         {
             get { return _depth; }
             set

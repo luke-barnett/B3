@@ -159,7 +159,7 @@ namespace IndiaTango.ViewModels
                 if (_selectedSensor == null)
                     return string.Format("[{0}] Erroneous Values Detection", (_dataset != null) ? _sensorList[0].Sensor.Owner.IdentifiableName : Common.UnknownSite);
                 return string.Format("[{0}] Erroneous Values Detection - {1} {2}",
-                                     (_dataset != null) ? _sensorList[0].Sensor.Owner.IdentifiableName : Common.UnknownSite, _selectedSensor.Sensor.Name, (!string.IsNullOrWhiteSpace(_selectedSensor.Sensor.Depth) ? string.Format("[{0}]", _selectedSensor.Sensor.Depth) : ""));
+                                     (_dataset != null) ? _sensorList[0].Sensor.Owner.IdentifiableName : Common.UnknownSite, _selectedSensor.Sensor.Name, (!string.IsNullOrWhiteSpace(_selectedSensor.Sensor.Depth.ToString()) ? string.Format("[{0}]", _selectedSensor.Sensor.Depth) : ""));
             }
         }
 

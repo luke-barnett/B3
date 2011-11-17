@@ -16,7 +16,7 @@
     </i:Interaction.Triggers>
 
     <Window.Resources>
-        <models:IntegerStringConverter x:Key="intStringConverter" />
+        <models:FloatStringConverter x:Key="floatStringConverter" />
     </Window.Resources>
 
     <Grid x:Name="LayoutRoot">
@@ -86,11 +86,11 @@
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                             <DataGridTextColumn Header="Name" Binding="{Binding Sensor.Name}" />
-                            <DataGridTextColumn Header="Depth" Binding="{Binding Sensor.Depth, Converter={StaticResource intStringConverter}}" />
+                            <DataGridTextColumn Header="Depth (m)" Binding="{Binding Sensor.Depth, Converter={StaticResource floatStringConverter}}" />
                             <DataGridTextColumn Header="Unit" Binding="{Binding Sensor.Unit}"/>
-                            <DataGridTextColumn Header="Upper Limit" Binding="{Binding Sensor.UpperLimit, Converter={StaticResource intStringConverter}}" />
-                            <DataGridTextColumn Header="Lower Limit" Binding="{Binding Sensor.LowerLimit, Converter={StaticResource intStringConverter}}" />
-                            <DataGridTextColumn Header="Max Rate of Change" Binding="{Binding Sensor.MaxRateOfChange, Converter={StaticResource intStringConverter}}" />
+                            <DataGridTextColumn Header="Upper Limit" Binding="{Binding Sensor.UpperLimit, Converter={StaticResource floatStringConverter}}" />
+                            <DataGridTextColumn Header="Lower Limit" Binding="{Binding Sensor.LowerLimit, Converter={StaticResource floatStringConverter}}" />
+                            <DataGridTextColumn Header="Max Rate of Change" Binding="{Binding Sensor.MaxRateOfChange, Converter={StaticResource floatStringConverter}}" />
                             <DataGridTextColumn Header="Manufacturer" Binding="{Binding Sensor.Manufacturer}" />
                             <DataGridTextColumn Header="Serial Number" Binding="{Binding Sensor.SerialNumber}" />
                             <DataGridTextColumn Header="Description" Binding="{Binding Sensor.Description}" />

@@ -320,11 +320,21 @@ namespace IndiaTango.ViewModels
 
         public string SensorDepth
         {
-            get { return _selectedSensor != null ? _selectedSensor.Depth : "!!!!"; }
+            get { return _selectedSensor != null ? _selectedSensor.Depth.ToString() : "!!!!"; }
             set
             {
                 if (_selectedSensor != null)
-                    _selectedSensor.Depth = value;
+                {
+                    try
+                    {
+                        _selectedSensor.Depth = float.Parse(value);
+                    }
+                    catch
+                    {
+                        NotifyOfPropertyChange(() => SensorDepth);
+                    }
+                    
+                }
             }
         }
 
