@@ -155,7 +155,17 @@
                         </charts:Chart.XAxis>
                     </charts:Chart>
                     <GroupBox Grid.Row="1" Header="Graph Options" BorderBrush="OrangeRed" Margin="0,0,5,0">
-
+                        <Grid Margin="5">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <StackPanel Grid.Row="0" Orientation="Horizontal">
+                                <TextBlock Text="Range:" VerticalAlignment="Center" Margin="0,0,5,0" />
+                                <toolkit:DateTimePicker Width="125" Value="{Binding StartTime, UpdateSourceTrigger=PropertyChanged}" Format="Custom" FormatString="dd/MM/yy HH:mm" IsEnabled="{Binding CanEditDates}" cal:Message.Attach="[Event ValueChanged] = [Action StartTimeChanged($eventArgs)]" />
+                                <TextBlock Text=" - to - " VerticalAlignment="Center" Margin="5,0" />
+                                <toolkit:DateTimePicker Width="125" Value="{Binding EndTime, UpdateSourceTrigger=PropertyChanged}" Format="Custom" FormatString="dd/MM/yy HH:mm" IsEnabled="{Binding CanEditDates}" cal:Message.Attach="[Event ValueChanged] = [Action EndTimeChanged($eventArgs)]" />
+                            </StackPanel>
+                        </Grid>
                     </GroupBox>
                 </Grid>
             </Grid>

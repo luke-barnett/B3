@@ -279,6 +279,10 @@ namespace IndiaTango.ViewModels
         /// The end of the time period being displayed
         /// </summary>
         public DateTime EndTime { get { return _endTime; } set { _endTime = value; NotifyOfPropertyChange(() => EndTime); } }
+        /// <summary>
+        /// Determines if the date range should be shown based on if things are being graphed or not
+        /// </summary>
+        public bool CanEditDates { get { return (_selectedSensors.Count > 0); } }
         #endregion
 
         /// <summary>
@@ -629,6 +633,7 @@ namespace IndiaTango.ViewModels
 
             SampleValues(Common.MaximumGraphablePoints, _selectedSensors);
             CalculateGraphedEndPoints();
+            NotifyOfPropertyChange(() => CanEditDates);
         }
 
         #endregion
@@ -681,6 +686,48 @@ namespace IndiaTango.ViewModels
         public void ShowCurrentSiteInformation()
         {
             ShowSiteInformation(CurrentDataset);
+        }
+
+        /// <summary>
+        /// Fired when the start date is changed
+        /// </summary>
+        /// <param name="e">The event arguments about the new date</param>
+        public void StartTimeChanged(RoutedPropertyChangedEventArgs<object> e)
+        {
+            if (e == null)
+                return;
+
+            if (e.OldValue == null || (DateTime)e.OldValue == new DateTime() || (DateTime)e.NewValue < EndTime)
+                StartTime = (DateTime)e.NewValue;
+            else
+                StartTime = (DateTime)e.OldValue;
+
+            foreach (var sensor in _selectedSensors)
+            {
+                sensor.SetUpperAndLowerBounds(StartTime, EndTime);
+            }
+            SampleValues(Common.MaximumGraphablePoints, _selectedSensors);
+        }
+
+        /// <summary>
+        /// Fired when the end date is changed
+        /// </summary>
+        /// <param name="e">The event arguments about the new date</param>
+        public void EndTimeChanged(RoutedPropertyChangedEventArgs<object> e)
+        {
+            if (e == null)
+                return;
+
+            if (e.OldValue == null || (DateTime)e.OldValue == new DateTime() || (DateTime)e.NewValue > StartTime)
+                EndTime = (DateTime)e.NewValue;
+            else
+                EndTime = (DateTime)e.OldValue;
+
+            foreach (var sensor in _selectedSensors)
+            {
+                sensor.SetUpperAndLowerBounds(StartTime, EndTime);
+            }
+            SampleValues(Common.MaximumGraphablePoints, _selectedSensors);
         }
 
         #endregion
