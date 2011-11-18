@@ -53,6 +53,12 @@ namespace IndiaTango.ViewModels
             behaviourManager.Behaviours.Add(zoomBehaviour);
             #endregion
 
+            #region Background Behaviour
+            _background = new Canvas { Visibility = Visibility.Collapsed };
+            var backgroundBehaviour = new GraphBackgroundBehaviour(_background);
+            behaviourManager.Behaviours.Add(backgroundBehaviour);
+            #endregion
+
             Behaviour = behaviourManager;
 
             #endregion
@@ -94,7 +100,10 @@ namespace IndiaTango.ViewModels
         private DateTime _startTime;
         private DateTime _endTime;
         private bool _inSelectionMode;
+        private int _samplingOptionIndex = 3;
+        private readonly Canvas _background;
         #endregion
+
         #endregion
 
         #region Public Parameters
@@ -272,6 +281,34 @@ namespace IndiaTango.ViewModels
         public DateTime EndTime { get { return _endTime; } set { _endTime = value; NotifyOfPropertyChange(() => EndTime); } }
         #endregion
 
+        /// <summary>
+        /// The available sampling options
+        /// </summary>
+        public List<string> SamplingOptions
+        {
+            get { return Common.GenerateSamplingCaps(); }
+        }
+
+        public int SamplingOptionIndex
+        {
+            get { return _samplingOptionIndex; }
+            set
+            {
+                _samplingOptionIndex = value;
+                NotifyOfPropertyChange(() => SamplingOptionIndex);
+                try
+                {
+                    Common.MaximumGraphablePoints = int.Parse(SamplingOptions[SamplingOptionIndex]);
+                }
+                catch
+                {
+                    Common.MaximumGraphablePoints = int.MaxValue;
+                }
+
+                SampleValues(Common.MaximumGraphablePoints, _selectedSensors);
+            }
+        }
+
         #endregion
 
         #region Private Methods
@@ -316,12 +353,12 @@ namespace IndiaTango.ViewModels
 
         private void HideBackground()
         {
-            //TODO: Write This
+            _background.Visibility = Visibility.Collapsed;
         }
 
         private void ShowBackground()
         {
-            //TODO: Write this
+            _background.Visibility = Visibility.Visible;
         }
 
         private void CalculateGraphedEndPoints()

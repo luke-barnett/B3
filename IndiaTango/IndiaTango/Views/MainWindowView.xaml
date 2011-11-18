@@ -6,7 +6,7 @@
         xmlns:charts="clr-namespace:Visiblox.Charts;assembly=Visiblox.Charts"
         xmlns:multiseries="clr-namespace:IndiaTango.MultiSeriesBinding"
         xmlns:models="clr-namespace:IndiaTango.Models"
-        Title="{Binding Title}" Icon="{Binding Icon}" Height="600" Width="800">
+        Title="{Binding Title}" Icon="{Binding Icon}" Height="600" Width="900" WindowStartupLocation="CenterScreen">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closing">
             <cal:ActionMessage MethodName="ClosingRequested">
@@ -119,9 +119,13 @@
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0" x:Name="RightSectionHeader">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                        <TextBlock Text="Graphed Points:" VerticalAlignment="Center" />
+                        <ComboBox ItemsSource="{Binding SamplingOptions}" Margin="10,0,0,0" Width="100" SelectedIndex="{Binding SamplingOptionIndex, Mode=TwoWay}" />
+                    </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <TextBlock Text="Current Site:" Margin="10,0" VerticalAlignment="Center" />
-                        <ComboBox ItemsSource="{Binding SiteNames}" Width="150" SelectedIndex="{Binding ChosenSelectedIndex, Mode=TwoWay}" cal:Message.Attach="[Event SelectionChanged] = [Action UpdateSelectedSite]" />
+                        <ComboBox ItemsSource="{Binding SiteNames}" Width="120" SelectedIndex="{Binding ChosenSelectedIndex, Mode=TwoWay}" cal:Message.Attach="[Event SelectionChanged] = [Action UpdateSelectedSite]" />
                         <Button Margin="10,0" Content="Site Information" cal:Message.Attach="[Event Click] = [Action ShowCurrentSiteInformation]" />
                     </StackPanel>
                 </Grid>
