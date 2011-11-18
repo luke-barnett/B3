@@ -319,19 +319,6 @@ namespace IndiaTango.ViewModels
             NotifyOfPropertyChange(() => GraphableSensors);
         }
 
-        private void UpdateGraph()
-        {
-            ChartTitle = (_selectedSensors.Count > 0) ? string.Format("{0} [{1}m]", _selectedSensors[0].Sensor.Name, _selectedSensors[0].Sensor.Depth) : String.Empty;
-
-            for (var i = 1; i < _selectedSensors.Count; i++)
-                ChartTitle += string.Format(" and {0} [{1}m]", _selectedSensors[i].Sensor.Name, _selectedSensors[i].Sensor.Depth);
-
-            YAxisTitle = ((from sensor in _selectedSensors select sensor.Sensor.Unit).Distinct().Count() == 1) ? _selectedSensors[0].Sensor.Unit : String.Empty;
-
-            SampleValues(Common.MaximumGraphablePoints, _selectedSensors);
-            CalculateGraphedEndPoints();
-        }
-
         private void SampleValues(int numberOfPoints, ICollection<GraphableSensor> sensors)
         {
             var generatedSeries = new List<LineSeries>();
@@ -625,6 +612,23 @@ namespace IndiaTango.ViewModels
             //TODO: Freeze all users work while we load
 
             bw.RunWorkerAsync();
+        }
+
+        /// <summary>
+        /// Updates the Graph
+        /// </summary>
+        public void UpdateGraph()
+        {
+            Debug.WriteLine("Updating Graph");
+            ChartTitle = (_selectedSensors.Count > 0) ? string.Format("{0} [{1}m]", _selectedSensors[0].Sensor.Name, _selectedSensors[0].Sensor.Depth) : String.Empty;
+
+            for (var i = 1; i < _selectedSensors.Count; i++)
+                ChartTitle += string.Format(" and {0} [{1}m]", _selectedSensors[i].Sensor.Name, _selectedSensors[i].Sensor.Depth);
+
+            YAxisTitle = ((from sensor in _selectedSensors select sensor.Sensor.Unit).Distinct().Count() == 1) ? _selectedSensors[0].Sensor.Unit : String.Empty;
+
+            SampleValues(Common.MaximumGraphablePoints, _selectedSensors);
+            CalculateGraphedEndPoints();
         }
 
         #endregion

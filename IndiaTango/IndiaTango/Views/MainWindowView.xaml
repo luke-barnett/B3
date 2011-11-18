@@ -6,6 +6,7 @@
         xmlns:charts="clr-namespace:Visiblox.Charts;assembly=Visiblox.Charts"
         xmlns:multiseries="clr-namespace:IndiaTango.MultiSeriesBinding"
         xmlns:models="clr-namespace:IndiaTango.Models"
+        xmlns:toolkit="clr-namespace:Microsoft.Windows.Controls;assembly=WPFToolkit.Extended"
         Title="{Binding Title}" Icon="{Binding Icon}" Height="600" Width="900" WindowStartupLocation="CenterScreen">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closing">
@@ -23,6 +24,7 @@
 
     <Window.Resources>
         <models:FloatStringConverter x:Key="floatStringConverter" />
+        <models:ColourConverter x:Key="colourConverter" />
     </Window.Resources>
 
     <Grid x:Name="LayoutRoot">
@@ -45,6 +47,7 @@
         <Grid Grid.Row="1" x:Name="MainSection">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="2*" />
             </Grid.ColumnDefinitions>
 
@@ -54,8 +57,8 @@
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
-                <Grid Grid.Row="0" x:Name="TableSection" Margin="0,0,0,5">
-                    <DataGrid x:Name="DataGrid" ItemsSource="{Binding GraphableSensors}" AlternatingRowBackground="LightGray" AlternationCount="2" AutoGenerateColumns="False" CanUserReorderColumns="True" FrozenColumnCount="3">
+                <GroupBox Grid.Row="0" x:Name="TableSection" Margin="0,0,0,5" Header="Sensors" BorderBrush="OrangeRed">
+                    <DataGrid x:Name="DataGrid" ItemsSource="{Binding GraphableSensors}" AlternatingRowBackground="LightGray" AlternationCount="2" AutoGenerateColumns="False" CanUserReorderColumns="True" FrozenColumnCount="3" BorderThickness="0" Background="Transparent">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="CellEditEnding">
                                 <cal:ActionMessage MethodName="CheckEdit">
@@ -101,27 +104,36 @@
                             <DataGridTextColumn Header="Manufacturer" Binding="{Binding Sensor.Manufacturer}" />
                             <DataGridTextColumn Header="Serial Number" Binding="{Binding Sensor.SerialNumber}" />
                             <DataGridTextColumn Header="Description" Binding="{Binding Sensor.Description}" />
+                            <DataGridTemplateColumn Header="Colour">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <toolkit:ColorPicker Width="40" DisplayColorAndName="False" SelectedColor="{Binding Sensor.Colour, Converter={StaticResource colourConverter}, UpdateSourceTrigger=PropertyChanged}" ShowStandardColors="False" cal:Message.Attach="[Event SelectedColorChanged] = [Action UpdateGraph]" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
-                </Grid>
+                </GroupBox>
 
-                <Grid Grid.Row="1" x:Name="TabSection">
-                    <TabControl>
+                <GroupBox Grid.Row="1" x:Name="TabSection" Header="Detection Methods" BorderBrush="OrangeRed">
+                    <TabControl BorderThickness="0" Background="Transparent">
                         <TabItem Header="Outlier Detection">
 
                         </TabItem>
                     </TabControl>
-                </Grid>
+                </GroupBox>
             </Grid>
-            <Grid Grid.Column="1" x:Name="RightSection" Margin="0,5,10,0">
+            <Rectangle Grid.Column="1" Fill="OrangeRed" Width="0" />
+            <Grid Grid.Column="2" x:Name="RightSection" Margin="5,5,10,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <Grid Grid.Row="0" x:Name="RightSectionHeader">
+                <Grid Grid.Row="0" x:Name="RightSectionHeader" Margin="5,0,0,0">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                        <TextBlock Text="Graphed Points:" VerticalAlignment="Center" />
-                        <ComboBox ItemsSource="{Binding SamplingOptions}" Margin="10,0,0,0" Width="100" SelectedIndex="{Binding SamplingOptionIndex, Mode=TwoWay}" />
+                        <TextBlock Text="Graph" VerticalAlignment="Center" />
+                        <ComboBox ItemsSource="{Binding SamplingOptions}" Margin="3,0,0,0" Width="100" SelectedIndex="{Binding SamplingOptionIndex, Mode=TwoWay}" />
+                        <TextBlock Text="Points" Margin="3,0,0,0" VerticalAlignment="Center" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <TextBlock Text="Current Site:" Margin="10,0" VerticalAlignment="Center" />
@@ -130,6 +142,10 @@
                     </StackPanel>
                 </Grid>
                 <Grid Grid.Row="1" x:Name="GraphSection" Margin="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="100" />
+                    </Grid.RowDefinitions>
                     <charts:Chart x:Name="MainChart" Title="{Binding ChartTitle}" Grid.Row="0" Behaviour="{Binding Behaviour}" multiseries:MultiSeries.Source="{Binding ChartSeries}">
                         <charts:Chart.YAxis>
                             <charts:LinearAxis Title="{Binding YAxisTitle}" Range="{Binding Range, Mode=TwoWay}" />
@@ -138,6 +154,9 @@
                             <charts:DateTimeAxis Title="Date" />
                         </charts:Chart.XAxis>
                     </charts:Chart>
+                    <GroupBox Grid.Row="1" Header="Graph Options" BorderBrush="OrangeRed" Margin="0,0,5,0">
+
+                    </GroupBox>
                 </Grid>
             </Grid>
 
