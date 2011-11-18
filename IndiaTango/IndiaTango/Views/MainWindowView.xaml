@@ -144,7 +144,7 @@
                 <Grid Grid.Row="1" x:Name="GraphSection" Margin="5">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
-                        <RowDefinition Height="100" />
+                        <RowDefinition Height="110" />
                     </Grid.RowDefinitions>
                     <charts:Chart x:Name="MainChart" Title="{Binding ChartTitle}" Grid.Row="0" Behaviour="{Binding Behaviour}" multiseries:MultiSeries.Source="{Binding ChartSeries}">
                         <charts:Chart.YAxis>
@@ -155,8 +155,9 @@
                         </charts:Chart.XAxis>
                     </charts:Chart>
                     <GroupBox Grid.Row="1" Header="Graph Options" BorderBrush="OrangeRed" Margin="0,0,5,0">
-                        <Grid Margin="5">
+                        <Grid Margin="2">
                             <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Orientation="Horizontal">
@@ -165,6 +166,32 @@
                                 <TextBlock Text=" - to - " VerticalAlignment="Center" Margin="5,0" />
                                 <toolkit:DateTimePicker Width="125" Value="{Binding EndTime, UpdateSourceTrigger=PropertyChanged}" Format="Custom" FormatString="dd/MM/yy HH:mm" IsEnabled="{Binding CanEditDates}" cal:Message.Attach="[Event ValueChanged] = [Action EndTimeChanged($eventArgs)]" />
                             </StackPanel>
+                            <Grid Grid.Row="1">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition  Width="80" />
+                                    <ColumnDefinition  Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Y Minium: " VerticalAlignment="Center" HorizontalAlignment="Right" />
+                                <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="0,5">
+                                    <Slider Width="200" />
+                                    <TextBox Text="{Binding Range.Minimum, UpdateSourceTrigger=PropertyChanged}" Width="50" />
+                                </StackPanel>
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Y Maximum: " VerticalAlignment="Center" HorizontalAlignment="Right" />
+                                <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="0,5">
+                                    <Slider Width="200" />
+                                    <TextBox Text="{Binding Range.Maximum, UpdateSourceTrigger=PropertyChanged}" Width="50" />
+                                </StackPanel>
+                            </Grid>
+                            <Button Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/B3;component/Images/export_graph.png" Width="32" Height="32" VerticalAlignment="Center" />
+                                    <TextBlock Text="Export" VerticalAlignment="Center" Margin="5" />
+                                </StackPanel>
+                            </Button>
                         </Grid>
                     </GroupBox>
                 </Grid>
