@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:cal="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro"
-        Title="{Binding Title}" Icon="{Binding Icon}" Height="670" Width="590">
+        Title="{Binding Title}" Icon="{Binding Icon}" Cursor="{Binding ApplicationCursor}" Height="670" Width="590">
     <Grid>
         <GroupBox BorderBrush="OrangeRed" Header="Site Properties" Padding="5" Grid.Row="1" Margin="5">
             <Grid>
@@ -110,13 +110,13 @@
 
                 <Rectangle Fill="OrangeRed" Grid.ColumnSpan="5" Grid.Row="8" Height="3" Margin="0,5" SnapsToDevicePixels="True" Stroke="White" />
                 <StackPanel Grid.Column="1" Grid.ColumnSpan="5" Grid.Row="9" HorizontalAlignment="Right" Orientation="Horizontal">
-                    <Button FontSize="15" HorizontalAlignment="Left" Margin="5" Name="BtnSiteDone" SnapsToDevicePixels="True" VerticalAlignment="Bottom" VerticalContentAlignment="Bottom" Visibility="{Binding DoneCancelVisible}">
+                    <Button FontSize="15" HorizontalAlignment="Left" Margin="5" Name="BtnSiteDone" IsEnabled="{Binding DoneCancelEnabled}" SnapsToDevicePixels="True" VerticalAlignment="Bottom" VerticalContentAlignment="Bottom" Visibility="{Binding DoneCancelVisible}">
                         <StackPanel Orientation="Horizontal">
                             <Image Height="32" Source="/B3;component/Images/save_32.png" Width="32" />
                             <TextBlock Margin="5" Text="Save" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
-                    <Button FontSize="15" HorizontalAlignment="Left" Margin="5" Name="BtnSiteCancel" VerticalAlignment="Bottom" VerticalContentAlignment="Bottom" Visibility="{Binding DoneCancelVisible}">
+                    <Button FontSize="15" HorizontalAlignment="Left" Margin="5" Name="BtnSiteCancel" IsEnabled="{Binding DoneCancelEnabled}" VerticalAlignment="Bottom" VerticalContentAlignment="Bottom" Visibility="{Binding DoneCancelVisible}">
                         <StackPanel Orientation="Horizontal">
                             <Image Height="32" HorizontalAlignment="Left" SnapsToDevicePixels="True" Source="/B3;component/Images/cancel_32.png" VerticalAlignment="Top" Width="32" />
                             <TextBlock Margin="5" Text="Cancel" VerticalAlignment="Center" />

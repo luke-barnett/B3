@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -25,6 +27,11 @@ namespace IndiaTango.ViewModels
             _container = container;
 
             AllContacts = Contact.ImportAll();
+
+            //Hack used to force the damn buttons to update
+            DoneCancelVisible = Visibility.Visible;
+            DoneCancelVisible = Visibility.Collapsed;
+            DoneCancelEnabled = true;
         }
 
         #region Private Parameters
@@ -32,12 +39,15 @@ namespace IndiaTango.ViewModels
         private readonly IWindowManager _windowManager;
         private readonly SimpleContainer _container;
         private Dataset _dataSet;
+        private bool _isNewSite;
         private bool _siteControlsEnabled;
         private ObservableCollection<Contact> _allContacts;
         private bool _hasSelectedPrimaryContact;
         private bool _hasSelectedSecondaryContact;
         private bool _hasSelectedUniversityContact;
+        private bool _doneCancelEnabled;
         private Visibility _doneCancelVisible;
+        private Visibility _createEditDeleteVisible;
         private int _selectedImage;
 
         #region Site Details
@@ -117,6 +127,18 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        public bool IsNewSite
+        {
+            get { return _isNewSite; }
+            set
+            {
+                _isNewSite = value;
+                if (IsNewSite != true)
+                    return;
+                BtnSiteEdit();
+            }
+        }
+
         public string Title
         {
             get { return string.Format("Site: {0}", SiteName); }
@@ -168,6 +190,17 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        public bool DoneCancelEnabled
+        {
+            get { return _doneCancelEnabled; }
+
+            set
+            {
+                _doneCancelEnabled = value;
+                NotifyOfPropertyChange(() => DoneCancelEnabled);
+            }
+        }
+
         public Visibility DoneCancelVisible
         {
             get { return _doneCancelVisible; }
@@ -188,6 +221,17 @@ namespace IndiaTango.ViewModels
         public Visibility EditDeleteVisible
         {
             get { return Visibility.Visible; }
+        }
+
+        public Visibility CreateEditDeleteVisible
+        {
+            get { return _createEditDeleteVisible; }
+            set
+            {
+
+                _createEditDeleteVisible = value;
+                NotifyOfPropertyChange(() => CreateEditDeleteVisible);
+            }
         }
 
         public bool SiteListEnabled
@@ -235,6 +279,9 @@ namespace IndiaTango.ViewModels
             {
                 _primaryContact = value;
                 NotifyOfPropertyChange(() => PrimaryContact);
+
+                if (PrimaryContact != null)
+                    HasSelectedPrimaryContact = true;
             }
         }
 
@@ -245,6 +292,9 @@ namespace IndiaTango.ViewModels
             {
                 _secondaryContact = value;
                 NotifyOfPropertyChange(() => SecondaryContact);
+
+                if (SecondaryContact != null)
+                    HasSelectedSecondaryContact = true;
             }
         }
 
@@ -255,6 +305,9 @@ namespace IndiaTango.ViewModels
             {
                 _universityContact = value;
                 NotifyOfPropertyChange(() => UniversityContact);
+
+                if (UniversityContact != null)
+                    HasSelectedUniversityContact = true;
             }
         }
 
@@ -337,6 +390,49 @@ namespace IndiaTango.ViewModels
             NotifyOfPropertyChange(() => SiteImages);
         }
 
+        private void NewContact()
+        {
+            var editor =
+                _container.GetInstance(typeof(ContactEditorViewModel), "ContactEditorViewModel") as
+                ContactEditorViewModel;
+
+            if (editor == null) return;
+
+            editor.Contact = null;
+            editor.AllContacts = AllContacts;
+
+            _windowManager.ShowDialog(editor);
+        }
+
+        private void DeleteContact(Contact c)
+        {
+            if (!Common.Confirm("Confirm Delete", "Are you sure you want to delete this contact?")) return;
+
+            if (c == null) return;
+            var allContacts = AllContacts;
+            allContacts.Remove(c);
+
+            AllContacts = allContacts;
+
+            Contact.ExportAll(AllContacts);
+
+            Common.ShowMessageBox("Success", "Contact successfully removed.", false, false);
+        }
+
+        private void EditContact(Contact c)
+        {
+            var editor =
+                _container.GetInstance(typeof(ContactEditorViewModel), "ContactEditorViewModel") as
+                ContactEditorViewModel;
+
+            if (editor == null) return;
+
+            editor.Contact = c;
+            editor.AllContacts = AllContacts;
+
+            _windowManager.ShowDialog(editor);
+        }
+
         #endregion
 
         #region Public Methods
@@ -349,17 +445,17 @@ namespace IndiaTango.ViewModels
 
         public void BtnNewPrimary()
         {
-
+            NewContact();
         }
 
         public void BtnEditPrimary()
         {
-
+            EditContact(PrimaryContact);
         }
 
         public void BtnDelPrimary()
         {
-
+            DeleteContact(PrimaryContact);
         }
 
         #endregion
@@ -368,17 +464,17 @@ namespace IndiaTango.ViewModels
 
         public void BtnNewSecondary()
         {
-
+            NewContact();
         }
 
         public void BtnEditSecondary()
         {
-
+            EditContact(SecondaryContact);
         }
 
         public void BtnDelSecondary()
         {
-
+            DeleteContact(SecondaryContact);
         }
 
         #endregion
@@ -387,17 +483,17 @@ namespace IndiaTango.ViewModels
 
         public void BtnNewUni()
         {
-
+            NewContact();
         }
 
         public void BtnEditUni()
         {
-
+            EditContact(UniversityContact);
         }
 
         public void BtnDelUni()
         {
-
+            EditContact(UniversityContact);
         }
 
         #endregion
@@ -451,24 +547,89 @@ namespace IndiaTango.ViewModels
 
         public void BtnSiteDone()
         {
-            
+            try
+            {
+                DataSet.Site.GpsLocation = GPSCoords.Parse(Latitude, Longitude);
+                DataSet.Site.Owner = Owner;
+                DataSet.Site.PrimaryContact = PrimaryContact;
+                DataSet.Site.SecondaryContact = SecondaryContact;
+
+                DataSet.Site.UniversityContact = UniversityContact;
+                DataSet.Site.Images = _siteImages.ToList();
+
+                var bw = new BackgroundWorker();
+
+                bw.DoWork += (o, e) =>
+                                 {
+                                     var oldFile = DataSet.SaveLocation;
+                                     var oldName = DataSet.Site.Name;
+                                     DataSet.Site.Name = SiteName;
+                                     DataSet.SaveToFile();
+
+                                     if (SiteName.CompareTo(oldName) != 0)
+                                     {
+                                         File.Delete(oldFile);
+                                     }
+                                 };
+
+                bw.RunWorkerCompleted += (o, e) =>
+                                             {
+                                                 EventLogger.LogInfo(DataSet, GetType().ToString(), "Site saved. Site name: " + DataSet.Site.Name);
+
+                                                 CreateEditDeleteVisible = Visibility.Visible;
+                                                 DoneCancelVisible = Visibility.Collapsed;
+                                                 DoneCancelEnabled = true;
+                                                 SiteControlsEnabled = false;
+                                                 ApplicationCursor = Cursors.Arrow;
+
+                                                 if(IsNewSite)
+                                                     TryClose();
+                                             };
+
+                ApplicationCursor = Cursors.Wait;
+                DoneCancelEnabled = false;
+                bw.RunWorkerAsync();
+
+            }
+            catch (Exception e)
+            {
+                Common.ShowMessageBox("Error", e.Message, false, true);
+                EventLogger.LogError(DataSet, GetType().ToString(), "Tried to create site but failed. Details: " + e.Message);
+            }
         }
 
         public void BtnSiteCancel()
         {
-            
+
+            DataSet = DataSet;
+
+            CreateEditDeleteVisible = Visibility.Visible;
+            DoneCancelVisible = Visibility.Collapsed;
+            SiteControlsEnabled = false;
+
+            if(IsNewSite)
+                TryClose();
         }
 
         public void BtnSiteEdit()
         {
-            
+            CreateEditDeleteVisible = Visibility.Collapsed;
+            DoneCancelVisible = Visibility.Visible;
+            SiteControlsEnabled = true;
         }
 
         public void BtnSiteDelete()
         {
-            
-        }
+            if (!Common.Confirm("Confirm Delete", "Are you sure you want to delete this site?")) return;
 
+            EventLogger.LogInfo(DataSet, GetType().ToString(), "Site deleted.");
+
+            if (File.Exists(DataSet.SaveLocation))
+                File.Delete(DataSet.SaveLocation);
+
+            Common.ShowMessageBox("Site Management", "Site successfully removed.", false, false);
+            TryClose();
+        }
 
         #endregion
     }

@@ -356,6 +356,37 @@ namespace IndiaTango.ViewModels
             Debug.WriteLine("As a result start {0} and end {1}", StartTime, EndTime);
         }
 
+        private void ShowSiteInformation(Dataset dataSetToShow)
+        {
+            if (dataSetToShow == null)
+            {
+                Common.ShowMessageBox("No Site Selected",
+                                      "To view site information you must first select or create a site", false, false);
+                return;
+            }
+
+            var view = _container.GetInstance(typeof(EditSiteDataViewModel), "EditSiteDataViewModel") as EditSiteDataViewModel;
+
+            if (view == null)
+            {
+                EventLogger.LogError(null, "Loading Site Editor", "Critical! Failed to get a View!!");
+                return;
+            }
+
+            view.DataSet = dataSetToShow;
+
+            if (dataSetToShow.Site.PrimaryContact == null)
+                view.IsNewSite = true;
+
+            view.Deactivated += (o, e) =>
+            {
+                _dataSetFiles = null;
+                NotifyOfPropertyChange(() => SiteNames);
+            };
+
+            _windowManager.ShowDialog(view);
+        }
+
         #endregion
 
         #region Public Methods
@@ -470,10 +501,7 @@ namespace IndiaTango.ViewModels
 
                 newSitesName = "New Site" + x;
             }
-            CurrentDataset = new Dataset(new Site(0, newSitesName, "", null, null, null, null));
-            CurrentDataset.SaveToFile();
-            _dataSetFiles = null;
-            NotifyOfPropertyChange(() => SiteNames);
+            ShowSiteInformation(new Dataset(new Site(0, newSitesName, "", null, null, null, null)));
         }
 
         /// <summary>
@@ -489,6 +517,8 @@ namespace IndiaTango.ViewModels
         /// </summary>
         public void UpdateSelectedSite()
         {
+            if (_chosenSelectedIndex < 0)
+                return;
 
             var saveFirst = false;
 
@@ -607,26 +637,9 @@ namespace IndiaTango.ViewModels
             }
         }
 
-        public void ShowSiteInformation()
+        public void ShowCurrentSiteInformation()
         {
-            if(CurrentDataset == null)
-            {
-                Common.ShowMessageBox("No Site Selected",
-                                      "To view site information you must first select or create a site", false, false);
-                return;
-            }
-
-            var view = _container.GetInstance(typeof(EditSiteDataViewModel), "EditSiteDataViewModel") as EditSiteDataViewModel;
-
-            if (view == null)
-            {
-                EventLogger.LogError(null, "Loading Site Editor", "Critical! Failed to get a View!!");
-                return;
-            }
-
-            view.DataSet = CurrentDataset;
-
-            _windowManager.ShowDialog(view);
+            ShowSiteInformation(CurrentDataset);
         }
 
         #endregion
