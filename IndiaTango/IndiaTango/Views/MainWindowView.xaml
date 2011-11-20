@@ -148,7 +148,7 @@
                     </Grid.RowDefinitions>
                     <charts:Chart x:Name="MainChart" Title="{Binding ChartTitle}" Grid.Row="0" Behaviour="{Binding Behaviour}" multiseries:MultiSeries.Source="{Binding ChartSeries}">
                         <charts:Chart.YAxis>
-                            <charts:LinearAxis Title="{Binding YAxisTitle}" Range="{Binding Range, Mode=TwoWay}" />
+                            <charts:LinearAxis Title="{Binding YAxisTitle}" Range="{Binding Range, UpdateSourceTrigger=PropertyChanged}" />
                         </charts:Chart.YAxis>
                         <charts:Chart.XAxis>
                             <charts:DateTimeAxis Title="Date" />
@@ -177,13 +177,13 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Y Minium: " VerticalAlignment="Center" HorizontalAlignment="Right" />
                                 <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="0,5">
-                                    <Slider Width="200" />
-                                    <TextBox Text="{Binding Range.Minimum, UpdateSourceTrigger=PropertyChanged}" Width="50" />
+                                    <Slider Width="200" Minimum="{Binding MinMinimum}" Maximum="{Binding MaxMinimum}" Value="{Binding Minimum, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                                    <TextBox Text="{Binding Minimum, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource floatStringConverter}}" Width="50" />
                                 </StackPanel>
                                 <TextBlock Grid.Row="1" Grid.Column="0" Text="Y Maximum: " VerticalAlignment="Center" HorizontalAlignment="Right" />
                                 <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="0,5">
-                                    <Slider Width="200" />
-                                    <TextBox Text="{Binding Range.Maximum, UpdateSourceTrigger=PropertyChanged}" Width="50" />
+                                    <Slider Width="200" Minimum="{Binding MinMaximum}" Maximum="{Binding MaxMaximum}" Value="{Binding Maximum,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                                    <TextBox Text="{Binding Maximum, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource floatStringConverter}}" Width="50" />
                                 </StackPanel>
                             </Grid>
                             <Button Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5">

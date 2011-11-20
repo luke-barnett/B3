@@ -102,6 +102,12 @@ namespace IndiaTango.ViewModels
         private bool _inSelectionMode;
         private int _samplingOptionIndex = 3;
         private readonly Canvas _background;
+        #region YAxisControls
+        private int _minMinimum;
+        private int _maxMinimum;
+        private int _minMaximum;
+        private int _maxMaximum;
+        #endregion
         #endregion
 
         #endregion
@@ -270,7 +276,17 @@ namespace IndiaTango.ViewModels
         /// <summary>
         /// The YAxis range on the graph
         /// </summary>
-        public DoubleRange Range { get { return _range; } set { _range = value; NotifyOfPropertyChange(() => Range); } }
+        public DoubleRange Range
+        {
+            get { return _range; }
+            set
+            {
+                _range = value;
+                NotifyOfPropertyChange(() => Range);
+                NotifyOfPropertyChange(() => Minimum);
+                NotifyOfPropertyChange(() => Maximum);
+            }
+        }
         /// <summary>
         /// The start of the time period being displayed
         /// </summary>
@@ -283,6 +299,63 @@ namespace IndiaTango.ViewModels
         /// Determines if the date range should be shown based on if things are being graphed or not
         /// </summary>
         public bool CanEditDates { get { return (_selectedSensors.Count > 0); } }
+
+        #region YAxisControls
+
+        public int MaxMaximum { get { return _maxMaximum; } set { _maxMaximum = value; NotifyOfPropertyChange(() => MaxMaximum); } }
+
+        public int MinMaximum { get { return _minMaximum; } set { _minMaximum = value; NotifyOfPropertyChange(() => MinMaximum); } }
+
+        public int MaxMinimum { get { return _maxMinimum; } set { _maxMinimum = value; NotifyOfPropertyChange(() => MaxMinimum); } }
+
+        public int MinMinimum { get { return _minMinimum; } set { _minMinimum = value; NotifyOfPropertyChange(() => MinMinimum); } }
+
+        public float Minimum
+        {
+            get { return Range != null ? (float)Range.Minimum : 0; }
+            set
+            {
+                if (value < MinMinimum)
+                {
+                    Range = new DoubleRange(MinMinimum, Range.Maximum);
+                }
+                else if (value > MaxMinimum)
+                {
+                    Range = new DoubleRange(MaxMinimum, Range.Maximum);
+                }
+                else
+                {
+                    Range = new DoubleRange(value, Range.Maximum);
+                }
+                MinMaximum = (int) Math.Ceiling(Minimum);
+                NotifyOfPropertyChange(() => Minimum);
+            }
+        }
+
+        public float Maximum
+        {
+            get { return Range != null ? (float)Range.Maximum : 0; }
+            set
+            {
+                if (value < MinMaximum)
+                {
+                    Range = new DoubleRange(Range.Minimum, MinMaximum);
+                }
+                else if (value > MaxMaximum)
+                {
+                    Range = new DoubleRange(Range.Minimum, MaxMaximum);
+                }
+                else
+                {
+                    Range = new DoubleRange(Range.Minimum, value);
+                }
+                MaxMinimum = (int)Maximum;
+                NotifyOfPropertyChange(() => Maximum);
+            }
+        }
+
+        #endregion
+
         #endregion
 
         /// <summary>
@@ -338,6 +411,17 @@ namespace IndiaTango.ViewModels
                 generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour) });
                 if (_sampleRate > 1) ShowBackground();
             }
+
+            var min = MinimumY(generatedSeries);
+            var max = MaximumY(generatedSeries);
+
+            Range = min < double.MaxValue ? new DoubleRange(min - (Math.Abs(min * .2)), max + (Math.Abs(max * .2))) : new DoubleRange();
+
+            MinMinimum = (int) Minimum;
+            MaxMaximum = (int) Maximum;
+
+            MaxMinimum = (int) Maximum;
+            MinMaximum = (int) Math.Ceiling(Minimum);
 
             ChartSeries = generatedSeries;
         }
@@ -413,6 +497,26 @@ namespace IndiaTango.ViewModels
             };
 
             _windowManager.ShowDialog(view);
+        }
+
+        private double MinimumY(IEnumerable<LineSeries> series)
+        {
+            double[] min = { double.MaxValue };
+            foreach (var value in series.SelectMany(line => ((DataSeries<DateTime, float>)line.DataSeries).Where(value => value.Y < min[0])))
+            {
+                min[0] = value.Y;
+            }
+            return min[0];
+        }
+
+        private double MaximumY(IEnumerable<LineSeries> series)
+        {
+            double[] max = { double.MinValue };
+            foreach (var value in series.SelectMany(line => ((DataSeries<DateTime, float>)line.DataSeries).Where(value => value.Y > max[0])))
+            {
+                max[0] = value.Y;
+            }
+            return max[0];
         }
 
         #endregion
