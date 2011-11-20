@@ -59,14 +59,6 @@
 
                 <GroupBox Grid.Row="0" x:Name="TableSection" Margin="0,0,0,5" Header="Sensors" BorderBrush="OrangeRed">
                     <DataGrid x:Name="DataGrid" ItemsSource="{Binding GraphableSensors}" AlternatingRowBackground="LightGray" AlternationCount="2" AutoGenerateColumns="False" CanUserReorderColumns="True" FrozenColumnCount="3" BorderThickness="0" Background="Transparent">
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="CellEditEnding">
-                                <cal:ActionMessage MethodName="CheckEdit">
-                                    <cal:Parameter Value="$eventArgs" />
-                                    <cal:Parameter Value="{Binding ElementName=DataGrid}" />
-                                </cal:ActionMessage>
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
                         <DataGrid.Columns>
                             <DataGridTemplateColumn Header="Edit">
                                 <DataGridTemplateColumn.CellTemplate>
@@ -107,7 +99,7 @@
                             <DataGridTemplateColumn Header="Colour">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <toolkit:ColorPicker Width="40" DisplayColorAndName="False" SelectedColor="{Binding Sensor.Colour, Converter={StaticResource colourConverter}, UpdateSourceTrigger=PropertyChanged}" ShowStandardColors="False" cal:Message.Attach="[Event SelectedColorChanged] = [Action UpdateGraph]" />
+                                        <toolkit:ColorPicker Width="40" DisplayColorAndName="False" SelectedColor="{Binding Sensor.Colour, Converter={StaticResource colourConverter}, UpdateSourceTrigger=PropertyChanged}" ShowStandardColors="False" cal:Message.Attach="[Event SelectedColorChanged] = [Action ColourChanged($eventArgs)]" />
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>

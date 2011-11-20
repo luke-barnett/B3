@@ -11,7 +11,6 @@ using System.Windows.Media;
 using Caliburn.Micro;
 using IndiaTango.Models;
 using Visiblox.Charts;
-using DataGrid = System.Windows.Controls.DataGrid;
 
 namespace IndiaTango.ViewModels
 {
@@ -327,7 +326,7 @@ namespace IndiaTango.ViewModels
                 {
                     Range = new DoubleRange(value, Range.Maximum);
                 }
-                MinMaximum = (int) Math.Ceiling(Minimum);
+                MinMaximum = (int)Math.Ceiling(Minimum);
                 NotifyOfPropertyChange(() => Minimum);
             }
         }
@@ -417,11 +416,11 @@ namespace IndiaTango.ViewModels
 
             Range = min < double.MaxValue ? new DoubleRange(min - (Math.Abs(min * .2)), max + (Math.Abs(max * .2))) : new DoubleRange();
 
-            MinMinimum = (int) Minimum;
-            MaxMaximum = (int) Maximum;
+            MinMinimum = (int)Minimum;
+            MaxMaximum = (int)Maximum;
 
-            MaxMinimum = (int) Maximum;
-            MinMaximum = (int) Math.Ceiling(Minimum);
+            MaxMinimum = (int)Maximum;
+            MinMaximum = (int)Math.Ceiling(Minimum);
 
             ChartSeries = generatedSeries;
         }
@@ -568,17 +567,104 @@ namespace IndiaTango.ViewModels
                                      Common.ShowMessageBoxWithException("Failed Import", "Bad File Format", false, true, ex);
                                  }
 
-                                 if (sensors != null)
-                                 {
-                                     //TODO: MATCH ALREADY EXISTING SENSORS
-                                     CurrentDataset.Sensors = sensors;
-
-                                     UpdateGUI();
-                                 }
+                                 e.Result = sensors;
                              };
 
             bw.RunWorkerCompleted += (o, e) =>
                                          {
+                                             var sensors = (List<Sensor>)e.Result;
+
+                                             if (sensors == null) return;
+
+                                             if (CurrentDataset.Sensors.Count == 0)
+                                                 CurrentDataset.Sensors = sensors;
+                                             else
+                                             {
+                                                 var askUser = _container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel") as SpecifyValueViewModel;
+
+                                                 if (askUser == null)
+                                                 {
+                                                     Common.ShowMessageBox("EPIC FAIL", "RUN AROUND WITH NO REASON", false, true);
+                                                     return;
+                                                 }
+
+                                                 askUser.ComboBoxItems = new List<string> { "Keep old values", "Keep new values" };
+                                                 askUser.Text = "Keep old values";
+                                                 askUser.ShowComboBox = true;
+                                                 askUser.Message = "How do you want to handle overlapping points";
+                                                 askUser.CanEditComboBox = false;
+                                                 askUser.ComboBoxSelectedIndex = 0;
+                                                 askUser.Title = "Importing";
+
+                                                 _windowManager.ShowDialog(askUser);
+
+                                                 var keepOldValues = askUser.ComboBoxSelectedIndex == 0;
+
+                                                 foreach (var sensor in sensors)
+                                                 {
+                                                     var askUserDialog = _container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel") as SpecifyValueViewModel;
+
+                                                     if (askUserDialog == null)
+                                                         return;
+
+                                                     askUserDialog.Title = "What sensor does this belong to?";
+                                                     askUserDialog.ComboBoxItems = new List<string>((from x in CurrentDataset.Sensors select x.Name));
+                                                     askUserDialog.ShowComboBox = true;
+                                                     askUserDialog.ShowCancel = true;
+                                                     askUserDialog.ComboBoxSelectedIndex = 0;
+                                                     askUserDialog.CanEditComboBox = false;
+                                                     askUserDialog.Message = string.Format("Match {0} against an existing sensor. \n\r Cancel to create a new sensor", sensor.Name);
+
+                                                     _windowManager.ShowDialog(askUserDialog);
+
+                                                     if (askUserDialog.WasCanceled)
+                                                     {
+                                                         Debug.WriteLine("Adding new sensor");
+                                                         CurrentDataset.Sensors.Add(sensor);
+                                                     }
+                                                     else
+                                                     {
+                                                         var matchingSensor =
+                                                             CurrentDataset.Sensors.Where(
+                                                                 x =>
+                                                                 x.Name.CompareTo(
+                                                                     askUserDialog.ComboBoxItems[
+                                                                         askUserDialog.ComboBoxSelectedIndex]) == 0).
+                                                                 DefaultIfEmpty(null).FirstOrDefault();
+
+                                                         if (matchingSensor == null)
+                                                         {
+                                                             Debug.WriteLine("Failed to find the sensor again, embarrasing!");
+                                                             continue;
+                                                         }
+
+                                                         Debug.WriteLine("Merging sensors");
+                                                         //Otherwise clone the current state
+                                                         var newState = matchingSensor.CurrentState.Clone();
+                                                         //Check to see if values are inserted
+                                                         var insertedValues = false;
+
+                                                         //And add values for any new dates we want
+                                                         foreach (var value in sensor.CurrentState.Values.Where(value => !keepOldValues || !newState.Values.ContainsKey(value.Key)))
+                                                         {
+                                                             newState.Values[value.Key] = value.Value;
+                                                             insertedValues = true;
+                                                         }
+                                                         //Give a reason
+                                                         newState.Reason = "Imported new values on " + DateTime.Now;
+                                                         if (insertedValues)
+                                                         {
+                                                             //Insert new state
+                                                             matchingSensor.AddState(newState);
+                                                             EventLogger.LogSensorInfo(CurrentDataset, matchingSensor.Name, "Added values from new import");
+                                                         }
+                                                     }
+                                                 }
+                                             }
+
+                                             UpdateGUI();
+
+
                                              ShowProgressArea = false;
                                              //TODO: Re-enable the things that we disabled
                                          };
@@ -770,23 +856,6 @@ namespace IndiaTango.ViewModels
             UpdateGraph();
         }
 
-        public void CheckEdit(DataGridCellEditEndingEventArgs eventArgs, DataGrid dataGrid)
-        {
-            Debug.Print("Current selected value is {0}", dataGrid.SelectedValue);
-            Debug.Print("The editing element is a {0}", eventArgs.EditingElement);
-            if ((string)eventArgs.Column.Header == "Depth")
-            {
-                try
-                {
-
-                }
-                catch (Exception)
-                {
-                    eventArgs.Cancel = true;
-                }
-            }
-        }
-
         public void ShowCurrentSiteInformation()
         {
             ShowSiteInformation(CurrentDataset);
@@ -796,15 +865,15 @@ namespace IndiaTango.ViewModels
         /// Fired when the start date is changed
         /// </summary>
         /// <param name="e">The event arguments about the new date</param>
-        public void StartTimeChanged(RoutedPropertyChangedEventArgs<object> e)
+        public void StartTimeChanged(RoutedPropertyChangedEventArgs<DateTime> e)
         {
             if (e == null)
                 return;
 
-            if (e.OldValue == null || (DateTime)e.OldValue == new DateTime() || (DateTime)e.NewValue < EndTime)
-                StartTime = (DateTime)e.NewValue;
+            if (e.OldValue == new DateTime() || e.NewValue < EndTime)
+                StartTime = e.NewValue;
             else
-                StartTime = (DateTime)e.OldValue;
+                StartTime = e.OldValue;
 
             foreach (var sensor in _selectedSensors)
             {
@@ -817,21 +886,31 @@ namespace IndiaTango.ViewModels
         /// Fired when the end date is changed
         /// </summary>
         /// <param name="e">The event arguments about the new date</param>
-        public void EndTimeChanged(RoutedPropertyChangedEventArgs<object> e)
+        public void EndTimeChanged(RoutedPropertyChangedEventArgs<DateTime> e)
         {
             if (e == null)
                 return;
 
-            if (e.OldValue == null || (DateTime)e.OldValue == new DateTime() || (DateTime)e.NewValue > StartTime)
-                EndTime = (DateTime)e.NewValue;
+            if (e.OldValue == new DateTime() || e.NewValue > StartTime)
+                EndTime = e.NewValue;
             else
-                EndTime = (DateTime)e.OldValue;
+                EndTime = e.OldValue;
 
             foreach (var sensor in _selectedSensors)
             {
                 sensor.SetUpperAndLowerBounds(StartTime, EndTime);
             }
             SampleValues(Common.MaximumGraphablePoints, _selectedSensors);
+        }
+
+        public void ColourChanged(RoutedPropertyChangedEventArgs<Color> args)
+        {
+            Debug.Print("Colour changed from {0} to {1}", args.OldValue, args.NewValue);
+
+            if(_selectedSensors.Count > 0)
+            {
+                UpdateGraph();
+            }
         }
 
         #endregion
