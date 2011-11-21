@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -10,7 +9,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Media;
-using System.Windows.Threading;
 using Caliburn.Micro;
 using IndiaTango.Models;
 using Visiblox.Charts;
@@ -130,8 +128,8 @@ namespace IndiaTango.ViewModels
         private readonly List<GraphableSensor> _sensorsToGraph;
         private readonly List<Sensor> _sensorsToCheckMethodsAgainst;
         private int _sampleRate;
-        private DateTime _startTime;
-        private DateTime _endTime;
+        private DateTime _startTime = DateTime.MinValue;
+        private DateTime _endTime = DateTime.MaxValue;
         private bool _inSelectionMode;
         private int _samplingOptionIndex = 3;
         private readonly Canvas _background;
@@ -609,43 +607,55 @@ namespace IndiaTango.ViewModels
             var tabItem = new TabItem { Header = new TextBlock { Text = method.Abbreviation } };
 
             var tabItemGrid = new Grid();
-            tabItemGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(60) });
-            tabItemGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(60) });
+            tabItemGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
+            tabItemGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
             tabItemGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
-            var title = new TextBlock { Text = method.Name, FontWeight = FontWeights.Bold, FontSize = 20 };
+            var title = new TextBlock { Text = method.Name, FontWeight = FontWeights.Bold, FontSize = 16, Margin = new Thickness(3), TextWrapping = TextWrapping.Wrap };
 
             Grid.SetRow(title, 0);
+
+            tabItemGrid.Children.Add(title);
 
             var detectionMethodOptions = new GroupBox { Header = new TextBlock { Text = "Options" }, BorderBrush = Brushes.OrangeRed };
 
             var optionsStackPanel = new StackPanel { Orientation = Orientation.Vertical };
             detectionMethodOptions.Content = optionsStackPanel;
 
+            var detectionMethodListBox = new GroupBox { Header = new TextBlock { Text = "Detected Values" }, BorderBrush = Brushes.OrangeRed, IsEnabled = method.IsEnabled };
+            var settingsGrid = method.SettingsGrid;
+            var listBox = new ListBox();
+
             var enabledCheckBox = new CheckBox { Content = new TextBlock { Text = "Enabled" } };
             enabledCheckBox.Checked += (o, e) =>
                                            {
                                                method.IsEnabled = true;
+                                               settingsGrid.IsEnabled = true;
+                                               detectionMethodListBox.IsEnabled = true;
+                                               listBox.Items.Refresh();
                                                CheckTheseMethods(new Collection<IDetectionMethod> { method });
                                            };
 
             enabledCheckBox.Unchecked += (o, e) =>
                                              {
                                                  method.IsEnabled = false;
-                                                 //TODO:
+                                                 settingsGrid.IsEnabled = false;
+                                                 detectionMethodListBox.IsEnabled = false;
+                                                 Debug.Print("{0} is disabled clearing Listbox", method.Name);
+                                                 listBox.Items.Clear();
+                                                 UpdateGraph();
                                              };
 
             optionsStackPanel.Children.Add(enabledCheckBox);
 
-            optionsStackPanel.Children.Add(method.SettingsGrid);
+
+            settingsGrid.IsEnabled = method.IsEnabled;
+
+            optionsStackPanel.Children.Add(settingsGrid);
 
             Grid.SetRow(detectionMethodOptions, 1);
 
             tabItemGrid.Children.Add(detectionMethodOptions);
-
-            var detectionMethodListBox = new GroupBox { Header = new TextBlock { Text = "Detected Values" }, BorderBrush = Brushes.OrangeRed };
-
-            var listBox = new ListBox();
 
             method.ListBox = listBox;
 
@@ -660,55 +670,105 @@ namespace IndiaTango.ViewModels
             return tabItem;
         }
 
-        private void AddToListBox(ListBox listBox, IEnumerable<ErroneousValue> values)
+        private void CheckTheseMethods(IEnumerable<IDetectionMethod> methodsToCheck)
         {
-            foreach (var erroneousValue in values)
+            var bw = new BackgroundWorker();
+
+            methodsToCheck = methodsToCheck.ToList();
+
+            foreach (var detectionMethod in methodsToCheck)
             {
-                listBox.Items.Add(erroneousValue);
+                Debug.Print("[CheckTheseMethods] Clearing listbox for {0}", detectionMethod.Name);
+                detectionMethod.ListBox.Items.Clear();
             }
+
+            bw.DoWork += (o, e) =>
+            {
+                var valuesDictionary = new Dictionary<IDetectionMethod, IEnumerable<ErroneousValue>>();
+                foreach (var detectionMethod in methodsToCheck)
+                {
+                    foreach (var sensor in _sensorsToCheckMethodsAgainst)
+                    {
+                        WaitEventString = string.Format("Checking {0} for {1}", sensor.Name, detectionMethod.Name);
+                        Debug.Print("[CheckTheseMethods] Checking {0} for {1}", sensor.Name, detectionMethod.Name);
+                        var values =
+                            detectionMethod.GetDetectedValues(sensor).Where(
+                                x => x.TimeStamp >= StartTime && x.TimeStamp <= EndTime);
+                        if (valuesDictionary.ContainsKey(detectionMethod))
+                        {
+                            var list = valuesDictionary[detectionMethod].ToList();
+                            list.AddRange(values);
+                            valuesDictionary[detectionMethod] = list;
+                        }
+                        valuesDictionary[detectionMethod] = values;
+                    }
+                }
+                e.Result = valuesDictionary;
+            };
+
+            bw.RunWorkerCompleted += (o, e) =>
+            {
+                Debug.Print("Processing gained values");
+                var dict = (Dictionary<IDetectionMethod, IEnumerable<ErroneousValue>>)e.Result;
+
+                foreach (var pair in dict)
+                {
+                    Debug.Print("There are {0} values for the {1} listbox", pair.Value.Count(), pair.Key.Name);
+                    foreach (var erroneousValue in pair.Value)
+                    {
+                        pair.Key.ListBox.Items.Add(erroneousValue);
+                    }
+                }
+
+                Debug.Print("Finised processing list boxes");
+
+                EnableFeatures();
+                ShowProgressArea = false;
+            };
+
+            ShowProgressArea = true;
+            ProgressIndeterminate = true;
+            DisableFeatures();
+            bw.RunWorkerAsync();
         }
 
-        private void CheckTheseMethods(IEnumerable<IDetectionMethod> methodsToCheck)
+        private void CheckTheseMethodsForThisSensor(IEnumerable<IDetectionMethod> methodsToCheck, Sensor sensor)
         {
             var bw = new BackgroundWorker();
 
             bw.DoWork += (o, e) =>
                              {
+                                 var valuesDictionary = new Dictionary<IDetectionMethod, IEnumerable<ErroneousValue>>();
                                  foreach (var detectionMethod in methodsToCheck)
                                  {
-                                     if (detectionMethod.ListBox.Dispatcher.CheckAccess())
-                                         detectionMethod.ListBox.Items.Clear();
-                                     else
-                                     {
-                                         var method = detectionMethod;
-                                         detectionMethod.ListBox.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
-                                             (System.Action)(() => method.ListBox.Items.Clear()));
-                                     }
-                                     foreach (var sensor in _sensorsToCheckMethodsAgainst)
-                                     {
-                                         WaitEventString = string.Format("Checking {0} for {1}", sensor.Name, detectionMethod.Name);
-                                         var values =
-                                             detectionMethod.GetDetectedValues(sensor).Where(
-                                                 x => x.TimeStamp >= StartTime && x.TimeStamp <= EndTime);
-                                         if (detectionMethod.ListBox.Dispatcher.CheckAccess())
-                                         {
-                                             AddToListBox(detectionMethod.ListBox, values);
-                                         }
-                                         else
-                                         {
-                                             var method = detectionMethod;
-                                             detectionMethod.ListBox.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
-                                                 (System.Action)(() => AddToListBox(method.ListBox, values)));
-                                         }
-                                     }
+                                     WaitEventString = string.Format("Checking {0} for {1}", sensor.Name, detectionMethod.Name);
+                                     var values =
+                                         detectionMethod.GetDetectedValues(sensor).Where(
+                                             x => x.TimeStamp >= StartTime && x.TimeStamp <= EndTime);
+                                     valuesDictionary[detectionMethod] = values;
+
                                  }
+                                 e.Result = valuesDictionary;
                              };
 
             bw.RunWorkerCompleted += (o, e) =>
-                                         {
-                                             EnableFeatures();
-                                             ShowProgressArea = false;
-                                         };
+            {
+                Debug.Print("Processing gained values");
+                var dict = (Dictionary<IDetectionMethod, IEnumerable<ErroneousValue>>)e.Result;
+
+                foreach (var pair in dict)
+                {
+                    foreach (var erroneousValue in pair.Value)
+                    {
+                        pair.Key.ListBox.Items.Add(erroneousValue);
+                    }
+                }
+
+                Debug.Print("Finised processing list boxes");
+
+                EnableFeatures();
+                ShowProgressArea = false;
+            };
 
             ShowProgressArea = true;
             ProgressIndeterminate = true;
@@ -1038,7 +1098,12 @@ namespace IndiaTango.ViewModels
             }
 
             if (CurrentDataset != null && Common.Confirm("Save?", string.Format("Do you want to save {0} before closing?", CurrentDataset.Site.Name)))
-                Save();
+            {
+                WaitEventString = string.Format("Saving {0} to file", CurrentDataset.Site.Name);
+                ProgressIndeterminate = true;
+                ShowProgressArea = true;
+                CurrentDataset.SaveToFile();
+            }
 
             Debug.WriteLine("Closing Program");
         }
@@ -1165,8 +1230,8 @@ namespace IndiaTango.ViewModels
             var checkBox = (CheckBox)eventArgs.Source;
             var graphableSensor = (GraphableSensor)checkBox.Content;
             _sensorsToCheckMethodsAgainst.Add(graphableSensor.Sensor);
-            Debug.Print("{0} was added to the editing list", graphableSensor.Sensor);
-            UpdateGraph();
+
+            CheckTheseMethodsForThisSensor(_detectionMethods.Where(x => x.IsEnabled), graphableSensor.Sensor);
         }
 
         public void RemoveFromEditingSensors(RoutedEventArgs eventArgs)
@@ -1175,8 +1240,21 @@ namespace IndiaTango.ViewModels
             var graphableSensor = (GraphableSensor)checkBox.Content;
             if (_sensorsToCheckMethodsAgainst.Contains(graphableSensor.Sensor))
                 _sensorsToCheckMethodsAgainst.Remove(graphableSensor.Sensor);
-            Debug.Print("{0} was removed from the editing list", graphableSensor.Sensor);
-            UpdateGraph();
+
+            foreach (var detectionMethod in _detectionMethods.Where(x => x.IsEnabled))
+            {
+                Debug.Print("{0} is enabled checking to remove values",detectionMethod.Name);
+
+                var itemsToRemove =
+                    detectionMethod.ListBox.Items.Cast<ErroneousValue>().Where(
+                        value => !_sensorsToCheckMethodsAgainst.Contains(value.Owner)).ToList();
+
+                foreach (var erroneousValue in itemsToRemove)
+                {
+                    detectionMethod.ListBox.Items.Remove(erroneousValue);
+                }
+                detectionMethod.ListBox.Items.Refresh();
+            }
         }
 
         #endregion

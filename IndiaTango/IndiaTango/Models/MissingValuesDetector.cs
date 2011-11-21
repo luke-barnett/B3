@@ -30,7 +30,7 @@ namespace IndiaTango.Models
 
         public List<ErroneousValue> GetDetectedValues(Sensor sensorToCheck)
         {
-            Debug.WriteLine("Checking for missing values");
+            Debug.Print("[Missing Values][{0}] Checking for missing values", sensorToCheck);
 
             var detectedValues = new List<ErroneousValue>();
             
