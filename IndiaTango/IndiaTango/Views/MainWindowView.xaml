@@ -76,7 +76,20 @@
                             <DataGridTemplateColumn Header="Edit">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <CheckBox Content="{Binding This}" HorizontalAlignment="Center" IsEnabled="{Binding FeaturesEnabled}"/>
+                                        <CheckBox Content="{Binding This}" HorizontalAlignment="Center" IsEnabled="{Binding FeaturesEnabled}">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="Checked">
+                                                    <cal:ActionMessage MethodName="AddToEditingSensors">
+                                                        <cal:Parameter Value="$eventArgs" />
+                                                    </cal:ActionMessage>
+                                                </i:EventTrigger>
+                                                <i:EventTrigger EventName="Unchecked">
+                                                    <cal:ActionMessage MethodName="RemoveFromEditingSensors">
+                                                        <cal:Parameter Value="$eventArgs" />
+                                                    </cal:ActionMessage>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </CheckBox>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
@@ -121,11 +134,7 @@
                 </GroupBox>
 
                 <GroupBox Grid.Row="1" x:Name="TabSection" Header="Detection Methods" BorderBrush="OrangeRed">
-                    <TabControl BorderThickness="0" Background="Transparent" IsEnabled="{Binding FeaturesEnabled}">
-                        <TabItem Header="Outlier Detection">
-
-                        </TabItem>
-                    </TabControl>
+                    <TabControl BorderThickness="0" Background="Transparent" IsEnabled="{Binding FeaturesEnabled}" ItemsSource="{Binding DetectionTabItems}" />
                 </GroupBox>
             </Grid>
             <Rectangle Grid.Column="1" Fill="OrangeRed" Width="0" />

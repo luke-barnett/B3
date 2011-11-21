@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -8,9 +10,14 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Media;
+using System.Windows.Threading;
 using Caliburn.Micro;
 using IndiaTango.Models;
 using Visiblox.Charts;
+using CheckBox = System.Windows.Controls.CheckBox;
+using GroupBox = System.Windows.Controls.GroupBox;
+using ListBox = System.Windows.Controls.ListBox;
+using Orientation = System.Windows.Controls.Orientation;
 
 namespace IndiaTango.ViewModels
 {
@@ -22,6 +29,30 @@ namespace IndiaTango.ViewModels
             _container = container;
 
             _sensorsToGraph = new List<GraphableSensor>();
+            _sensorsToCheckMethodsAgainst = new List<Sensor>();
+
+            #region Set Up Detection Methods
+
+            _minMaxRateofChangeDetector = new MinMaxRateOfChangeDetector();
+            _minMaxRateofChangeDetector.GraphUpdateNeeded += UpdateGraph;
+
+            _runningMeanStandardDeviationDetector = new RunningMeanStandardDeviationDetector();
+            _runningMeanStandardDeviationDetector.GraphUpdateNeeded += UpdateGraph;
+
+            _runningMeanStandardDeviationDetector.RefreshDetectedValues += delegate
+            {
+                //TODO:
+                /*if (!_selectedMethods.Contains(_runningMeanStandardDeviationDetector))
+                    return;
+                RemoveDetectionMethod(_runningMeanStandardDeviationDetector);
+                AddDetectionMethod(_runningMeanStandardDeviationDetector);*/
+            };
+
+            _missingValuesDetector = new MissingValuesDetector();
+
+            _detectionMethods = new List<IDetectionMethod> { _missingValuesDetector, _minMaxRateofChangeDetector, _runningMeanStandardDeviationDetector };
+
+            #endregion
 
             #region Set Up Behaviours
 
@@ -61,6 +92,8 @@ namespace IndiaTango.ViewModels
             Behaviour = behaviourManager;
 
             #endregion
+
+            BuildDetectionMethodTabItems();
         }
 
         #region Private Parameters
@@ -95,6 +128,7 @@ namespace IndiaTango.ViewModels
         private string _yAxisTitle;
         private DoubleRange _range;
         private readonly List<GraphableSensor> _sensorsToGraph;
+        private readonly List<Sensor> _sensorsToCheckMethodsAgainst;
         private int _sampleRate;
         private DateTime _startTime;
         private DateTime _endTime;
@@ -109,6 +143,11 @@ namespace IndiaTango.ViewModels
         #endregion
         #endregion
         private bool _featuresEnabled = true;
+        private List<TabItem> _detectionTabItems;
+        private readonly List<IDetectionMethod> _detectionMethods;
+        private readonly MinMaxRateOfChangeDetector _minMaxRateofChangeDetector;
+        private readonly RunningMeanStandardDeviationDetector _runningMeanStandardDeviationDetector;
+        private readonly MissingValuesDetector _missingValuesDetector;
         #endregion
 
         #region Public Parameters
@@ -365,6 +404,9 @@ namespace IndiaTango.ViewModels
             get { return Common.GenerateSamplingCaps(); }
         }
 
+        /// <summary>
+        /// The selected index into the sampling options
+        /// </summary>
         public int SamplingOptionIndex
         {
             get { return _samplingOptionIndex; }
@@ -385,6 +427,9 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// Trigger to disable/enable controls
+        /// </summary>
         public bool FeaturesEnabled
         {
             get { return _featuresEnabled; }
@@ -394,6 +439,19 @@ namespace IndiaTango.ViewModels
                 _featuresEnabled = value;
                 NotifyOfPropertyChange(() => FeaturesEnabled);
                 NotifyOfPropertyChange(() => CanEditDates);
+            }
+        }
+
+        /// <summary>
+        /// The List of Tab Items to show in the Detection Methods
+        /// </summary>
+        public List<TabItem> DetectionTabItems
+        {
+            get { return _detectionTabItems ?? new List<TabItem>(); }
+            set
+            {
+                _detectionTabItems = value;
+                NotifyOfPropertyChange(() => DetectionTabItems);
             }
         }
 
@@ -540,6 +598,124 @@ namespace IndiaTango.ViewModels
             FeaturesEnabled = true;
         }
 
+        private void BuildDetectionMethodTabItems()
+        {
+            var tabItems = _detectionMethods.Select(GenerateTabItemFromDetectionMethod).ToList();
+            DetectionTabItems = tabItems;
+        }
+
+        private TabItem GenerateTabItemFromDetectionMethod(IDetectionMethod method)
+        {
+            var tabItem = new TabItem { Header = new TextBlock { Text = method.Abbreviation } };
+
+            var tabItemGrid = new Grid();
+            tabItemGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(60) });
+            tabItemGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(60) });
+            tabItemGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+
+            var title = new TextBlock { Text = method.Name, FontWeight = FontWeights.Bold, FontSize = 20 };
+
+            Grid.SetRow(title, 0);
+
+            var detectionMethodOptions = new GroupBox { Header = new TextBlock { Text = "Options" }, BorderBrush = Brushes.OrangeRed };
+
+            var optionsStackPanel = new StackPanel { Orientation = Orientation.Vertical };
+            detectionMethodOptions.Content = optionsStackPanel;
+
+            var enabledCheckBox = new CheckBox { Content = new TextBlock { Text = "Enabled" } };
+            enabledCheckBox.Checked += (o, e) =>
+                                           {
+                                               method.IsEnabled = true;
+                                               CheckTheseMethods(new Collection<IDetectionMethod> { method });
+                                           };
+
+            enabledCheckBox.Unchecked += (o, e) =>
+                                             {
+                                                 method.IsEnabled = false;
+                                                 //TODO:
+                                             };
+
+            optionsStackPanel.Children.Add(enabledCheckBox);
+
+            optionsStackPanel.Children.Add(method.SettingsGrid);
+
+            Grid.SetRow(detectionMethodOptions, 1);
+
+            tabItemGrid.Children.Add(detectionMethodOptions);
+
+            var detectionMethodListBox = new GroupBox { Header = new TextBlock { Text = "Detected Values" }, BorderBrush = Brushes.OrangeRed };
+
+            var listBox = new ListBox();
+
+            method.ListBox = listBox;
+
+            detectionMethodListBox.Content = listBox;
+
+            Grid.SetRow(detectionMethodListBox, 2);
+
+            tabItemGrid.Children.Add(detectionMethodListBox);
+
+
+            tabItem.Content = tabItemGrid;
+            return tabItem;
+        }
+
+        private void AddToListBox(ListBox listBox, IEnumerable<ErroneousValue> values)
+        {
+            foreach (var erroneousValue in values)
+            {
+                listBox.Items.Add(erroneousValue);
+            }
+        }
+
+        private void CheckTheseMethods(IEnumerable<IDetectionMethod> methodsToCheck)
+        {
+            var bw = new BackgroundWorker();
+
+            bw.DoWork += (o, e) =>
+                             {
+                                 foreach (var detectionMethod in methodsToCheck)
+                                 {
+                                     if (detectionMethod.ListBox.Dispatcher.CheckAccess())
+                                         detectionMethod.ListBox.Items.Clear();
+                                     else
+                                     {
+                                         var method = detectionMethod;
+                                         detectionMethod.ListBox.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
+                                             (System.Action)(() => method.ListBox.Items.Clear()));
+                                     }
+                                     foreach (var sensor in _sensorsToCheckMethodsAgainst)
+                                     {
+                                         WaitEventString = string.Format("Checking {0} for {1}", sensor.Name, detectionMethod.Name);
+                                         var values =
+                                             detectionMethod.GetDetectedValues(sensor).Where(
+                                                 x => x.TimeStamp >= StartTime && x.TimeStamp <= EndTime);
+                                         if (detectionMethod.ListBox.Dispatcher.CheckAccess())
+                                         {
+                                             AddToListBox(detectionMethod.ListBox, values);
+                                         }
+                                         else
+                                         {
+                                             var method = detectionMethod;
+                                             detectionMethod.ListBox.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
+                                                 (System.Action)(() => AddToListBox(method.ListBox, values)));
+                                         }
+                                     }
+                                 }
+                             };
+
+            bw.RunWorkerCompleted += (o, e) =>
+                                         {
+                                             EnableFeatures();
+                                             ShowProgressArea = false;
+                                         };
+
+            ShowProgressArea = true;
+            ProgressIndeterminate = true;
+            DisableFeatures();
+            bw.RunWorkerAsync();
+        }
+
         #endregion
 
         #region Public Methods
@@ -582,7 +758,7 @@ namespace IndiaTango.ViewModels
                                  List<Sensor> sensors = null;
                                  try
                                  {
-                                     sensors = reader.ReadSensors();
+                                     sensors = reader.ReadSensors(null, CurrentDataset);
                                  }
                                  catch (Exception ex)
                                  {
@@ -869,7 +1045,7 @@ namespace IndiaTango.ViewModels
 
         public void AddToGraph(RoutedEventArgs eventArgs)
         {
-            var checkBox = (System.Windows.Controls.CheckBox)eventArgs.Source;
+            var checkBox = (CheckBox)eventArgs.Source;
             var graphableSensor = (GraphableSensor)checkBox.Content;
             _sensorsToGraph.Add(graphableSensor);
             Debug.Print("{0} was added to the graph list", graphableSensor.Sensor);
@@ -878,7 +1054,7 @@ namespace IndiaTango.ViewModels
 
         public void RemoveFromGraph(RoutedEventArgs eventArgs)
         {
-            var checkBox = (System.Windows.Controls.CheckBox)eventArgs.Source;
+            var checkBox = (CheckBox)eventArgs.Source;
             var graphableSensor = (GraphableSensor)checkBox.Content;
             if (_sensorsToGraph.Contains(graphableSensor))
                 _sensorsToGraph.Remove(graphableSensor);
@@ -948,6 +1124,10 @@ namespace IndiaTango.ViewModels
             if (!Common.Confirm("Are you sure?", string.Format("Do you really want to delete {0}?", gSensor.Sensor.Name)))
                 return;
             CurrentDataset.Sensors.Remove(gSensor.Sensor);
+            if (_sensorsToGraph.Contains(gSensor))
+                _sensorsToGraph.Remove(gSensor);
+            if (_sensorsToCheckMethodsAgainst.Contains(gSensor.Sensor))
+                _sensorsToCheckMethodsAgainst.Remove(gSensor.Sensor);
             NotifyOfPropertyChange(() => GraphableSensors);
         }
 
@@ -974,6 +1154,25 @@ namespace IndiaTango.ViewModels
 
             //Show the dialog
             _windowManager.ShowDialog(exportView);
+        }
+
+        public void AddToEditingSensors(RoutedEventArgs eventArgs)
+        {
+            var checkBox = (CheckBox)eventArgs.Source;
+            var graphableSensor = (GraphableSensor)checkBox.Content;
+            _sensorsToCheckMethodsAgainst.Add(graphableSensor.Sensor);
+            Debug.Print("{0} was added to the editing list", graphableSensor.Sensor);
+            UpdateGraph();
+        }
+
+        public void RemoveFromEditingSensors(RoutedEventArgs eventArgs)
+        {
+            var checkBox = (CheckBox)eventArgs.Source;
+            var graphableSensor = (GraphableSensor)checkBox.Content;
+            if (_sensorsToCheckMethodsAgainst.Contains(graphableSensor.Sensor))
+                _sensorsToCheckMethodsAgainst.Remove(graphableSensor.Sensor);
+            Debug.Print("{0} was removed from the editing list", graphableSensor.Sensor);
+            UpdateGraph();
         }
 
         #endregion

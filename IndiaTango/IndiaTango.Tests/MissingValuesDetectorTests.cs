@@ -52,7 +52,7 @@ namespace IndiaTango.Tests
 
             for (var i = new DateTime(1990, 5, 1, 6, 0, 0); i < new DateTime(1991, 8, 2, 0, 0, 0); i = i.AddHours(1))
             {
-                Assert.Contains(new ErroneousValue(i), missingValues);
+                Assert.Contains(new ErroneousValue(i, sensor), missingValues);
             }
         }
     }

@@ -27,6 +27,11 @@ namespace IndiaTango.Models
             get { return "Upper & Lower Limits + Rate of Change"; }
         }
 
+        public string Abbreviation
+        {
+            get { return "Limits & RoC"; }
+        }
+
         public IDetectionMethod This
         {
             get { return this; }
@@ -41,11 +46,11 @@ namespace IndiaTango.Models
             foreach (var value in sensorToCheck.CurrentState.Values)
             {
                 if (value.Value < sensorToCheck.LowerLimit)
-                    detectedValues.Add(new ErroneousValue(value.Key, _belowMinValue));
+                    detectedValues.Add(new ErroneousValue(value.Key, _belowMinValue, sensorToCheck));
                 else if (value.Value > sensorToCheck.UpperLimit)
-                    detectedValues.Add(new ErroneousValue(value.Key, _aboveMaxValue));
+                    detectedValues.Add(new ErroneousValue(value.Key, _aboveMaxValue, sensorToCheck));
                 else if (Math.Abs(value.Value - lastValue.Value) > sensorToCheck.MaxRateOfChange)
-                    detectedValues.Add(new ErroneousValue(value.Key, _highRateOfChange));
+                    detectedValues.Add(new ErroneousValue(value.Key, _highRateOfChange, sensorToCheck));
                 lastValue = value;
             }
 
@@ -107,6 +112,8 @@ namespace IndiaTango.Models
         }
 
         public bool IsEnabled { get; set; }
+
+        public ListBox ListBox { get; set; }
     }
 
     public delegate void UpdateGraph();

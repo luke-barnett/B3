@@ -19,9 +19,9 @@ namespace IndiaTango.Tests
 
             _detector = new MissingValuesDetector();
 
-            _value = new ErroneousValue(_time, 15);
+            _value = new ErroneousValue(_time, 15, null);
 
-            _valueWithDetector = new ErroneousValue(_time, 50, _detector);
+            _valueWithDetector = new ErroneousValue(_time, 50, _detector, null);
         }
 
         [Test]
@@ -56,7 +56,7 @@ namespace IndiaTango.Tests
         public void TestEquality()
         {
             Assert.IsTrue(_value.Equals(_valueWithDetector));
-            Assert.IsFalse(_value.Equals(new ErroneousValue(DateTime.Now.AddDays(1), 15)));
+            Assert.IsFalse(_value.Equals(new ErroneousValue(DateTime.Now.AddDays(1), 15, null)));
         }
     }
 }

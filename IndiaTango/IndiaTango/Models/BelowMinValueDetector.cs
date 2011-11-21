@@ -19,6 +19,11 @@ namespace IndiaTango.Models
             get { return "Below Min"; }
         }
 
+        public string Abbreviation
+        {
+            get { return ""; }
+        }
+
         public IDetectionMethod This
         {
             get { return _owner; }
@@ -60,5 +65,7 @@ namespace IndiaTango.Models
         }
 
         public bool IsEnabled { get; set; }
+
+        public ListBox ListBox { get; set; }
     }
 }

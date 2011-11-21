@@ -43,6 +43,11 @@ namespace IndiaTango.Models
             get { return "Running Mean with Standard Deviation"; }
         }
 
+        public string Abbreviation
+        {
+            get { return "RMwSD"; }
+        }
+
         public IDetectionMethod This
         {
             get { return this; }
@@ -55,7 +60,7 @@ namespace IndiaTango.Models
 
             var items = (from value in sensorToCheck.CurrentState.Values
                          where (_upperLine.ContainsKey(value.Key) && value.Value > _upperLine[value.Key]) || (_lowerLine.ContainsKey(value.Key) && value.Value < _lowerLine[value.Key])
-                         select new ErroneousValue(value.Key, this)).ToList();
+                         select new ErroneousValue(value.Key, this, sensorToCheck)).ToList();
             return items;
         }
 
@@ -294,6 +299,8 @@ namespace IndiaTango.Models
                 //Debug.Print("numberOfValues: {0} average: {1} sumOfSquare: {2} stdDev: {3} upper: {4} lower: {5}", meanValues.Count, average, sumOfSquares, standardDeviation, _upperLine[value.Key], _lowerLine[value.Key]);
             }
         }
+
+        public ListBox ListBox { get; set; }
     }
 
     public delegate void Updated();

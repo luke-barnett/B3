@@ -13,27 +13,29 @@ namespace IndiaTango.Models
         private event GraphCenteringRequest RealEvent;
         private readonly ArrayList _delegates = new ArrayList();
 
-        public ErroneousValue(DateTime timeStamp, float value, IDetectionMethod detector)
-            : this(timeStamp, value)
+        public ErroneousValue(DateTime timeStamp, float value, IDetectionMethod detector, Sensor owner)
+            : this(timeStamp, value, owner)
         {
             Detectors.Add(detector);
         }
 
-        public ErroneousValue(DateTime timeStamp, float value)
-            : this(timeStamp)
+        public ErroneousValue(DateTime timeStamp, float value, Sensor owner)
+            : this(timeStamp, owner)
         {
             Value = value;
             _hasValue = true;
         }
 
-        public ErroneousValue(DateTime timeStamp, IDetectionMethod detector)
-            : this(timeStamp)
+        public ErroneousValue(DateTime timeStamp, IDetectionMethod detector, Sensor owner)
+            : this(timeStamp, owner)
         {
             Detectors.Add(detector);
         }
 
-        public ErroneousValue(DateTime timeStamp)
+        public ErroneousValue(DateTime timeStamp, Sensor owner)
         {
+            Owner = owner;
+
             TimeStamp = timeStamp;
 
             Detectors = new List<IDetectionMethod>();
@@ -46,6 +48,8 @@ namespace IndiaTango.Models
         public DateTime TimeStamp { get; set; }
 
         public float Value { get; set; }
+
+        public Sensor Owner { get; set; }
 
         public List<IDetectionMethod> Detectors { get; private set; }
 
@@ -77,7 +81,7 @@ namespace IndiaTango.Models
 
         public override string ToString()
         {
-            var baseString = (_hasValue) ? string.Format("{0} {1}", TimeStamp, Value) : string.Format("{0}", TimeStamp);
+            var baseString = (_hasValue) ? string.Format("[{2}] {0} {1}", TimeStamp, Value, Owner) : string.Format("[{1}] {0}", TimeStamp, Owner);
 
             return Detectors.Aggregate(baseString, (current, detectionMethod) => current + string.Format(" [{0}]", detectionMethod.Name));
         }

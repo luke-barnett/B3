@@ -20,7 +20,7 @@ namespace IndiaTango.Tests
             _sensor.CurrentState.Values.Add(DateTime.Now.AddHours(1), 5);
             _sensor.CurrentState.Values.Add(DateTime.Now.AddHours(2), 5);
             _sensor.CurrentState.Values.Add(DateTime.Now.AddHours(3), 5);
-            _erroneousValue = new ErroneousValue(DateTime.Now.AddHours(4), 600);
+            _erroneousValue = new ErroneousValue(DateTime.Now.AddHours(4), 600, _sensor);
             _sensor.CurrentState.Values.Add(_erroneousValue.TimeStamp, _erroneousValue.Value);
             _sensor.CurrentState.Values.Add(DateTime.Now.AddHours(5), 5);
             _sensor.CurrentState.Values.Add(DateTime.Now.AddHours(6), 5);

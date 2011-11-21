@@ -12,6 +12,8 @@ namespace IndiaTango.Models
         /// </summary>
         string Name { get; }
 
+        string Abbreviation { get; }
+
         /// <summary>
         /// The Detection Method itself (must go deeper)
         /// </summary>
@@ -62,5 +64,10 @@ namespace IndiaTango.Models
         /// If the method is enabled or not
         /// </summary>
         bool IsEnabled { get; set; }
+
+        /// <summary>
+        /// The list box to put detected values into
+        /// </summary>
+        ListBox ListBox { get; set; }
     }
 }

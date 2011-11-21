@@ -18,6 +18,11 @@ namespace IndiaTango.Models
             get { return "Missing Values"; }
         }
 
+        public string Abbreviation
+        {
+            get { return "MV"; }
+        }
+
         public IDetectionMethod This
         {
             get { return this; }
@@ -33,7 +38,7 @@ namespace IndiaTango.Models
             {
                 if (!sensorToCheck.CurrentState.Values.ContainsKey(time))
                 {
-                    detectedValues.Add(new ErroneousValue(time, this));
+                    detectedValues.Add(new ErroneousValue(time, this, sensorToCheck));
                 }
             }
 
@@ -76,5 +81,7 @@ namespace IndiaTango.Models
         }
 
         public bool IsEnabled { get; set; }
+
+        public ListBox ListBox { get; set; }
     }
 }
