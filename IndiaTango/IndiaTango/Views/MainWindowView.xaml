@@ -76,7 +76,7 @@
                             <DataGridTemplateColumn Header="Edit">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <CheckBox Content="{Binding This}" HorizontalAlignment="Center" IsEnabled="{Binding FeaturesEnabled}">
+                                        <CheckBox Content="{Binding This}" HorizontalAlignment="Center">
                                             <i:Interaction.Triggers>
                                                 <i:EventTrigger EventName="Checked">
                                                     <cal:ActionMessage MethodName="AddToEditingSensors">
@@ -96,7 +96,7 @@
                             <DataGridTemplateColumn Header="Graph">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <CheckBox Content="{Binding This}" HorizontalAlignment="Center" IsEnabled="{Binding FeaturesEnabled}">
+                                        <CheckBox Content="{Binding This}" HorizontalAlignment="Center">
                                             <i:Interaction.Triggers>
                                                 <i:EventTrigger EventName="Checked">
                                                     <cal:ActionMessage MethodName="AddToGraph">
