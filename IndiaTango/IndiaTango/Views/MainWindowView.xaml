@@ -125,7 +125,7 @@
                             <DataGridTemplateColumn Header="Colour">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <toolkit:ColorPicker Width="40" DisplayColorAndName="False" SelectedColor="{Binding Sensor.Colour, Converter={StaticResource colourConverter}, UpdateSourceTrigger=PropertyChanged}" ShowStandardColors="False" cal:Message.Attach="[Event SelectedColorChanged] = [Action ColourChanged($eventArgs)]" />
+                                        <toolkit:ColorPicker Width="40" DisplayColorAndName="False" SelectedColor="{Binding Sensor.Colour, Converter={StaticResource colourConverter}, UpdateSourceTrigger=PropertyChanged}" ShowStandardColors="False" cal:Message.Attach="[Event SelectedColorChanged] = [Action ColourChanged($eventArgs, $this)]" />
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>

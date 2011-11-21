@@ -477,7 +477,7 @@ namespace IndiaTango.ViewModels
                 Debug.Print("Number of points: {0} Max Number {1} Sampling rate {2}", sensor.DataPoints.Count(), numberOfPoints, _sampleRate);
 
                 var series = (_sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints.Where((x, index) => index % _sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints);
-                generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour) });
+                generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour), Name = sensor.Sensor.Name });
                 if (_sampleRate > 1) ShowBackground();
             }
 
@@ -1109,14 +1109,18 @@ namespace IndiaTango.ViewModels
             SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
         }
 
-        public void ColourChanged(RoutedPropertyChangedEventArgs<Color> args)
+        public void ColourChanged(RoutedPropertyChangedEventArgs<Color> args, GraphableSensor owner)
         {
-            Debug.Print("Colour changed from {0} to {1}", args.OldValue, args.NewValue);
+            var matchingLineSeries = ChartSeries.Where(x => x.Name == owner.Sensor.Name).DefaultIfEmpty(null).First();
 
-            if (_sensorsToGraph.Count > 0)
-            {
-                UpdateGraph();
-            }
+            if (matchingLineSeries == null)
+                return;
+
+            Debug.Print("Matched to graphed line series {0} attempting to update", matchingLineSeries.Name);
+
+            matchingLineSeries.LineStroke = new SolidColorBrush(args.NewValue);
+
+            NotifyOfPropertyChange(() => ChartSeries);
         }
 
         public void DeleteSensor(GraphableSensor gSensor)
