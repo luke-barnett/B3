@@ -35,7 +35,7 @@
         </Grid.RowDefinitions>
 
         <Menu Grid.Row="0" x:Name="MainMenu" IsMainMenu="True">
-            <MenuItem Header="_File">
+            <MenuItem Header="_File" IsEnabled="{Binding FeaturesEnabled}">
                 <MenuItem Header="_Save" cal:Message.Attach="[Event Click] = [Action Save]" />
                 <MenuItem Header="_Import" cal:Message.Attach="[Event Click] = [Action Import]" />
                 <MenuItem Header="E_xport" cal:Message.Attach="[Event Click] = [Action Export]" />
@@ -58,9 +58,9 @@
                 </Grid.RowDefinitions>
 
                 <GroupBox Grid.Row="0" x:Name="TableSection" Margin="0,0,0,5" Header="Sensors" BorderBrush="OrangeRed">
-                    <DataGrid x:Name="DataGrid" ItemsSource="{Binding GraphableSensors}" AlternatingRowBackground="LightGray" AlternationCount="2" AutoGenerateColumns="False" CanUserReorderColumns="True" FrozenColumnCount="3" BorderThickness="0" Background="Transparent">
+                    <DataGrid x:Name="DataGrid" IsEnabled="{Binding FeaturesEnabled}" ItemsSource="{Binding GraphableSensors}" AlternatingRowBackground="LightGray" AlternationCount="2" AutoGenerateColumns="False" CanUserReorderColumns="True" FrozenColumnCount="3" BorderThickness="0" Background="Transparent" SelectionMode="Single" >
                         <DataGrid.ContextMenu>
-                            <ContextMenu x:Name="dataGridContextMenu">
+                            <ContextMenu x:Name="dataGridContextMenu" IsEnabled="{Binding FeaturesEnabled}">
                                 <MenuItem Header="Delete">
                                     <i:Interaction.Triggers>
                                         <i:EventTrigger EventName="Click">
@@ -76,14 +76,14 @@
                             <DataGridTemplateColumn Header="Edit">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <CheckBox Content="{Binding This}" HorizontalAlignment="Center" />
+                                        <CheckBox Content="{Binding This}" HorizontalAlignment="Center" IsEnabled="{Binding FeaturesEnabled}"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                             <DataGridTemplateColumn Header="Graph">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <CheckBox Content="{Binding This}" HorizontalAlignment="Center">
+                                        <CheckBox Content="{Binding This}" HorizontalAlignment="Center" IsEnabled="{Binding FeaturesEnabled}">
                                             <i:Interaction.Triggers>
                                                 <i:EventTrigger EventName="Checked">
                                                     <cal:ActionMessage MethodName="AddToGraph">
@@ -121,7 +121,7 @@
                 </GroupBox>
 
                 <GroupBox Grid.Row="1" x:Name="TabSection" Header="Detection Methods" BorderBrush="OrangeRed">
-                    <TabControl BorderThickness="0" Background="Transparent">
+                    <TabControl BorderThickness="0" Background="Transparent" IsEnabled="{Binding FeaturesEnabled}">
                         <TabItem Header="Outlier Detection">
 
                         </TabItem>
@@ -137,13 +137,13 @@
                 <Grid Grid.Row="0" x:Name="RightSectionHeader" Margin="5,0,0,0">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                         <TextBlock Text="Graph" VerticalAlignment="Center" />
-                        <ComboBox ItemsSource="{Binding SamplingOptions}" Margin="3,0,0,0" Width="100" SelectedIndex="{Binding SamplingOptionIndex, Mode=TwoWay}" />
+                        <ComboBox IsEnabled="{Binding FeaturesEnabled}" ItemsSource="{Binding SamplingOptions}" Margin="3,0,0,0" Width="100" SelectedIndex="{Binding SamplingOptionIndex, Mode=TwoWay}" />
                         <TextBlock Text="Points" Margin="3,0,0,0" VerticalAlignment="Center" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <TextBlock Text="Current Site:" Margin="10,0" VerticalAlignment="Center" />
-                        <ComboBox ItemsSource="{Binding SiteNames}" Width="120" SelectedIndex="{Binding ChosenSelectedIndex, Mode=TwoWay}" cal:Message.Attach="[Event SelectionChanged] = [Action UpdateSelectedSite]" />
-                        <Button Margin="10,0" Content="Site Information" cal:Message.Attach="[Event Click] = [Action ShowCurrentSiteInformation]" />
+                        <ComboBox IsEnabled="{Binding FeaturesEnabled}" ItemsSource="{Binding SiteNames}" Width="120" SelectedIndex="{Binding ChosenSelectedIndex, Mode=TwoWay}" cal:Message.Attach="[Event SelectionChanged] = [Action UpdateSelectedSite]" />
+                        <Button IsEnabled="{Binding FeaturesEnabled}" Margin="10,0" Content="Site Information" cal:Message.Attach="[Event Click] = [Action ShowCurrentSiteInformation]" />
                     </StackPanel>
                 </Grid>
                 <Grid Grid.Row="1" x:Name="GraphSection" Margin="5">
@@ -182,16 +182,23 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Y Minium: " VerticalAlignment="Center" HorizontalAlignment="Right" />
                                 <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="0,5">
-                                    <Slider Width="200" Minimum="{Binding MinMinimum}" Maximum="{Binding MaxMinimum}" Value="{Binding Minimum, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
-                                    <TextBox Text="{Binding Minimum, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource floatStringConverter}}" Width="50" />
+                                    <Slider IsEnabled="{Binding FeaturesEnabled}" Width="200" Minimum="{Binding MinMinimum}" Maximum="{Binding MaxMinimum}" Value="{Binding Minimum, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                                    <TextBox IsEnabled="{Binding FeaturesEnabled}" Text="{Binding Minimum, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource floatStringConverter}}" Width="50" />
                                 </StackPanel>
                                 <TextBlock Grid.Row="1" Grid.Column="0" Text="Y Maximum: " VerticalAlignment="Center" HorizontalAlignment="Right" />
                                 <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="0,5">
-                                    <Slider Width="200" Minimum="{Binding MinMaximum}" Maximum="{Binding MaxMaximum}" Value="{Binding Maximum,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
-                                    <TextBox Text="{Binding Maximum, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource floatStringConverter}}" Width="50" />
+                                    <Slider IsEnabled="{Binding FeaturesEnabled}" Width="200" Minimum="{Binding MinMaximum}" Maximum="{Binding MaxMaximum}" Value="{Binding Maximum,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                                    <TextBox IsEnabled="{Binding FeaturesEnabled}" Text="{Binding Maximum, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource floatStringConverter}}" Width="50" />
                                 </StackPanel>
                             </Grid>
-                            <Button Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5">
+                            <Button IsEnabled="{Binding FeaturesEnabled}" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="Click">
+                                        <cal:ActionMessage MethodName="ExportChart">
+                                            <cal:Parameter Value="{Binding ElementName=MainChart}" />
+                                        </cal:ActionMessage>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/B3;component/Images/export_graph.png" Width="32" Height="32" VerticalAlignment="Center" />
                                     <TextBlock Text="Export" VerticalAlignment="Center" Margin="5" />

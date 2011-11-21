@@ -108,7 +108,7 @@ namespace IndiaTango.ViewModels
         private int _maxMaximum;
         #endregion
         #endregion
-
+        private bool _featuresEnabled = true;
         #endregion
 
         #region Public Parameters
@@ -297,7 +297,7 @@ namespace IndiaTango.ViewModels
         /// <summary>
         /// Determines if the date range should be shown based on if things are being graphed or not
         /// </summary>
-        public bool CanEditDates { get { return (_sensorsToGraph.Count > 0); } }
+        public bool CanEditDates { get { return (_sensorsToGraph.Count > 0 && FeaturesEnabled); } }
 
         #region YAxisControls
 
@@ -382,6 +382,18 @@ namespace IndiaTango.ViewModels
                 }
 
                 SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
+            }
+        }
+
+        public bool FeaturesEnabled
+        {
+            get { return _featuresEnabled; }
+
+            set
+            {
+                _featuresEnabled = value;
+                NotifyOfPropertyChange(() => FeaturesEnabled);
+                NotifyOfPropertyChange(() => CanEditDates);
             }
         }
 
@@ -516,6 +528,16 @@ namespace IndiaTango.ViewModels
                 max[0] = value.Y;
             }
             return max[0];
+        }
+
+        private void DisableFeatures()
+        {
+            FeaturesEnabled = false;
+        }
+
+        private void EnableFeatures()
+        {
+            FeaturesEnabled = true;
         }
 
         #endregion
@@ -666,9 +688,9 @@ namespace IndiaTango.ViewModels
 
 
                                              ShowProgressArea = false;
-                                             //TODO: Re-enable the things that we disabled
+                                             EnableFeatures();
                                          };
-            //TODO: Disable the things
+            DisableFeatures();
             bw.RunWorkerAsync();
         }
 
@@ -698,10 +720,11 @@ namespace IndiaTango.ViewModels
             bw.RunWorkerCompleted += (o, e) =>
                                          {
                                              ShowProgressArea = false;
-                                             //TODO: Renable locked out features
+                                             EnableFeatures();
                                          };
             ProgressIndeterminate = true;
             ShowProgressArea = true;
+            DisableFeatures();
             bw.RunWorkerAsync();
         }
 
@@ -801,10 +824,10 @@ namespace IndiaTango.ViewModels
             {
                 ShowProgressArea = false;
                 Title = string.Format("B3: {0}", CurrentDataset.Site.Name);
-                //TODO: Reset all waiting
+                EnableFeatures();
             };
-            //TODO: Freeze all users work while we load
 
+            DisableFeatures();
             bw.RunWorkerAsync();
         }
 
@@ -832,7 +855,14 @@ namespace IndiaTango.ViewModels
 
         public void ClosingRequested(CancelEventArgs eventArgs)
         {
-            //TODO: Check for save
+            if (!FeaturesEnabled)
+            {
+                eventArgs.Cancel = true;
+                return;
+            }
+
+            if (CurrentDataset != null && Common.Confirm("Save?", string.Format("Do you want to save {0} before closing?", CurrentDataset.Site.Name)))
+                Save();
 
             Debug.WriteLine("Closing Program");
         }
@@ -919,6 +949,31 @@ namespace IndiaTango.ViewModels
                 return;
             CurrentDataset.Sensors.Remove(gSensor.Sensor);
             NotifyOfPropertyChange(() => GraphableSensors);
+        }
+
+        public void ExportChart(Chart chart)
+        {
+            if (_sensorsToGraph.Count == 0)
+            {
+                Common.ShowMessageBox("No Graph Showing",
+                                      "You haven't selected a sensor to graph so there is nothing to export!", false,
+                                      false);
+                return;
+            }
+
+            var exportView = (_container.GetInstance(typeof(ExportToImageViewModel), "ExportToImageViewModel") as ExportToImageViewModel);
+            if (exportView == null)
+            {
+                EventLogger.LogError(null, "Image Exporter", "Failed to get a export image view");
+                return;
+            }
+
+            //Set up the view
+            exportView.Chart = chart;
+            exportView.SelectedSensors = _sensorsToGraph.ToArray();
+
+            //Show the dialog
+            _windowManager.ShowDialog(exportView);
         }
 
         #endregion
