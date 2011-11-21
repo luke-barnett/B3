@@ -37,14 +37,8 @@ namespace IndiaTango.ViewModels
             _runningMeanStandardDeviationDetector = new RunningMeanStandardDeviationDetector();
             _runningMeanStandardDeviationDetector.GraphUpdateNeeded += UpdateGraph;
 
-            _runningMeanStandardDeviationDetector.RefreshDetectedValues += delegate
-            {
-                //TODO:
-                /*if (!_selectedMethods.Contains(_runningMeanStandardDeviationDetector))
-                    return;
-                RemoveDetectionMethod(_runningMeanStandardDeviationDetector);
-                AddDetectionMethod(_runningMeanStandardDeviationDetector);*/
-            };
+            _runningMeanStandardDeviationDetector.RefreshDetectedValues +=
+                () => CheckTheseMethods(new Collection<IDetectionMethod> {_runningMeanStandardDeviationDetector});
 
             _missingValuesDetector = new MissingValuesDetector();
 
@@ -66,6 +60,17 @@ namespace IndiaTango.ViewModels
                 {
                     sensor.SetUpperAndLowerBounds(StartTime, EndTime);
                 }
+                foreach (var detectionMethod in _detectionMethods.Where(x => x.IsEnabled))
+                {
+                    var itemsToRemove =
+                        detectionMethod.ListBox.Items.Cast<ErroneousValue>().Where(
+                            x => x.TimeStamp < StartTime || x.TimeStamp > EndTime).ToList();
+
+                    foreach (var erroneousValue in itemsToRemove)
+                    {
+                        detectionMethod.ListBox.Items.Remove(erroneousValue);
+                    }
+                }
                 SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
             };
             zoomBehaviour.ZoomResetRequested += o =>
@@ -74,6 +79,7 @@ namespace IndiaTango.ViewModels
                 {
                     sensor.RemoveBounds();
                 }
+                CheckTheseMethods(_detectionMethods.Where(x => x.IsEnabled));
                 SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
                 CalculateGraphedEndPoints();
             };
@@ -1243,7 +1249,7 @@ namespace IndiaTango.ViewModels
 
             foreach (var detectionMethod in _detectionMethods.Where(x => x.IsEnabled))
             {
-                Debug.Print("{0} is enabled checking to remove values",detectionMethod.Name);
+                Debug.Print("{0} is enabled checking to remove values", detectionMethod.Name);
 
                 var itemsToRemove =
                     detectionMethod.ListBox.Items.Cast<ErroneousValue>().Where(

@@ -55,7 +55,7 @@ namespace IndiaTango.Models
             get
             {
                 var wrapperGrid = new Grid();
-                wrapperGrid.Children.Add(new TextBlock { Text = "No Settings" });
+                //wrapperGrid.Children.Add(new TextBlock { Text = "No Settings" });
                 return wrapperGrid;
             }
         }
