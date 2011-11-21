@@ -21,7 +21,7 @@ namespace IndiaTango.ViewModels
             _windowManager = windowManager;
             _container = container;
 
-            _selectedSensors = new List<GraphableSensor>();
+            _sensorsToGraph = new List<GraphableSensor>();
 
             #region Set Up Behaviours
 
@@ -33,19 +33,19 @@ namespace IndiaTango.ViewModels
             {
                 StartTime = (DateTime)e.FirstPoint.X;
                 EndTime = (DateTime)e.SecondPoint.X;
-                foreach (var sensor in _selectedSensors)
+                foreach (var sensor in _sensorsToGraph)
                 {
                     sensor.SetUpperAndLowerBounds(StartTime, EndTime);
                 }
-                SampleValues(Common.MaximumGraphablePoints, _selectedSensors);
+                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
             };
             zoomBehaviour.ZoomResetRequested += o =>
             {
-                foreach (var sensor in _selectedSensors)
+                foreach (var sensor in _sensorsToGraph)
                 {
                     sensor.RemoveBounds();
                 }
-                SampleValues(Common.MaximumGraphablePoints, _selectedSensors);
+                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
                 CalculateGraphedEndPoints();
             };
 
@@ -94,7 +94,7 @@ namespace IndiaTango.ViewModels
         private string _chartTitle;
         private string _yAxisTitle;
         private DoubleRange _range;
-        private readonly List<GraphableSensor> _selectedSensors;
+        private readonly List<GraphableSensor> _sensorsToGraph;
         private int _sampleRate;
         private DateTime _startTime;
         private DateTime _endTime;
@@ -297,7 +297,7 @@ namespace IndiaTango.ViewModels
         /// <summary>
         /// Determines if the date range should be shown based on if things are being graphed or not
         /// </summary>
-        public bool CanEditDates { get { return (_selectedSensors.Count > 0); } }
+        public bool CanEditDates { get { return (_sensorsToGraph.Count > 0); } }
 
         #region YAxisControls
 
@@ -381,7 +381,7 @@ namespace IndiaTango.ViewModels
                     Common.MaximumGraphablePoints = int.MaxValue;
                 }
 
-                SampleValues(Common.MaximumGraphablePoints, _selectedSensors);
+                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
             }
         }
 
@@ -440,7 +440,7 @@ namespace IndiaTango.ViewModels
             var minimum = DateTime.MaxValue;
             var maximum = DateTime.MinValue;
 
-            foreach (var sensor in _selectedSensors)
+            foreach (var sensor in _sensorsToGraph)
             {
                 if (sensor.DataPoints.Count() <= 0) continue;
 
@@ -814,14 +814,14 @@ namespace IndiaTango.ViewModels
         public void UpdateGraph()
         {
             Debug.WriteLine("Updating Graph");
-            ChartTitle = (_selectedSensors.Count > 0) ? string.Format("{0} [{1}m]", _selectedSensors[0].Sensor.Name, _selectedSensors[0].Sensor.Depth) : String.Empty;
+            ChartTitle = (_sensorsToGraph.Count > 0) ? string.Format("{0} [{1}m]", _sensorsToGraph[0].Sensor.Name, _sensorsToGraph[0].Sensor.Depth) : String.Empty;
 
-            for (var i = 1; i < _selectedSensors.Count; i++)
-                ChartTitle += string.Format(" and {0} [{1}m]", _selectedSensors[i].Sensor.Name, _selectedSensors[i].Sensor.Depth);
+            for (var i = 1; i < _sensorsToGraph.Count; i++)
+                ChartTitle += string.Format(" and {0} [{1}m]", _sensorsToGraph[i].Sensor.Name, _sensorsToGraph[i].Sensor.Depth);
 
-            YAxisTitle = ((from sensor in _selectedSensors select sensor.Sensor.Unit).Distinct().Count() == 1) ? _selectedSensors[0].Sensor.Unit : String.Empty;
+            YAxisTitle = ((from sensor in _sensorsToGraph select sensor.Sensor.Unit).Distinct().Count() == 1) ? _sensorsToGraph[0].Sensor.Unit : String.Empty;
 
-            SampleValues(Common.MaximumGraphablePoints, _selectedSensors);
+            SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
             CalculateGraphedEndPoints();
             NotifyOfPropertyChange(() => CanEditDates);
         }
@@ -841,7 +841,7 @@ namespace IndiaTango.ViewModels
         {
             var checkBox = (System.Windows.Controls.CheckBox)eventArgs.Source;
             var graphableSensor = (GraphableSensor)checkBox.Content;
-            _selectedSensors.Add(graphableSensor);
+            _sensorsToGraph.Add(graphableSensor);
             Debug.Print("{0} was added to the graph list", graphableSensor.Sensor);
             UpdateGraph();
         }
@@ -850,8 +850,8 @@ namespace IndiaTango.ViewModels
         {
             var checkBox = (System.Windows.Controls.CheckBox)eventArgs.Source;
             var graphableSensor = (GraphableSensor)checkBox.Content;
-            if (_selectedSensors.Contains(graphableSensor))
-                _selectedSensors.Remove(graphableSensor);
+            if (_sensorsToGraph.Contains(graphableSensor))
+                _sensorsToGraph.Remove(graphableSensor);
             Debug.Print("{0} was removed from the graph list", graphableSensor.Sensor);
             UpdateGraph();
         }
@@ -875,11 +875,11 @@ namespace IndiaTango.ViewModels
             else
                 StartTime = e.OldValue;
 
-            foreach (var sensor in _selectedSensors)
+            foreach (var sensor in _sensorsToGraph)
             {
                 sensor.SetUpperAndLowerBounds(StartTime, EndTime);
             }
-            SampleValues(Common.MaximumGraphablePoints, _selectedSensors);
+            SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
         }
 
         /// <summary>
@@ -896,21 +896,29 @@ namespace IndiaTango.ViewModels
             else
                 EndTime = e.OldValue;
 
-            foreach (var sensor in _selectedSensors)
+            foreach (var sensor in _sensorsToGraph)
             {
                 sensor.SetUpperAndLowerBounds(StartTime, EndTime);
             }
-            SampleValues(Common.MaximumGraphablePoints, _selectedSensors);
+            SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
         }
 
         public void ColourChanged(RoutedPropertyChangedEventArgs<Color> args)
         {
             Debug.Print("Colour changed from {0} to {1}", args.OldValue, args.NewValue);
 
-            if(_selectedSensors.Count > 0)
+            if (_sensorsToGraph.Count > 0)
             {
                 UpdateGraph();
             }
+        }
+
+        public void DeleteSensor(GraphableSensor gSensor)
+        {
+            if (!Common.Confirm("Are you sure?", string.Format("Do you really want to delete {0}?", gSensor.Sensor.Name)))
+                return;
+            CurrentDataset.Sensors.Remove(gSensor.Sensor);
+            NotifyOfPropertyChange(() => GraphableSensors);
         }
 
         #endregion

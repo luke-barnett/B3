@@ -59,6 +59,19 @@
 
                 <GroupBox Grid.Row="0" x:Name="TableSection" Margin="0,0,0,5" Header="Sensors" BorderBrush="OrangeRed">
                     <DataGrid x:Name="DataGrid" ItemsSource="{Binding GraphableSensors}" AlternatingRowBackground="LightGray" AlternationCount="2" AutoGenerateColumns="False" CanUserReorderColumns="True" FrozenColumnCount="3" BorderThickness="0" Background="Transparent">
+                        <DataGrid.ContextMenu>
+                            <ContextMenu x:Name="dataGridContextMenu">
+                                <MenuItem Header="Delete">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Click">
+                                            <cal:ActionMessage MethodName="DeleteSensor">
+                                                <cal:Parameter Value="{Binding ElementName=DataGrid, Path=SelectedItem}" />
+                                            </cal:ActionMessage>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </MenuItem>
+                            </ContextMenu>
+                        </DataGrid.ContextMenu>
                         <DataGrid.Columns>
                             <DataGridTemplateColumn Header="Edit">
                                 <DataGridTemplateColumn.CellTemplate>

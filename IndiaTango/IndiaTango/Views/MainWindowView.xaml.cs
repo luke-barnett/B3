@@ -10,6 +10,7 @@ namespace IndiaTango.Views
         public MainWindowView()
         {
             InitializeComponent();
+            NameScope.SetNameScope(dataGridContextMenu, NameScope.GetNameScope(this));
         }
     }
 }
