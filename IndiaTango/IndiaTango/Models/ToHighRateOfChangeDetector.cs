@@ -59,6 +59,11 @@ namespace IndiaTango.Models
             return _owner.GraphableSeries(sensorToBaseOn, startDate, endDate);
         }
 
+        public List<LineSeries> GraphableSeries(DateTime startDate, DateTime endDate)
+        {
+            return _owner.GraphableSeries(startDate, endDate);
+        }
+
         public List<IDetectionMethod> Children
         {
             get { return new List<IDetectionMethod>(); }
@@ -67,5 +72,10 @@ namespace IndiaTango.Models
         public bool IsEnabled { get; set; }
 
         public ListBox ListBox { get; set; }
+
+        public Sensor[] SensorOptions
+        {
+            set { return; }
+        }
     }
 }

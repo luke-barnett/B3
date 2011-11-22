@@ -75,6 +75,11 @@ namespace IndiaTango.Models
             throw new NotImplementedException();
         }
 
+        public List<LineSeries> GraphableSeries(DateTime startDate, DateTime endDate)
+        {
+            throw new NotImplementedException();
+        }
+
         public List<IDetectionMethod> Children
         {
             get { return new List<IDetectionMethod>(); }
@@ -83,5 +88,10 @@ namespace IndiaTango.Models
         public bool IsEnabled { get; set; }
 
         public ListBox ListBox { get; set; }
+
+        public Sensor[] SensorOptions
+        {
+            set { return; }
+        }
     }
 }

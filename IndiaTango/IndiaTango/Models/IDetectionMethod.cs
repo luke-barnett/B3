@@ -56,6 +56,11 @@ namespace IndiaTango.Models
         List<LineSeries> GraphableSeries(Sensor sensorToBaseOn, DateTime startDate, DateTime endDate);
 
         /// <summary>
+        /// The list of series that relate to this detection method
+        /// </summary>
+        List<LineSeries> GraphableSeries(DateTime startDate, DateTime endDate);
+
+        /// <summary>
         /// The detection methods children
         /// </summary>
         List<IDetectionMethod> Children { get; }
@@ -69,5 +74,7 @@ namespace IndiaTango.Models
         /// The list box to put detected values into
         /// </summary>
         ListBox ListBox { get; set; }
+
+        Sensor[] SensorOptions { set; }
     }
 }

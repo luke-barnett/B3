@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Visiblox.Charts;
@@ -12,6 +13,9 @@ namespace IndiaTango.Models
         private readonly BelowMinValueDetector _belowMinValue;
         private readonly ToHighRateOfChangeDetector _highRateOfChange;
         private bool _showMaxMinLines;
+        private Sensor _selectedSensor;
+
+        private ComboBox _sensorsCombo;
 
         public event UpdateGraph GraphUpdateNeeded;
 
@@ -67,7 +71,8 @@ namespace IndiaTango.Models
             get
             {
                 var wrapperGrid = new Grid();
-                var checkBox = new CheckBox {Content = new TextBlock {Text = "Graph Upper and Lower Limits"}, IsChecked = _showMaxMinLines};
+                var stackPanel = new StackPanel();
+                var checkBox = new CheckBox { Content = new TextBlock { Text = "Graph Upper and Lower Limits" }, IsChecked = _showMaxMinLines };
                 checkBox.Checked += (o, e) =>
                                         {
                                             _showMaxMinLines = true;
@@ -78,7 +83,28 @@ namespace IndiaTango.Models
                                               _showMaxMinLines = false;
                                               GraphUpdateNeeded();
                                           };
-                wrapperGrid.Children.Add(checkBox);
+
+                stackPanel.Children.Add(checkBox);
+
+                var graphOptions = new StackPanel { Orientation = Orientation.Horizontal };
+
+                graphOptions.Children.Add(new TextBlock { Text = "What sensor to use when graphing lines", Margin = new Thickness(0, 0, 10, 0) });
+
+                _sensorsCombo = new ComboBox();
+
+                _sensorsCombo.SelectionChanged += (o, e) =>
+                {
+                    if (e.AddedItems.Count < 1)
+                        return;
+                    _selectedSensor = e.AddedItems[0] as Sensor;
+                    GraphUpdateNeeded();
+                };
+
+                graphOptions.Children.Add(_sensorsCombo);
+
+                stackPanel.Children.Add(graphOptions);
+
+                wrapperGrid.Children.Add(stackPanel);
                 return wrapperGrid;
             }
         }
@@ -101,9 +127,14 @@ namespace IndiaTango.Models
             return new List<LineSeries> { new LineSeries { DataSeries = new DataSeries<DateTime, float>("Upper Limit") { new DataPoint<DateTime, float>(startDate, sensorToBaseOn.UpperLimit), new DataPoint<DateTime, float>(endDate, sensorToBaseOn.UpperLimit) }, LineStroke = Brushes.OrangeRed }, new LineSeries { DataSeries = new DataSeries<DateTime, float>("Lower Limit") { new DataPoint<DateTime, float>(startDate, sensorToBaseOn.LowerLimit), new DataPoint<DateTime, float>(endDate, sensorToBaseOn.LowerLimit) }, LineStroke = Brushes.OrangeRed } };
         }
 
+        public List<LineSeries> GraphableSeries(DateTime startDate, DateTime endDate)
+        {
+            return (_sensorsCombo.SelectedIndex == -1) ? new List<LineSeries>() : new List<LineSeries> { new LineSeries { DataSeries = new DataSeries<DateTime, float>("Upper Limit") { new DataPoint<DateTime, float>(startDate, _selectedSensor.UpperLimit), new DataPoint<DateTime, float>(endDate, _selectedSensor.UpperLimit) }, LineStroke = Brushes.OrangeRed }, new LineSeries { DataSeries = new DataSeries<DateTime, float>("Lower Limit") { new DataPoint<DateTime, float>(startDate, _selectedSensor.LowerLimit), new DataPoint<DateTime, float>(endDate, _selectedSensor.LowerLimit) }, LineStroke = Brushes.OrangeRed } };
+        }
+
         public List<IDetectionMethod> Children
         {
-            get { return new List<IDetectionMethod> {_aboveMaxValue, _belowMinValue, _highRateOfChange}; }
+            get { return new List<IDetectionMethod> { _aboveMaxValue, _belowMinValue, _highRateOfChange }; }
         }
 
         public override string ToString()
@@ -114,6 +145,23 @@ namespace IndiaTango.Models
         public bool IsEnabled { get; set; }
 
         public ListBox ListBox { get; set; }
+
+        public Sensor[] SensorOptions
+        {
+            set
+            {
+                _sensorsCombo.Items.Clear();
+                foreach (var sensor in value)
+                {
+                    _sensorsCombo.Items.Add(sensor);
+                }
+
+                if (_sensorsCombo.Items.Count == 1)
+                    _sensorsCombo.SelectedIndex = 0;
+                else if (!_sensorsCombo.Items.Contains(_selectedSensor))
+                    GraphUpdateNeeded();
+            }
+        }
     }
 
     public delegate void UpdateGraph();

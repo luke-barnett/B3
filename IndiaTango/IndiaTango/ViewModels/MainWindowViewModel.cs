@@ -38,7 +38,7 @@ namespace IndiaTango.ViewModels
             _runningMeanStandardDeviationDetector.GraphUpdateNeeded += UpdateGraph;
 
             _runningMeanStandardDeviationDetector.RefreshDetectedValues +=
-                () => CheckTheseMethods(new Collection<IDetectionMethod> {_runningMeanStandardDeviationDetector});
+                () => CheckTheseMethods(new Collection<IDetectionMethod> { _runningMeanStandardDeviationDetector });
 
             _missingValuesDetector = new MissingValuesDetector();
 
@@ -475,14 +475,24 @@ namespace IndiaTango.ViewModels
 
             HideBackground();
 
+
+            var numberOfDetectorsGraphsToCountAsSensors = sensors.Count > 0 ? _detectionMethods.Where(x => x.IsEnabled && x.HasGraphableSeries).Count(detectionMethod => detectionMethod.GraphableSeries(sensors.ElementAt(0).Sensor, StartTime, EndTime).Where(x => (double)x.DataSeries.Cast<DataPoint<DateTime, float>>().Count() / (double)sensors.ElementAt(0).DataPoints.Count() > 0.1d).Count() > 0) : 0;
+
+            Debug.Print("There are {0} lines that have been counted as sensors for sampling", numberOfPoints);
+
             foreach (var sensor in sensors)
             {
-                _sampleRate = sensor.DataPoints.Count() / (numberOfPoints / sensors.Count);
+                _sampleRate = sensor.DataPoints.Count() / (numberOfPoints / (sensors.Count + numberOfDetectorsGraphsToCountAsSensors));
                 Debug.Print("Number of points: {0} Max Number {1} Sampling rate {2}", sensor.DataPoints.Count(), numberOfPoints, _sampleRate);
 
                 var series = (_sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints.Where((x, index) => index % _sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints);
                 generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour), Name = sensor.Sensor.Name });
                 if (_sampleRate > 1) ShowBackground();
+            }
+
+            foreach (var detectionMethod in _detectionMethods.Where(x => x.IsEnabled && x.HasGraphableSeries))
+            {
+                generatedSeries.AddRange(detectionMethod.GraphableSeries(StartTime, EndTime));
             }
 
             var min = MinimumY(generatedSeries);
@@ -780,6 +790,16 @@ namespace IndiaTango.ViewModels
             ProgressIndeterminate = true;
             DisableFeatures();
             bw.RunWorkerAsync();
+        }
+
+        private void UpdateDetectionMethodGraphableSensors()
+        {
+            var availableOptions =
+                _sensorsToGraph.Where(x => _sensorsToCheckMethodsAgainst.Contains(x.Sensor)).Select(x => x.Sensor).ToArray();
+            foreach (var detectionMethod in _detectionMethods)
+            {
+                detectionMethod.SensorOptions = availableOptions;
+            }
         }
 
         #endregion
@@ -1121,6 +1141,7 @@ namespace IndiaTango.ViewModels
             _sensorsToGraph.Add(graphableSensor);
             Debug.Print("{0} was added to the graph list", graphableSensor.Sensor);
             UpdateGraph();
+            UpdateDetectionMethodGraphableSensors();
         }
 
         public void RemoveFromGraph(RoutedEventArgs eventArgs)
@@ -1131,6 +1152,7 @@ namespace IndiaTango.ViewModels
                 _sensorsToGraph.Remove(graphableSensor);
             Debug.Print("{0} was removed from the graph list", graphableSensor.Sensor);
             UpdateGraph();
+            UpdateDetectionMethodGraphableSensors();
         }
 
         public void ShowCurrentSiteInformation()

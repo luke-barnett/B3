@@ -33,6 +33,11 @@ namespace IndiaTango.Models
         //The current sensor
         private Sensor _currentSensor;
 
+        //The sensor chosen to graph with
+        private Sensor _graphedSensor;
+
+        private ComboBox _sensorsCombo;
+
         public override string ToString()
         {
             return string.Empty;
@@ -77,7 +82,7 @@ namespace IndiaTango.Models
                 var stackPanel = new StackPanel();
 
                 var graphGrid = new Grid();
-                var graphCheckBox = new CheckBox { Content = new TextBlock { Text = "Show Graph" }, HorizontalAlignment = HorizontalAlignment.Left, IsChecked = _showGraph};
+                var graphCheckBox = new CheckBox { Content = new TextBlock { Text = "Show Graph" }, HorizontalAlignment = HorizontalAlignment.Left, IsChecked = _showGraph };
 
                 graphCheckBox.Checked += (o, e) =>
                                              {
@@ -99,6 +104,24 @@ namespace IndiaTango.Models
                 graphGrid.Children.Add(updateGraphButton);
 
                 stackPanel.Children.Add(graphGrid);
+
+                var graphOptions = new StackPanel { Orientation = Orientation.Horizontal };
+
+                graphOptions.Children.Add(new TextBlock { Text = "What sensor to use when graphing lines", Margin = new Thickness(0, 0, 10, 0) });
+
+                _sensorsCombo = new ComboBox();
+
+                _sensorsCombo.SelectionChanged += (o, e) =>
+                                                      {
+                                                          if(e.AddedItems.Count < 1)
+                                                              return;
+                                                          _graphedSensor = e.AddedItems[0] as Sensor;
+                                                          GraphUpdateNeeded();
+                                                      };
+
+                graphOptions.Children.Add(_sensorsCombo);
+
+                stackPanel.Children.Add(graphOptions);
 
                 var smoothingPeriodGrid = new Grid();
                 smoothingPeriodGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
@@ -238,6 +261,35 @@ namespace IndiaTango.Models
             return new List<LineSeries> { upperLine, lowerLine };
         }
 
+        public List<LineSeries> GraphableSeries(DateTime startDate, DateTime endDate)
+        {
+            if (!HasGraphableSeries || _sensorsCombo.SelectedIndex == -1)
+                return new List<LineSeries>();
+
+            if (_currentSensor != _graphedSensor)
+                GenerateUpperAndLowerLines(_graphedSensor);
+
+            var upperLine = new LineSeries
+            {
+                DataSeries =
+                    new DataSeries<DateTime, float>("Upper Deviation",
+                    (from point in _upperLine
+                     where point.Key >= startDate && point.Key <= endDate
+                     select new DataPoint<DateTime, float>(point.Key, point.Value)).OrderBy(x => x.X)),
+                LineStroke = Brushes.OrangeRed
+            };
+            var lowerLine = new LineSeries
+            {
+                DataSeries =
+                    new DataSeries<DateTime, float>("Lower Deviation",
+                    (from point in _lowerLine
+                     where point.Key >= startDate && point.Key <= endDate
+                     select new DataPoint<DateTime, float>(point.Key, point.Value)).OrderBy(x => x.X)),
+                LineStroke = Brushes.OrangeRed
+            };
+            return new List<LineSeries> { upperLine, lowerLine };
+        }
+
         public List<IDetectionMethod> Children
         {
             get { return new List<IDetectionMethod>(); }
@@ -265,7 +317,7 @@ namespace IndiaTango.Models
             //Set Current Sensor
             _currentSensor = sensor;
 
-            if(_currentSensor == null)
+            if (_currentSensor == null)
                 return;
 
             Debug.WriteLine("Generating Lines");
@@ -280,7 +332,7 @@ namespace IndiaTango.Models
                 var meanValues = new List<float>();
                 for (var i = value.Key.AddMinutes(-(timeGap * (_smoothingPeriod / 2 / timeGap))); i < value.Key.AddMinutes((timeGap * (_smoothingPeriod / 2 / timeGap))); i = i.AddMinutes(timeGap))
                 {
-                    if(_currentSensor.CurrentState.Values.ContainsKey(i))
+                    if (_currentSensor.CurrentState.Values.ContainsKey(i))
                         meanValues.Add(_currentSensor.CurrentState.Values[i]);
                 }
 
@@ -301,6 +353,23 @@ namespace IndiaTango.Models
         }
 
         public ListBox ListBox { get; set; }
+
+        public Sensor[] SensorOptions
+        {
+            set
+            {
+                _sensorsCombo.Items.Clear();
+                foreach (var sensor in value)
+                {
+                    _sensorsCombo.Items.Add(sensor);
+                }
+
+                if (_sensorsCombo.Items.Count == 1)
+                    _sensorsCombo.SelectedIndex = 0;
+                else if (!_sensorsCombo.Items.Contains(_graphedSensor))
+                    GraphUpdateNeeded();
+            }
+        }
     }
 
     public delegate void Updated();
