@@ -134,7 +134,7 @@
                 </GroupBox>
 
                 <GroupBox Grid.Row="1" x:Name="TabSection" Header="Detection Methods" BorderBrush="OrangeRed">
-                    <TabControl BorderThickness="0" Background="Transparent" IsEnabled="{Binding FeaturesEnabled}" ItemsSource="{Binding DetectionTabItems}" />
+                    <TabControl SelectedIndex="0" BorderThickness="0" Background="Transparent" IsEnabled="{Binding FeaturesEnabled}" ItemsSource="{Binding DetectionTabItems}" />
                 </GroupBox>
             </Grid>
             <Rectangle Grid.Column="1" Fill="OrangeRed" Width="0" />

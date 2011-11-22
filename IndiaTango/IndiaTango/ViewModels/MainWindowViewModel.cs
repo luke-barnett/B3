@@ -15,7 +15,6 @@ using Caliburn.Micro;
 using IndiaTango.Models;
 using Microsoft.Windows.Controls;
 using Visiblox.Charts;
-using Application = System.Windows.Application;
 using Button = System.Windows.Controls.Button;
 using CheckBox = System.Windows.Controls.CheckBox;
 using GroupBox = System.Windows.Controls.GroupBox;
@@ -87,8 +86,8 @@ namespace IndiaTango.ViewModels
                     sensor.RemoveBounds();
                 }
                 CheckTheseMethods(_detectionMethods.Where(x => x.IsEnabled));
-                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
                 CalculateGraphedEndPoints();
+                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
             };
 
             behaviourManager.Behaviours.Add(zoomBehaviour);

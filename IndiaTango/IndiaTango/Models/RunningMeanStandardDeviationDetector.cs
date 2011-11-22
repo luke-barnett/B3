@@ -105,7 +105,7 @@ namespace IndiaTango.Models
 
                 stackPanel.Children.Add(graphGrid);
 
-                var graphOptions = new StackPanel { Orientation = Orientation.Horizontal };
+                var graphOptions = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 5, 0, 0) };
 
                 graphOptions.Children.Add(new TextBlock { Text = "What sensor to use when graphing lines", Margin = new Thickness(0, 0, 10, 0) });
 
@@ -113,7 +113,7 @@ namespace IndiaTango.Models
 
                 _sensorsCombo.SelectionChanged += (o, e) =>
                                                       {
-                                                          if(e.AddedItems.Count < 1)
+                                                          if (e.AddedItems.Count < 1)
                                                               return;
                                                           _graphedSensor = e.AddedItems[0] as Sensor;
                                                           GraphUpdateNeeded();
