@@ -9,13 +9,20 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
 using Caliburn.Micro;
 using IndiaTango.Models;
+using Microsoft.Windows.Controls;
 using Visiblox.Charts;
+using Application = System.Windows.Application;
+using Button = System.Windows.Controls.Button;
 using CheckBox = System.Windows.Controls.CheckBox;
 using GroupBox = System.Windows.Controls.GroupBox;
+using HorizontalAlignment = System.Windows.HorizontalAlignment;
 using ListBox = System.Windows.Controls.ListBox;
 using Orientation = System.Windows.Controls.Orientation;
+using Path = System.IO.Path;
 
 namespace IndiaTango.ViewModels
 {
@@ -478,7 +485,7 @@ namespace IndiaTango.ViewModels
             var numberOfDetectorsGraphsToCountAsSensors = 0;
 
             if (sensors.Count > 0)
-                numberOfDetectorsGraphsToCountAsSensors += _detectionMethods.Where(x => x.IsEnabled && x.HasGraphableSeries).Sum(detectionMethod => (from lineSeries in detectionMethod.GraphableSeries(sensors.ElementAt(0).Sensor, StartTime, EndTime) select lineSeries.DataSeries.Cast<DataPoint<DateTime, float>>().Count() into numberInLineSeries let numberInSensor = sensors.ElementAt(0).DataPoints.Count() select numberInLineSeries/(double) numberInSensor).Count(percentage => percentage > 0.2d));
+                numberOfDetectorsGraphsToCountAsSensors += _detectionMethods.Where(x => x.IsEnabled && x.HasGraphableSeries).Sum(detectionMethod => (from lineSeries in detectionMethod.GraphableSeries(sensors.ElementAt(0).Sensor, StartTime, EndTime) select lineSeries.DataSeries.Cast<DataPoint<DateTime, float>>().Count() into numberInLineSeries let numberInSensor = sensors.ElementAt(0).DataPoints.Count() select numberInLineSeries / (double)numberInSensor).Count(percentage => percentage > 0.2d));
 
 
             Debug.Print("There are {0} lines that have been counted as sensors for sampling", numberOfDetectorsGraphsToCountAsSensors);
@@ -635,6 +642,7 @@ namespace IndiaTango.ViewModels
             tabItemGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
             tabItemGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
             tabItemGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+            tabItemGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
 
             var title = new TextBlock { Text = method.Name, FontWeight = FontWeights.Bold, FontSize = 16, Margin = new Thickness(3), TextWrapping = TextWrapping.Wrap };
 
@@ -690,6 +698,121 @@ namespace IndiaTango.ViewModels
 
             tabItemGrid.Children.Add(detectionMethodListBox);
 
+            var actions = new GroupBox { Header = "Actions", BorderBrush = Brushes.OrangeRed };
+
+            var actionsStackPanelWrapper = new StackPanel();
+
+            var undoRedoWrap = new WrapPanel { HorizontalAlignment = HorizontalAlignment.Center };
+
+            var undoButton = new SplitButton { FontSize = 15, Width = 155, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(5) };
+
+            var undoButtonStackPanel = new StackPanel { Orientation = Orientation.Horizontal };
+
+            undoButtonStackPanel.Children.Add(new Image { Width = 32, Height = 32, Source = new BitmapImage(new Uri("pack://application:,,,/Images/cancel_32.png", UriKind.Absolute)) });
+            undoButtonStackPanel.Children.Add(new TextBlock { Text = "Undo", VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center });
+
+            undoButton.Content = undoButtonStackPanel;
+
+            undoRedoWrap.Children.Add(undoButton);
+
+            var redoButton = new SplitButton { FontSize = 15, Width = 155, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(5) };
+
+            var redoButtonStackPanel = new StackPanel { Orientation = Orientation.Horizontal };
+
+            redoButtonStackPanel.Children.Add(new Image { Width = 32, Height = 32, Source = new BitmapImage(new Uri("pack://application:,,,/Images/redo_32.png", UriKind.Absolute)) });
+            redoButtonStackPanel.Children.Add(new TextBlock { Text = "Redo", VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center });
+
+            redoButton.Content = redoButtonStackPanel;
+
+            undoRedoWrap.Children.Add(redoButton);
+
+            actionsStackPanelWrapper.Children.Add(undoRedoWrap);
+
+            actionsStackPanelWrapper.Children.Add(new Rectangle { Height = 3, Margin = new Thickness(0, 10, 0, 10), Fill = Brushes.OrangeRed, Stroke = Brushes.White, SnapsToDevicePixels = true });
+
+            var dataEditingWrapper = new WrapPanel { Margin = new Thickness(5) };
+
+            var extrapolateButton = new Button
+                                        {
+                                            FontSize = 15,
+                                            Width = 100,
+                                            Height = 100,
+                                            VerticalAlignment = VerticalAlignment.Center,
+                                            HorizontalAlignment = HorizontalAlignment.Right,
+                                            Margin = new Thickness(5),
+                                            VerticalContentAlignment = VerticalAlignment.Bottom
+                                        };
+
+            var extrapolateButtonStackPanel = new StackPanel();
+
+            extrapolateButtonStackPanel.Children.Add(new Image { Width = 64, Height = 64, Source = new BitmapImage(new Uri("pack://application:,,,/Images/graph_extrapolate.png", UriKind.Absolute)) });
+            extrapolateButtonStackPanel.Children.Add(new TextBlock
+                                                         {
+                                                             Text = "Extrapolate",
+                                                             HorizontalAlignment = HorizontalAlignment.Center
+                                                         });
+
+
+
+            extrapolateButton.Content = extrapolateButtonStackPanel;
+
+            dataEditingWrapper.Children.Add(extrapolateButton);
+
+            var deleteButton = new Button
+            {
+                FontSize = 15,
+                Width = 100,
+                Height = 100,
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                Margin = new Thickness(5),
+                VerticalContentAlignment = VerticalAlignment.Bottom
+            };
+
+            var deleteButtonStackPanel = new StackPanel();
+
+            deleteButtonStackPanel.Children.Add(new Image { Width = 64, Height = 64, Source = new BitmapImage(new Uri("pack://application:,,,/Images/remove_point.png", UriKind.Absolute)) });
+            deleteButtonStackPanel.Children.Add(new TextBlock
+            {
+                Text = "Delete",
+                HorizontalAlignment = HorizontalAlignment.Center
+            });
+
+            deleteButton.Content = deleteButtonStackPanel;
+
+            dataEditingWrapper.Children.Add(deleteButton);
+
+            var specifyButton = new Button
+            {
+                FontSize = 15,
+                Width = 100,
+                Height = 100,
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                Margin = new Thickness(5),
+                VerticalContentAlignment = VerticalAlignment.Bottom
+            };
+
+            var specifyButtonStackPanel = new StackPanel();
+
+            specifyButtonStackPanel.Children.Add(new Image { Width = 64, Height = 64, Source = new BitmapImage(new Uri("pack://application:,,,/Images/graph_specify.png", UriKind.Absolute)) });
+            specifyButtonStackPanel.Children.Add(new TextBlock
+            {
+                Text = "Specify Value",
+                HorizontalAlignment = HorizontalAlignment.Center
+            });
+
+            specifyButton.Content = specifyButtonStackPanel;
+
+            dataEditingWrapper.Children.Add(specifyButton);
+
+            actionsStackPanelWrapper.Children.Add(dataEditingWrapper);
+
+            actions.Content = actionsStackPanelWrapper;
+
+            Grid.SetRow(actions, 3);
+
+            tabItemGrid.Children.Add(actions);
 
             tabItem.Content = tabItemGrid;
             return tabItem;
