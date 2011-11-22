@@ -90,7 +90,7 @@ namespace IndiaTango.Models
 
                 graphOptions.Children.Add(new TextBlock { Text = "What sensor to use when graphing lines", Margin = new Thickness(0, 0, 10, 0) });
 
-                _sensorsCombo = new ComboBox();
+                _sensorsCombo = new ComboBox { Width = 100 };
 
                 _sensorsCombo.SelectionChanged += (o, e) =>
                 {
@@ -105,7 +105,7 @@ namespace IndiaTango.Models
                     if (_selectedSensor != null)
                         _selectedSensor.PropertyChanged += PropertyChangedInSelectedSensor;
 
-                     
+
 
                     GraphUpdateNeeded();
                 };

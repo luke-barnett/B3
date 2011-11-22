@@ -501,6 +501,12 @@ namespace IndiaTango.ViewModels
             var min = MinimumY(generatedSeries);
             var max = MaximumY(generatedSeries);
 
+            if (Math.Abs(min - 0) < 0.01)
+                min = -1;
+
+            if (Math.Abs(max - 0) < 0.01)
+                max = 1;
+
             Range = min < double.MaxValue ? new DoubleRange(min - (Math.Abs(min * .2)), max + (Math.Abs(max * .2))) : new DoubleRange();
 
             MinMinimum = (int)Minimum;
