@@ -7,7 +7,7 @@
         xmlns:multiseries="clr-namespace:IndiaTango.MultiSeriesBinding"
         xmlns:models="clr-namespace:IndiaTango.Models"
         xmlns:toolkit="clr-namespace:Microsoft.Windows.Controls;assembly=WPFToolkit.Extended"
-        Title="{Binding Title}" Icon="{Binding Icon}" Height="750" Width="900" WindowStartupLocation="CenterScreen">
+        Title="{Binding Title}" Icon="{Binding Icon}" Height="775" Width="900" WindowStartupLocation="CenterScreen">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closing">
             <cal:ActionMessage MethodName="ClosingRequested">

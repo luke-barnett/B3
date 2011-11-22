@@ -182,6 +182,11 @@ namespace IndiaTango.ViewModels
             get { return _dataSetFiles ?? (_dataSetFiles = Dataset.GetAllDataSetFileNames()); }
         }
 
+        private List<Sensor> SensorsForEditing
+        {
+            get { return _sensorsToCheckMethodsAgainst; }
+        }
+
         #endregion
 
         #region Public Properties
@@ -636,7 +641,7 @@ namespace IndiaTango.ViewModels
 
         private TabItem GenerateTabItemFromDetectionMethod(IDetectionMethod method)
         {
-            var tabItem = new TabItem { Header = new TextBlock { Text = method.Abbreviation } };
+            var tabItem = new TabItem { Header = new TextBlock { Text = method.Abbreviation }, IsEnabled = FeaturesEnabled };
 
             var tabItemGrid = new Grid();
             tabItemGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
@@ -702,7 +707,7 @@ namespace IndiaTango.ViewModels
 
             var actionsStackPanelWrapper = new StackPanel();
 
-            var undoRedoWrap = new WrapPanel { HorizontalAlignment = HorizontalAlignment.Center };
+            var undoRedoWrap = new WrapPanel { HorizontalAlignment = HorizontalAlignment.Center, IsEnabled = SensorsForEditing.Count > 0};
 
             var undoButton = new SplitButton { FontSize = 15, Width = 155, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(5) };
 
@@ -730,7 +735,7 @@ namespace IndiaTango.ViewModels
 
             actionsStackPanelWrapper.Children.Add(new Rectangle { Height = 3, Margin = new Thickness(0, 10, 0, 10), Fill = Brushes.OrangeRed, Stroke = Brushes.White, SnapsToDevicePixels = true });
 
-            var dataEditingWrapper = new WrapPanel { Margin = new Thickness(5) };
+            var dataEditingWrapper = new WrapPanel { Margin = new Thickness(5), IsEnabled = false};
 
             var extrapolateButton = new Button
                                         {
@@ -782,6 +787,8 @@ namespace IndiaTango.ViewModels
 
             deleteButton.Content = deleteButtonStackPanel;
 
+            deleteButton.Click += (o, e) => RemoveValues(listBox.SelectedItems.Cast<ErroneousValue>(), method);
+
             dataEditingWrapper.Children.Add(deleteButton);
 
             var specifyButton = new Button
@@ -806,17 +813,34 @@ namespace IndiaTango.ViewModels
 
             specifyButton.Content = specifyButtonStackPanel;
 
+            specifyButton.Click += (o, e) => SpecifyValue(listBox.SelectedItems.Cast<ErroneousValue>(), method);
+
             dataEditingWrapper.Children.Add(specifyButton);
 
             actionsStackPanelWrapper.Children.Add(dataEditingWrapper);
 
             actions.Content = actionsStackPanelWrapper;
 
+            listBox.SelectionChanged += (o, e) =>
+                                            {
+                                                var box = o as ListBox;
+                                                if (box != null)
+                                                    dataEditingWrapper.IsEnabled = box.SelectedItems.Count > 0;
+                                            };
+
             Grid.SetRow(actions, 3);
 
             tabItemGrid.Children.Add(actions);
 
             tabItem.Content = tabItemGrid;
+            return tabItem;
+        }
+
+        private TabItem GenerateCalibrationTabItem()
+        {
+            //TODO:
+            var tabItem = new TabItem();
+
             return tabItem;
         }
 
@@ -942,6 +966,9 @@ namespace IndiaTango.ViewModels
             if (values.Count() < 0)
                 return;
 
+            if (!Common.Confirm("Are you sure?", "Are you sure you want to extrapolate these values?"))
+                return;
+
             var sensorList = values.Select(x => x.Owner).Distinct().ToList();
 
             var bw = new BackgroundWorker();
@@ -955,13 +982,132 @@ namespace IndiaTango.ViewModels
                              };
 
             bw.RunWorkerCompleted += (o, e) =>
+                                         {
+                                             FeaturesEnabled = true;
+                                             ShowProgressArea = false;
+                                             Common.ShowMessageBox("Values Updated", "The selected values were extrapolated", false, false);
+                                             Common.RequestReason(sensorList, _container, _windowManager, "Values were extrapolated");
+                                             foreach (var graphableSensor in GraphableSensors.Where(x => sensorList.Contains(x.Sensor)))
+                                             {
+                                                 graphableSensor.RefreshDataPoints();
+                                             }
+                                             CheckTheseMethods(new Collection<IDetectionMethod> { methodCheckedAgainst });
+                                         };
+
+            FeaturesEnabled = false;
+            ShowProgressArea = true;
+            ProgressIndeterminate = true;
+            WaitEventString = "Extrapolating values";
+            bw.RunWorkerAsync();
+        }
+
+        private void RemoveValues(IEnumerable<ErroneousValue> values, IDetectionMethod methodCheckedAgainst)
+        {
+            values = values.ToList();
+            if (values.Count() < 0)
+                return;
+
+            if(methodCheckedAgainst == _missingValuesDetector)
             {
-                //TODO: UNLOCK OUT
-                Common.ShowMessageBox("Values Updated", "The selected values were extrapolated", false, false);
+                Common.ShowMessageBox("Sorry, but that's a little hard",
+                                      "We can't remove values that are already removed! Try another option", false,
+                                      false);
+                return;
+            }
+
+            if (!Common.Confirm("Are you sure?", "Are you sure you want to remove these values?"))
+                return;
+
+            var sensorList = values.Select(x => x.Owner).Distinct().ToList();
+
+            var bw = new BackgroundWorker();
+
+            bw.DoWork += (o, e) =>
+            {
+                foreach (var sensor in sensorList)
+                {
+                    sensor.AddState(sensor.CurrentState.RemoveValues(values.Where(x => x.Owner == sensor).Select(x => x.TimeStamp).ToList()));
+                }
+            };
+
+            bw.RunWorkerCompleted += (o, e) =>
+            {
+                FeaturesEnabled = true;
+                ShowProgressArea = false;
+                Common.ShowMessageBox("Values Updated", "The selected values were removed", false, false);
+                Common.RequestReason(sensorList, _container, _windowManager, "Values were removed");
+                foreach (var graphableSensor in GraphableSensors.Where(x => sensorList.Contains(x.Sensor)))
+                {
+                    graphableSensor.RefreshDataPoints();
+                }
                 CheckTheseMethods(new Collection<IDetectionMethod> { methodCheckedAgainst });
             };
 
-            //TODO: LOCK OUT
+            FeaturesEnabled = false;
+            ShowProgressArea = true;
+            ProgressIndeterminate = true;
+            WaitEventString = "Removing values";
+            bw.RunWorkerAsync();
+        }
+
+        private void SpecifyValue(IEnumerable<ErroneousValue> values, IDetectionMethod methodCheckedAgainst)
+        {
+            values = values.ToList();
+            if (values.Count() < 0)
+                return;
+
+            var sensorList = values.Select(x => x.Owner).Distinct().ToList();
+
+            var specifyValueView = _container.GetInstance(typeof (SpecifyValueViewModel), "SpecifyValueViewModel") as SpecifyValueViewModel;
+
+            if(specifyValueView == null)
+                return;
+
+            float value;
+
+            _windowManager.ShowDialog(specifyValueView);
+
+            if(specifyValueView.WasCanceled)
+                return;
+
+            try
+            {
+                value = float.Parse(specifyValueView.Text);
+            }
+            catch (Exception)
+            {
+                Common.ShowMessageBox("An Error Occured", "Please enter a valid number.", true, true);
+                return;
+            }
+            
+
+            var bw = new BackgroundWorker();
+
+            bw.DoWork += (o, e) =>
+            {
+                foreach (var sensor in sensorList)
+                {
+                    sensor.AddState(sensor.CurrentState.MakeValue(values.Where(x => x.Owner == sensor).Select(x => x.TimeStamp).ToList(), value));
+                }
+            };
+
+            bw.RunWorkerCompleted += (o, e) =>
+            {
+                FeaturesEnabled = true;
+                ShowProgressArea = false;
+                Common.ShowMessageBox("Values Updated", "The selected values set to " + value, false, false);
+                Common.RequestReason(sensorList, _container, _windowManager, "Values were set to " + value);
+                foreach (var graphableSensor in GraphableSensors.Where(x => sensorList.Contains(x.Sensor)))
+                {
+                    graphableSensor.RefreshDataPoints();
+                }
+                CheckTheseMethods(new Collection<IDetectionMethod> { methodCheckedAgainst });
+            };
+
+            FeaturesEnabled = false;
+            ShowProgressArea = true;
+            ProgressIndeterminate = true;
+            WaitEventString = "Removing values";
             bw.RunWorkerAsync();
         }
 
@@ -1422,7 +1568,7 @@ namespace IndiaTango.ViewModels
             var graphableSensor = (GraphableSensor)checkBox.Content;
             _sensorsToCheckMethodsAgainst.Add(graphableSensor.Sensor);
             UpdateDetectionMethodGraphableSensors();
-
+            NotifyOfPropertyChange(() => SensorsForEditing);
             CheckTheseMethodsForThisSensor(_detectionMethods.Where(x => x.IsEnabled), graphableSensor.Sensor);
         }
 
@@ -1432,7 +1578,7 @@ namespace IndiaTango.ViewModels
             var graphableSensor = (GraphableSensor)checkBox.Content;
             if (_sensorsToCheckMethodsAgainst.Contains(graphableSensor.Sensor))
                 _sensorsToCheckMethodsAgainst.Remove(graphableSensor.Sensor);
-
+            NotifyOfPropertyChange(() => SensorsForEditing);
             UpdateDetectionMethodGraphableSensors();
 
             foreach (var detectionMethod in _detectionMethods.Where(x => x.IsEnabled))
