@@ -1513,7 +1513,10 @@ namespace IndiaTango.ViewModels
 
         public void ColourChanged(RoutedPropertyChangedEventArgs<Color> args, GraphableSensor owner)
         {
-            var matchingLineSeries = ChartSeries.Where(x => x.Name == owner.Sensor.Name).DefaultIfEmpty(null).First();
+            if(ChartSeries == null)
+                return;
+
+            var matchingLineSeries = ChartSeries.FirstOrDefault(x => x.Name == owner.Sensor.Name);
 
             if (matchingLineSeries == null)
                 return;
