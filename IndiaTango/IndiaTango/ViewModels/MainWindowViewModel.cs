@@ -475,10 +475,13 @@ namespace IndiaTango.ViewModels
 
             HideBackground();
 
+            var numberOfDetectorsGraphsToCountAsSensors = 0;
 
-            var numberOfDetectorsGraphsToCountAsSensors = sensors.Count > 0 ? _detectionMethods.Where(x => x.IsEnabled && x.HasGraphableSeries).Count(detectionMethod => detectionMethod.GraphableSeries(sensors.ElementAt(0).Sensor, StartTime, EndTime).Where(x => (double)x.DataSeries.Cast<DataPoint<DateTime, float>>().Count() / (double)sensors.ElementAt(0).DataPoints.Count() > 0.1d).Count() > 0) : 0;
+            if (sensors.Count > 0)
+                numberOfDetectorsGraphsToCountAsSensors += _detectionMethods.Where(x => x.IsEnabled && x.HasGraphableSeries).Sum(detectionMethod => (from lineSeries in detectionMethod.GraphableSeries(sensors.ElementAt(0).Sensor, StartTime, EndTime) select lineSeries.DataSeries.Cast<DataPoint<DateTime, float>>().Count() into numberInLineSeries let numberInSensor = sensors.ElementAt(0).DataPoints.Count() select numberInLineSeries/(double) numberInSensor).Count(percentage => percentage > 0.2d));
 
-            Debug.Print("There are {0} lines that have been counted as sensors for sampling", numberOfPoints);
+
+            Debug.Print("There are {0} lines that have been counted as sensors for sampling", numberOfDetectorsGraphsToCountAsSensors);
 
             foreach (var sensor in sensors)
             {
