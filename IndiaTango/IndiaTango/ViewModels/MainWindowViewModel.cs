@@ -22,6 +22,7 @@ using HorizontalAlignment = System.Windows.HorizontalAlignment;
 using ListBox = System.Windows.Controls.ListBox;
 using Orientation = System.Windows.Controls.Orientation;
 using Path = System.IO.Path;
+using SelectionMode = System.Windows.Controls.SelectionMode;
 
 namespace IndiaTango.ViewModels
 {
@@ -656,7 +657,7 @@ namespace IndiaTango.ViewModels
 
             var detectionMethodListBox = new GroupBox { Header = new TextBlock { Text = "Detected Values" }, BorderBrush = Brushes.OrangeRed, IsEnabled = method.IsEnabled };
             var settingsGrid = method.SettingsGrid;
-            var listBox = new ListBox();
+            var listBox = new ListBox { SelectionMode = SelectionMode.Extended };
 
             var enabledCheckBox = new CheckBox { Content = new TextBlock { Text = "Enabled" } };
             enabledCheckBox.Checked += (o, e) =>
@@ -741,6 +742,8 @@ namespace IndiaTango.ViewModels
                                             Margin = new Thickness(5),
                                             VerticalContentAlignment = VerticalAlignment.Bottom
                                         };
+
+            extrapolateButton.Click += (o, e) => Extrapolate(listBox.SelectedItems.Cast<ErroneousValue>(), method);
 
             var extrapolateButtonStackPanel = new StackPanel();
 
@@ -931,6 +934,35 @@ namespace IndiaTango.ViewModels
             {
                 detectionMethod.SensorOptions = availableOptions;
             }
+        }
+
+        private void Extrapolate(IEnumerable<ErroneousValue> values, IDetectionMethod methodCheckedAgainst)
+        {
+            values = values.ToList();
+            if (values.Count() < 0)
+                return;
+
+            var sensorList = values.Select(x => x.Owner).Distinct().ToList();
+
+            var bw = new BackgroundWorker();
+
+            bw.DoWork += (o, e) =>
+                             {
+                                 foreach (var sensor in sensorList)
+                                 {
+                                     sensor.AddState(sensor.CurrentState.Extrapolate(values.Where(x => x.Owner == sensor).Select(x => x.TimeStamp).ToList(), sensor.Owner));
+                                 }
+                             };
+
+            bw.RunWorkerCompleted += (o, e) =>
+            {
+                //TODO: UNLOCK OUT
+                Common.ShowMessageBox("Values Updated", "The selected values were extrapolated", false, false);
+                CheckTheseMethods(new Collection<IDetectionMethod> { methodCheckedAgainst });
+            };
+
+            //TODO: LOCK OUT
+            bw.RunWorkerAsync();
         }
 
         #endregion
