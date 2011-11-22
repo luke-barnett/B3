@@ -96,7 +96,17 @@ namespace IndiaTango.Models
                 {
                     if (e.AddedItems.Count < 1)
                         return;
+
+                    if (_selectedSensor != null)
+                        _selectedSensor.PropertyChanged -= PropertyChangedInSelectedSensor;
+
                     _selectedSensor = e.AddedItems[0] as Sensor;
+
+                    if (_selectedSensor != null)
+                        _selectedSensor.PropertyChanged += PropertyChangedInSelectedSensor;
+
+                     
+
                     GraphUpdateNeeded();
                 };
 
@@ -107,6 +117,12 @@ namespace IndiaTango.Models
                 wrapperGrid.Children.Add(stackPanel);
                 return wrapperGrid;
             }
+        }
+
+        private void PropertyChangedInSelectedSensor(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "UpperLimit" || e.PropertyName == "LowerLimit")
+                GraphUpdateNeeded();
         }
 
         public bool HasGraphableSeries

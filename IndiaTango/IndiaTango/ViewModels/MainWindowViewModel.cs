@@ -1261,6 +1261,7 @@ namespace IndiaTango.ViewModels
             var checkBox = (CheckBox)eventArgs.Source;
             var graphableSensor = (GraphableSensor)checkBox.Content;
             _sensorsToCheckMethodsAgainst.Add(graphableSensor.Sensor);
+            UpdateDetectionMethodGraphableSensors();
 
             CheckTheseMethodsForThisSensor(_detectionMethods.Where(x => x.IsEnabled), graphableSensor.Sensor);
         }
@@ -1271,6 +1272,8 @@ namespace IndiaTango.ViewModels
             var graphableSensor = (GraphableSensor)checkBox.Content;
             if (_sensorsToCheckMethodsAgainst.Contains(graphableSensor.Sensor))
                 _sensorsToCheckMethodsAgainst.Remove(graphableSensor.Sensor);
+
+            UpdateDetectionMethodGraphableSensors();
 
             foreach (var detectionMethod in _detectionMethods.Where(x => x.IsEnabled))
             {
