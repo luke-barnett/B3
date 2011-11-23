@@ -35,6 +35,8 @@ namespace IndiaTango.ViewModels
             set { _allContacts = value; }
         }
 
+        public string ContactTitle { get; set; }
+
 		public string ContactFirstName { get; set; }
 
 		public string ContactLastName { get; set; }
@@ -54,6 +56,7 @@ namespace IndiaTango.ViewModels
 
 				if (_contact != null)
 				{
+				    ContactTitle = _contact.Title;
 					ContactFirstName = _contact.FirstName;
 					ContactLastName = _contact.LastName;
 					ContactEmail = _contact.Email;
@@ -62,6 +65,7 @@ namespace IndiaTango.ViewModels
 				}
 				else
 				{
+				    ContactTitle = "";
 					ContactFirstName = "";
 					ContactLastName = "";
 					ContactEmail = "";
@@ -69,6 +73,7 @@ namespace IndiaTango.ViewModels
 					ContactBusiness = "";
 				}
 
+                NotifyOfPropertyChange(() => ContactTitle);
 				NotifyOfPropertyChange(() => ContactFirstName);
 				NotifyOfPropertyChange(() => ContactLastName);
 				NotifyOfPropertyChange(() => ContactEmail);
@@ -89,7 +94,7 @@ namespace IndiaTango.ViewModels
                 // New contact!
                 try
                 {
-                    Contact c = new Contact(ContactFirstName, ContactLastName, ContactEmail, ContactBusiness, ContactPhone);
+                    Contact c = new Contact(ContactTitle, ContactFirstName, ContactLastName, ContactEmail, ContactBusiness, ContactPhone);
 
                     AllContacts.Add(c);
 
@@ -112,6 +117,7 @@ namespace IndiaTango.ViewModels
                     // TODO: make this pretty!
                     AllContacts.Remove(Contact);
 
+                    Contact.Title = ContactTitle;
                     Contact.FirstName = ContactFirstName;
                     Contact.LastName = ContactLastName;
                     Contact.Email = ContactEmail;

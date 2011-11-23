@@ -220,7 +220,7 @@ namespace IndiaTango.Models
 
         public bool HasGraphableSeries
         {
-            get { return (_showGraph && _upperLine.Count != 0 && _lowerLine.Count != 0 && _sensorsCombo.SelectedIndex > -1); }
+            get { return (_sensorsCombo != null) ? (_showGraph && _upperLine.Count != 0 && _lowerLine.Count != 0 && _sensorsCombo.SelectedIndex > -1) : (_showGraph && _upperLine.Count != 0 && _lowerLine.Count != 0); }
         }
 
         public bool CheckIndividualValue(Sensor sensor, DateTime timeStamp)

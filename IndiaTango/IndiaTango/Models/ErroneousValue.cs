@@ -81,14 +81,15 @@ namespace IndiaTango.Models
 
         public override string ToString()
         {
-            var baseString = (_hasValue) ? string.Format("[{2}] {0} {1}", TimeStamp, Value, Owner) : string.Format("[{1}] {0}", TimeStamp, Owner);
+            var baseString = (Owner != null) ? string.Format("[{0}] ", Owner) : "";
+            baseString += (_hasValue) ? string.Format("{0} {1}", TimeStamp, Value) : string.Format("{0}", TimeStamp);
 
             return Detectors.Aggregate(baseString, (current, detectionMethod) => current + string.Format(" [{0}]", detectionMethod.Name));
         }
 
         public override bool Equals(object obj)
         {
-            return (obj != null) && obj.GetType() == GetType() && ((ErroneousValue) obj).TimeStamp.CompareTo(TimeStamp) == 0;
+            return (obj != null) && obj.GetType() == GetType() && ((ErroneousValue)obj).TimeStamp.CompareTo(TimeStamp) == 0;
         }
 
         public void RequestGraphCentering()
@@ -133,6 +134,6 @@ namespace IndiaTango.Models
             return true;
         }
 
-    	public event EventHandler CanExecuteChanged;
+        public event EventHandler CanExecuteChanged;
     }
 }

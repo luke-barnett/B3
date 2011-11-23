@@ -10,10 +10,10 @@ namespace IndiaTango.Tests
 	class ContactExportTests
 	{
 		private const string SingleContactXMLString =
-            "<ArrayOfContact xmlns=\"http://schemas.datacontract.org/2004/07/IndiaTango.Models\" xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\"><Contact><Business>Lalala</Business><Email>k@a.com</Email><FirstName>Kerry</FirstName><ID>1</ID><LastName>Arts</LastName><Phone>123456789</Phone></Contact></ArrayOfContact>";
+            "<ArrayOfContact xmlns=\"http://schemas.datacontract.org/2004/07/IndiaTango.Models\" xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\"><Contact><Business>Lalala</Business><Email>k@a.com</Email><FirstName>Kerry</FirstName><ID>1</ID><LastName>Arts</LastName><Phone>123456789</Phone><Title i:nil=\"true\"/></Contact></ArrayOfContact>";
 
 		private const string TwoContactsXMLString =
-            "<ArrayOfContact xmlns=\"http://schemas.datacontract.org/2004/07/IndiaTango.Models\" xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\"><Contact><Business>Lalala</Business><Email>k@a.com</Email><FirstName>Kerry</FirstName><ID>1</ID><LastName>Arts</LastName><Phone>123456789</Phone></Contact><Contact><Business>AwesomeCompany</Business><Email>l@j.com</Email><FirstName>Leroy</FirstName><ID>2</ID><LastName>Jenkins</LastName><Phone>022 314 1337</Phone></Contact></ArrayOfContact>";
+            "<ArrayOfContact xmlns=\"http://schemas.datacontract.org/2004/07/IndiaTango.Models\" xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\"><Contact><Business>Lalala</Business><Email>k@a.com</Email><FirstName>Kerry</FirstName><ID>1</ID><LastName>Arts</LastName><Phone>123456789</Phone><Title i:nil=\"true\"/></Contact><Contact><Business>AwesomeCompany</Business><Email>l@j.com</Email><FirstName>Leroy</FirstName><ID>2</ID><LastName>Jenkins</LastName><Phone>022 314 1337</Phone><Title i:nil=\"true\"/></Contact></ArrayOfContact>";
 		
 		private Contact _contactOne;
 		private Contact _contactTwo;

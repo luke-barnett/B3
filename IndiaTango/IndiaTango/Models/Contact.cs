@@ -37,6 +37,11 @@ namespace IndiaTango.Models
             }
         }
 
+        public Contact(string title, string firstName, string lastName, string email, string business, string phone) : this(firstName, lastName, email, business, phone, -1)
+        {
+            Title = title;
+        }
+
         public Contact(string firstName, string lastName, string email, string business, string phone)
             : this(firstName, lastName, email, business, phone, -1) {}
 
@@ -64,6 +69,13 @@ namespace IndiaTango.Models
         }
 
         #region public variables
+
+        /// <summary>
+        /// Gets or sets the title of the contact
+        /// </summary>
+        [DataMember(Name="Title")]
+        public string Title { get; set; }
+
         /// <summary>
         /// Gets and sets the first name of the contact
         /// </summary>
@@ -106,7 +118,7 @@ namespace IndiaTango.Models
             var contact = obj as Contact;
 
             return contact.Business == Business && contact.Email == Email && contact.FirstName == FirstName &&
-                   contact.LastName == LastName && contact.Phone == Phone;
+                   contact.LastName == LastName && contact.Phone == Phone && contact.Title == Title;
         }
 
         #region private methods
@@ -136,7 +148,7 @@ namespace IndiaTango.Models
         #region overrides
         public override string ToString()
         {
-            return String.Format("{0} {1} ({2}) {3} {4}", FirstName, LastName, Business, Phone, Email);
+            return Title == null || string.IsNullOrWhiteSpace(Title) ? string.Format("{0} {1} ({2}) {3} {4}", FirstName, LastName, Business, Phone, Email) : string.Format("{0} {1} {2} ({3}) {4} {5}", Title, FirstName, LastName, Business, Phone, Email);
         }
         #endregion
 

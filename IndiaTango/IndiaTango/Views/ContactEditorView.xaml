@@ -33,24 +33,28 @@
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*" />
-                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="3*" />
                 </Grid.ColumnDefinitions>
 
-                <TextBox x:Name="txtFName" Grid.Column="0" Grid.Row="0" Margin="3" Text="{Binding ContactFirstName}" TabIndex="0" />
-                <TextBlock Text="First Name" TextAlignment="Center" Grid.Column="0" Grid.Row="1" FontStyle="Italic" />
+                <TextBox x:Name="txtTitle" Grid.Column="0" Grid.Row="0" Margin="3" Text="{Binding ContactTitle}" TabIndex="0" />
+                <TextBlock Text="Title" TextAlignment="Center" Grid.Column="0" Grid.Row="1" FontStyle="Italic" />
 
-                <TextBox Grid.Column="1" Grid.Row="0" Margin="3" Text="{Binding ContactLastName}" TabIndex="1"/>
-                <TextBlock Text="Last Name" TextAlignment="Center" Grid.Column="1" Grid.Row="1" FontStyle="Italic" />
+                <TextBox Grid.Column="1" Grid.Row="0" Margin="3" Text="{Binding ContactFirstName}" TabIndex="1" />
+                <TextBlock Text="First Name" TextAlignment="Center" Grid.Column="1" Grid.Row="1" FontStyle="Italic" />
+
+                <TextBox Grid.Column="2" Grid.Row="0" Margin="3" Text="{Binding ContactLastName}" TabIndex="2"/>
+                <TextBlock Text="Last Name" TextAlignment="Center" Grid.Column="2" Grid.Row="1" FontStyle="Italic" />
             </Grid>
 
             <TextBlock Margin="7" TextAlignment="Right" Text="Email:" Grid.Row="1" Grid.Column="0" />
-            <TextBox Grid.Column="1" Grid.Row="1" Margin="3" Text="{Binding ContactEmail}" TabIndex="2" />
+            <TextBox Grid.Column="1" Grid.Row="1" Margin="3" Text="{Binding ContactEmail}" TabIndex="3" />
 
             <TextBlock Margin="7" TextAlignment="Right" Text="Phone:" Grid.Row="2" Grid.Column="0" />
-            <TextBox Grid.Column="1" Grid.Row="2" Margin="3" Text="{Binding ContactPhone}" TabIndex="3"/>
+            <TextBox Grid.Column="1" Grid.Row="2" Margin="3" Text="{Binding ContactPhone}" TabIndex="4"/>
             
             <TextBlock Margin="7" TextAlignment="Right" Text="Business Name:" Grid.Row="3" Grid.Column="0" />
-            <TextBox Grid.Column="1" Grid.Row="3" Margin="3" Text="{Binding ContactBusiness}" TabIndex="4"/>
+            <TextBox Grid.Column="1" Grid.Row="3" Margin="3" Text="{Binding ContactBusiness}" TabIndex="5"/>
 
             <Grid Grid.Column="0" Grid.Row="7" Grid.ColumnSpan="3">
                 <Grid.ColumnDefinitions>
