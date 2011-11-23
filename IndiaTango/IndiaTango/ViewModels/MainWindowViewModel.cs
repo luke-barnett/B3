@@ -61,12 +61,9 @@ namespace IndiaTango.ViewModels
             var zoomBehaviour = new CustomZoomBehaviour { IsEnabled = !_inSelectionMode };
             zoomBehaviour.ZoomRequested += (o, e) =>
             {
-                StartTime = (DateTime)e.FirstPoint.X;
+                _startTime = (DateTime)e.FirstPoint.X;
+                NotifyOfPropertyChange(() => StartTime);
                 EndTime = (DateTime)e.SecondPoint.X;
-                foreach (var sensor in _sensorsToGraph)
-                {
-                    sensor.SetUpperAndLowerBounds(StartTime, EndTime);
-                }
                 foreach (var detectionMethod in _detectionMethods.Where(x => x.IsEnabled))
                 {
                     var itemsToRemove =
@@ -78,7 +75,6 @@ namespace IndiaTango.ViewModels
                         detectionMethod.ListBox.Items.Remove(erroneousValue);
                     }
                 }
-                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
             };
             zoomBehaviour.ZoomResetRequested += o =>
             {
@@ -550,7 +546,8 @@ namespace IndiaTango.ViewModels
             }
 
             Debug.WriteLine("Calculated the first point {0} and the last point {1}", minimum, maximum);
-            StartTime = minimum;
+            _startTime = minimum;
+            NotifyOfPropertyChange(() => StartTime);
             EndTime = maximum;
             Debug.WriteLine("As a result start {0} and end {1}", StartTime, EndTime);
         }
@@ -1466,42 +1463,46 @@ namespace IndiaTango.ViewModels
         /// Fired when the start date is changed
         /// </summary>
         /// <param name="e">The event arguments about the new date</param>
-        public void StartTimeChanged(RoutedPropertyChangedEventArgs<DateTime> e)
+        public void StartTimeChanged(RoutedPropertyChangedEventArgs<object> e)
         {
             if (e == null)
                 return;
 
-            if (e.OldValue == new DateTime() || e.NewValue < EndTime)
-                StartTime = e.NewValue;
+            if ((DateTime)e.OldValue == new DateTime() || (DateTime)e.NewValue < EndTime)
+                StartTime = (DateTime)e.NewValue;
             else
-                StartTime = e.OldValue;
+                StartTime = (DateTime)e.OldValue;
 
             foreach (var sensor in _sensorsToGraph)
             {
                 sensor.SetUpperAndLowerBounds(StartTime, EndTime);
             }
-            SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
+
+            if ((DateTime)e.OldValue != DateTime.MinValue)
+                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
         }
 
         /// <summary>
         /// Fired when the end date is changed
         /// </summary>
         /// <param name="e">The event arguments about the new date</param>
-        public void EndTimeChanged(RoutedPropertyChangedEventArgs<DateTime> e)
+        public void EndTimeChanged(RoutedPropertyChangedEventArgs<object> e)
         {
             if (e == null)
                 return;
 
-            if (e.OldValue == new DateTime() || e.NewValue > StartTime)
-                EndTime = e.NewValue;
+            if ((DateTime)e.OldValue == new DateTime() || (DateTime)e.NewValue > StartTime)
+                EndTime = (DateTime)e.NewValue;
             else
-                EndTime = e.OldValue;
+                EndTime = (DateTime)e.OldValue;
 
             foreach (var sensor in _sensorsToGraph)
             {
                 sensor.SetUpperAndLowerBounds(StartTime, EndTime);
             }
-            SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
+
+            if ((DateTime)e.OldValue != DateTime.MaxValue)
+                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
         }
 
         public void ColourChanged(RoutedPropertyChangedEventArgs<Color> args, GraphableSensor owner)
