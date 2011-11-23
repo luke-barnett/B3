@@ -35,22 +35,22 @@
                     <ColumnDefinition Width="1*" />
                     <ColumnDefinition Width="1*" />
                 </Grid.ColumnDefinitions>
-                
-                <TextBox Grid.Column="0" Grid.Row="0" Margin="3" Text="{Binding ContactFirstName}" />
+
+                <TextBox x:Name="txtFName" Grid.Column="0" Grid.Row="0" Margin="3" Text="{Binding ContactFirstName}" TabIndex="0" />
                 <TextBlock Text="First Name" TextAlignment="Center" Grid.Column="0" Grid.Row="1" FontStyle="Italic" />
 
-                <TextBox Grid.Column="1" Grid.Row="0" Margin="3" Text="{Binding ContactLastName}"/>
+                <TextBox Grid.Column="1" Grid.Row="0" Margin="3" Text="{Binding ContactLastName}" TabIndex="1"/>
                 <TextBlock Text="Last Name" TextAlignment="Center" Grid.Column="1" Grid.Row="1" FontStyle="Italic" />
             </Grid>
 
             <TextBlock Margin="7" TextAlignment="Right" Text="Email:" Grid.Row="1" Grid.Column="0" />
-            <TextBox Grid.Column="1" Grid.Row="1" Margin="3" Text="{Binding ContactEmail}" />
+            <TextBox Grid.Column="1" Grid.Row="1" Margin="3" Text="{Binding ContactEmail}" TabIndex="2" />
 
             <TextBlock Margin="7" TextAlignment="Right" Text="Phone:" Grid.Row="2" Grid.Column="0" />
-            <TextBox Grid.Column="1" Grid.Row="2" Margin="3" Text="{Binding ContactPhone}"/>
+            <TextBox Grid.Column="1" Grid.Row="2" Margin="3" Text="{Binding ContactPhone}" TabIndex="3"/>
             
-            <TextBlock Margin="7" TextAlignment="Right" Text="Business:" Grid.Row="3" Grid.Column="0" />
-            <TextBox Grid.Column="1" Grid.Row="3" Margin="3" Text="{Binding ContactBusiness}"/>
+            <TextBlock Margin="7" TextAlignment="Right" Text="Business Name:" Grid.Row="3" Grid.Column="0" />
+            <TextBox Grid.Column="1" Grid.Row="3" Margin="3" Text="{Binding ContactBusiness}" TabIndex="4"/>
 
             <Grid Grid.Column="0" Grid.Row="7" Grid.ColumnSpan="3">
                 <Grid.ColumnDefinitions>
