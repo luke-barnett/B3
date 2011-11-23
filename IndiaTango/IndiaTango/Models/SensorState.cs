@@ -315,19 +315,19 @@ namespace IndiaTango.Models
 
 
         /// <summary>
-        /// Given a timestamp which represents a missing value, extrapolates the dataset using the first known point before the given point, and the first known point after the given point in the list of keys.
+        /// Given a timestamp which represents a missing value, interpolates the dataset using the first known point before the given point, and the first known point after the given point in the list of keys.
         /// </summary>
-        /// <param name="valuesToExtrapolate">A list of data point 'keys' where values are missing.</param>
+        /// <param name="valuesToInterpolate">A list of data point 'keys' where values are missing.</param>
         /// <param name="ds">A dataset to use, which indicates the length of time that elapses between readings.</param>
-        /// <returns>A sensor state with the extrapolated data.</returns>
-        public SensorState Extrapolate(List<DateTime> valuesToExtrapolate, Dataset ds)
+        /// <returns>A sensor state with the interpolated data.</returns>
+        public SensorState Interpolate(List<DateTime> valuesToInterpolate, Dataset ds)
         {
             EventLogger.LogInfo(_owner.Owner, GetType().ToString(), "Starting extrapolation process");
 
-            if (valuesToExtrapolate == null)
+            if (valuesToInterpolate == null)
                 throw new ArgumentNullException("You must specify a list of keys.");
 
-            if (valuesToExtrapolate.Count == 0)
+            if (valuesToInterpolate.Count == 0)
                 throw new ArgumentException("You must specify at least one value to use for extrapolation.");
 
             if (ds == null)
@@ -335,7 +335,7 @@ namespace IndiaTango.Models
 
             var newState = Clone();
 
-            foreach (var time in valuesToExtrapolate)
+            foreach (var time in valuesToInterpolate)
             {
                 DateTime startValue;
                 try
@@ -377,7 +377,7 @@ namespace IndiaTango.Models
             }
 
             /* ==OLD METHOD==
-                var first = valuesToExtrapolate[0];
+                var first = valuesToInterpolate[0];
                 DateTime startValue;
                 try
                 {

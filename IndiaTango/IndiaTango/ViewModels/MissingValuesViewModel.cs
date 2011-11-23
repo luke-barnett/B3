@@ -387,7 +387,7 @@ namespace IndiaTango.ViewModels
             Common.RequestReason(_sensor, _container, _windowManager, taskPerformed);
         }
 
-        public void btnExtrapolate()
+        public void btnInterpolate()
         {
             EventLogger.LogInfo(_ds, GetType().ToString(), "Value extrapolation invoked.");
 
@@ -407,8 +407,8 @@ namespace IndiaTango.ViewModels
             }
 
             if (
-                !Common.ShowMessageBox("Extrapolate",
-                                       "This will find the first and last value in the current range and extrapolate between them.\r\n\r\nAre you sure you want to do this?",
+                !Common.ShowMessageBox("Interpolate",
+                                       "This will find the first and last value in the current range and interpolate between them.\r\n\r\nAre you sure you want to do this?",
                                        true, false))
                 return;
 
@@ -416,12 +416,12 @@ namespace IndiaTango.ViewModels
 
             try
             {
-                var newState = SelectedSensor.CurrentState.Extrapolate(SelectedValues, Dataset);
+                var newState = SelectedSensor.CurrentState.Interpolate(SelectedValues, Dataset);
                 SelectedSensor.AddState(newState);
 
                 Finalise("Value extrapolation performed.");
 
-                Common.ShowMessageBox("Values updated", "The values have been extrapolated successfully.", false, false);
+                Common.ShowMessageBox("Values updated", "The values have been interpolated successfully.", false, false);
             }
             catch (DataException de)
             {
@@ -434,7 +434,7 @@ namespace IndiaTango.ViewModels
                     SpecifyValueForExtrapolation();
                     _selectedValues.Clear();
                     _selectedValues.Add(_ds.EndTimeStamp.AddMinutes(-(_ds.DataInterval)));
-                    btnExtrapolate();
+                    btnInterpolate();
                 }
                 else if (de.Message == "No start value")
                 {
@@ -445,7 +445,7 @@ namespace IndiaTango.ViewModels
                     SpecifyValueForExtrapolation();
                     _selectedValues.Clear();
                     _selectedValues.Add(_ds.StartTimeStamp.AddMinutes(_ds.DataInterval));
-                    btnExtrapolate();
+                    btnInterpolate();
                 }
 
             }

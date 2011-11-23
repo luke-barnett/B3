@@ -530,7 +530,7 @@ namespace IndiaTango.ViewModels
 
         #region Value Changers
 
-        public void BtnExtrapolate()
+        public void BtnInterpolate()
         {
             var dates = GetDates();
 
@@ -539,15 +539,15 @@ namespace IndiaTango.ViewModels
 
             var bw = new BackgroundWorker();
 
-            bw.DoWork += (o, e) => _selectedSensor.Sensor.AddState(_selectedSensor.Sensor.CurrentState.Extrapolate(dates, _selectedSensor.Sensor.Owner));
+            bw.DoWork += (o, e) => _selectedSensor.Sensor.AddState(_selectedSensor.Sensor.CurrentState.Interpolate(dates, _selectedSensor.Sensor.Owner));
 
             bw.RunWorkerCompleted += (o, e) =>
                                          {
                                              StopWaiting();
 
-                                             Finalise("Extrapolated Values");
+                                             Finalise("Interpolated Values");
 
-                                             Common.ShowMessageBox("Values Updated", "The selected values were extrapolated", false, false);
+                                             Common.ShowMessageBox("Values Updated", "The selected values were interpolated", false, false);
 
                                              UpdateUndoRedo();
                                              ButtonsEnabled = true;

@@ -333,7 +333,6 @@
     <Resource Include="Images\find_missing.png" />
     <Resource Include="Images\find_range.png" />
     <Resource Include="Images\graph.png" />
-    <Resource Include="Images\graph_extrapolate.png" />
     <Resource Include="Images\graph_specify.png" />
     <Resource Include="Images\graph_zero.png" />
     <Resource Include="Images\new.png" />
@@ -420,6 +419,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\sensor_preset_64.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\graph_interpolate.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

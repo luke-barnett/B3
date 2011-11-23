@@ -737,7 +737,7 @@ namespace IndiaTango.ViewModels
 
             var dataEditingWrapper = new WrapPanel { Margin = new Thickness(5), IsEnabled = false};
 
-            var extrapolateButton = new Button
+            var interpolateButton = new Button
                                         {
                                             FontSize = 15,
                                             Width = 100,
@@ -748,22 +748,22 @@ namespace IndiaTango.ViewModels
                                             VerticalContentAlignment = VerticalAlignment.Bottom
                                         };
 
-            extrapolateButton.Click += (o, e) => Extrapolate(listBox.SelectedItems.Cast<ErroneousValue>(), method);
+            interpolateButton.Click += (o, e) => Interpolate(listBox.SelectedItems.Cast<ErroneousValue>(), method);
 
-            var extrapolateButtonStackPanel = new StackPanel();
+            var interpolateButtonStackPanel = new StackPanel();
 
-            extrapolateButtonStackPanel.Children.Add(new Image { Width = 64, Height = 64, Source = new BitmapImage(new Uri("pack://application:,,,/Images/graph_extrapolate.png", UriKind.Absolute)) });
-            extrapolateButtonStackPanel.Children.Add(new TextBlock
+            interpolateButtonStackPanel.Children.Add(new Image { Width = 64, Height = 64, Source = new BitmapImage(new Uri("pack://application:,,,/Images/graph_interpolate.png", UriKind.Absolute)) });
+            interpolateButtonStackPanel.Children.Add(new TextBlock
                                                          {
-                                                             Text = "Extrapolate",
+                                                             Text = "Interpolate",
                                                              HorizontalAlignment = HorizontalAlignment.Center
                                                          });
 
 
 
-            extrapolateButton.Content = extrapolateButtonStackPanel;
+            interpolateButton.Content = interpolateButtonStackPanel;
 
-            dataEditingWrapper.Children.Add(extrapolateButton);
+            dataEditingWrapper.Children.Add(interpolateButton);
 
             var deleteButton = new Button
             {
@@ -960,13 +960,13 @@ namespace IndiaTango.ViewModels
             }
         }
 
-        private void Extrapolate(IEnumerable<ErroneousValue> values, IDetectionMethod methodCheckedAgainst)
+        private void Interpolate(IEnumerable<ErroneousValue> values, IDetectionMethod methodCheckedAgainst)
         {
             values = values.ToList();
             if (values.Count() < 0)
                 return;
 
-            if (!Common.Confirm("Are you sure?", "Are you sure you want to extrapolate these values?"))
+            if (!Common.Confirm("Are you sure?", "Are you sure you want to interpolate these values?"))
                 return;
 
             var sensorList = values.Select(x => x.Owner).Distinct().ToList();
@@ -977,7 +977,7 @@ namespace IndiaTango.ViewModels
                              {
                                  foreach (var sensor in sensorList)
                                  {
-                                     sensor.AddState(sensor.CurrentState.Extrapolate(values.Where(x => x.Owner == sensor).Select(x => x.TimeStamp).ToList(), sensor.Owner));
+                                     sensor.AddState(sensor.CurrentState.Interpolate(values.Where(x => x.Owner == sensor).Select(x => x.TimeStamp).ToList(), sensor.Owner));
                                  }
                              };
 
@@ -985,8 +985,8 @@ namespace IndiaTango.ViewModels
                                          {
                                              FeaturesEnabled = true;
                                              ShowProgressArea = false;
-                                             Common.ShowMessageBox("Values Updated", "The selected values were extrapolated", false, false);
-                                             Common.RequestReason(sensorList, _container, _windowManager, "Values were extrapolated");
+                                             Common.ShowMessageBox("Values Updated", "The selected values were interpolated", false, false);
+                                             Common.RequestReason(sensorList, _container, _windowManager, "Values were interpolated");
                                              foreach (var graphableSensor in GraphableSensors.Where(x => sensorList.Contains(x.Sensor)))
                                              {
                                                  graphableSensor.RefreshDataPoints();

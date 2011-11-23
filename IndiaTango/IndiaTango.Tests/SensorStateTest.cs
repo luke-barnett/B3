@@ -210,7 +210,7 @@ namespace IndiaTango.Tests
         #region Extrapolation Test
         [Test]
         [ExpectedException(typeof(ArgumentException))]
-        public void ExtrapolateWithNoKeys()
+        public void InterpolateWithNoKeys()
         {
             var ds =
                 new Dataset(new Site(10, "Lake Rotorua", "Steven McTainsh", _sampleContact, _sampleContact,
@@ -218,13 +218,13 @@ namespace IndiaTango.Tests
 
             var a = new SensorState(_testSensor, baseDate,
                                        new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 200 }, { baseDate.AddMinutes(30), 200 }, { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 200 } }, null);
-            a.Extrapolate(new List<DateTime>(), ds);
+            a.Interpolate(new List<DateTime>(), ds);
 
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void ExtrapolateWithNullKeys()
+        public void InterpolateWithNullKeys()
         {
             var ds =
                 new Dataset(new Site(10, "Lake Rotorua", "Steven McTainsh", _sampleContact, _sampleContact,
@@ -232,13 +232,13 @@ namespace IndiaTango.Tests
 
             var a = new SensorState(_testSensor, baseDate,
                                        new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 200 }, { baseDate.AddMinutes(30), 200 }, { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 200 } }, null);
-            a.Extrapolate(null, ds);
+            a.Interpolate(null, ds);
 
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void ExtrapolateWithNullDataset()
+        public void InterpolateWithNullDataset()
         {
             var ds =
                 new Dataset(new Site(10, "Lake Rotorua", "Steven McTainsh", _sampleContact, _sampleContact,
@@ -246,12 +246,12 @@ namespace IndiaTango.Tests
 
             var A = new SensorState(_testSensor, baseDate,
                                        new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 200 }, { baseDate.AddMinutes(30), 200 }, { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 200 } }, null);
-            A.Extrapolate(new List<DateTime> { { baseDate.AddMinutes(60) } }, null);
+            A.Interpolate(new List<DateTime> { { baseDate.AddMinutes(60) } }, null);
 
         }
 
         [Test]
-        public void ExtrapolatesCorrectlyOneMissingPt()
+        public void InterpolatesCorrectlyOneMissingPt()
         {
             var ds =
                 new Dataset(new Site(10, "Lake Rotorua", "Steven McTainsh", _sampleContact, _sampleContact,
@@ -261,13 +261,13 @@ namespace IndiaTango.Tests
             var a = new SensorState(_testSensor, baseDate,
                                        new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 50 }, { baseDate.AddMinutes(30), 100 }, { baseDate.AddMinutes(60), 200 } }, null);
 
-            var state = a.Extrapolate(new List<DateTime> { baseDate.AddMinutes(45) }, ds);
+            var state = a.Interpolate(new List<DateTime> { baseDate.AddMinutes(45) }, ds);
 
             Assert.AreEqual(150, state.Values[baseDate.AddMinutes(45)]);
         }
 
         [Test]
-        public void ExtrapolatesCorrectlyTwoMissingPts()
+        public void InterpolatesCorrectlyTwoMissingPts()
         {
             var ds =
                 new Dataset(new Site(10, "Lake Rotorua", "Steven McTainsh", _sampleContact, _sampleContact,
@@ -277,7 +277,7 @@ namespace IndiaTango.Tests
             var A = new SensorState(_testSensor, baseDate,
                                        new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 50 }, { baseDate.AddMinutes(60), 200 } }, null);
 
-            var state = A.Extrapolate(new List<DateTime> { baseDate.AddMinutes(30), baseDate.AddMinutes(45) }, ds);
+            var state = A.Interpolate(new List<DateTime> { baseDate.AddMinutes(30), baseDate.AddMinutes(45) }, ds);
 
             Assert.AreEqual(100, state.Values[baseDate.AddMinutes(30)]);
             Assert.AreEqual(150, state.Values[baseDate.AddMinutes(45)]);
