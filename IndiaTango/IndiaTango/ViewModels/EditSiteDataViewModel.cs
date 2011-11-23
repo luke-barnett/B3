@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
@@ -32,6 +33,25 @@ namespace IndiaTango.ViewModels
             DoneCancelVisible = Visibility.Visible;
             DoneCancelVisible = Visibility.Collapsed;
             DoneCancelEnabled = true;
+
+            AllContacts.CollectionChanged += (o, e) =>
+                                                 {
+                                                     if (e.Action != NotifyCollectionChangedAction.Add || _contactTypeToUpdate <= -1)
+                                                         return;
+
+                                                     if(_contactTypeToUpdate == 0)
+                                                     {
+                                                         PrimaryContact = e.NewItems[0] as Contact;
+                                                     }
+                                                     else if(_contactTypeToUpdate == 1)
+                                                     {
+                                                         SecondaryContact = e.NewItems[0] as Contact;
+                                                     }
+                                                     else if (_contactTypeToUpdate == 2)
+                                                     {
+                                                         UniversityContact = e.NewItems[0] as Contact;
+                                                     }
+                                                 };
         }
 
         #region Private Parameters
@@ -49,6 +69,7 @@ namespace IndiaTango.ViewModels
         private Visibility _doneCancelVisible;
         private Visibility _createEditDeleteVisible;
         private int _selectedImage;
+        private int _contactTypeToUpdate = -1;
 
         #region Site Details
 
@@ -445,7 +466,9 @@ namespace IndiaTango.ViewModels
 
         public void BtnNewPrimary()
         {
+            _contactTypeToUpdate = 0;
             NewContact();
+            _contactTypeToUpdate = -1;
         }
 
         public void BtnEditPrimary()
@@ -464,7 +487,9 @@ namespace IndiaTango.ViewModels
 
         public void BtnNewSecondary()
         {
+            _contactTypeToUpdate = 1;
             NewContact();
+            _contactTypeToUpdate = -1;
         }
 
         public void BtnEditSecondary()
@@ -483,7 +508,9 @@ namespace IndiaTango.ViewModels
 
         public void BtnNewUni()
         {
+            _contactTypeToUpdate = 2;
             NewContact();
+            _contactTypeToUpdate = -1;
         }
 
         public void BtnEditUni()
