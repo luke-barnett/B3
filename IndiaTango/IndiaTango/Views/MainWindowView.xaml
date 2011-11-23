@@ -76,7 +76,7 @@
                             <DataGridTemplateColumn Header="Edit">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <CheckBox Content="{Binding This}" HorizontalAlignment="Center">
+                                        <CheckBox Content="{Binding This}" HorizontalAlignment="Center" VerticalAlignment="Center">
                                             <i:Interaction.Triggers>
                                                 <i:EventTrigger EventName="Checked">
                                                     <cal:ActionMessage MethodName="AddToEditingSensors">
@@ -96,7 +96,7 @@
                             <DataGridTemplateColumn Header="Graph">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <CheckBox Content="{Binding This}" HorizontalAlignment="Center">
+                                        <CheckBox Content="{Binding This}" HorizontalAlignment="Center" VerticalAlignment="Center">
                                             <i:Interaction.Triggers>
                                                 <i:EventTrigger EventName="Checked">
                                                     <cal:ActionMessage MethodName="AddToGraph">
@@ -122,7 +122,7 @@
                             <DataGridTextColumn Header="Manufacturer" Binding="{Binding Sensor.Manufacturer}" />
                             <DataGridTextColumn Header="Serial Number" Binding="{Binding Sensor.SerialNumber}" />
                             <DataGridTextColumn Header="Description" Binding="{Binding Sensor.Description}" />
-                            <DataGridTemplateColumn Header="Colour">
+                            <DataGridTemplateColumn Header="Colour" CanUserResize="False">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <toolkit:ColorPicker Width="40" DisplayColorAndName="False" SelectedColor="{Binding Sensor.Colour, Converter={StaticResource colourConverter}, UpdateSourceTrigger=PropertyChanged}" ShowStandardColors="False" cal:Message.Attach="[Event SelectedColorChanged] = [Action ColourChanged($eventArgs, $this)]" />
