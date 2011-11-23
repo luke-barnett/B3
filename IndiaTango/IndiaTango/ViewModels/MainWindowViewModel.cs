@@ -955,7 +955,6 @@ namespace IndiaTango.ViewModels
                                              UpdateGraph();
                                              Common.ShowMessageBox("Values Updated", "The selected values were interpolated", false, false);
                                              Common.RequestReason(sensorList, _container, _windowManager, "Values were interpolated");
-                                             SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
                                              CheckTheseMethods(new Collection<IDetectionMethod> { methodCheckedAgainst });
                                          };
 
