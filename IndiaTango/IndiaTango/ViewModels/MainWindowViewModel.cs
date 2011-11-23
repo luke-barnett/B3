@@ -1330,7 +1330,10 @@ namespace IndiaTango.ViewModels
         public void UpdateSelectedSite()
         {
             if (_chosenSelectedIndex < 0)
+            {
+                CurrentDataset = null;
                 return;
+            }
 
             var saveFirst = false;
 
