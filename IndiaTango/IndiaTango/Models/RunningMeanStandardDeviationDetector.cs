@@ -402,7 +402,7 @@ namespace IndiaTango.Models
 
                 if (_sensorsCombo.Items.Count == 1)
                     _sensorsCombo.SelectedIndex = 0;
-                else if (!_sensorsCombo.Items.Contains(_graphedSensor))
+                else if (_graphedSensor != null && !_sensorsCombo.Items.Contains(_graphedSensor))
                     GraphUpdateNeeded();
             }
         }
