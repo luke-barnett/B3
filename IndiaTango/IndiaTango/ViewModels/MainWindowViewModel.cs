@@ -42,7 +42,7 @@ namespace IndiaTango.ViewModels
             _minMaxRateofChangeDetector.GraphUpdateNeeded += UpdateGraph;
 
             _runningMeanStandardDeviationDetector = new RunningMeanStandardDeviationDetector();
-            _runningMeanStandardDeviationDetector.GraphUpdateNeeded += UpdateGraph;
+            _runningMeanStandardDeviationDetector.GraphUpdateNeeded += () => SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
 
             _runningMeanStandardDeviationDetector.RefreshDetectedValues +=
                 () => CheckTheseMethods(new Collection<IDetectionMethod> { _runningMeanStandardDeviationDetector });
@@ -509,23 +509,6 @@ namespace IndiaTango.ViewModels
             {
                 generatedSeries.AddRange(detectionMethod.GraphableSeries(StartTime, EndTime));
             }
-
-            var min = MinimumY(generatedSeries);
-            var max = MaximumY(generatedSeries);
-
-            if (Math.Abs(min - 0) < 0.01)
-                min = -1;
-
-            if (Math.Abs(max - 0) < 0.01)
-                max = 1;
-
-            Range = min < double.MaxValue ? new DoubleRange(min - (Math.Abs(min * .2)), max + (Math.Abs(max * .2))) : new DoubleRange();
-
-            MinMinimum = (int)Minimum;
-            MaxMaximum = (int)Maximum;
-
-            MaxMinimum = (int)Maximum;
-            MinMaximum = (int)Math.Ceiling(Minimum);
 
             ChartSeries = generatedSeries;
         }
@@ -1092,6 +1075,26 @@ namespace IndiaTango.ViewModels
             bw.RunWorkerAsync();
         }
 
+        private void CalculateYAxis()
+        {
+            var min = MinimumY(ChartSeries);
+            var max = MaximumY(ChartSeries);
+
+            if (Math.Abs(min - 0) < 0.01)
+                min = -1;
+
+            if (Math.Abs(max - 0) < 0.01)
+                max = 1;
+
+            Range = min < double.MaxValue ? new DoubleRange(min - (Math.Abs(min * .2)), max + (Math.Abs(max * .2))) : new DoubleRange();
+
+            MinMinimum = (int)Minimum;
+            MaxMaximum = (int)Maximum;
+
+            MaxMinimum = (int)Maximum;
+            MinMaximum = (int)Math.Ceiling(Minimum);
+        }
+
         #endregion
 
         #region Public Methods
@@ -1398,8 +1401,8 @@ namespace IndiaTango.ViewModels
                 ChartTitle += string.Format(" and {0} [{1}m]", _sensorsToGraph[i].Sensor.Name, _sensorsToGraph[i].Sensor.Depth);
 
             YAxisTitle = ((from sensor in _sensorsToGraph select sensor.Sensor.Unit).Distinct().Count() == 1) ? _sensorsToGraph[0].Sensor.Unit : String.Empty;
-
             SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
+            CalculateYAxis();
             CalculateGraphedEndPoints();
             NotifyOfPropertyChange(() => CanEditDates);
         }
