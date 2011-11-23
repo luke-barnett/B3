@@ -997,7 +997,7 @@ namespace IndiaTango.ViewModels
             FeaturesEnabled = false;
             ShowProgressArea = true;
             ProgressIndeterminate = true;
-            WaitEventString = "Extrapolating values";
+            WaitEventString = "Interpolating values";
             bw.RunWorkerAsync();
         }
 

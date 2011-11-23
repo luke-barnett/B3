@@ -553,7 +553,7 @@ namespace IndiaTango.ViewModels
                                              ButtonsEnabled = true;
                                          };
             ButtonsEnabled = false;
-            StartWaiting("Extrapolating Values");
+            StartWaiting("Interpolating Values");
             bw.RunWorkerAsync();
         }
 
