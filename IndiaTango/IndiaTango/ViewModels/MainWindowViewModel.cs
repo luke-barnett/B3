@@ -498,7 +498,7 @@ namespace IndiaTango.ViewModels
             foreach (var sensor in sensors)
             {
                 _sampleRate = sensor.DataPoints.Count() / (numberOfPoints / (sensors.Count + numberOfDetectorsGraphsToCountAsSensors));
-                Debug.Print("Number of points: {0} Max Number {1} Sampling rate {2}", sensor.DataPoints.Count(), numberOfPoints, _sampleRate);
+                Debug.Print("[{3}] Number of points: {0} Max Number {1} Sampling rate {2}", sensor.DataPoints.Count(), numberOfPoints, _sampleRate, sensor.Sensor.Name);
 
                 var series = (_sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints.Where((x, index) => index % _sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints);
                 generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour), Name = sensor.Sensor.Name });
@@ -946,13 +946,15 @@ namespace IndiaTango.ViewModels
                                          {
                                              FeaturesEnabled = true;
                                              ShowProgressArea = false;
+                                             //Update the needed graphed items
+                                             foreach (var graphableSensor in _sensorsToGraph.Where(x => sensorList.Contains(x.Sensor)))
+                                                 graphableSensor.RefreshDataPoints();
+                                             //Also update those that aren't graphed for good measure
+                                             foreach (var graphableSensor in GraphableSensors.Where(x => sensorList.Contains(x.Sensor) && !_sensorsToGraph.Contains(x)))
+                                                 graphableSensor.RefreshDataPoints();
+                                             UpdateGraph();
                                              Common.ShowMessageBox("Values Updated", "The selected values were interpolated", false, false);
                                              Common.RequestReason(sensorList, _container, _windowManager, "Values were interpolated");
-                                             foreach (var graphableSensor in GraphableSensors.Where(x => sensorList.Contains(x.Sensor)))
-                                             {
-                                                 Debug.Print("Refreshing datapoints for {0}", graphableSensor.Sensor.Name);
-                                                 graphableSensor.RefreshDataPoints();
-                                             }
                                              SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
                                              CheckTheseMethods(new Collection<IDetectionMethod> { methodCheckedAgainst });
                                          };
@@ -997,12 +999,15 @@ namespace IndiaTango.ViewModels
             {
                 FeaturesEnabled = true;
                 ShowProgressArea = false;
+                //Update the needed graphed items
+                foreach (var graphableSensor in _sensorsToGraph.Where(x => sensorList.Contains(x.Sensor)))
+                    graphableSensor.RefreshDataPoints();
+                //Also update those that aren't graphed for good measure
+                foreach (var graphableSensor in GraphableSensors.Where(x => sensorList.Contains(x.Sensor) && !_sensorsToGraph.Contains(x)))
+                    graphableSensor.RefreshDataPoints();
+                UpdateGraph();
                 Common.ShowMessageBox("Values Updated", "The selected values were removed", false, false);
                 Common.RequestReason(sensorList, _container, _windowManager, "Values were removed");
-                foreach (var graphableSensor in GraphableSensors.Where(x => sensorList.Contains(x.Sensor)))
-                {
-                    graphableSensor.RefreshDataPoints();
-                }
                 CheckTheseMethods(new Collection<IDetectionMethod> { methodCheckedAgainst });
             };
 
@@ -1058,13 +1063,15 @@ namespace IndiaTango.ViewModels
             {
                 FeaturesEnabled = true;
                 ShowProgressArea = false;
+                //Update the needed graphed items
+                foreach (var graphableSensor in _sensorsToGraph.Where(x => sensorList.Contains(x.Sensor)))
+                    graphableSensor.RefreshDataPoints();
+                //Also update those that aren't graphed for good measure
+                foreach (var graphableSensor in GraphableSensors.Where(x => sensorList.Contains(x.Sensor) && !_sensorsToGraph.Contains(x)))
+                    graphableSensor.RefreshDataPoints();
+                UpdateGraph();
                 Common.ShowMessageBox("Values Updated", "The selected values set to " + value, false, false);
                 Common.RequestReason(sensorList, _container, _windowManager, "Values were set to " + value);
-                foreach (var graphableSensor in GraphableSensors.Where(x => sensorList.Contains(x.Sensor)))
-                {
-                    Debug.Print("Refreshing datapoints for {0}", graphableSensor.Sensor.Name);
-                    graphableSensor.RefreshDataPoints();
-                }
                 CheckTheseMethods(new Collection<IDetectionMethod> { methodCheckedAgainst });
             };
 
