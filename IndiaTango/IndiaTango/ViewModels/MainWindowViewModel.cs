@@ -47,7 +47,7 @@ namespace IndiaTango.ViewModels
             _runningMeanStandardDeviationDetector.RefreshDetectedValues +=
                 () => CheckTheseMethods(new Collection<IDetectionMethod> { _runningMeanStandardDeviationDetector });
 
-            _missingValuesDetector = new MissingValuesDetector();
+            _missingValuesDetector = new MissingValuesDetector { IsEnabled = true };
 
             _detectionMethods = new List<IDetectionMethod> { _missingValuesDetector, _minMaxRateofChangeDetector, _runningMeanStandardDeviationDetector };
 
@@ -660,32 +660,9 @@ namespace IndiaTango.ViewModels
             var optionsStackPanel = new StackPanel { Orientation = Orientation.Vertical };
             detectionMethodOptions.Content = optionsStackPanel;
 
-            var detectionMethodListBox = new GroupBox { Header = new TextBlock { Text = "Detected Values" }, BorderBrush = Brushes.OrangeRed, IsEnabled = method.IsEnabled };
+            var detectionMethodListBox = new GroupBox { Header = new TextBlock { Text = "Detected Values" }, BorderBrush = Brushes.OrangeRed };
             var settingsGrid = method.SettingsGrid;
-            var listBox = new ListBox { SelectionMode = SelectionMode.Extended };
-
-            var enabledCheckBox = new CheckBox { Content = new TextBlock { Text = "Enabled" } };
-            enabledCheckBox.Checked += (o, e) =>
-                                           {
-                                               method.IsEnabled = true;
-                                               settingsGrid.IsEnabled = true;
-                                               detectionMethodListBox.IsEnabled = true;
-                                               listBox.Items.Refresh();
-                                               CheckTheseMethods(new Collection<IDetectionMethod> { method });
-                                           };
-
-            enabledCheckBox.Unchecked += (o, e) =>
-                                             {
-                                                 method.IsEnabled = false;
-                                                 settingsGrid.IsEnabled = false;
-                                                 detectionMethodListBox.IsEnabled = false;
-                                                 Debug.Print("{0} is disabled clearing Listbox", method.Name);
-                                                 listBox.Items.Clear();
-                                                 UpdateGraph();
-                                             };
-
-            optionsStackPanel.Children.Add(enabledCheckBox);
-
+            var listBox = new ListBox { SelectionMode = SelectionMode.Extended, IsEnabled = method.IsEnabled };
 
             settingsGrid.IsEnabled = method.IsEnabled;
 
@@ -693,7 +670,8 @@ namespace IndiaTango.ViewModels
 
             Grid.SetRow(detectionMethodOptions, 1);
 
-            tabItemGrid.Children.Add(detectionMethodOptions);
+            if (method.HasSettings)
+                tabItemGrid.Children.Add(detectionMethodOptions);
 
             method.ListBox = listBox;
 
@@ -707,7 +685,7 @@ namespace IndiaTango.ViewModels
 
             var actionsStackPanelWrapper = new StackPanel();
 
-            var undoRedoWrap = new WrapPanel { HorizontalAlignment = HorizontalAlignment.Center, IsEnabled = SensorsForEditing.Count > 0};
+            var undoRedoWrap = new WrapPanel { HorizontalAlignment = HorizontalAlignment.Center, IsEnabled = SensorsForEditing.Count > 0 };
 
             var undoButton = new SplitButton { FontSize = 15, Width = 155, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(5) };
 
@@ -735,7 +713,7 @@ namespace IndiaTango.ViewModels
 
             actionsStackPanelWrapper.Children.Add(new Rectangle { Height = 3, Margin = new Thickness(0, 10, 0, 10), Fill = Brushes.OrangeRed, Stroke = Brushes.White, SnapsToDevicePixels = true });
 
-            var dataEditingWrapper = new WrapPanel { Margin = new Thickness(5), IsEnabled = false};
+            var dataEditingWrapper = new WrapPanel { Margin = new Thickness(5), IsEnabled = false };
 
             var interpolateButton = new Button
                                         {
@@ -989,8 +967,10 @@ namespace IndiaTango.ViewModels
                                              Common.RequestReason(sensorList, _container, _windowManager, "Values were interpolated");
                                              foreach (var graphableSensor in GraphableSensors.Where(x => sensorList.Contains(x.Sensor)))
                                              {
+                                                 Debug.Print("Refreshing datapoints for {0}", graphableSensor.Sensor.Name);
                                                  graphableSensor.RefreshDataPoints();
                                              }
+                                             SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
                                              CheckTheseMethods(new Collection<IDetectionMethod> { methodCheckedAgainst });
                                          };
 
@@ -1007,7 +987,7 @@ namespace IndiaTango.ViewModels
             if (values.Count() < 0)
                 return;
 
-            if(methodCheckedAgainst == _missingValuesDetector)
+            if (methodCheckedAgainst == _missingValuesDetector)
             {
                 Common.ShowMessageBox("Sorry, but that's a little hard",
                                       "We can't remove values that are already removed! Try another option", false,
@@ -1058,16 +1038,16 @@ namespace IndiaTango.ViewModels
 
             var sensorList = values.Select(x => x.Owner).Distinct().ToList();
 
-            var specifyValueView = _container.GetInstance(typeof (SpecifyValueViewModel), "SpecifyValueViewModel") as SpecifyValueViewModel;
+            var specifyValueView = _container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel") as SpecifyValueViewModel;
 
-            if(specifyValueView == null)
+            if (specifyValueView == null)
                 return;
 
             float value;
 
             _windowManager.ShowDialog(specifyValueView);
 
-            if(specifyValueView.WasCanceled)
+            if (specifyValueView.WasCanceled)
                 return;
 
             try
@@ -1079,7 +1059,7 @@ namespace IndiaTango.ViewModels
                 Common.ShowMessageBox("An Error Occured", "Please enter a valid number.", true, true);
                 return;
             }
-            
+
 
             var bw = new BackgroundWorker();
 
@@ -1099,6 +1079,7 @@ namespace IndiaTango.ViewModels
                 Common.RequestReason(sensorList, _container, _windowManager, "Values were set to " + value);
                 foreach (var graphableSensor in GraphableSensors.Where(x => sensorList.Contains(x.Sensor)))
                 {
+                    Debug.Print("Refreshing datapoints for {0}", graphableSensor.Sensor.Name);
                     graphableSensor.RefreshDataPoints();
                 }
                 CheckTheseMethods(new Collection<IDetectionMethod> { methodCheckedAgainst });
@@ -1516,7 +1497,7 @@ namespace IndiaTango.ViewModels
 
         public void ColourChanged(RoutedPropertyChangedEventArgs<Color> args, GraphableSensor owner)
         {
-            if(ChartSeries == null)
+            if (ChartSeries == null)
                 return;
 
             var matchingLineSeries = ChartSeries.FirstOrDefault(x => x.Name == owner.Sensor.Name);
@@ -1600,6 +1581,46 @@ namespace IndiaTango.ViewModels
                     detectionMethod.ListBox.Items.Remove(erroneousValue);
                 }
                 detectionMethod.ListBox.Items.Refresh();
+            }
+        }
+
+        public void DetectionMethodChanged(SelectionChangedEventArgs eventArgs)
+        {
+            if (eventArgs.RemovedItems.Count > 0)
+            {
+                var oldTabItem = eventArgs.RemovedItems[0] as TabItem;
+                if (oldTabItem != null)
+                {
+                    var oldTabItemHeader = oldTabItem.Header as TextBlock;
+                    var oldDetectionMethod = _detectionMethods.FirstOrDefault(x => oldTabItemHeader != null && x.Abbreviation == oldTabItemHeader.Text);
+                    if (oldDetectionMethod != null)
+                    {
+                        Debug.Print("Turning off: {0}", oldDetectionMethod.Name);
+                        oldDetectionMethod.IsEnabled = false;
+                        oldDetectionMethod.SettingsGrid.IsEnabled = false;
+                        oldDetectionMethod.ListBox.Items.Clear();
+                        oldDetectionMethod.ListBox.IsEnabled = false;
+                        UpdateGraph();
+                    }
+                }
+            }
+
+            if (eventArgs.AddedItems.Count > 0)
+            {
+                var newTabItem = eventArgs.AddedItems[0] as TabItem;
+                if (newTabItem != null)
+                {
+                    var newTabItemHeader = newTabItem.Header as TextBlock;
+                    var newDetectionMethod = _detectionMethods.FirstOrDefault(x => newTabItemHeader != null && x.Abbreviation == newTabItemHeader.Text);
+                    if (newDetectionMethod != null)
+                    {
+                        Debug.Print("Turning on: {0}", newDetectionMethod.Name);
+                        newDetectionMethod.IsEnabled = true;
+                        newDetectionMethod.SettingsGrid.IsEnabled = true;
+                        newDetectionMethod.ListBox.IsEnabled = true;
+                        CheckTheseMethods(new Collection<IDetectionMethod> { newDetectionMethod });
+                    }
+                }
             }
         }
 

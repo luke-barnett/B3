@@ -19,6 +19,7 @@ namespace IndiaTango.Models
         private Dictionary<DateTime, float> _upperLine = new Dictionary<DateTime, float>();
         private Dictionary<DateTime, float> _lowerLine = new Dictionary<DateTime, float>();
         private bool _showGraph;
+        private Grid _settings;
 
         /// <summary>
         /// Fired if the graph needs to be updated
@@ -78,143 +79,178 @@ namespace IndiaTango.Models
         {
             get
             {
-                var wrapper = new Grid();
-                var stackPanel = new StackPanel();
+                if (_settings == null)
+                {
+                    var wrapper = new Grid();
+                    var stackPanel = new StackPanel();
 
-                var graphGrid = new Grid();
-                var graphCheckBox = new CheckBox { Content = new TextBlock { Text = "Show Graph" }, HorizontalAlignment = HorizontalAlignment.Left, IsChecked = _showGraph };
+                    var graphGrid = new Grid();
+                    var graphCheckBox = new CheckBox
+                                            {
+                                                Content = new TextBlock {Text = "Show Graph"},
+                                                HorizontalAlignment = HorizontalAlignment.Left,
+                                                IsChecked = _showGraph
+                                            };
 
-                graphCheckBox.Checked += (o, e) =>
-                                             {
-                                                 _showGraph = true;
-                                                 GraphUpdateNeeded();
-                                             };
-                graphCheckBox.Unchecked += (o, e) =>
-                                               {
-                                                   _showGraph = false;
-                                                   GraphUpdateNeeded();
-                                               };
+                    graphCheckBox.Checked += (o, e) =>
+                                                 {
+                                                     _showGraph = true;
+                                                     GraphUpdateNeeded();
+                                                 };
+                    graphCheckBox.Unchecked += (o, e) =>
+                                                   {
+                                                       _showGraph = false;
+                                                       GraphUpdateNeeded();
+                                                   };
 
-                graphGrid.Children.Add(graphCheckBox);
+                    graphGrid.Children.Add(graphCheckBox);
 
-                var updateGraphButton = new Button { Content = new TextBlock { Text = "Update Graph" }, HorizontalAlignment = HorizontalAlignment.Right };
+                    var updateGraphButton = new Button
+                                                {
+                                                    Content = new TextBlock {Text = "Update Graph"},
+                                                    HorizontalAlignment = HorizontalAlignment.Right
+                                                };
 
-                updateGraphButton.Click += (o, e) => GraphUpdateNeeded();
+                    updateGraphButton.Click += (o, e) => GraphUpdateNeeded();
 
-                graphGrid.Children.Add(updateGraphButton);
+                    graphGrid.Children.Add(updateGraphButton);
 
-                stackPanel.Children.Add(graphGrid);
+                    stackPanel.Children.Add(graphGrid);
 
-                var graphOptions = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 5, 0, 0) };
+                    var graphOptions = new StackPanel
+                                           {Orientation = Orientation.Horizontal, Margin = new Thickness(0, 5, 0, 0)};
 
-                graphOptions.Children.Add(new TextBlock { Text = "What sensor to use when graphing lines", Margin = new Thickness(0, 0, 10, 0) });
+                    graphOptions.Children.Add(new TextBlock
+                                                  {
+                                                      Text = "What sensor to use when graphing lines",
+                                                      Margin = new Thickness(0, 0, 10, 0)
+                                                  });
 
-                _sensorsCombo = new ComboBox { Width = 100 };
+                    _sensorsCombo = new ComboBox {Width = 100};
 
-                _sensorsCombo.SelectionChanged += (o, e) =>
+                    _sensorsCombo.SelectionChanged += (o, e) =>
+                                                          {
+                                                              if (e.AddedItems.Count < 1)
+                                                                  return;
+                                                              _graphedSensor = e.AddedItems[0] as Sensor;
+                                                              GraphUpdateNeeded();
+                                                          };
+
+                    graphOptions.Children.Add(_sensorsCombo);
+
+                    stackPanel.Children.Add(graphOptions);
+
+                    var smoothingPeriodGrid = new Grid();
+                    smoothingPeriodGrid.RowDefinitions.Add(new RowDefinition
+                                                               {Height = new GridLength(1, GridUnitType.Star)});
+                    smoothingPeriodGrid.RowDefinitions.Add(new RowDefinition
+                                                               {Height = new GridLength(1, GridUnitType.Star)});
+
+                    var smoothingPeriodTitle = new TextBlock
+                                                   {
+                                                       Text = "Smoothing Period",
+                                                       HorizontalAlignment = HorizontalAlignment.Left
+                                                   };
+
+                    Grid.SetRow(smoothingPeriodTitle, 0);
+                    smoothingPeriodGrid.Children.Add(smoothingPeriodTitle);
+
+                    var smoothingPeriodHoursText = new TextBlock
+                                                       {
+                                                           Text = _requestedSmoothingPeriod/60 + " Hour(s)",
+                                                           HorizontalAlignment = HorizontalAlignment.Right
+                                                       };
+
+                    Grid.SetRow(smoothingPeriodHoursText, 0);
+                    smoothingPeriodGrid.Children.Add(smoothingPeriodHoursText);
+
+                    var smoothingPeriodSlider = new Slider
+                                                    {Value = _requestedSmoothingPeriod/60d, Maximum = 60, Minimum = 1};
+                    smoothingPeriodSlider.ValueChanged += (o, e) =>
+                                                              {
+                                                                  _requestedSmoothingPeriod = (int) e.NewValue*60;
+                                                                  smoothingPeriodHoursText.Text =
+                                                                      _requestedSmoothingPeriod/60 + " Hour(s)";
+                                                              };
+                    smoothingPeriodSlider.PreviewMouseUp += (o, e) =>
+                                                                {
+                                                                    if (_requestedSmoothingPeriod != _smoothingPeriod)
+                                                                    {
+                                                                        _smoothingPeriod = _requestedSmoothingPeriod;
+                                                                        GenerateUpperAndLowerLines(_currentSensor);
+                                                                        Debug.WriteLine("Refresh of values needed");
+                                                                        RefreshDetectedValues();
+                                                                        GraphUpdateNeeded();
+                                                                    }
+
+                                                                };
+                    Grid.SetRow(smoothingPeriodSlider, 1);
+                    smoothingPeriodGrid.Children.Add(smoothingPeriodSlider);
+
+                    stackPanel.Children.Add(smoothingPeriodGrid);
+
+                    var standarDeviationsGrid = new Grid();
+                    standarDeviationsGrid.RowDefinitions.Add(new RowDefinition
+                                                                 {Height = new GridLength(1, GridUnitType.Star)});
+                    standarDeviationsGrid.RowDefinitions.Add(new RowDefinition
+                                                                 {Height = new GridLength(1, GridUnitType.Star)});
+
+                    var standarDeviationsTitle = new TextBlock
+                                                     {
+                                                         Text = "Standard Deviations",
+                                                         HorizontalAlignment = HorizontalAlignment.Left
+                                                     };
+
+                    Grid.SetRow(standarDeviationsTitle, 0);
+                    standarDeviationsGrid.Children.Add(standarDeviationsTitle);
+
+                    var standardDeviationsText = new TextBlock
+                                                     {
+                                                         Text = _requestedNumerOfStandardDeviations.ToString(),
+                                                         HorizontalAlignment = HorizontalAlignment.Right
+                                                     };
+
+                    Grid.SetRow(standardDeviationsText, 0);
+                    standarDeviationsGrid.Children.Add(standardDeviationsText);
+
+                    var standarDeviationsSlider = new Slider
                                                       {
-                                                          if (e.AddedItems.Count < 1)
-                                                              return;
-                                                          _graphedSensor = e.AddedItems[0] as Sensor;
-                                                          GraphUpdateNeeded();
+                                                          Value = _requestedNumerOfStandardDeviations,
+                                                          Maximum = 5,
+                                                          Minimum = 0,
+                                                          TickFrequency = 0.5,
+                                                          TickPlacement = TickPlacement.BottomRight
                                                       };
+                    standarDeviationsSlider.ValueChanged += (o, e) =>
+                                                                {
+                                                                    _requestedNumerOfStandardDeviations =
+                                                                        (float) e.NewValue;
+                                                                    standardDeviationsText.Text =
+                                                                        _requestedNumerOfStandardDeviations.ToString();
+                                                                };
+                    standarDeviationsSlider.PreviewMouseUp += (o, e) =>
+                                                                  {
+                                                                      if (
+                                                                          Math.Abs(_requestedNumerOfStandardDeviations -
+                                                                                   _numberOfStandardDeviations) > 0.01)
+                                                                      {
+                                                                          _numberOfStandardDeviations =
+                                                                              _requestedNumerOfStandardDeviations;
+                                                                          GenerateUpperAndLowerLines(_currentSensor);
+                                                                          Debug.WriteLine("Refresh of values needed");
+                                                                          RefreshDetectedValues();
+                                                                          GraphUpdateNeeded();
+                                                                      }
+                                                                  };
+                    Grid.SetRow(standarDeviationsSlider, 1);
+                    standarDeviationsGrid.Children.Add(standarDeviationsSlider);
 
-                graphOptions.Children.Add(_sensorsCombo);
+                    stackPanel.Children.Add(standarDeviationsGrid);
 
-                stackPanel.Children.Add(graphOptions);
-
-                var smoothingPeriodGrid = new Grid();
-                smoothingPeriodGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-                smoothingPeriodGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-
-                var smoothingPeriodTitle = new TextBlock
-                                               {
-                                                   Text = "Smoothing Period",
-                                                   HorizontalAlignment = HorizontalAlignment.Left
-                                               };
-
-                Grid.SetRow(smoothingPeriodTitle, 0);
-                smoothingPeriodGrid.Children.Add(smoothingPeriodTitle);
-
-                var smoothingPeriodHoursText = new TextBlock
-                {
-                    Text = _requestedSmoothingPeriod / 60 + " Hour(s)",
-                    HorizontalAlignment = HorizontalAlignment.Right
-                };
-
-                Grid.SetRow(smoothingPeriodHoursText, 0);
-                smoothingPeriodGrid.Children.Add(smoothingPeriodHoursText);
-
-                var smoothingPeriodSlider = new Slider { Value = _requestedSmoothingPeriod / 60d, Maximum = 60, Minimum = 1 };
-                smoothingPeriodSlider.ValueChanged += (o, e) =>
-                                                        {
-                                                            _requestedSmoothingPeriod = (int)e.NewValue * 60;
-                                                            smoothingPeriodHoursText.Text = _requestedSmoothingPeriod / 60 + " Hour(s)";
-                                                        };
-                smoothingPeriodSlider.PreviewMouseUp += (o, e) =>
-                                                               {
-                                                                   if (_requestedSmoothingPeriod != _smoothingPeriod)
-                                                                   {
-                                                                       _smoothingPeriod = _requestedSmoothingPeriod;
-                                                                       GenerateUpperAndLowerLines(_currentSensor);
-                                                                       Debug.WriteLine("Refresh of values needed");
-                                                                       RefreshDetectedValues();
-                                                                       GraphUpdateNeeded();
-                                                                   }
-
-                                                               };
-                Grid.SetRow(smoothingPeriodSlider, 1);
-                smoothingPeriodGrid.Children.Add(smoothingPeriodSlider);
-
-                stackPanel.Children.Add(smoothingPeriodGrid);
-
-                var standarDeviationsGrid = new Grid();
-                standarDeviationsGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-                standarDeviationsGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-
-                var standarDeviationsTitle = new TextBlock
-                {
-                    Text = "Standard Deviations",
-                    HorizontalAlignment = HorizontalAlignment.Left
-                };
-
-                Grid.SetRow(standarDeviationsTitle, 0);
-                standarDeviationsGrid.Children.Add(standarDeviationsTitle);
-
-                var standardDeviationsText = new TextBlock
-                {
-                    Text = _requestedNumerOfStandardDeviations.ToString(),
-                    HorizontalAlignment = HorizontalAlignment.Right
-                };
-
-                Grid.SetRow(standardDeviationsText, 0);
-                standarDeviationsGrid.Children.Add(standardDeviationsText);
-
-                var standarDeviationsSlider = new Slider { Value = _requestedNumerOfStandardDeviations, Maximum = 5, Minimum = 0, TickFrequency = 0.5, TickPlacement = TickPlacement.BottomRight };
-                standarDeviationsSlider.ValueChanged += (o, e) =>
-                                                            {
-                                                                _requestedNumerOfStandardDeviations = (float)e.NewValue;
-                                                                standardDeviationsText.Text =
-                                                                    _requestedNumerOfStandardDeviations.ToString();
-                                                            };
-                standarDeviationsSlider.PreviewMouseUp += (o, e) =>
-                                                                 {
-                                                                     if (Math.Abs(_requestedNumerOfStandardDeviations - _numberOfStandardDeviations) > 0.01)
-                                                                     {
-                                                                         _numberOfStandardDeviations = _requestedNumerOfStandardDeviations;
-                                                                         GenerateUpperAndLowerLines(_currentSensor);
-                                                                         Debug.WriteLine("Refresh of values needed");
-                                                                         RefreshDetectedValues();
-                                                                         GraphUpdateNeeded();
-                                                                     }
-                                                                 };
-                Grid.SetRow(standarDeviationsSlider, 1);
-                standarDeviationsGrid.Children.Add(standarDeviationsSlider);
-
-                stackPanel.Children.Add(standarDeviationsGrid);
-
-                wrapper.Children.Add(stackPanel);
-                return wrapper;
+                    wrapper.Children.Add(stackPanel);
+                    _settings = wrapper;
+                }
+                return _settings;
             }
         }
 

@@ -17,6 +17,8 @@ namespace IndiaTango.Models
 
         private ComboBox _sensorsCombo;
 
+        private Grid _settings;
+
         public event UpdateGraph GraphUpdateNeeded;
 
         public MinMaxRateOfChangeDetector()
@@ -70,52 +72,66 @@ namespace IndiaTango.Models
         {
             get
             {
-                var wrapperGrid = new Grid();
-                var stackPanel = new StackPanel();
-                var checkBox = new CheckBox { Content = new TextBlock { Text = "Graph Upper and Lower Limits" }, IsChecked = _showMaxMinLines };
-                checkBox.Checked += (o, e) =>
-                                        {
-                                            _showMaxMinLines = true;
-                                            GraphUpdateNeeded();
-                                        };
-                checkBox.Unchecked += (o, e) =>
-                                          {
-                                              _showMaxMinLines = false;
-                                              GraphUpdateNeeded();
-                                          };
-
-                stackPanel.Children.Add(checkBox);
-
-                var graphOptions = new StackPanel { Orientation = Orientation.Horizontal };
-
-                graphOptions.Children.Add(new TextBlock { Text = "What sensor to use when graphing lines", Margin = new Thickness(0, 0, 10, 0) });
-
-                _sensorsCombo = new ComboBox { Width = 100 };
-
-                _sensorsCombo.SelectionChanged += (o, e) =>
+                if (_settings == null)
                 {
-                    if (e.AddedItems.Count < 1)
-                        return;
+                    var wrapperGrid = new Grid();
+                    var stackPanel = new StackPanel();
+                    var checkBox = new CheckBox
+                                       {
+                                           Content = new TextBlock { Text = "Graph Upper and Lower Limits" },
+                                           IsChecked = _showMaxMinLines
+                                       };
+                    checkBox.Checked += (o, e) =>
+                                            {
+                                                _showMaxMinLines = true;
+                                                GraphUpdateNeeded();
+                                            };
+                    checkBox.Unchecked += (o, e) =>
+                                              {
+                                                  _showMaxMinLines = false;
+                                                  GraphUpdateNeeded();
+                                              };
 
-                    if (_selectedSensor != null)
-                        _selectedSensor.PropertyChanged -= PropertyChangedInSelectedSensor;
+                    stackPanel.Children.Add(checkBox);
 
-                    _selectedSensor = e.AddedItems[0] as Sensor;
+                    var graphOptions = new StackPanel { Orientation = Orientation.Horizontal };
 
-                    if (_selectedSensor != null)
-                        _selectedSensor.PropertyChanged += PropertyChangedInSelectedSensor;
+                    graphOptions.Children.Add(new TextBlock
+                                                  {
+                                                      Text = "What sensor to use when graphing lines",
+                                                      Margin = new Thickness(0, 0, 10, 0)
+                                                  });
+
+                    _sensorsCombo = new ComboBox { Width = 100 };
+
+                    _sensorsCombo.SelectionChanged += (o, e) =>
+                                                          {
+                                                              if (e.AddedItems.Count < 1)
+                                                                  return;
+
+                                                              if (_selectedSensor != null)
+                                                                  _selectedSensor.PropertyChanged -=
+                                                                      PropertyChangedInSelectedSensor;
+
+                                                              _selectedSensor = e.AddedItems[0] as Sensor;
+
+                                                              if (_selectedSensor != null)
+                                                                  _selectedSensor.PropertyChanged +=
+                                                                      PropertyChangedInSelectedSensor;
 
 
 
-                    GraphUpdateNeeded();
-                };
+                                                              GraphUpdateNeeded();
+                                                          };
 
-                graphOptions.Children.Add(_sensorsCombo);
+                    graphOptions.Children.Add(_sensorsCombo);
 
-                stackPanel.Children.Add(graphOptions);
+                    stackPanel.Children.Add(graphOptions);
 
-                wrapperGrid.Children.Add(stackPanel);
-                return wrapperGrid;
+                    wrapperGrid.Children.Add(stackPanel);
+                    _settings = wrapperGrid;
+                }
+                return _settings;
             }
         }
 
