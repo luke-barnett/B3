@@ -15,6 +15,7 @@ using Caliburn.Micro;
 using IndiaTango.Models;
 using Microsoft.Windows.Controls;
 using Visiblox.Charts;
+using Application = System.Windows.Application;
 using Button = System.Windows.Controls.Button;
 using CheckBox = System.Windows.Controls.CheckBox;
 using GroupBox = System.Windows.Controls.GroupBox;
@@ -24,6 +25,9 @@ using Orientation = System.Windows.Controls.Orientation;
 using Path = System.IO.Path;
 using SelectionMode = System.Windows.Controls.SelectionMode;
 using Cursors = System.Windows.Input.Cursors;
+using RadioButton = System.Windows.Controls.RadioButton;
+using TabControl = System.Windows.Controls.TabControl;
+using TextBox = System.Windows.Controls.TextBox;
 
 namespace IndiaTango.ViewModels
 {
@@ -59,7 +63,7 @@ namespace IndiaTango.ViewModels
             var behaviourManager = new BehaviourManager { AllowMultipleEnabled = true };
 
             #region Zoom Behaviour
-            var zoomBehaviour = new CustomZoomBehaviour { IsEnabled = !_inSelectionMode };
+            var zoomBehaviour = new CustomZoomBehaviour { IsEnabled = true };
             zoomBehaviour.ZoomRequested += (o, e) =>
             {
                 _startTime = (DateTime)e.FirstPoint.X;
@@ -140,7 +144,6 @@ namespace IndiaTango.ViewModels
         private int _sampleRate;
         private DateTime _startTime = DateTime.MinValue;
         private DateTime _endTime = DateTime.MaxValue;
-        private bool _inSelectionMode;
         private int _samplingOptionIndex = 3;
         private readonly Canvas _background;
         #region YAxisControls
@@ -171,7 +174,7 @@ namespace IndiaTango.ViewModels
             {
                 _currentDataset = value;
                 Debug.WriteLine("Updating for new Dataset");
-                if(Sensors.FirstOrDefault(x => x.Variable == null) != null)
+                if (Sensors.FirstOrDefault(x => x.Variable == null) != null)
                 {
                     var sensorVariables = SensorVariable.CreateSensorVariablesFromSensors(Sensors);
                     foreach (var sensor in Sensors)
@@ -179,7 +182,7 @@ namespace IndiaTango.ViewModels
                         sensor.Variable = sensorVariables.FirstOrDefault(x => x.Sensor == sensor);
                     }
                 }
-                
+
                 UpdateGUI();
             }
         }
@@ -313,7 +316,7 @@ namespace IndiaTango.ViewModels
         /// </summary>
         public List<GraphableSensor> GraphableSensors
         {
-            get { return _graphableSensors ?? (_graphableSensors =(from sensor in Sensors select new GraphableSensor(sensor)).ToList()); }
+            get { return _graphableSensors ?? (_graphableSensors = (from sensor in Sensors select new GraphableSensor(sensor)).ToList()); }
         }
 
         #region Charting
@@ -630,6 +633,7 @@ namespace IndiaTango.ViewModels
         private void BuildDetectionMethodTabItems()
         {
             var tabItems = _detectionMethods.Select(GenerateTabItemFromDetectionMethod).ToList();
+            tabItems.Add(GenerateCalibrationTabItem());
             DetectionTabItems = tabItems;
         }
 
@@ -682,7 +686,10 @@ namespace IndiaTango.ViewModels
             var undoRedoWrap = new WrapPanel { HorizontalAlignment = HorizontalAlignment.Center, IsEnabled = SensorsForEditing.Count > 0 };
 
             var undoButton = new SplitButton { FontSize = 15, Width = 155, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(5) };
-
+            undoButton.Click += (o, e) =>
+                                    {
+                                        //TODO: Write me!
+                                    };
             var undoButtonStackPanel = new StackPanel { Orientation = Orientation.Horizontal };
 
             undoButtonStackPanel.Children.Add(new Image { Width = 32, Height = 32, Source = new BitmapImage(new Uri("pack://application:,,,/Images/cancel_32.png", UriKind.Absolute)) });
@@ -693,7 +700,10 @@ namespace IndiaTango.ViewModels
             undoRedoWrap.Children.Add(undoButton);
 
             var redoButton = new SplitButton { FontSize = 15, Width = 155, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(5) };
-
+            redoButton.Click += (o, e) =>
+                                    {
+                                        //TODO: Write me!
+                                    };
             var redoButtonStackPanel = new StackPanel { Orientation = Orientation.Horizontal };
 
             redoButtonStackPanel.Children.Add(new Image { Width = 32, Height = 32, Source = new BitmapImage(new Uri("pack://application:,,,/Images/redo_32.png", UriKind.Absolute)) });
@@ -811,7 +821,147 @@ namespace IndiaTango.ViewModels
         private TabItem GenerateCalibrationTabItem()
         {
             //TODO:
-            var tabItem = new TabItem();
+            var tabItem = new TabItem { Header = "Calibration", IsEnabled = FeaturesEnabled };
+            //Build the Grid to base it all on and add it
+            var tabItemGrid = new Grid();
+            tabItem.Content = tabItemGrid;
+
+            tabItemGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) }); //Undo-Redo
+            tabItemGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) }); //Formula area
+
+            #region Undo Redo Building
+
+            var undoRedoStackPanel = new StackPanel { Orientation = Orientation.Horizontal };
+            Grid.SetRow(undoRedoStackPanel, 0);
+            tabItemGrid.Children.Add(undoRedoStackPanel);
+
+            var undoButton = new SplitButton { FontSize = 15, Width = 155, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(5) };
+            undoButton.Click += (o, e) =>
+                                    {
+                                        //TODO: Write me!
+                                    };
+            undoRedoStackPanel.Children.Add(undoButton);
+
+            var undoButtonStackPanel = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center };
+
+            undoButtonStackPanel.Children.Add(new Image { Width = 32, Height = 32, Source = new BitmapImage(new Uri("pack://application:,,,/Images/cancel_32.png", UriKind.Absolute)) });
+            undoButtonStackPanel.Children.Add(new TextBlock { Text = "Undo", VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center });
+
+            undoButton.Content = undoButtonStackPanel;
+
+            var redoButton = new SplitButton { FontSize = 15, Width = 155, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(5) };
+            redoButton.Click += (o, e) =>
+                                    {
+                                        //TODO: Write me!
+                                    };
+            undoRedoStackPanel.Children.Add(redoButton);
+
+            var redoButtonStackPanel = new StackPanel { Orientation = Orientation.Horizontal };
+
+            redoButtonStackPanel.Children.Add(new Image { Width = 32, Height = 32, Source = new BitmapImage(new Uri("pack://application:,,,/Images/redo_32.png", UriKind.Absolute)) });
+            redoButtonStackPanel.Children.Add(new TextBlock { Text = "Redo", VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center });
+
+            redoButton.Content = redoButtonStackPanel;
+
+            #endregion
+
+            var mainStackPanel = new StackPanel
+                                     {
+                                         Orientation = Orientation.Vertical
+                                     };
+            Grid.SetRow(mainStackPanel, 1);
+            tabItemGrid.Children.Add(mainStackPanel);
+
+            mainStackPanel.Children.Add(new Rectangle
+                                            {
+                                                Height = 3,
+                                                Margin = new Thickness(5),
+                                                Fill = Brushes.OrangeRed,
+                                                SnapsToDevicePixels = true,
+                                                Stroke = Brushes.White
+                                            });
+
+            var calibrationMethodStackPanel = new StackPanel { Margin = new Thickness(5), Orientation = Orientation.Horizontal };
+            mainStackPanel.Children.Add(calibrationMethodStackPanel);
+            calibrationMethodStackPanel.Children.Add(new TextBlock
+                                                         {
+                                                             Text = "Calibration Method:    "
+                                                         });
+            var useManualCalibrationRadio = new RadioButton
+                                                {
+                                                    Content = "Manual"
+                                                };
+            var manualAutoTabControl = new TabControl
+                                            {
+                                                Padding = new Thickness(0),
+                                                Margin = new Thickness(5),
+                                                BorderThickness = new Thickness(0),
+                                                TabStripPlacement = Dock.Top,
+                                                ItemContainerStyle = Application.Current.FindResource("HiddenTabHeaders") as Style
+                                            };
+            useManualCalibrationRadio.Checked += (o, e) =>
+                                                     {
+                                                         manualAutoTabControl.SelectedIndex = 0;
+                                                     };
+            useManualCalibrationRadio.Unchecked += (o, e) =>
+                                                       {
+                                                           manualAutoTabControl.SelectedIndex = 1;
+                                                       };
+            calibrationMethodStackPanel.Children.Add(useManualCalibrationRadio);
+            calibrationMethodStackPanel.Children.Add(new RadioButton
+                                                         {
+                                                             Content = "Automatic"
+                                                         });
+
+            mainStackPanel.Children.Add(manualAutoTabControl);
+
+            #region Manual Tab
+
+            var manualTabItem = new TabItem
+                                    {
+                                        Header = "Manual"
+                                    };
+            manualAutoTabControl.Items.Add(manualTabItem);
+
+            var manualTabGrid = new Grid();
+            manualTabItem.Content = manualTabGrid;
+
+            manualTabGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
+            manualTabGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+            manualTabGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
+
+            var manualTextBlock = new TextBlock
+                                      {
+                                          Text = "Enter Formula Below:",
+                                          Margin = new Thickness(0, 5, 0, 5)
+                                      };
+            Grid.SetRow(manualTextBlock, 0);
+            manualTabGrid.Children.Add(manualTextBlock);
+
+            var manualFormulaTextBox = new TextBox
+                                           {
+                                               BorderBrush = Brushes.OrangeRed,
+                                               Margin = new Thickness(0, 0, 0, 10),
+                                               VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                                               AcceptsReturn = true
+                                           };
+            //TODO: Magic evaluation stuff
+            Grid.SetRow(manualFormulaTextBox, 1);
+            manualTabGrid.Children.Add(manualFormulaTextBox);
+
+            //TODO: Buttons for manual
+
+            #endregion
+
+            #region Automatic Tab
+
+            var automaticTabItem = new TabItem
+            {
+                Header = "Automatic"
+            };
+            manualAutoTabControl.Items.Add(automaticTabItem);
+
+            #endregion
 
             return tabItem;
         }
