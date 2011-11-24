@@ -182,7 +182,7 @@ namespace IndiaTango.ViewModels
                         sensor.Variable = sensorVariables.FirstOrDefault(x => x.Sensor == sensor);
                     }
                 }
-
+                NotifyOfPropertyChange(() => CurrentDataSetNotNull);
                 UpdateGUI();
             }
         }
@@ -195,6 +195,11 @@ namespace IndiaTango.ViewModels
         private List<Sensor> SensorsForEditing
         {
             get { return _sensorsToCheckMethodsAgainst; }
+        }
+
+        private bool CurrentDataSetNotNull
+        {
+            get { return CurrentDataset != null; }
         }
 
         #endregion
@@ -865,31 +870,35 @@ namespace IndiaTango.ViewModels
 
             #endregion
 
-            var mainStackPanel = new StackPanel
-                                     {
-                                         Orientation = Orientation.Vertical
-                                     };
-            Grid.SetRow(mainStackPanel, 1);
-            tabItemGrid.Children.Add(mainStackPanel);
+            var contentGrid = new Grid();
+            Grid.SetRow(contentGrid, 1);
+            tabItemGrid.Children.Add(contentGrid);
 
-            mainStackPanel.Children.Add(new Rectangle
-                                            {
-                                                Height = 3,
-                                                Margin = new Thickness(5),
-                                                Fill = Brushes.OrangeRed,
-                                                SnapsToDevicePixels = true,
-                                                Stroke = Brushes.White
-                                            });
+            contentGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
+            contentGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
+            contentGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+
+            var seperator = new Rectangle
+                                {
+                                    Height = 3,
+                                    Margin = new Thickness(5),
+                                    Fill = Brushes.OrangeRed,
+                                    SnapsToDevicePixels = true,
+                                    Stroke = Brushes.White
+                                };
+            Grid.SetRow(seperator, 0);
+            contentGrid.Children.Add(seperator);
 
             var calibrationMethodStackPanel = new StackPanel { Margin = new Thickness(5), Orientation = Orientation.Horizontal };
-            mainStackPanel.Children.Add(calibrationMethodStackPanel);
+            Grid.SetRow(calibrationMethodStackPanel, 1);
+            contentGrid.Children.Add(calibrationMethodStackPanel);
             calibrationMethodStackPanel.Children.Add(new TextBlock
                                                          {
                                                              Text = "Calibration Method:    "
                                                          });
             var useManualCalibrationRadio = new RadioButton
                                                 {
-                                                    Content = "Manual"
+                                                    Content = "Manual    "
                                                 };
             var manualAutoTabControl = new TabControl
                                             {
@@ -912,8 +921,8 @@ namespace IndiaTango.ViewModels
                                                          {
                                                              Content = "Automatic"
                                                          });
-
-            mainStackPanel.Children.Add(manualAutoTabControl);
+            Grid.SetRow(manualAutoTabControl, 2);
+            contentGrid.Children.Add(manualAutoTabControl);
 
             #region Manual Tab
 
@@ -949,7 +958,128 @@ namespace IndiaTango.ViewModels
             Grid.SetRow(manualFormulaTextBox, 1);
             manualTabGrid.Children.Add(manualFormulaTextBox);
 
-            //TODO: Buttons for manual
+            var buttonsWrapper = new WrapPanel
+                                     {
+                                         HorizontalAlignment = HorizontalAlignment.Right,
+                                         Margin = new Thickness(0, 5, 0, 0),
+                                     };
+            Grid.SetRow(buttonsWrapper, 2);
+            manualTabGrid.Children.Add(buttonsWrapper);
+
+            var helpButton = new Button
+                                 {
+                                     FontSize = 15,
+                                     HorizontalAlignment = HorizontalAlignment.Left,
+                                     Margin = new Thickness(5, 0, 5, 0),
+                                     VerticalAlignment = VerticalAlignment.Bottom,
+                                     VerticalContentAlignment = VerticalAlignment.Bottom,
+                                 };
+            helpButton.Click += (o, e) =>
+                                    {
+                                        if (!CurrentDataSetNotNull && Sensors.Count < 2)
+                                            return;
+
+                                        var message =
+                                           "The program applies the formula entered across all sensors data points within the specified range.\n" +
+                                           "The following gives an indication of the operations and syntax.\n\n" +
+                                           "Mathematical operations\t [ -, +, *, ^, % ]\n" +
+                                           "Mathematical functions\t [ Sin(y), Cos(y), Tan(y), Pi ]\n\n" +
+                                           "To set a data points value for a particular sensor, use that sensors variable followed by a space and an equals sign, then by the value.\n" +
+                                           "   eg: To set the values of the sensor " + Sensors[0].Name + " to 5 for all points, use '" + Sensors[0].Variable.VariableName + " = 5' \n\n" +
+                                           "To use a sensors values in a calculation, use that sesnors variable.\n" +
+                                           "   eg: To make all the values of the sensor " + Sensors[0].Name + " equal to " + Sensors[1].Name +
+                                               ", use " + Sensors[0].Variable.VariableName + " = " + Sensors[1].Variable.VariableName + "\n\n" +
+                                           "To use the data points time stamp in calculations use 'time.' followed by the time part desired.\n" +
+                                           "   eg: time.Year, time.Month, time.Day, time.Hour, time.Minute, time.Second\n\n" +
+                                           "Examples:\n" +
+                                           "'x = x + 1'\n" +
+                                           "'x = time.Date'\n" +
+                                           "'x = x * Cos(x + 1) + 2'";
+                                        Common.ShowMessageBox("Formula Help", message, false, false);
+                                    };
+            buttonsWrapper.Children.Add(helpButton);
+
+            var helpButtonStackPanel = new StackPanel
+                                           {
+                                               Orientation = Orientation.Horizontal
+                                           };
+            helpButton.Content = helpButtonStackPanel;
+            helpButtonStackPanel.Children.Add(new Image
+                                                  {
+                                                      Width = 32,
+                                                      Height = 32,
+                                                      Source = new BitmapImage(new Uri("pack://application:,,,/Images/help_32.png", UriKind.Absolute))
+                                                  });
+            helpButtonStackPanel.Children.Add(new TextBlock
+                                                  {
+                                                      Text = "Help",
+                                                      VerticalAlignment = VerticalAlignment.Center,
+                                                      Margin = new Thickness(5)
+                                                  });
+
+            var applyFormulaButton = new Button
+                                         {
+                                             FontSize = 15,
+                                             HorizontalAlignment = HorizontalAlignment.Right,
+                                             Margin = new Thickness(5, 0, 5, 0),
+                                             VerticalAlignment = VerticalAlignment.Bottom,
+                                             VerticalContentAlignment = VerticalAlignment.Bottom
+                                         };
+            applyFormulaButton.Click += (o, e) =>
+                                            {
+                                                //TODO: Write logic here!
+                                            };
+            buttonsWrapper.Children.Add(applyFormulaButton);
+
+            var applyFormulaButtonStackPanel = new StackPanel
+                                                    {
+                                                        Orientation = Orientation.Horizontal
+                                                    };
+            applyFormulaButton.Content = applyFormulaButtonStackPanel;
+            applyFormulaButtonStackPanel.Children.Add(new Image
+                                                        {
+                                                            Width = 32,
+                                                            Height = 32,
+                                                            Source = new BitmapImage(new Uri("pack://application:,,,/Images/right_32.png", UriKind.Absolute))
+                                                        });
+            applyFormulaButtonStackPanel.Children.Add(new TextBlock
+                                                        {
+                                                            Text = "Apply",
+                                                            VerticalAlignment = VerticalAlignment.Center,
+                                                            Margin = new Thickness(5)
+                                                        });
+
+            var clearButton = new Button
+                                {
+                                    FontSize = 15,
+                                    HorizontalAlignment = HorizontalAlignment.Right,
+                                    Margin = new Thickness(5, 0, 5, 0),
+                                    VerticalAlignment = VerticalAlignment.Bottom,
+                                    VerticalContentAlignment = VerticalAlignment.Bottom
+                                };
+            clearButton.Click += (o, e) =>
+                                     {
+                                         manualFormulaTextBox.Text = "";
+                                     };
+            buttonsWrapper.Children.Add(clearButton);
+
+            var clearButtonStackPanel = new StackPanel
+                                            {
+                                                Orientation = Orientation.Horizontal
+                                            };
+            clearButton.Content = clearButtonStackPanel;
+            clearButtonStackPanel.Children.Add(new Image
+                                                {
+                                                    Width = 32,
+                                                    Height = 32,
+                                                    Source = new BitmapImage(new Uri("pack://application:,,,/Images/delete_32.png", UriKind.Absolute))
+                                                });
+            clearButtonStackPanel.Children.Add(new TextBlock
+                                                    {
+                                                        Text = "Clear",
+                                                        VerticalAlignment = VerticalAlignment.Center,
+                                                        Margin = new Thickness(5)
+                                                    });
 
             #endregion
 
@@ -1399,6 +1529,14 @@ namespace IndiaTango.ViewModels
 
                                              UpdateGUI();
 
+                                             if (Sensors.FirstOrDefault(x => x.Variable == null) != null)
+                                             {
+                                                 var sensorVariables = SensorVariable.CreateSensorVariablesFromSensors(Sensors);
+                                                 foreach (var sensor in Sensors)
+                                                 {
+                                                     sensor.Variable = sensorVariables.FirstOrDefault(x => x.Sensor == sensor);
+                                                 }
+                                             }
 
                                              ShowProgressArea = false;
                                              EnableFeatures();
