@@ -1540,6 +1540,7 @@ namespace IndiaTango.ViewModels
                 _sensorsToGraph.Remove(gSensor);
             if (_sensorsToCheckMethodsAgainst.Contains(gSensor.Sensor))
                 _sensorsToCheckMethodsAgainst.Remove(gSensor.Sensor);
+            _graphableSensors = null;
             NotifyOfPropertyChange(() => GraphableSensors);
         }
 
