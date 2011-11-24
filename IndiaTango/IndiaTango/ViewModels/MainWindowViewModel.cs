@@ -903,7 +903,8 @@ namespace IndiaTango.ViewModels
                                                          });
             var useManualCalibrationRadio = new RadioButton
                                                 {
-                                                    Content = "Manual    "
+                                                    Content = "Manual    ",
+                                                    IsChecked = true
                                                 };
             var manualAutoTabControl = new TabControl
                                             {
@@ -1061,13 +1062,13 @@ namespace IndiaTango.ViewModels
             applyFormulaButton.Click += (sender, eventArgs) =>
                                             {
                                                 var validFormula = false;
-                                                if(!string.IsNullOrWhiteSpace(manualFormulaTextBox.Text))
+                                                if (!string.IsNullOrWhiteSpace(manualFormulaTextBox.Text))
                                                 {
                                                     formula = _evaluator.CompileFormula(manualFormulaTextBox.Text);
                                                     validFormula = formula.IsValid;
                                                 }
 
-                                                if(validFormula)
+                                                if (validFormula)
                                                 {
                                                     var skipMissingValues = false;
                                                     var detector = new MissingValuesDetector();
@@ -1152,6 +1153,7 @@ namespace IndiaTango.ViewModels
             clearButton.Click += (o, e) =>
                                      {
                                          manualFormulaTextBox.Text = "";
+                                         applyFormulaButton.IsEnabled = false;
                                      };
             buttonsWrapper.Children.Add(clearButton);
 
@@ -1177,11 +1179,262 @@ namespace IndiaTango.ViewModels
 
             #region Automatic Tab
 
+            var autoApplyButton = new Button
+                                      {
+                                          FontSize = 15,
+                                          HorizontalAlignment = HorizontalAlignment.Right,
+                                          Margin = new Thickness(5, 0, 5, 0),
+                                          VerticalAlignment = VerticalAlignment.Bottom,
+                                          VerticalContentAlignment = VerticalAlignment.Bottom,
+                                          IsEnabled = false
+                                      };
+
             var automaticTabItem = new TabItem
-            {
-                Header = "Automatic"
-            };
+                                       {
+                                           Header = "Automatic"
+                                       };
             manualAutoTabControl.Items.Add(automaticTabItem);
+
+            var automaticGrid = new Grid();
+            automaticTabItem.Content = automaticGrid;
+
+            automaticGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
+            automaticGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
+            automaticGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+            automaticGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
+
+            var automaticTextBlock = new TextBlock
+                                         {
+                                             Text = "Enter the calibration values below:",
+                                             Margin = new Thickness(0, 5, 0, 5)
+                                         };
+            Grid.SetRow(automaticTextBlock, 0);
+            automaticGrid.Children.Add(automaticTextBlock);
+
+            var automaticValuesGrid = new Grid
+                                          {
+                                              Margin = new Thickness(5)
+                                          };
+            Grid.SetRow(automaticValuesGrid, 1);
+            automaticGrid.Children.Add(automaticValuesGrid);
+
+            automaticValuesGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(24) });
+            automaticValuesGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(26) });
+            automaticValuesGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(26) });
+
+            automaticValuesGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(50) });
+            automaticValuesGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            automaticValuesGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+            var calibratedTextBlock = new TextBlock
+                                          {
+                                              Text = "Calibrated",
+                                              VerticalAlignment = VerticalAlignment.Center,
+                                              HorizontalAlignment = HorizontalAlignment.Center
+                                          };
+            Grid.SetRow(calibratedTextBlock, 0);
+            Grid.SetColumn(calibratedTextBlock, 1);
+            automaticValuesGrid.Children.Add(calibratedTextBlock);
+
+            var currentTextBlock = new TextBlock
+                                       {
+                                           Text = "Current",
+                                           VerticalAlignment = VerticalAlignment.Center,
+                                           HorizontalAlignment = HorizontalAlignment.Center
+                                       };
+            Grid.SetRow(currentTextBlock, 0);
+            Grid.SetColumn(currentTextBlock, 2);
+            automaticValuesGrid.Children.Add(currentTextBlock);
+
+            var aTextBlock = new TextBlock
+                                 {
+                                     Text = "A",
+                                     VerticalAlignment = VerticalAlignment.Center,
+                                     HorizontalAlignment = HorizontalAlignment.Center
+                                 };
+            Grid.SetRow(aTextBlock, 1);
+            Grid.SetColumn(aTextBlock, 0);
+            automaticValuesGrid.Children.Add(aTextBlock);
+
+            var bTextBlock = new TextBlock
+                                 {
+                                     Text = "B",
+                                     VerticalAlignment = VerticalAlignment.Center,
+                                     HorizontalAlignment = HorizontalAlignment.Center
+                                 };
+            Grid.SetRow(bTextBlock, 2);
+            Grid.SetColumn(bTextBlock, 0);
+            automaticValuesGrid.Children.Add(bTextBlock);
+
+            var calibratedAValue = 0d;
+            var calibratedAValid = false;
+            var calibratedBValue = 0d;
+            var calibratedBValid = false;
+            var currentAValue = 0d;
+            var currentAValid = false;
+            var currentBValue = 0d;
+            var currentBValid = false;
+
+            var calibratedATextBox = new TextBox
+                                       {
+                                           VerticalAlignment = VerticalAlignment.Center,
+                                           Margin = new Thickness(2)
+                                       };
+            calibratedATextBox.KeyUp += (o, e) =>
+                                            {
+                                                calibratedAValid = double.TryParse(calibratedATextBox.Text, out calibratedAValue);
+                                                calibratedATextBox.Background = calibratedAValid ? new SolidColorBrush(Colors.White) : new SolidColorBrush(Color.FromArgb(126, 255, 69, 0));
+                                                // ReSharper disable AccessToModifiedClosure
+                                                autoApplyButton.IsEnabled = calibratedAValid && calibratedBValid && currentAValid && currentBValid;
+                                                // ReSharper restore AccessToModifiedClosure
+                                            };
+
+            Grid.SetRow(calibratedATextBox, 1);
+            Grid.SetColumn(calibratedATextBox, 1);
+            automaticValuesGrid.Children.Add(calibratedATextBox);
+
+            var calibratedBTextBox = new TextBox
+                                         {
+                                             VerticalAlignment = VerticalAlignment.Center,
+                                             Margin = new Thickness(2)
+                                         };
+            calibratedBTextBox.KeyUp += (o, e) =>
+                                            {
+                                                calibratedBValid = double.TryParse(calibratedBTextBox.Text, out calibratedBValue);
+                                                calibratedBTextBox.Background = calibratedBValid ? new SolidColorBrush(Colors.White) : new SolidColorBrush(Color.FromArgb(126, 255, 69, 0));
+                                                // ReSharper disable AccessToModifiedClosure
+                                                autoApplyButton.IsEnabled = calibratedAValid && calibratedBValid && currentAValid && currentBValid;
+                                                // ReSharper restore AccessToModifiedClosure
+                                            };
+            Grid.SetRow(calibratedBTextBox, 2);
+            Grid.SetColumn(calibratedBTextBox, 1);
+            automaticValuesGrid.Children.Add(calibratedBTextBox);
+
+            var currentATextBox = new TextBox
+                                         {
+                                             VerticalAlignment = VerticalAlignment.Center,
+                                             Margin = new Thickness(2)
+                                         };
+            currentATextBox.KeyUp += (o, e) =>
+                                         {
+                                             currentAValid = double.TryParse(currentATextBox.Text, out currentAValue);
+                                             currentATextBox.Background = currentAValid ? new SolidColorBrush(Colors.White) : new SolidColorBrush(Color.FromArgb(126, 255, 69, 0));
+                                             // ReSharper disable AccessToModifiedClosure
+                                             autoApplyButton.IsEnabled = calibratedAValid && calibratedBValid && currentAValid && currentBValid;
+                                             // ReSharper restore AccessToModifiedClosure
+                                         };
+            Grid.SetRow(currentATextBox, 1);
+            Grid.SetColumn(currentATextBox, 2);
+            automaticValuesGrid.Children.Add(currentATextBox);
+
+            var currentBTextBox = new TextBox
+                                         {
+                                             VerticalAlignment = VerticalAlignment.Center,
+                                             Margin = new Thickness(2)
+                                         };
+            currentBTextBox.KeyUp += (o, e) =>
+                                         {
+                                             currentBValid = double.TryParse(currentBTextBox.Text, out currentBValue);
+                                             currentBTextBox.Background = currentAValid ? new SolidColorBrush(Colors.White) : new SolidColorBrush(Color.FromArgb(126, 255, 69, 0));
+                                             // ReSharper disable AccessToModifiedClosure
+                                             autoApplyButton.IsEnabled = calibratedAValid && calibratedBValid && currentAValid && currentBValid;
+                                             // ReSharper restore AccessToModifiedClosure
+                                         };
+            Grid.SetRow(currentBTextBox, 2);
+            Grid.SetColumn(currentBTextBox, 2);
+            automaticValuesGrid.Children.Add(currentBTextBox);
+
+            var autoButtonsWrapPanel = new WrapPanel
+                                           {
+                                               Orientation = Orientation.Horizontal,
+                                               HorizontalAlignment = HorizontalAlignment.Right
+                                           };
+            Grid.SetRow(autoButtonsWrapPanel, 3);
+            automaticGrid.Children.Add(autoButtonsWrapPanel);
+
+
+            autoApplyButton.Click += (o, e) =>
+                                         {
+                                             var successfulSensors = new List<Sensor>();
+                                             foreach (var sensor in _sensorsToCheckMethodsAgainst)
+                                             {
+                                                 try
+                                                 {
+                                                     sensor.AddState(sensor.CurrentState.Calibrate(StartTime, EndTime, calibratedAValue, calibratedBValue, currentAValue, currentBValue));
+                                                     successfulSensors.Add(sensor);
+                                                 }
+                                                 catch(Exception ex)
+                                                 {
+                                                     Common.ShowMessageBox("An Error Occured", ex.Message, false, true);
+                                                 }
+                                             }
+                                             Common.RequestReason(successfulSensors, _container, _windowManager, "Calibration CalA='" + calibratedAValue + "', CalB='" + calibratedBValue + "', CurA='" + currentAValue + "', CurB='" + currentBValue + "' successfully applied to the sensor.");
+
+                                             foreach (var graphableSensor in GraphableSensors.Where(x => successfulSensors.Contains(x.Sensor)))
+                                                 graphableSensor.RefreshDataPoints();
+                                             UpdateGraph();
+                                         };
+            autoButtonsWrapPanel.Children.Add(autoApplyButton);
+
+            var autoApplyButtonStackPanel = new StackPanel
+                                                {
+                                                    Orientation = Orientation.Horizontal
+                                                };
+            autoApplyButton.Content = autoApplyButtonStackPanel;
+            autoApplyButtonStackPanel.Children.Add(new Image
+                                                       {
+                                                           Width = 32,
+                                                           Height = 32,
+                                                           Source =
+                                                               new BitmapImage(
+                                                               new Uri("pack://application:,,,/Images/right_32.png",
+                                                                       UriKind.Absolute))
+                                                       });
+            autoApplyButtonStackPanel.Children.Add(new TextBlock
+                                                       {
+                                                           Text = "Apply",
+                                                           VerticalAlignment = VerticalAlignment.Center,
+                                                           Margin = new Thickness(5)
+                                                       });
+
+            var autoClearButton = new Button
+                                  {
+                                      FontSize = 15,
+                                      HorizontalAlignment = HorizontalAlignment.Right,
+                                      Margin = new Thickness(5, 0, 5, 0),
+                                      VerticalAlignment = VerticalAlignment.Bottom,
+                                      VerticalContentAlignment = VerticalAlignment.Bottom
+                                  };
+            autoClearButton.Click += (o, e) =>
+                                         {
+                                             calibratedATextBox.Text = "";
+                                             calibratedBTextBox.Text = "";
+                                             currentATextBox.Text = "";
+                                             currentBTextBox.Text = "";
+                                             autoApplyButton.IsEnabled = false;
+                                         };
+            autoButtonsWrapPanel.Children.Add(autoClearButton);
+
+            var autoClearButtonStackPanel = new StackPanel
+                                            {
+                                                Orientation = Orientation.Horizontal
+                                            };
+            autoClearButton.Content = autoClearButtonStackPanel;
+            autoClearButtonStackPanel.Children.Add(new Image
+                                                   {
+                                                       Width = 32,
+                                                       Height = 32,
+                                                       Source =
+                                                           new BitmapImage(
+                                                           new Uri("pack://application:,,,/Images/delete_32.png",
+                                                                   UriKind.Absolute))
+                                                   });
+            autoClearButtonStackPanel.Children.Add(new TextBlock
+                                                   {
+                                                       Text = "Clear",
+                                                       VerticalAlignment = VerticalAlignment.Center,
+                                                       Margin = new Thickness(5)
+                                                   });
 
             #endregion
 
