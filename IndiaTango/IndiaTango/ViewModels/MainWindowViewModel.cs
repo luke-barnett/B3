@@ -23,6 +23,7 @@ using ListBox = System.Windows.Controls.ListBox;
 using Orientation = System.Windows.Controls.Orientation;
 using Path = System.IO.Path;
 using SelectionMode = System.Windows.Controls.SelectionMode;
+using Cursors = System.Windows.Input.Cursors;
 
 namespace IndiaTango.ViewModels
 {
@@ -606,11 +607,13 @@ namespace IndiaTango.ViewModels
         private void DisableFeatures()
         {
             FeaturesEnabled = false;
+            ApplicationCursor = Cursors.Wait;
         }
 
         private void EnableFeatures()
         {
             FeaturesEnabled = true;
+            ApplicationCursor = Cursors.Arrow;
         }
 
         private void BuildDetectionMethodTabItems()
@@ -1439,8 +1442,10 @@ namespace IndiaTango.ViewModels
             var graphableSensor = (GraphableSensor)checkBox.Content;
             _sensorsToGraph.Add(graphableSensor);
             Debug.Print("{0} was added to the graph list", graphableSensor.Sensor);
+            DisableFeatures();
             UpdateGraph();
             UpdateDetectionMethodGraphableSensors();
+            EnableFeatures();
         }
 
         public void RemoveFromGraph(RoutedEventArgs eventArgs)
@@ -1450,8 +1455,10 @@ namespace IndiaTango.ViewModels
             if (_sensorsToGraph.Contains(graphableSensor))
                 _sensorsToGraph.Remove(graphableSensor);
             Debug.Print("{0} was removed from the graph list", graphableSensor.Sensor);
+            DisableFeatures();
             UpdateGraph();
             UpdateDetectionMethodGraphableSensors();
+            EnableFeatures();
         }
 
         public void ShowCurrentSiteInformation()
