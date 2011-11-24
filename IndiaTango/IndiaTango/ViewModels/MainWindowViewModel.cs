@@ -156,6 +156,7 @@ namespace IndiaTango.ViewModels
         private readonly MinMaxRateOfChangeDetector _minMaxRateofChangeDetector;
         private readonly RunningMeanStandardDeviationDetector _runningMeanStandardDeviationDetector;
         private readonly MissingValuesDetector _missingValuesDetector;
+        private List<GraphableSensor> _graphableSensors;
         #endregion
 
         #region Public Parameters
@@ -170,6 +171,15 @@ namespace IndiaTango.ViewModels
             {
                 _currentDataset = value;
                 Debug.WriteLine("Updating for new Dataset");
+                if(Sensors.FirstOrDefault(x => x.Variable == null) != null)
+                {
+                    var sensorVariables = SensorVariable.CreateSensorVariablesFromSensors(Sensors);
+                    foreach (var sensor in Sensors)
+                    {
+                        sensor.Variable = sensorVariables.FirstOrDefault(x => x.Sensor == sensor);
+                    }
+                }
+                
                 UpdateGUI();
             }
         }
@@ -303,7 +313,7 @@ namespace IndiaTango.ViewModels
         /// </summary>
         public List<GraphableSensor> GraphableSensors
         {
-            get { return (from sensor in Sensors select new GraphableSensor(sensor)).ToList(); }
+            get { return _graphableSensors ?? (_graphableSensors =(from sensor in Sensors select new GraphableSensor(sensor)).ToList()); }
         }
 
         #region Charting
@@ -475,6 +485,7 @@ namespace IndiaTango.ViewModels
         private void UpdateGUI()
         {
             NotifyOfPropertyChange(() => Sensors);
+            _graphableSensors = null;
             NotifyOfPropertyChange(() => GraphableSensors);
         }
 
@@ -947,10 +958,7 @@ namespace IndiaTango.ViewModels
                                              FeaturesEnabled = true;
                                              ShowProgressArea = false;
                                              //Update the needed graphed items
-                                             foreach (var graphableSensor in _sensorsToGraph.Where(x => sensorList.Contains(x.Sensor)))
-                                                 graphableSensor.RefreshDataPoints();
-                                             //Also update those that aren't graphed for good measure
-                                             foreach (var graphableSensor in GraphableSensors.Where(x => sensorList.Contains(x.Sensor) && !_sensorsToGraph.Contains(x)))
+                                             foreach (var graphableSensor in GraphableSensors.Where(x => sensorList.Contains(x.Sensor)))
                                                  graphableSensor.RefreshDataPoints();
                                              UpdateGraph();
                                              Common.ShowMessageBox("Values Updated", "The selected values were interpolated", false, false);
@@ -999,10 +1007,7 @@ namespace IndiaTango.ViewModels
                 FeaturesEnabled = true;
                 ShowProgressArea = false;
                 //Update the needed graphed items
-                foreach (var graphableSensor in _sensorsToGraph.Where(x => sensorList.Contains(x.Sensor)))
-                    graphableSensor.RefreshDataPoints();
-                //Also update those that aren't graphed for good measure
-                foreach (var graphableSensor in GraphableSensors.Where(x => sensorList.Contains(x.Sensor) && !_sensorsToGraph.Contains(x)))
+                foreach (var graphableSensor in GraphableSensors.Where(x => sensorList.Contains(x.Sensor)))
                     graphableSensor.RefreshDataPoints();
                 UpdateGraph();
                 Common.ShowMessageBox("Values Updated", "The selected values were removed", false, false);
@@ -1063,10 +1068,7 @@ namespace IndiaTango.ViewModels
                 FeaturesEnabled = true;
                 ShowProgressArea = false;
                 //Update the needed graphed items
-                foreach (var graphableSensor in _sensorsToGraph.Where(x => sensorList.Contains(x.Sensor)))
-                    graphableSensor.RefreshDataPoints();
-                //Also update those that aren't graphed for good measure
-                foreach (var graphableSensor in GraphableSensors.Where(x => sensorList.Contains(x.Sensor) && !_sensorsToGraph.Contains(x)))
+                foreach (var graphableSensor in GraphableSensors.Where(x => sensorList.Contains(x.Sensor)))
                     graphableSensor.RefreshDataPoints();
                 UpdateGraph();
                 Common.ShowMessageBox("Values Updated", "The selected values set to " + value, false, false);

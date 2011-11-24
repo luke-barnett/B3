@@ -114,6 +114,7 @@
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                             <DataGridTextColumn Header="Name" Binding="{Binding Sensor.Name}" />
+                            <DataGridTextColumn Header="Variable" Binding="{Binding Sensor.Variable}" IsReadOnly="True" />
                             <DataGridTextColumn Header="Depth (m)" Binding="{Binding Sensor.Depth, Converter={StaticResource floatStringConverter}}" />
                             <DataGridTextColumn Header="Unit" Binding="{Binding Sensor.Unit}"/>
                             <DataGridTextColumn Header="Lower Limit" Binding="{Binding Sensor.LowerLimit, Converter={StaticResource floatStringConverter}}" />

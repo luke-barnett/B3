@@ -33,6 +33,8 @@ namespace IndiaTango.Models
         private float _lowerLimit;
         private float _upperLimit;
         private SummaryType _summaryType;
+        [NonSerialized]
+        private SensorVariable _sensorVariable;
         #endregion
 
         #region Constructors
@@ -385,6 +387,19 @@ namespace IndiaTango.Models
 
                 _serialNumber = value;
                 FirePropertyChanged("SerialNumber");
+            }
+        }
+
+        /// <summary>
+        /// The variable used for calibration or equations
+        /// </summary>
+        public SensorVariable Variable
+        {
+            get { return _sensorVariable; }
+            set
+            {
+                _sensorVariable = value;
+                FirePropertyChanged("Variable");
             }
         }
 
