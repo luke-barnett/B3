@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -160,6 +161,7 @@ namespace IndiaTango.ViewModels
         private readonly RunningMeanStandardDeviationDetector _runningMeanStandardDeviationDetector;
         private readonly MissingValuesDetector _missingValuesDetector;
         private List<GraphableSensor> _graphableSensors;
+        private FormulaEvaluator _evaluator;
         #endregion
 
         #region Public Parameters
@@ -183,6 +185,10 @@ namespace IndiaTango.ViewModels
                     }
                 }
                 NotifyOfPropertyChange(() => CurrentDataSetNotNull);
+                if (CurrentDataSetNotNull)
+                {
+                    _evaluator = new FormulaEvaluator(Sensors, CurrentDataset.DataInterval);
+                }
                 UpdateGUI();
             }
         }
@@ -825,7 +831,6 @@ namespace IndiaTango.ViewModels
 
         private TabItem GenerateCalibrationTabItem()
         {
-            //TODO:
             var tabItem = new TabItem { Header = "Calibration", IsEnabled = FeaturesEnabled };
             //Build the Grid to base it all on and add it
             var tabItemGrid = new Grid();
@@ -926,6 +931,8 @@ namespace IndiaTango.ViewModels
 
             #region Manual Tab
 
+            Formula formula = null;
+
             var manualTabItem = new TabItem
                                     {
                                         Header = "Manual"
@@ -952,9 +959,43 @@ namespace IndiaTango.ViewModels
                                                BorderBrush = Brushes.OrangeRed,
                                                Margin = new Thickness(0, 0, 0, 10),
                                                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-                                               AcceptsReturn = true
+                                               AcceptsReturn = true,
+                                               IsEnabled = CurrentDataSetNotNull
                                            };
-            //TODO: Magic evaluation stuff
+            PropertyChanged += (o, e) =>
+                                   {
+                                       if (e.PropertyName == "CurrentDataSetNotNull")
+                                       {
+                                           manualFormulaTextBox.IsEnabled = CurrentDataSetNotNull;
+                                       }
+                                   };
+            var applyFormulaButton = new Button
+                                         {
+                                             FontSize = 15,
+                                             HorizontalAlignment = HorizontalAlignment.Right,
+                                             Margin = new Thickness(5, 0, 5, 0),
+                                             VerticalAlignment = VerticalAlignment.Bottom,
+                                             VerticalContentAlignment = VerticalAlignment.Bottom,
+                                             IsEnabled = false
+                                         };
+            manualFormulaTextBox.KeyUp += (o, e) =>
+                                              {
+                                                  if (!Properties.Settings.Default.EvaluateFormulaOnKeyUp)
+                                                      return;
+                                                  bool validFormula;
+                                                  if (string.IsNullOrWhiteSpace(manualFormulaTextBox.Text))
+                                                  {
+                                                      validFormula = false;
+                                                  }
+                                                  else
+                                                  {
+                                                      formula = _evaluator.CompileFormula(manualFormulaTextBox.Text);
+                                                      validFormula = formula.IsValid;
+                                                  }
+
+                                                  manualFormulaTextBox.Background = !validFormula && Properties.Settings.Default.EvaluateFormulaOnKeyUp ? new SolidColorBrush(Color.FromArgb(126, 255, 69, 0)) : new SolidColorBrush(Colors.White);
+                                                  applyFormulaButton.IsEnabled = validFormula;
+                                              };
             Grid.SetRow(manualFormulaTextBox, 1);
             manualTabGrid.Children.Add(manualFormulaTextBox);
 
@@ -1017,17 +1058,68 @@ namespace IndiaTango.ViewModels
                                                       Margin = new Thickness(5)
                                                   });
 
-            var applyFormulaButton = new Button
-                                         {
-                                             FontSize = 15,
-                                             HorizontalAlignment = HorizontalAlignment.Right,
-                                             Margin = new Thickness(5, 0, 5, 0),
-                                             VerticalAlignment = VerticalAlignment.Bottom,
-                                             VerticalContentAlignment = VerticalAlignment.Bottom
-                                         };
-            applyFormulaButton.Click += (o, e) =>
+            applyFormulaButton.Click += (sender, eventArgs) =>
                                             {
-                                                //TODO: Write logic here!
+                                                var validFormula = false;
+                                                if(!string.IsNullOrWhiteSpace(manualFormulaTextBox.Text))
+                                                {
+                                                    formula = _evaluator.CompileFormula(manualFormulaTextBox.Text);
+                                                    validFormula = formula.IsValid;
+                                                }
+
+                                                if(validFormula)
+                                                {
+                                                    var skipMissingValues = false;
+                                                    var detector = new MissingValuesDetector();
+
+                                                    //Detect if missing values
+                                                    var missingSensors = formula.SensorsUsed.Where(sensorVariable => detector.GetDetectedValues(sensorVariable.Sensor).Count > 0).Aggregate("", (current, sensorVariable) => current + ("\t" + sensorVariable.Sensor.Name + " (" + sensorVariable.VariableName + ")\n"));
+
+                                                    if (missingSensors != "")
+                                                    {
+                                                        var specify =
+                                                            (SpecifyValueViewModel)_container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel");
+                                                        specify.Title = "Missing Values Detected";
+                                                        specify.Message =
+                                                            "The following sensors you have used in the formula contain missing values:\n\n" + missingSensors + "\nPlease select an action to take.";
+                                                        specify.ShowComboBox = true;
+                                                        specify.ShowCancel = true;
+                                                        specify.CanEditComboBox = false;
+                                                        specify.ComboBoxItems =
+                                                            new List<string>(new[] { "Treat all missing values as zero", "Skip over all missing values" });
+                                                        specify.ComboBoxSelectedIndex = 0;
+
+                                                        _windowManager.ShowDialog(specify);
+
+                                                        if (specify.WasCanceled) return;
+                                                        skipMissingValues = specify.ComboBoxSelectedIndex == 1;
+                                                    }
+
+                                                    ApplicationCursor = Cursors.Wait;
+                                                    _evaluator.EvaluateFormula(formula, StartTime, EndTime, skipMissingValues);
+
+                                                    ApplicationCursor = Cursors.Arrow;
+
+                                                    Common.RequestReason(SensorVariable.CreateSensorsFromSensorVariables(formula.SensorsUsed), _container, _windowManager, "Formula '" + manualFormulaTextBox.Text + "' successfully applied to the sensor.");
+
+                                                    Common.ShowMessageBox("Formula applied", "The formula was successfully applied to the selected sensor.",
+                                                                          false, false);
+                                                    var sensorsUsed = formula.SensorsUsed.Select(x => x.Sensor);
+                                                    foreach (var graphableSensor in GraphableSensors.Where(x => sensorsUsed.Contains(x.Sensor)))
+                                                        graphableSensor.RefreshDataPoints();
+                                                    UpdateGraph();
+                                                }
+                                                else
+                                                {
+                                                    var errorString = "";
+
+                                                    if (formula != null && formula.CompilerResults.Errors.Count > 0)
+                                                        errorString = formula.CompilerResults.Errors.Cast<CompilerError>().Aggregate(errorString, (current, error) => current + (error.ErrorText + "\n"));
+
+                                                    Common.ShowMessageBoxWithExpansion("Unable to Apply Formula",
+                                                                                       "An error was encounted when trying to apply the formula.\nPlease check the formula syntax.",
+                                                                                       false, true, errorString);
+                                                }
                                             };
             buttonsWrapper.Children.Add(applyFormulaButton);
 
@@ -1537,6 +1629,7 @@ namespace IndiaTango.ViewModels
                                                      sensor.Variable = sensorVariables.FirstOrDefault(x => x.Sensor == sensor);
                                                  }
                                              }
+                                             _evaluator = new FormulaEvaluator(Sensors, CurrentDataset.DataInterval);
 
                                              ShowProgressArea = false;
                                              EnableFeatures();
