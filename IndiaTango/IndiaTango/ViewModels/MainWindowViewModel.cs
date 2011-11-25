@@ -546,7 +546,7 @@ namespace IndiaTango.ViewModels
                 Debug.Print("[{3}] Number of points: {0} Max Number {1} Sampling rate {2}", sensor.DataPoints.Count(), numberOfPoints, _sampleRate, sensor.Sensor.Name);
 
                 var series = (_sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints.Where((x, index) => index % _sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints);
-                generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour), Name = sensor.Sensor.Name });
+                generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour) });
                 if (_sampleRate > 1) ShowBackground();
             }
 
@@ -2295,7 +2295,11 @@ namespace IndiaTango.ViewModels
             if (ChartSeries == null)
                 return;
 
-            var matchingLineSeries = ChartSeries.FirstOrDefault(x => x.Name == owner.Sensor.Name);
+            var matchingLineSeries = ChartSeries.FirstOrDefault(x =>
+                                                                    {
+                                                                        var dataPoints = x.DataSeries as DataSeries<DateTime,float>;
+                                                                        return dataPoints != null && dataPoints.Title == owner.Sensor.Name;
+                                                                    });
 
             if (matchingLineSeries == null)
                 return;
