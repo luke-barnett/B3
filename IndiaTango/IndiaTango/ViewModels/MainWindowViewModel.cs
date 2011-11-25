@@ -700,6 +700,7 @@ namespace IndiaTango.ViewModels
             undoButton.Click += (o, e) =>
                                     {
                                         //TODO: Write me!
+                                        Common.ShowFeatureNotImplementedMessageBox();
                                     };
             var undoButtonStackPanel = new StackPanel { Orientation = Orientation.Horizontal };
 
@@ -714,6 +715,7 @@ namespace IndiaTango.ViewModels
             redoButton.Click += (o, e) =>
                                     {
                                         //TODO: Write me!
+                                        Common.ShowFeatureNotImplementedMessageBox();
                                     };
             var redoButtonStackPanel = new StackPanel { Orientation = Orientation.Horizontal };
 
@@ -728,7 +730,7 @@ namespace IndiaTango.ViewModels
 
             actionsStackPanelWrapper.Children.Add(new Rectangle { Height = 3, Margin = new Thickness(0, 10, 0, 10), Fill = Brushes.OrangeRed, Stroke = Brushes.White, SnapsToDevicePixels = true });
 
-            var dataEditingWrapper = new WrapPanel { Margin = new Thickness(5), IsEnabled = false };
+            var dataEditingWrapper = new WrapPanel { Margin = new Thickness(5), IsEnabled = false, HorizontalAlignment = HorizontalAlignment.Center };
 
             var interpolateButton = new Button
                                         {
@@ -849,6 +851,7 @@ namespace IndiaTango.ViewModels
             undoButton.Click += (o, e) =>
                                     {
                                         //TODO: Write me!
+                                        Common.ShowFeatureNotImplementedMessageBox();
                                     };
             undoRedoStackPanel.Children.Add(undoButton);
 
@@ -863,6 +866,7 @@ namespace IndiaTango.ViewModels
             redoButton.Click += (o, e) =>
                                     {
                                         //TODO: Write me!
+                                        Common.ShowFeatureNotImplementedMessageBox();
                                     };
             undoRedoStackPanel.Children.Add(redoButton);
 
@@ -1363,7 +1367,7 @@ namespace IndiaTango.ViewModels
                                                      sensor.AddState(sensor.CurrentState.Calibrate(StartTime, EndTime, calibratedAValue, calibratedBValue, currentAValue, currentBValue));
                                                      successfulSensors.Add(sensor);
                                                  }
-                                                 catch(Exception ex)
+                                                 catch (Exception ex)
                                                  {
                                                      Common.ShowMessageBox("An Error Occured", ex.Message, false, true);
                                                  }

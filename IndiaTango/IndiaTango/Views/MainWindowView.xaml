@@ -46,9 +46,9 @@
 
         <Grid Grid.Row="1" x:Name="MainSection">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="385" />
+                <ColumnDefinition Width="385" MinWidth="385" />
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" MinWidth="500" />
             </Grid.ColumnDefinitions>
 
             <Grid Grid.Column="0" x:Name="DataSection" Margin="5,0">
@@ -138,7 +138,9 @@
                     <TabControl SelectedIndex="0" BorderThickness="0" Background="Transparent" IsEnabled="{Binding FeaturesEnabled}" ItemsSource="{Binding DetectionTabItems}" cal:Message.Attach="[Event SelectionChanged] = [Action DetectionMethodChanged($eventArgs)]" />
                 </GroupBox>
             </Grid>
-            <Rectangle Grid.Column="1" Fill="OrangeRed" Width="0" />
+            
+            <GridSplitter Grid.Column="1" ResizeBehavior="PreviousAndNext" VerticalAlignment="Stretch" Width="5" Background="Transparent" />
+
             <Grid Grid.Column="2" x:Name="RightSection" Margin="5,5,10,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
