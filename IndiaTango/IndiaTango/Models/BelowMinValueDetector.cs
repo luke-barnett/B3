@@ -7,9 +7,9 @@ namespace IndiaTango.Models
 {
     class BelowMinValueDetector : IDetectionMethod
     {
-        private readonly MinMaxRateOfChangeDetector _owner;
+        private readonly MinMaxDetector _owner;
 
-        public BelowMinValueDetector(MinMaxRateOfChangeDetector owner)
+        public BelowMinValueDetector(MinMaxDetector owner)
         {
             _owner = owner;
         }

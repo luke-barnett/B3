@@ -7,11 +7,10 @@ using Visiblox.Charts;
 
 namespace IndiaTango.Models
 {
-    public class MinMaxRateOfChangeDetector : IDetectionMethod
+    public class MinMaxDetector : IDetectionMethod
     {
         private readonly AboveMaxValueDetector _aboveMaxValue;
         private readonly BelowMinValueDetector _belowMinValue;
-        private readonly ToHighRateOfChangeDetector _highRateOfChange;
         private bool _showMaxMinLines;
         private Sensor _selectedSensor;
 
@@ -21,21 +20,20 @@ namespace IndiaTango.Models
 
         public event UpdateGraph GraphUpdateNeeded;
 
-        public MinMaxRateOfChangeDetector()
+        public MinMaxDetector()
         {
             _aboveMaxValue = new AboveMaxValueDetector(this);
             _belowMinValue = new BelowMinValueDetector(this);
-            _highRateOfChange = new ToHighRateOfChangeDetector(this);
         }
 
         public string Name
         {
-            get { return "Upper & Lower Limits + Rate of Change"; }
+            get { return "Upper & Lower Limits"; }
         }
 
         public string Abbreviation
         {
-            get { return "Limits & RoC"; }
+            get { return "Limits"; }
         }
 
         public IDetectionMethod This
@@ -47,17 +45,12 @@ namespace IndiaTango.Models
         {
             var detectedValues = new List<ErroneousValue>();
 
-            var lastValue = new KeyValuePair<DateTime, float>();
-
             foreach (var value in sensorToCheck.CurrentState.Values)
             {
                 if (value.Value < sensorToCheck.LowerLimit)
                     detectedValues.Add(new ErroneousValue(value.Key, _belowMinValue, sensorToCheck));
                 else if (value.Value > sensorToCheck.UpperLimit)
                     detectedValues.Add(new ErroneousValue(value.Key, _aboveMaxValue, sensorToCheck));
-                else if (Math.Abs(value.Value - lastValue.Value) > sensorToCheck.MaxRateOfChange)
-                    detectedValues.Add(new ErroneousValue(value.Key, _highRateOfChange, sensorToCheck));
-                lastValue = value;
             }
 
             return detectedValues;
@@ -166,7 +159,7 @@ namespace IndiaTango.Models
 
         public List<IDetectionMethod> Children
         {
-            get { return new List<IDetectionMethod> { _aboveMaxValue, _belowMinValue, _highRateOfChange }; }
+            get { return new List<IDetectionMethod> { _aboveMaxValue, _belowMinValue }; }
         }
 
         public override string ToString()

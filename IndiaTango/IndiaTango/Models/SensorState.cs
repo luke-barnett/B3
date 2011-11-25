@@ -333,10 +333,14 @@ namespace IndiaTango.Models
             if (ds == null)
                 throw new ArgumentNullException("You must specify the containing data set for this sensor.");
 
-            var newState = Clone();
+            //First remove values
+            var newState = RemoveValues(valuesToInterpolate);
 
             foreach (var time in valuesToInterpolate)
             {
+                if(newState.Values.ContainsKey(time))
+                    continue;
+
                 DateTime startValue;
                 try
                 {
@@ -359,20 +363,24 @@ namespace IndiaTango.Models
                     continue;
                 }
 
-                var timeDiffBetweenEndPoints = endValue.Subtract(startValue).TotalMinutes;
-                var timeDiffBetweenStartAndPoint = time.Subtract(startValue).TotalMinutes;
+                var timeDiff = endValue.Subtract(startValue).TotalMinutes;
+                var valDiff = Values[endValue] - Values[startValue];
+                var step = valDiff / (timeDiff / ds.DataInterval);
+                var value = Values[startValue] + step;
 
-                var valueDiff = Values[endValue] - Values[startValue];
-
-                var newValue = (float)(valueDiff * (timeDiffBetweenStartAndPoint / timeDiffBetweenEndPoints)) + Values[startValue];
-
-                newState.Values[time] = newValue;
-                if (_changes.ContainsKey(time))
-                    newState.Changes[time].AddFirst(EventLogger.NextRefNum);
-                else
+                for (var i = ds.DataInterval; i < timeDiff; i += ds.DataInterval)
                 {
-                    newState.Changes.Add(time, new LinkedList<int>());
-                    newState.Changes[time].AddFirst(EventLogger.NextRefNum);
+                    newState.Values[startValue.AddMinutes(i)] = (float) Math.Round(value, 2);
+
+                    if (newState.Changes.ContainsKey(time))
+                        newState.Changes[time].AddFirst(EventLogger.NextRefNum);
+                    else
+                    {
+                        newState.Changes.Add(time, new LinkedList<int>());
+                        newState.Changes[time].AddFirst(EventLogger.NextRefNum);
+                    }
+
+                    value += step;
                 }
             }
 

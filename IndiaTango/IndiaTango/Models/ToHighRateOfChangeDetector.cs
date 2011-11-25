@@ -7,13 +7,6 @@ namespace IndiaTango.Models
 {
     internal class ToHighRateOfChangeDetector : IDetectionMethod
     {
-        private readonly MinMaxRateOfChangeDetector _owner;
-
-        public ToHighRateOfChangeDetector(MinMaxRateOfChangeDetector owner)
-        {
-            _owner = owner;
-        }
-
         public string Name
         {
             get { return "Rate of Change"; }
@@ -26,42 +19,56 @@ namespace IndiaTango.Models
 
         public IDetectionMethod This
         {
-            get { return _owner; }
+            get { return this; }
         }
 
         public List<ErroneousValue> GetDetectedValues(Sensor sensorToCheck)
         {
-            return _owner.GetDetectedValues(sensorToCheck);
+            var detectedValues = new List<ErroneousValue>();
+
+            var lastValue = new KeyValuePair<DateTime, float>();
+
+            foreach (var value in sensorToCheck.CurrentState.Values)
+            {
+                if (Math.Abs(value.Value - lastValue.Value) > sensorToCheck.MaxRateOfChange)
+                    detectedValues.Add(new ErroneousValue(value.Key, this, sensorToCheck));
+                lastValue = value;
+            }
+
+            return detectedValues;
         }
 
         public bool HasSettings
         {
-            get { return _owner.HasSettings; }
+            get { return false; }
         }
 
         public Grid SettingsGrid
         {
-            get { return _owner.SettingsGrid; }
+            get { return new Grid(); }
         }
 
         public bool HasGraphableSeries
         {
-            get { return _owner.HasGraphableSeries; }
+            get { return false; }
         }
 
         public bool CheckIndividualValue(Sensor sensor, DateTime timeStamp)
         {
-            return _owner.CheckIndividualValue(sensor, timeStamp);
+            if (sensor.CurrentState.Values.ContainsKey(timeStamp))
+                return false;
+            var value = sensor.CurrentState.Values[timeStamp];
+            return Math.Abs(value - sensor.CurrentState.Values[sensor.CurrentState.FindPrevValue(timeStamp)]) > sensor.MaxRateOfChange;
         }
 
         public List<LineSeries> GraphableSeries(Sensor sensorToBaseOn, DateTime startDate, DateTime endDate)
         {
-            return _owner.GraphableSeries(sensorToBaseOn, startDate, endDate);
+            return new List<LineSeries>();
         }
 
         public List<LineSeries> GraphableSeries(DateTime startDate, DateTime endDate)
         {
-            return _owner.GraphableSeries(startDate, endDate);
+            return new List<LineSeries>();
         }
 
         public List<IDetectionMethod> Children

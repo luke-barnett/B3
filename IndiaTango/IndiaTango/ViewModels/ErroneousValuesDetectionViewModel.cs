@@ -21,7 +21,7 @@ namespace IndiaTango.ViewModels
             _windowManager = windowManager;
             _container = container;
 
-            _minMaxRateofChangeDetector = new MinMaxRateOfChangeDetector();
+            _minMaxRateofChangeDetector = new MinMaxDetector();
             _minMaxRateofChangeDetector.GraphUpdateNeeded += UpdateGraph;
 
             _runningMeanStandardDeviationDetector = new RunningMeanStandardDeviationDetector();
@@ -144,7 +144,7 @@ namespace IndiaTango.ViewModels
         private DateTime _startTime = DateTime.MinValue;
         private DateTime _endTime = DateTime.MaxValue;
 
-        private readonly MinMaxRateOfChangeDetector _minMaxRateofChangeDetector;
+        private readonly MinMaxDetector _minMaxRateofChangeDetector;
         private readonly RunningMeanStandardDeviationDetector _runningMeanStandardDeviationDetector;
         private readonly MissingValuesDetector _missingValuesDetector;
 

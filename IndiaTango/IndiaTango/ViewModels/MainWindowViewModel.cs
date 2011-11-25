@@ -44,7 +44,7 @@ namespace IndiaTango.ViewModels
 
             #region Set Up Detection Methods
 
-            _minMaxRateofChangeDetector = new MinMaxRateOfChangeDetector();
+            _minMaxRateofChangeDetector = new MinMaxDetector();
             _minMaxRateofChangeDetector.GraphUpdateNeeded += UpdateGraph;
 
             _runningMeanStandardDeviationDetector = new RunningMeanStandardDeviationDetector();
@@ -55,7 +55,7 @@ namespace IndiaTango.ViewModels
 
             _missingValuesDetector = new MissingValuesDetector { IsEnabled = true };
 
-            _detectionMethods = new List<IDetectionMethod> { _missingValuesDetector, _minMaxRateofChangeDetector, _runningMeanStandardDeviationDetector };
+            _detectionMethods = new List<IDetectionMethod> { _missingValuesDetector, _minMaxRateofChangeDetector, new ToHighRateOfChangeDetector(), _runningMeanStandardDeviationDetector };
 
             #endregion
 
@@ -157,7 +157,7 @@ namespace IndiaTango.ViewModels
         private bool _featuresEnabled = true;
         private List<TabItem> _detectionTabItems;
         private readonly List<IDetectionMethod> _detectionMethods;
-        private readonly MinMaxRateOfChangeDetector _minMaxRateofChangeDetector;
+        private readonly MinMaxDetector _minMaxRateofChangeDetector;
         private readonly RunningMeanStandardDeviationDetector _runningMeanStandardDeviationDetector;
         private readonly MissingValuesDetector _missingValuesDetector;
         private List<GraphableSensor> _graphableSensors;
