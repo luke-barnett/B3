@@ -1820,7 +1820,7 @@ namespace IndiaTango.ViewModels
             {
                 sensor.Undo();
             }
-            var message = sensorsToUndo.Aggregate("Sucessfully stepped back the following sensors \n\r", (current, sensorVariable) =>
+            var message = sensorsToUndo.Aggregate("Sucessfully stepped back the following sensors: \n\r\n\r", (current, sensorVariable) =>
                                               current + string.Format("{0}\n\r", sensorVariable.Name));
 
             foreach (var graphableSensor in GraphableSensors.Where(x => sensorsToUndo.Contains(x.Sensor)))
@@ -1861,7 +1861,7 @@ namespace IndiaTango.ViewModels
             {
                 sensor.Redo();
             }
-            var message = sensorsToRedo.Aggregate("Sucessfully stepped forward the following sensors \n\r", (current, sensorVariable) =>
+            var message = sensorsToRedo.Aggregate("Sucessfully stepped forward the following sensors: \n\r\n\r", (current, sensorVariable) =>
                                               current + string.Format("{0}\n\r", sensorVariable.Name));
 
             foreach (var graphableSensor in GraphableSensors.Where(x => sensorsToRedo.Contains(x.Sensor)))
