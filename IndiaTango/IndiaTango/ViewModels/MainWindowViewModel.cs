@@ -162,6 +162,8 @@ namespace IndiaTango.ViewModels
         private readonly MissingValuesDetector _missingValuesDetector;
         private List<GraphableSensor> _graphableSensors;
         private FormulaEvaluator _evaluator;
+        private bool _canUndo;
+        private bool _canRedo;
         #endregion
 
         #region Public Parameters
@@ -190,6 +192,7 @@ namespace IndiaTango.ViewModels
                     _evaluator = new FormulaEvaluator(Sensors, CurrentDataset.DataInterval);
                 }
                 UpdateGUI();
+                UpdateUndoRedo();
             }
         }
 
@@ -206,6 +209,26 @@ namespace IndiaTango.ViewModels
         private bool CurrentDataSetNotNull
         {
             get { return CurrentDataset != null; }
+        }
+
+        private bool CanUndo
+        {
+            get { return _canUndo; }
+            set
+            {
+                _canUndo = value;
+                NotifyOfPropertyChange(() => CanUndo);
+            }
+        }
+
+        private bool CanRedo
+        {
+            get { return _canRedo; }
+            set
+            {
+                _canRedo = value;
+                NotifyOfPropertyChange(() => CanRedo);
+            }
         }
 
         #endregion
@@ -694,14 +717,21 @@ namespace IndiaTango.ViewModels
 
             var actionsStackPanelWrapper = new StackPanel();
 
-            var undoRedoWrap = new WrapPanel { HorizontalAlignment = HorizontalAlignment.Center, IsEnabled = SensorsForEditing.Count > 0 };
+            var undoRedoWrap = new WrapPanel { HorizontalAlignment = HorizontalAlignment.Center };
 
-            var undoButton = new SplitButton { FontSize = 15, Width = 155, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(5) };
+            var undoButton = new SplitButton { FontSize = 15, Width = 155, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(5), IsEnabled = CanUndo };
             undoButton.Click += (o, e) =>
                                     {
-                                        //TODO: Write me!
-                                        Common.ShowFeatureNotImplementedMessageBox();
+                                        Undo();
+                                        UpdateUndoRedo();
                                     };
+            PropertyChanged += (o, e) =>
+                                   {
+                                       if (e.PropertyName == "CanUndo")
+                                       {
+                                           undoButton.IsEnabled = CanUndo;
+                                       }
+                                   };
             var undoButtonStackPanel = new StackPanel { Orientation = Orientation.Horizontal };
 
             undoButtonStackPanel.Children.Add(new Image { Width = 32, Height = 32, Source = new BitmapImage(new Uri("pack://application:,,,/Images/cancel_32.png", UriKind.Absolute)) });
@@ -711,12 +741,19 @@ namespace IndiaTango.ViewModels
 
             undoRedoWrap.Children.Add(undoButton);
 
-            var redoButton = new SplitButton { FontSize = 15, Width = 155, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(5) };
+            var redoButton = new SplitButton { FontSize = 15, Width = 155, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(5), IsEnabled = CanRedo };
             redoButton.Click += (o, e) =>
                                     {
-                                        //TODO: Write me!
-                                        Common.ShowFeatureNotImplementedMessageBox();
+                                        Redo();
+                                        UpdateUndoRedo();
                                     };
+            PropertyChanged += (o, e) =>
+                                   {
+                                       if (e.PropertyName == "CanRedo")
+                                       {
+                                           redoButton.IsEnabled = CanRedo;
+                                       }
+                                   };
             var redoButtonStackPanel = new StackPanel { Orientation = Orientation.Horizontal };
 
             redoButtonStackPanel.Children.Add(new Image { Width = 32, Height = 32, Source = new BitmapImage(new Uri("pack://application:,,,/Images/redo_32.png", UriKind.Absolute)) });
@@ -847,12 +884,19 @@ namespace IndiaTango.ViewModels
             Grid.SetRow(undoRedoStackPanel, 0);
             tabItemGrid.Children.Add(undoRedoStackPanel);
 
-            var undoButton = new SplitButton { FontSize = 15, Width = 155, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(5) };
+            var undoButton = new SplitButton { FontSize = 15, Width = 155, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(5), IsEnabled = CanUndo };
             undoButton.Click += (o, e) =>
                                     {
-                                        //TODO: Write me!
-                                        Common.ShowFeatureNotImplementedMessageBox();
+                                        Undo();
+                                        UpdateUndoRedo();
                                     };
+            PropertyChanged += (o, e) =>
+                                   {
+                                       if (e.PropertyName == "CanUndo")
+                                       {
+                                           undoButton.IsEnabled = CanUndo;
+                                       }
+                                   };
             undoRedoStackPanel.Children.Add(undoButton);
 
             var undoButtonStackPanel = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center };
@@ -862,12 +906,19 @@ namespace IndiaTango.ViewModels
 
             undoButton.Content = undoButtonStackPanel;
 
-            var redoButton = new SplitButton { FontSize = 15, Width = 155, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(5) };
+            var redoButton = new SplitButton { FontSize = 15, Width = 155, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(5), IsEnabled = CanRedo };
             redoButton.Click += (o, e) =>
                                     {
-                                        //TODO: Write me!
-                                        Common.ShowFeatureNotImplementedMessageBox();
+                                        Redo();
+                                        UpdateUndoRedo();
                                     };
+            PropertyChanged += (o, e) =>
+                                   {
+                                       if (e.PropertyName == "CanRedo")
+                                       {
+                                           redoButton.IsEnabled = CanRedo;
+                                       }
+                                   };
             undoRedoStackPanel.Children.Add(redoButton);
 
             var redoButtonStackPanel = new StackPanel { Orientation = Orientation.Horizontal };
@@ -1113,6 +1164,7 @@ namespace IndiaTango.ViewModels
                                                     foreach (var graphableSensor in GraphableSensors.Where(x => sensorsUsed.Contains(x.Sensor)))
                                                         graphableSensor.RefreshDataPoints();
                                                     UpdateGraph();
+                                                    UpdateUndoRedo();
                                                 }
                                                 else
                                                 {
@@ -1377,6 +1429,7 @@ namespace IndiaTango.ViewModels
                                              foreach (var graphableSensor in GraphableSensors.Where(x => successfulSensors.Contains(x.Sensor)))
                                                  graphableSensor.RefreshDataPoints();
                                              UpdateGraph();
+                                             UpdateUndoRedo();
                                          };
             autoButtonsWrapPanel.Children.Add(autoApplyButton);
 
@@ -1590,6 +1643,7 @@ namespace IndiaTango.ViewModels
                                              foreach (var graphableSensor in GraphableSensors.Where(x => sensorList.Contains(x.Sensor)))
                                                  graphableSensor.RefreshDataPoints();
                                              UpdateGraph();
+                                             UpdateUndoRedo();
                                              Common.ShowMessageBox("Values Updated", "The selected values were interpolated", false, false);
                                              Common.RequestReason(sensorList, _container, _windowManager, "Values were interpolated");
                                              CheckTheseMethods(new Collection<IDetectionMethod> { methodCheckedAgainst });
@@ -1639,6 +1693,7 @@ namespace IndiaTango.ViewModels
                 foreach (var graphableSensor in GraphableSensors.Where(x => sensorList.Contains(x.Sensor)))
                     graphableSensor.RefreshDataPoints();
                 UpdateGraph();
+                UpdateUndoRedo();
                 Common.ShowMessageBox("Values Updated", "The selected values were removed", false, false);
                 Common.RequestReason(sensorList, _container, _windowManager, "Values were removed");
                 CheckTheseMethods(new Collection<IDetectionMethod> { methodCheckedAgainst });
@@ -1700,6 +1755,7 @@ namespace IndiaTango.ViewModels
                 foreach (var graphableSensor in GraphableSensors.Where(x => sensorList.Contains(x.Sensor)))
                     graphableSensor.RefreshDataPoints();
                 UpdateGraph();
+                UpdateUndoRedo();
                 Common.ShowMessageBox("Values Updated", "The selected values set to " + value, false, false);
                 Common.RequestReason(sensorList, _container, _windowManager, "Values were set to " + value);
                 CheckTheseMethods(new Collection<IDetectionMethod> { methodCheckedAgainst });
@@ -1730,6 +1786,88 @@ namespace IndiaTango.ViewModels
 
             MaxMinimum = (int)Maximum;
             MinMaximum = (int)Math.Ceiling(Minimum);
+        }
+
+        private void UpdateUndoRedo()
+        {
+            CanUndo = Sensors.FirstOrDefault(x => x.UndoStates.Count > 0) != null;
+            CanRedo = Sensors.FirstOrDefault(x => x.RedoStates.Count > 0) != null;
+        }
+
+        private void Undo()
+        {
+            var orderedSensors = Sensors.OrderBy(x =>
+                                                     {
+                                                         var state = x.UndoStates.DefaultIfEmpty(new SensorState(x, DateTime.MaxValue)).FirstOrDefault();
+                                                         return state != null ? state.EditTimestamp : new DateTime();
+                                                     });
+
+            var firstSensor = orderedSensors.FirstOrDefault();
+            if (firstSensor == null) return;
+
+            var sensorState = firstSensor.UndoStates.FirstOrDefault();
+            if (sensorState == null) return;
+
+            var timestamp = sensorState.EditTimestamp;
+            var sensorsToUndo = orderedSensors.TakeWhile(x =>
+                                                             {
+                                                                 var firstOrDefault = x.UndoStates.FirstOrDefault();
+                                                                 //TODO: Not the best
+                                                                 return firstOrDefault != null && firstOrDefault.EditTimestamp - timestamp < new TimeSpan(0, 0, 2);
+                                                             }).ToList();
+
+            foreach (var sensor in sensorsToUndo)
+            {
+                sensor.Undo();
+            }
+            var message = sensorsToUndo.Aggregate("Sucessfully stepped back the following sensors \n\r", (current, sensorVariable) =>
+                                              current + string.Format("{0}\n\r", sensorVariable.Name));
+
+            foreach (var graphableSensor in GraphableSensors.Where(x => sensorsToUndo.Contains(x.Sensor)))
+                graphableSensor.RefreshDataPoints();
+            UpdateGraph();
+            Common.ShowMessageBox("Undo suceeded", message, false, false);
+        }
+
+        private void Redo()
+        {
+            var orderedSensors = Sensors.OrderBy(x =>
+                                                     {
+                                                         var state =
+                                                             x.RedoStates.DefaultIfEmpty(new SensorState(x,
+                                                                                                         DateTime.
+                                                                                                             MaxValue)).
+                                                                 FirstOrDefault();
+                                                         return state != null ? state.EditTimestamp : new DateTime();
+                                                     });
+
+            var firstSensor = orderedSensors.FirstOrDefault();
+            if (firstSensor == null) return;
+
+            var sensorState = firstSensor.RedoStates.FirstOrDefault();
+            if (sensorState == null) return;
+
+            var timestamp = sensorState.EditTimestamp;
+            var sensorsToRedo = orderedSensors.TakeWhile(x =>
+                                                             {
+                                                                 var firstOrDefault = x.RedoStates.FirstOrDefault();
+                                                                 //TODO: Not the best
+                                                                 return firstOrDefault != null &&
+                                                                        firstOrDefault.EditTimestamp - timestamp <
+                                                                        new TimeSpan(0, 0, 2);
+                                                             }).ToList();
+
+            foreach (var sensor in sensorsToRedo)
+            {
+                sensor.Redo();
+            }
+            var message = sensorsToRedo.Aggregate("Sucessfully stepped forward the following sensors \n\r", (current, sensorVariable) =>
+                                              current + string.Format("{0}\n\r", sensorVariable.Name));
+
+            foreach (var graphableSensor in GraphableSensors.Where(x => sensorsToRedo.Contains(x.Sensor)))
+                graphableSensor.RefreshDataPoints();
+            UpdateGraph();
+            Common.ShowMessageBox("Redo suceeded", message, false, false);
         }
 
         #endregion
