@@ -231,6 +231,16 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        private string[] SiteNamesNoSelectedIndexRefresh
+        {
+            get
+            {
+                var siteNamesList = DataSetFiles.Select(x => x.Substring(x.LastIndexOf('\\') + 1, x.Length - x.LastIndexOf('\\') - 4)).ToList();
+                siteNamesList.Insert(0, "Create new site...");
+                return siteNamesList.ToArray();
+            }
+        }
+
         #endregion
 
         #region Public Properties
@@ -242,10 +252,11 @@ namespace IndiaTango.ViewModels
         {
             get
             {
-                var siteNames = DataSetFiles.Select(x => x.Substring(x.LastIndexOf('\\') + 1, x.Length - x.LastIndexOf('\\') - 4)).ToArray();
+                var siteNamesList = DataSetFiles.Select(x => x.Substring(x.LastIndexOf('\\') + 1, x.Length - x.LastIndexOf('\\') - 4)).ToList();
+                siteNamesList.Insert(0, "Create new site...");
+                var siteNames = siteNamesList.ToArray();
                 if (CurrentDataset != null && siteNames.Contains(CurrentDataset.Site.Name))
                     ChosenSelectedIndex = Array.IndexOf(siteNames, CurrentDataset.Site.Name);
-
                 return siteNames;
             }
         }
@@ -259,6 +270,7 @@ namespace IndiaTango.ViewModels
             set
             {
                 _chosenSelectedIndex = value;
+                NotifyOfPropertyChange(() => ChosenSelectedIndex);
             }
         }
 
@@ -958,7 +970,7 @@ namespace IndiaTango.ViewModels
                                                          });
             var useManualCalibrationRadio = new RadioButton
                                                 {
-                                                    Content = "Manual    ",
+                                                    Content = "Formula    ",
                                                     IsChecked = true
                                                 };
             var manualAutoTabControl = new TabControl
@@ -980,7 +992,7 @@ namespace IndiaTango.ViewModels
             calibrationMethodStackPanel.Children.Add(useManualCalibrationRadio);
             calibrationMethodStackPanel.Children.Add(new RadioButton
                                                          {
-                                                             Content = "Automatic"
+                                                             Content = "Drift Adjustment"
                                                          });
             Grid.SetRow(manualAutoTabControl, 2);
             contentGrid.Children.Add(manualAutoTabControl);
@@ -1278,7 +1290,7 @@ namespace IndiaTango.ViewModels
             automaticValuesGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(26) });
             automaticValuesGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(26) });
 
-            automaticValuesGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(50) });
+            automaticValuesGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(100) });
             automaticValuesGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             automaticValuesGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
@@ -1304,7 +1316,7 @@ namespace IndiaTango.ViewModels
 
             var aTextBlock = new TextBlock
                                  {
-                                     Text = "A",
+                                     Text = "Span (High)",
                                      VerticalAlignment = VerticalAlignment.Center,
                                      HorizontalAlignment = HorizontalAlignment.Center
                                  };
@@ -1314,7 +1326,7 @@ namespace IndiaTango.ViewModels
 
             var bTextBlock = new TextBlock
                                  {
-                                     Text = "B",
+                                     Text = "Offset (Low)",
                                      VerticalAlignment = VerticalAlignment.Center,
                                      HorizontalAlignment = HorizontalAlignment.Center
                                  };
@@ -2072,16 +2084,73 @@ namespace IndiaTango.ViewModels
         /// </summary>
         public void CreateNewSite()
         {
-            var newSitesName = "New Site";
-            if (File.Exists(Path.Combine(Common.DatasetSaveLocation, "New Site.b3")))
-            {
-                var x = 1;
-                while (File.Exists(Path.Combine(Common.DatasetSaveLocation, string.Format("New Site{0}.b3", x))))
-                    x++;
+            var saveFirst = false;
 
-                newSitesName = "New Site" + x;
+            if (CurrentDataset != null)
+            {
+                //Do we want to save the dataset?
+                var userPrompt = _container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel") as SpecifyValueViewModel;
+
+                if (userPrompt == null)
+                {
+                    EventLogger.LogError(CurrentDataset, "Changing Sites", "PROMPT DIDN'T LOAD MEGA FAILURE");
+                    return;
+                }
+
+                userPrompt.Title = "Shall I Save?";
+                userPrompt.Message =
+                    string.Format(
+                        "Do you want to save \"{0}\" before changing dataset \n\r (unsaved progress WILL be lost) ",
+                        CurrentDataset.Site.Name);
+                userPrompt.ShowCancel = true;
+                userPrompt.ShowComboBox = true;
+                userPrompt.ComboBoxItems = new List<string> { "Yes", "No" };
+                userPrompt.CanEditComboBox = false;
+                userPrompt.ComboBoxSelectedIndex = 0;
+
+                _windowManager.ShowDialog(userPrompt);
+
+                if (userPrompt.WasCanceled)
+                    return;
+
+                if (userPrompt.ComboBoxSelectedIndex == 0)
+                    saveFirst = true;
             }
-            ShowSiteInformation(new Dataset(new Site(0, newSitesName, "", null, null, null, null)));
+
+            var bw = new BackgroundWorker();
+
+            bw.DoWork += (o, e) =>
+                             {
+                                 ProgressIndeterminate = true;
+                                 ShowProgressArea = true;
+                                 if (!saveFirst)
+                                     return;
+                                 EventLogger.LogInfo(CurrentDataset, "Closing Save", "Saving to file before close");
+                                 WaitEventString = string.Format("Saving {0} to file", CurrentDataset.Site.Name);
+                                 CurrentDataset.SaveToFile();
+                             };
+            bw.RunWorkerCompleted += (o, e) =>
+                                         {
+                                             ShowProgressArea = false;
+                                             EnableFeatures();
+
+                                             var newSitesName = "New Site";
+                                             if (File.Exists(Path.Combine(Common.DatasetSaveLocation, "New Site.b3")))
+                                             {
+                                                 var x = 1;
+                                                 while (File.Exists(Path.Combine(Common.DatasetSaveLocation, string.Format("New Site{0}.b3", x))))
+                                                     x++;
+
+                                                 newSitesName = "New Site" + x;
+                                             }
+                                             var newDataset = new Dataset(new Site(0, newSitesName, "", null, null, null, null));
+                                             ShowSiteInformation(newDataset);
+                                             CurrentDataset = newDataset;
+                                             NotifyOfPropertyChange(() => SiteNames);
+                                         };
+
+            DisableFeatures();
+            bw.RunWorkerAsync();
         }
 
         /// <summary>
@@ -2097,11 +2166,20 @@ namespace IndiaTango.ViewModels
         /// </summary>
         public void UpdateSelectedSite()
         {
+            if (_chosenSelectedIndex == 0)
+            {
+                CreateNewSite();
+                return;
+            }
+
             if (_chosenSelectedIndex < 0)
             {
                 CurrentDataset = null;
                 return;
             }
+
+            if (CurrentDataset != null && SiteNamesNoSelectedIndexRefresh[_chosenSelectedIndex] == CurrentDataset.Site.Name)
+                return;
 
             var saveFirst = false;
 
@@ -2158,9 +2236,9 @@ namespace IndiaTango.ViewModels
                     WaitEventString = string.Format("Saving {0} to file", CurrentDataset.Site.Name);
                     CurrentDataset.SaveToFile();
                 }
-                WaitEventString = string.Format("Loading from {0}", DataSetFiles[_chosenSelectedIndex]);
-                CurrentDataset = Dataset.LoadDataSet(DataSetFiles[_chosenSelectedIndex]);
-                EventLogger.LogInfo(null, "Loaded dataset", string.Format("Loaded {0}", DataSetFiles[_chosenSelectedIndex]));
+                WaitEventString = string.Format("Loading from {0}", DataSetFiles[_chosenSelectedIndex - 1]);
+                CurrentDataset = Dataset.LoadDataSet(DataSetFiles[_chosenSelectedIndex - 1]);
+                EventLogger.LogInfo(null, "Loaded dataset", string.Format("Loaded {0}", DataSetFiles[_chosenSelectedIndex - 1]));
             };
             bw.RunWorkerCompleted += (o, e) =>
             {
@@ -2297,7 +2375,7 @@ namespace IndiaTango.ViewModels
 
             var matchingLineSeries = ChartSeries.FirstOrDefault(x =>
                                                                     {
-                                                                        var dataPoints = x.DataSeries as DataSeries<DateTime,float>;
+                                                                        var dataPoints = x.DataSeries as DataSeries<DateTime, float>;
                                                                         return dataPoints != null && dataPoints.Title == owner.Sensor.Name;
                                                                     });
 
