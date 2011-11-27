@@ -8,7 +8,7 @@ namespace IndiaTango.Models
 {
     [Serializable]
     [DataContract]
-    public class Site
+    public class Site : ISerializable
     {
         private int _iD;
         private string _name;
@@ -17,14 +17,30 @@ namespace IndiaTango.Models
         private Contact _secondaryContact;
         private Contact _universityContact;
         private GPSCoords _gpsLocation;
-    	private List<NamedBitmap> _images; 
+        private List<NamedBitmap> _images;
 
         public static string ExportPath
         {
             get { return Common.AppDataPath + "\\ExportedSites.xml"; }
         }
 
-        private Site() {} // Necessary for serialisation.
+        private Site() { } // Necessary for serialisation.
+
+        protected Site(SerializationInfo info, StreamingContext context)
+        {
+            _iD = info.GetInt32("Id");
+            _name = info.GetString("Name");
+            _owner = info.GetString("Owner");
+            PrimaryContactID = info.GetInt32("PrimaryContactId");
+            SecondaryContactID = info.GetInt32("SecondaryContactID");
+            UniversityContactID = info.GetInt32("UniversityContactID");
+            _images = info.GetValue("Images", typeof(List<NamedBitmap>)) as List<NamedBitmap>;
+            _primaryContact = info.GetValue("PrimaryContact", typeof(Contact)) as Contact;
+            _secondaryContact = info.GetValue("SecondaryContact", typeof(Contact)) as Contact;
+            _universityContact = info.GetValue("UniversityContact", typeof(Contact)) as Contact;
+            Events = info.GetValue("Events", typeof(List<Event>)) as List<Event>;
+            _gpsLocation = info.GetValue("GpsLocation", typeof(GPSCoords)) as GPSCoords;
+        }
 
         /// <summary>
         /// Creates a new Site.
@@ -38,9 +54,9 @@ namespace IndiaTango.Models
         /// <param name="gpsLocation">The GPS coordinates of the Site</param>
         public Site(int iD, string name, string owner, Contact primaryContact, Contact secondaryContact, Contact universityContact, GPSCoords gpsLocation)
         {
-            if(iD<0)
+            if (iD < 0)
                 throw new ArgumentException("ID number must a non-negative integer");
-            if(String.IsNullOrEmpty(name))
+            if (String.IsNullOrEmpty(name))
                 throw new ArgumentException("Site must not be empty");
             /*if(String.IsNullOrEmpty(owner))
                 throw new ArgumentException("Owner must not be empty");
@@ -63,13 +79,13 @@ namespace IndiaTango.Models
         /// <summary>
         /// Sets and gets the ID of the Site
         /// </summary>
-        [DataMember(Name="ID")]
+        [DataMember(Name = "ID")]
         public int Id
         {
             get { return _iD; }
             set
             {
-                if(value < 0)
+                if (value < 0)
                     throw new FormatException("ID number must be greater than 1");
                 _iD = value;
             }
@@ -78,7 +94,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Sets and gets the site name of the Site
         /// </summary>
-        [DataMember(Name="Name")]
+        [DataMember(Name = "Name")]
         public string Name
         {
             get { return _name; }
@@ -93,13 +109,13 @@ namespace IndiaTango.Models
         /// <summary>
         /// Sets and gets the owner of the Site
         /// </summary>
-        [DataMember(Name="Owner")]
+        [DataMember(Name = "Owner")]
         public string Owner
         {
             get { return _owner; }
             set
             {
-                if(String.IsNullOrEmpty(value))
+                if (String.IsNullOrEmpty(value))
                     throw new FormatException("Owner must not be empty");
                 _owner = value;
             }
@@ -117,7 +133,7 @@ namespace IndiaTango.Models
             }
             private set
             {
-                if(_primaryContact == null)
+                if (_primaryContact == null)
                     _primaryContact = new Contact("", "", "user@domain.com", "", "", 0); // This is only used for serialisation generally, so should be suitable
 
                 _primaryContact.ID = value;
@@ -163,11 +179,11 @@ namespace IndiaTango.Models
         }
 
         [DataMember]
-    	public List<NamedBitmap> Images
-    	{
-    		get { return _images; }
-			set { _images = value; }
-    	}
+        public List<NamedBitmap> Images
+        {
+            get { return _images; }
+            set { _images = value; }
+        }
 
         /// <summary>
         /// Sets and gets the details of the primary contact for this Site
@@ -177,7 +193,7 @@ namespace IndiaTango.Models
             get { return _primaryContact; }
             set
             {
-                if(value == null)
+                if (value == null)
                     throw new FormatException("Primary contact must not be null");
                 _primaryContact = value;
             }
@@ -200,23 +216,23 @@ namespace IndiaTango.Models
             get { return _universityContact; }
             set { _universityContact = value; }
         }
-        
+
         /// <summary>
         /// Gets the list of events for this Site
         /// </summary>
-        [DataMember(Name="Events")]
+        [DataMember(Name = "Events")]
         public List<Event> Events { get; private set; }
 
         /// <summary>
         /// Sets and gets the GPS location of this Site
         /// </summary>
-        [DataMember(Name="GPSLocation")]
+        [DataMember(Name = "GPSLocation")]
         public GPSCoords GpsLocation
         {
             get { return _gpsLocation; }
             set
             {
-                if(value == null)
+                if (value == null)
                     throw new FormatException("GPS Location must be supplied");
                 _gpsLocation = value;
             }
@@ -230,7 +246,7 @@ namespace IndiaTango.Models
         /// <param name="event">The event to add to the list events</param>
         public void AddEvent(Event @event)
         {
-            if(@event == null)
+            if (@event == null)
                 throw new ArgumentException("Event must not be null");
             Events.Add(@event);
         }
@@ -240,7 +256,7 @@ namespace IndiaTango.Models
 
         public static int NextID
         {
-            get { return ++_nextID;  }
+            get { return ++_nextID; }
             set
             {
                 if ((value - 1) < -1)
@@ -275,8 +291,8 @@ namespace IndiaTango.Models
             var contacts = Contact.ImportAll();
 
             // Get the contact object associated with the operation
-            foreach(Site s in list)
-                foreach(Contact c in contacts)
+            foreach (Site s in list)
+                foreach (Contact c in contacts)
                 {
                     if (s.PrimaryContactID == c.ID)
                         s.PrimaryContact = c;
@@ -304,8 +320,8 @@ namespace IndiaTango.Models
             for (int i = 0; i < site.Events.Count; i++)
                 if (!site.Events[i].Equals(Events[i]))
                     return false;
-            
-            if(site.SecondaryContact != null)
+
+            if (site.SecondaryContact != null)
                 ctwo = site.SecondaryContact.Equals(SecondaryContact);
             else
                 ctwo = SecondaryContact == null;
@@ -318,6 +334,22 @@ namespace IndiaTango.Models
             return (site.GpsLocation.Equals(GpsLocation) && site.Id == Id &&
                     site.Owner == Owner && site.PrimaryContact.Equals(PrimaryContact) &&
                     ctwo && site.Name == Name && cthree);
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("Id", Id);
+            info.AddValue("Name", Name, typeof(string));
+            info.AddValue("Owner", Owner, typeof(string));
+            info.AddValue("PrimaryContactId", PrimaryContactID);
+            info.AddValue("SecondaryContactID", SecondaryContactID);
+            info.AddValue("UniversityContactID", UniversityContactID);
+            info.AddValue("Images", Images, typeof(List<NamedBitmap>));
+            info.AddValue("PrimaryContact", PrimaryContact, typeof(Contact));
+            info.AddValue("SecondaryContact", SecondaryContact, typeof(Contact));
+            info.AddValue("UniversityContact", UniversityContact, typeof(Contact));
+            info.AddValue("Events", Events, typeof(List<Event>));
+            info.AddValue("GpsLocation", GpsLocation, typeof(GPSCoords));
         }
 
         public override string ToString()

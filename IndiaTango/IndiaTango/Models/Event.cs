@@ -8,11 +8,17 @@ namespace IndiaTango.Models
     /// </summary>
     [Serializable]
     [DataContract]
-    public class Event
+    public class Event : ISerializable
     {
         private string _action;
 
-        private Event() {} // Necessary for serialisation
+        protected Event(SerializationInfo info, StreamingContext context)
+        {
+            TimeStamp = info.GetDateTime("TimeStamp");
+            _action = info.GetString("Action");
+        }
+
+        private Event() { } // Necessary for serialisation
 
         /// <summary>
         /// Creates a new Event, specifying the date and time of the event, along with a string that identifies the action that occurred.
@@ -31,19 +37,19 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the date and time this event occurred.
         /// </summary>
-        [DataMember(Name="Timestamp")]
+        [DataMember(Name = "Timestamp")]
         public DateTime TimeStamp { get; set; }
 
         /// <summary>
         /// Gets or sets a string describing the action that occurred. 
         /// </summary>
-        [DataMember(Name="Action")]
+        [DataMember(Name = "Action")]
         public string Action
         {
             get { return _action; }
             set
             {
-                if(string.IsNullOrEmpty(value))
+                if (string.IsNullOrEmpty(value))
                     throw new FormatException("The action must not be empty");
                 _action = value;
             }
@@ -52,6 +58,12 @@ namespace IndiaTango.Models
         public override bool Equals(object obj)
         {
             return obj is Event && (obj as Event).Action == Action && (obj as Event).TimeStamp == TimeStamp;
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("Action", Action, typeof(string));
+            info.AddValue("TimeStamp", TimeStamp);
         }
     }
 }

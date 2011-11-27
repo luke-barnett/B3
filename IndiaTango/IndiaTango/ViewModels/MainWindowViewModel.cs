@@ -2221,7 +2221,7 @@ namespace IndiaTango.ViewModels
                 Debug.WriteLine(file);
             }
 
-            Debug.Print("Chosen file is {0}", DataSetFiles[_chosenSelectedIndex]);
+            Debug.Print("Chosen file is {0}", DataSetFiles[_chosenSelectedIndex - 1]);
 
             var bw = new BackgroundWorker();
 

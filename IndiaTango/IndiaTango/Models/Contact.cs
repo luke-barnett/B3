@@ -8,22 +8,21 @@ using System.Runtime.Serialization;
 namespace IndiaTango.Models
 {
     [Serializable]
-    [DataContract]
-    public class Contact
+    public class Contact : ISerializable
     {
         private string _email;
 
-		/// <summary>
-		/// Gets the file location where exported contacts will be stored
-		/// </summary>
-		public static string ExportPath
-		{
-			get { return Path.Combine(Common.AppDataPath, "ExportedContacts.xml"); }
-		}
+        /// <summary>
+        /// Gets the file location where exported contacts will be stored
+        /// </summary>
+        public static string ExportPath
+        {
+            get { return Path.Combine(Common.AppDataPath, "ExportedContacts.xml"); }
+        }
 
-        private Contact() {} // Necessary for serialisation.
+        private Contact() { } // Necessary for serialisation.
         private int _id;
-        
+
         [DataMember]
         public int ID
         {
@@ -36,14 +35,26 @@ namespace IndiaTango.Models
                 _id = value;
             }
         }
+        
+        protected Contact(SerializationInfo info, StreamingContext context)
+        {
+            _id = info.GetInt32("ID");
+            Title = info.GetString("Title");
+            FirstName = info.GetString("FirstName");
+            LastName = info.GetString("LastName");
+            _email = info.GetString("Email");
+            Business = info.GetString("Business");
+            Phone = info.GetString("Phone");
+        }
 
-        public Contact(string title, string firstName, string lastName, string email, string business, string phone) : this(firstName, lastName, email, business, phone, -1)
+        public Contact(string title, string firstName, string lastName, string email, string business, string phone)
+            : this(firstName, lastName, email, business, phone, -1)
         {
             Title = title;
         }
 
         public Contact(string firstName, string lastName, string email, string business, string phone)
-            : this(firstName, lastName, email, business, phone, -1) {}
+            : this(firstName, lastName, email, business, phone, -1) { }
 
         /// <summary>
         /// Creates a new contact
@@ -60,7 +71,7 @@ namespace IndiaTango.Models
             if (lastName == null) throw new ArgumentNullException("lastName");
             FirstName = firstName;
             LastName = lastName;
-            if(email != null)
+            if (email != null)
                 Email = email;
             Business = business;
             Phone = phone;
@@ -73,42 +84,42 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the title of the contact
         /// </summary>
-        [DataMember(Name="Title")]
+        [DataMember(Name = "Title")]
         public string Title { get; set; }
 
         /// <summary>
         /// Gets and sets the first name of the contact
         /// </summary>
-        [DataMember(Name="FirstName")]
+        [DataMember(Name = "FirstName")]
         public string FirstName { get; set; }
 
         /// <summary>
         /// Gets and sets the second name of the contact
         /// </summary>
-        [DataMember(Name="LastName")]
+        [DataMember(Name = "LastName")]
         public string LastName { get; set; }
 
         /// <summary>
         /// Gets and sets the email address of the contact, also checks the email for validity
         /// </summary>
-        [DataMember(Name="Email")]
+        [DataMember(Name = "Email")]
         public string Email { get { return _email; } set { if (EmailIsValid(value)) _email = value; else throw new ArgumentException("Invalid Email Address"); } }
 
         /// <summary>
         /// Gets and sets the business name of the contact
         /// </summary>
-        [DataMember(Name="Business")]
+        [DataMember(Name = "Business")]
         public string Business { get; set; }
 
         /// <summary>
         /// Gets and sets the phone number of the contact
         /// </summary>
-        [DataMember(Name="Phone")]
+        [DataMember(Name = "Phone")]
         public string Phone { get; set; }
 
-		
 
-    	#endregion
+
+        #endregion
 
         public override bool Equals(object obj)
         {
@@ -121,6 +132,17 @@ namespace IndiaTango.Models
                    contact.LastName == LastName && contact.Phone == Phone && contact.Title == Title;
         }
 
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("ID", ID);
+            info.AddValue("Title", Title, typeof(string));
+            info.AddValue("FirstName", FirstName, typeof(string));
+            info.AddValue("LastName", LastName, typeof(string));
+            info.AddValue("Email", Email, typeof(string));
+            info.AddValue("Business", Business, typeof(string));
+            info.AddValue("Phone", Phone, typeof(string));
+        }
+
         #region private methods
         /// <summary>
         /// Checks to see if the given email address is valid
@@ -130,14 +152,14 @@ namespace IndiaTango.Models
         private static bool EmailIsValid(string email)
         {
             var portions = email.Split('@');
-            if(portions.Length == 2)
+            if (portions.Length == 2)
             {
                 if (portions[0].Length > 0 && portions[1].Length > 0)
                 {
                     var domainPortions = portions[1].Split('.');
                     if (domainPortions.Length > 1)
                     {
-                    	return domainPortions.All(domainPart => domainPart.Length != 0);
+                        return domainPortions.All(domainPart => domainPart.Length != 0);
                     }
                 }
             }
@@ -152,28 +174,28 @@ namespace IndiaTango.Models
         }
         #endregion
 
-		public static void ExportAll(ObservableCollection<Contact> contacts)
-    	{
-			var serializer = new DataContractSerializer(typeof(ObservableCollection<Contact>));
-			var stream = new FileStream(ExportPath, FileMode.Create);
-			serializer.WriteObject(stream, contacts);
-			stream.Close();
-    	}
+        public static void ExportAll(ObservableCollection<Contact> contacts)
+        {
+            var serializer = new DataContractSerializer(typeof(ObservableCollection<Contact>));
+            var stream = new FileStream(ExportPath, FileMode.Create);
+            serializer.WriteObject(stream, contacts);
+            stream.Close();
+        }
 
-		public static ObservableCollection<Contact> ImportAll()
-		{
-			var serializer = new DataContractSerializer(typeof(ObservableCollection<Contact>));
+        public static ObservableCollection<Contact> ImportAll()
+        {
+            var serializer = new DataContractSerializer(typeof(ObservableCollection<Contact>));
 
-			if (!File.Exists(ExportPath))
-				return new ObservableCollection<Contact>();
+            if (!File.Exists(ExportPath))
+                return new ObservableCollection<Contact>();
 
-			var stream = new FileStream(ExportPath, FileMode.Open);
-			var list = (ObservableCollection<Contact>)serializer.ReadObject(stream);
-			stream.Close();
+            var stream = new FileStream(ExportPath, FileMode.Open);
+            var list = (ObservableCollection<Contact>)serializer.ReadObject(stream);
+            stream.Close();
 
             // TODO: Next ID for when imported!
-			return list;
-		}
+            return list;
+        }
 
         private static int _nextID = 1;
 
@@ -182,7 +204,7 @@ namespace IndiaTango.Models
             get { return _nextID++; }
             set
             {
-                if(value < 1)
+                if (value < 1)
                     throw new ArgumentOutOfRangeException("The next ID for a contact must be greater than 0.");
 
                 _nextID = value;
