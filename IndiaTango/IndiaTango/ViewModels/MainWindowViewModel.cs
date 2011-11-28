@@ -1177,7 +1177,7 @@ namespace IndiaTango.ViewModels
                                                         specify.CanEditComboBox = false;
                                                         specify.ComboBoxItems =
                                                             new List<string>(new[] { "Treat all missing values as zero", "Skip over all missing values" });
-                                                        specify.ComboBoxSelectedIndex = 0;
+                                                        specify.ComboBoxSelectedIndex = 1;
 
                                                         _windowManager.ShowDialog(specify);
 
