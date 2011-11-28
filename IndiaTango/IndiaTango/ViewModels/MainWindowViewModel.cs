@@ -26,7 +26,6 @@ using Orientation = System.Windows.Controls.Orientation;
 using Path = System.IO.Path;
 using SelectionMode = System.Windows.Controls.SelectionMode;
 using Cursors = System.Windows.Input.Cursors;
-using MessageBox = Microsoft.Windows.Controls.MessageBox;
 using RadioButton = System.Windows.Controls.RadioButton;
 using TabControl = System.Windows.Controls.TabControl;
 using TextBox = System.Windows.Controls.TextBox;
@@ -46,7 +45,11 @@ namespace IndiaTango.ViewModels
             #region Set Up Detection Methods
 
             _minMaxRateofChangeDetector = new MinMaxDetector();
-            _minMaxRateofChangeDetector.GraphUpdateNeeded += () => SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
+            _minMaxRateofChangeDetector.GraphUpdateNeeded += () =>
+                                                                 {
+                                                                     SampleValues(Common.MaximumGraphablePoints,_sensorsToGraph);
+                                                                     CalculateYAxis(false);
+                                                                 };
 
             _runningMeanStandardDeviationDetector = new RunningMeanStandardDeviationDetector();
             _runningMeanStandardDeviationDetector.GraphUpdateNeeded += () => SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
@@ -1194,7 +1197,7 @@ namespace IndiaTango.ViewModels
                                                     var sensorsUsed = formula.SensorsUsed.Select(x => x.Sensor);
                                                     foreach (var graphableSensor in GraphableSensors.Where(x => sensorsUsed.Contains(x.Sensor)))
                                                         graphableSensor.RefreshDataPoints();
-                                                    SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
+                                                    UpdateGraph(false);
                                                     UpdateUndoRedo();
                                                 }
                                                 else
@@ -1799,7 +1802,7 @@ namespace IndiaTango.ViewModels
             bw.RunWorkerAsync();
         }
 
-        private void CalculateYAxis()
+        private void CalculateYAxis(bool resetRange = true)
         {
             var min = MinimumY(ChartSeries);
             var max = MaximumY(ChartSeries);
@@ -1815,7 +1818,7 @@ namespace IndiaTango.ViewModels
                 min = min - (Math.Abs(min * .2));
                 max = max + (Math.Abs(max * .2));
 
-                if (_sensorsToGraph.Count < 2)
+                if (_sensorsToGraph.Count < 2 && resetRange)
                     Range = new DoubleRange(min, max);
             }
 
@@ -1948,11 +1951,9 @@ namespace IndiaTango.ViewModels
                                                                                      openFileDialog.FileName,
                                                                                      ProgressValue);
                                                                };
-                                 List<Sensor> sensors = null;
                                  try
                                  {
-                                     sensors = reader.ReadSensors(bw, CurrentDataset);
-                                     e.Result = sensors;
+                                     e.Result = reader.ReadSensors(bw, CurrentDataset);
                                  }
                                  catch (Exception ex)
                                  {
@@ -2327,7 +2328,7 @@ namespace IndiaTango.ViewModels
                 _sensorsToGraph.Remove(graphableSensor);
             Debug.Print("{0} was removed from the graph list", graphableSensor.Sensor);
             DisableFeatures();
-            UpdateGraph(_sensorsToGraph.Count == 0);
+            UpdateGraph(false);
             UpdateDetectionMethodGraphableSensors();
             EnableFeatures();
             RemoveFromEditingSensors(eventArgs);
