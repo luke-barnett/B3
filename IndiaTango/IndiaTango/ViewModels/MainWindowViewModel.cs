@@ -165,6 +165,7 @@ namespace IndiaTango.ViewModels
         private FormulaEvaluator _evaluator;
         private bool _canUndo;
         private bool _canRedo;
+        private bool _showRaw;
         #endregion
 
         #region Public Parameters
@@ -436,7 +437,7 @@ namespace IndiaTango.ViewModels
                 }
                 else
                 {
-                    Range = new DoubleRange(value, Range.Maximum);
+                    Range = value < Range.Maximum ? new DoubleRange(value, Range.Maximum) : new DoubleRange(Range.Maximum, value);
                 }
                 MinMaximum = (int)Math.Ceiling(Minimum);
                 NotifyOfPropertyChange(() => Minimum);
@@ -458,7 +459,7 @@ namespace IndiaTango.ViewModels
                 }
                 else
                 {
-                    Range = new DoubleRange(Range.Minimum, value);
+                    Range = value > Range.Minimum ? new DoubleRange(Range.Minimum, value) : new DoubleRange(value, Range.Minimum);
                 }
                 MaxMinimum = (int)Maximum;
                 NotifyOfPropertyChange(() => Maximum);
@@ -528,6 +529,16 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        public bool GraphRawData
+        {
+            get { return _showRaw; }
+            set
+            {
+                _showRaw = value;
+                UpdateGraph(false);
+            }
+        }
+
         #endregion
 
         #region Private Methods
@@ -545,21 +556,28 @@ namespace IndiaTango.ViewModels
 
             HideBackground();
 
-            var numberOfDetectorsGraphsToCountAsSensors = 0;
+            var numberOfExtraLinesToTakeIntoConsiderationWhenSampling = 0;
 
             if (sensors.Count > 0)
-                numberOfDetectorsGraphsToCountAsSensors += _detectionMethods.Where(x => x.IsEnabled && x.HasGraphableSeries).Sum(detectionMethod => (from lineSeries in detectionMethod.GraphableSeries(sensors.ElementAt(0).Sensor, StartTime, EndTime) select lineSeries.DataSeries.Cast<DataPoint<DateTime, float>>().Count() into numberInLineSeries let numberInSensor = sensors.ElementAt(0).DataPoints.Count() select numberInLineSeries / (double)numberInSensor).Count(percentage => percentage > 0.2d));
+                numberOfExtraLinesToTakeIntoConsiderationWhenSampling += _detectionMethods.Where(x => x.IsEnabled && x.HasGraphableSeries).Sum(detectionMethod => (from lineSeries in detectionMethod.GraphableSeries(sensors.ElementAt(0).Sensor, StartTime, EndTime) select lineSeries.DataSeries.Cast<DataPoint<DateTime, float>>().Count() into numberInLineSeries let numberInSensor = sensors.ElementAt(0).DataPoints.Count() select numberInLineSeries / (double)numberInSensor).Count(percentage => percentage > 0.2d));
 
+            if (_showRaw)
+                numberOfExtraLinesToTakeIntoConsiderationWhenSampling += sensors.Count;
 
-            Debug.Print("There are {0} lines that have been counted as sensors for sampling", numberOfDetectorsGraphsToCountAsSensors);
+            Debug.Print("There are {0} lines that have been counted as sensors for sampling", numberOfExtraLinesToTakeIntoConsiderationWhenSampling);
 
             foreach (var sensor in sensors)
             {
-                _sampleRate = sensor.DataPoints.Count() / (numberOfPoints / (sensors.Count + numberOfDetectorsGraphsToCountAsSensors));
+                _sampleRate = sensor.DataPoints.Count() / (numberOfPoints / (sensors.Count + numberOfExtraLinesToTakeIntoConsiderationWhenSampling));
                 Debug.Print("[{3}] Number of points: {0} Max Number {1} Sampling rate {2}", sensor.DataPoints.Count(), numberOfPoints, _sampleRate, sensor.Sensor.Name);
 
                 var series = (_sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints.Where((x, index) => index % _sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints);
                 generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour) });
+                if (_showRaw)
+                {
+                    var rawSeries = (_sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name + "[RAW]", sensor.RawDataPoints.Where((x, index) => index % _sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.RawDataPoints);
+                    generatedSeries.Add(new LineSeries { DataSeries = rawSeries, LineStroke = new SolidColorBrush(sensor.RawDataColour) });
+                }
                 if (_sampleRate > 1) ShowBackground();
             }
 
@@ -1792,13 +1810,21 @@ namespace IndiaTango.ViewModels
             if (Math.Abs(max - 0) < 0.01)
                 max = 1;
 
-            Range = min < double.MaxValue ? new DoubleRange(min - (Math.Abs(min * .2)), max + (Math.Abs(max * .2))) : new DoubleRange();
+            if (min < double.MaxValue)
+            {
+                min = min - (Math.Abs(min * .2));
+                max = max + (Math.Abs(max * .2));
 
-            MinMinimum = (int)Minimum;
-            MaxMaximum = (int)Maximum;
+                if (_sensorsToGraph.Count < 2)
+                    Range = new DoubleRange(min, max);
+            }
 
-            MaxMinimum = (int)Maximum;
-            MinMaximum = (int)Math.Ceiling(Minimum);
+
+            MinMinimum = (int)min;
+            MaxMaximum = (int)max;
+
+            MaxMinimum = (int)max;
+            MinMaximum = (int)Math.Ceiling(min);
         }
 
         private void UpdateUndoRedo()
