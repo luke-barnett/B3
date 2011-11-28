@@ -2308,6 +2308,7 @@ namespace IndiaTango.ViewModels
             UpdateGraph();
             UpdateDetectionMethodGraphableSensors();
             EnableFeatures();
+            AddToEditingSensors(eventArgs);
         }
 
         public void RemoveFromGraph(RoutedEventArgs eventArgs)
@@ -2321,6 +2322,7 @@ namespace IndiaTango.ViewModels
             UpdateGraph();
             UpdateDetectionMethodGraphableSensors();
             EnableFeatures();
+            RemoveFromEditingSensors(eventArgs);
         }
 
         public void ShowCurrentSiteInformation()
