@@ -2084,6 +2084,9 @@ namespace IndiaTango.ViewModels
         /// </summary>
         public void CreateNewSite()
         {
+            _sensorsToGraph.Clear();
+            UpdateGraph();
+
             var saveFirst = false;
 
             if (CurrentDataset != null)
@@ -2166,21 +2169,24 @@ namespace IndiaTango.ViewModels
         /// </summary>
         public void UpdateSelectedSite()
         {
+            if (CurrentDataset != null && SiteNamesNoSelectedIndexRefresh[_chosenSelectedIndex] == CurrentDataset.Site.Name)
+                return;
+
             if (_chosenSelectedIndex == 0)
             {
                 CreateNewSite();
                 return;
             }
 
+            _sensorsToGraph.Clear();
+            UpdateGraph();
+
             if (_chosenSelectedIndex < 0)
             {
                 CurrentDataset = null;
                 return;
             }
-
-            if (CurrentDataset != null && SiteNamesNoSelectedIndexRefresh[_chosenSelectedIndex] == CurrentDataset.Site.Name)
-                return;
-
+            
             var saveFirst = false;
 
             if (CurrentDataset != null)
