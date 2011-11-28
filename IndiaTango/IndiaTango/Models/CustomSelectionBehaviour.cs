@@ -51,9 +51,9 @@ namespace IndiaTango.Models
 
                 //Set the up the zoom rectangle
                 _selectionRectangle.SetValue(Canvas.LeftProperty, position.X);
-                _selectionRectangle.SetValue(Canvas.TopProperty, 0.0);
+                _selectionRectangle.SetValue(Canvas.TopProperty, position.Y);
                 _selectionRectangle.Width = 0;
-                _selectionRectangle.Height = Double.IsNaN(Chart.ActualWidth) ? 400 : Chart.ActualWidth;
+                _selectionRectangle.Height = 0;
                 if (_selectionRectangle.Border != null)
                 {
                     _selectionRectangle.Border.Background = _selectionRectangle.Background;
@@ -128,12 +128,21 @@ namespace IndiaTango.Models
             if (position.X > _firstPosition.X)
             {
                 _selectionRectangle.Width = position.X - _firstPosition.X;
-                _selectionRectangle.SetValue(Canvas.LeftProperty, _firstPosition.X);
             }
             else
             {
                 _selectionRectangle.Width = _firstPosition.X - position.X;
                 _selectionRectangle.SetValue(Canvas.LeftProperty, position.X);
+            }
+
+            if(position.Y > _firstPosition.Y)
+            {
+                _selectionRectangle.Height = position.Y - _firstPosition.Y;
+            }
+            else
+            {
+                _selectionRectangle.Height = _firstPosition.Y - position.Y;
+                _selectionRectangle.SetValue(Canvas.TopProperty, position.Y);
             }
         }
 
