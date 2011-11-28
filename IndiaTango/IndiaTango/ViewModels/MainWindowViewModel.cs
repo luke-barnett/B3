@@ -1924,31 +1924,38 @@ namespace IndiaTango.ViewModels
                                  List<Sensor> sensors = null;
                                  try
                                  {
-                                     sensors = reader.ReadSensors(null, CurrentDataset);
+                                     sensors = reader.ReadSensors(bw, CurrentDataset);
+                                     e.Result = sensors;
                                  }
                                  catch (Exception ex)
                                  {
                                      Common.ShowMessageBoxWithException("Failed Import", "Bad File Format", false, true, ex);
+                                     e.Result = null;
                                  }
 
-                                 e.Result = sensors;
+
                              };
 
             bw.RunWorkerCompleted += (o, e) =>
                                          {
-                                             var sensors = (List<Sensor>)e.Result;
+                                             if (e.Result == null)
+                                                 return;
 
-                                             if (sensors == null) return;
+                                             var sensors = (List<Sensor>)e.Result;
 
                                              if (CurrentDataset.Sensors.Count == 0)
                                                  CurrentDataset.Sensors = sensors;
                                              else
                                              {
-                                                 var askUser = _container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel") as SpecifyValueViewModel;
+                                                 var askUser =
+                                                     _container.GetInstance(typeof(SpecifyValueViewModel),
+                                                                            "SpecifyValueViewModel") as
+                                                     SpecifyValueViewModel;
 
                                                  if (askUser == null)
                                                  {
-                                                     Common.ShowMessageBox("EPIC FAIL", "RUN AROUND WITH NO REASON", false, true);
+                                                     Common.ShowMessageBox("EPIC FAIL", "RUN AROUND WITH NO REASON",
+                                                                           false, true);
                                                      return;
                                                  }
 
@@ -1966,18 +1973,26 @@ namespace IndiaTango.ViewModels
 
                                                  foreach (var sensor in sensors)
                                                  {
-                                                     var askUserDialog = _container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel") as SpecifyValueViewModel;
+                                                     var askUserDialog =
+                                                         _container.GetInstance(typeof(SpecifyValueViewModel),
+                                                                                "SpecifyValueViewModel") as
+                                                         SpecifyValueViewModel;
 
                                                      if (askUserDialog == null)
                                                          return;
 
                                                      askUserDialog.Title = "What sensor does this belong to?";
-                                                     askUserDialog.ComboBoxItems = new List<string>((from x in CurrentDataset.Sensors select x.Name));
+                                                     askUserDialog.ComboBoxItems =
+                                                         new List<string>(
+                                                             (from x in CurrentDataset.Sensors select x.Name));
                                                      askUserDialog.ShowComboBox = true;
                                                      askUserDialog.ShowCancel = true;
                                                      askUserDialog.ComboBoxSelectedIndex = 0;
                                                      askUserDialog.CanEditComboBox = false;
-                                                     askUserDialog.Message = string.Format("Match {0} against an existing sensor. \n\r Cancel to create a new sensor", sensor.Name);
+                                                     askUserDialog.Message =
+                                                         string.Format(
+                                                             "Match {0} against an existing sensor. \n\r Cancel to create a new sensor",
+                                                             sensor.Name);
 
                                                      _windowManager.ShowDialog(askUserDialog);
 
@@ -1993,12 +2008,14 @@ namespace IndiaTango.ViewModels
                                                                  x =>
                                                                  x.Name.CompareTo(
                                                                      askUserDialog.ComboBoxItems[
-                                                                         askUserDialog.ComboBoxSelectedIndex]) == 0).
+                                                                         askUserDialog.ComboBoxSelectedIndex]) == 0)
+                                                                 .
                                                                  DefaultIfEmpty(null).FirstOrDefault();
 
                                                          if (matchingSensor == null)
                                                          {
-                                                             Debug.WriteLine("Failed to find the sensor again, embarrasing!");
+                                                             Debug.WriteLine(
+                                                                 "Failed to find the sensor again, embarrasing!");
                                                              continue;
                                                          }
 
@@ -2009,7 +2026,12 @@ namespace IndiaTango.ViewModels
                                                          var insertedValues = false;
 
                                                          //And add values for any new dates we want
-                                                         foreach (var value in sensor.CurrentState.Values.Where(value => !keepOldValues || !newState.Values.ContainsKey(value.Key)))
+                                                         foreach (
+                                                             var value in
+                                                                 sensor.CurrentState.Values.Where(
+                                                                     value =>
+                                                                     !keepOldValues ||
+                                                                     !newState.Values.ContainsKey(value.Key)))
                                                          {
                                                              newState.Values[value.Key] = value.Value;
                                                              insertedValues = true;
@@ -2020,7 +2042,9 @@ namespace IndiaTango.ViewModels
                                                          {
                                                              //Insert new state
                                                              matchingSensor.AddState(newState);
-                                                             EventLogger.LogSensorInfo(CurrentDataset, matchingSensor.Name, "Added values from new import");
+                                                             EventLogger.LogSensorInfo(CurrentDataset,
+                                                                                       matchingSensor.Name,
+                                                                                       "Added values from new import");
                                                          }
                                                      }
                                                  }
@@ -2085,6 +2109,7 @@ namespace IndiaTango.ViewModels
         public void CreateNewSite()
         {
             _sensorsToGraph.Clear();
+            _sensorsToCheckMethodsAgainst.Clear();
             UpdateGraph();
 
             var saveFirst = false;
@@ -2179,6 +2204,7 @@ namespace IndiaTango.ViewModels
             }
 
             _sensorsToGraph.Clear();
+            _sensorsToCheckMethodsAgainst.Clear();
             UpdateGraph();
 
             if (_chosenSelectedIndex < 0)
@@ -2186,7 +2212,7 @@ namespace IndiaTango.ViewModels
                 CurrentDataset = null;
                 return;
             }
-            
+
             var saveFirst = false;
 
             if (CurrentDataset != null)
