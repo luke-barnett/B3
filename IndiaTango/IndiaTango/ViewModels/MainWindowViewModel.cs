@@ -26,6 +26,7 @@ using Orientation = System.Windows.Controls.Orientation;
 using Path = System.IO.Path;
 using SelectionMode = System.Windows.Controls.SelectionMode;
 using Cursors = System.Windows.Input.Cursors;
+using MessageBox = Microsoft.Windows.Controls.MessageBox;
 using RadioButton = System.Windows.Controls.RadioButton;
 using TabControl = System.Windows.Controls.TabControl;
 using TextBox = System.Windows.Controls.TextBox;
@@ -2116,33 +2117,9 @@ namespace IndiaTango.ViewModels
 
             if (CurrentDataset != null)
             {
-                //Do we want to save the dataset?
-                var userPrompt = _container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel") as SpecifyValueViewModel;
-
-                if (userPrompt == null)
-                {
-                    EventLogger.LogError(CurrentDataset, "Changing Sites", "PROMPT DIDN'T LOAD MEGA FAILURE");
-                    return;
-                }
-
-                userPrompt.Title = "Shall I Save?";
-                userPrompt.Message =
-                    string.Format(
-                        "Do you want to save \"{0}\" before changing dataset \n\r (unsaved progress WILL be lost) ",
-                        CurrentDataset.Site.Name);
-                userPrompt.ShowCancel = true;
-                userPrompt.ShowComboBox = true;
-                userPrompt.ComboBoxItems = new List<string> { "Yes", "No" };
-                userPrompt.CanEditComboBox = false;
-                userPrompt.ComboBoxSelectedIndex = 0;
-
-                _windowManager.ShowDialog(userPrompt);
-
-                if (userPrompt.WasCanceled)
-                    return;
-
-                if (userPrompt.ComboBoxSelectedIndex == 0)
-                    saveFirst = true;
+                saveFirst = Common.Confirm("Save before closing?",
+                                           string.Format("Before we close '{0}' should we save it first?",
+                                                         CurrentDataset.Site.Name));
             }
 
             var bw = new BackgroundWorker();
@@ -2217,33 +2194,9 @@ namespace IndiaTango.ViewModels
 
             if (CurrentDataset != null)
             {
-                //Do we want to save the dataset?
-                var userPrompt = _container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel") as SpecifyValueViewModel;
-
-                if (userPrompt == null)
-                {
-                    EventLogger.LogError(CurrentDataset, "Changing Sites", "PROMPT DIDN'T LOAD MEGA FAILURE");
-                    return;
-                }
-
-                userPrompt.Title = "Shall I Save?";
-                userPrompt.Message =
-                    string.Format(
-                        "Do you want to save \"{0}\" before changing dataset \n\r (unsaved progress WILL be lost) ",
-                        CurrentDataset.Site.Name);
-                userPrompt.ShowCancel = true;
-                userPrompt.ShowComboBox = true;
-                userPrompt.ComboBoxItems = new List<string> { "Yes", "No" };
-                userPrompt.CanEditComboBox = false;
-                userPrompt.ComboBoxSelectedIndex = 0;
-
-                _windowManager.ShowDialog(userPrompt);
-
-                if (userPrompt.WasCanceled)
-                    return;
-
-                if (userPrompt.ComboBoxSelectedIndex == 0)
-                    saveFirst = true;
+                saveFirst = Common.Confirm("Save before closing?",
+                                           string.Format("Before we close '{0}' should we save it first?",
+                                                         CurrentDataset.Site.Name));
             }
 
             Debug.Print("Chosen Selected Index {0}", _chosenSelectedIndex);
