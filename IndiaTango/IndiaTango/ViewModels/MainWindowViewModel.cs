@@ -47,7 +47,7 @@ namespace IndiaTango.ViewModels
             _minMaxRateofChangeDetector = new MinMaxDetector();
             _minMaxRateofChangeDetector.GraphUpdateNeeded += () =>
                                                                  {
-                                                                     SampleValues(Common.MaximumGraphablePoints,_sensorsToGraph);
+                                                                     SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
                                                                      CalculateYAxis(false);
                                                                  };
 
@@ -68,8 +68,8 @@ namespace IndiaTango.ViewModels
             var behaviourManager = new BehaviourManager { AllowMultipleEnabled = true };
 
             #region Zoom Behaviour
-            var zoomBehaviour = new CustomZoomBehaviour { IsEnabled = true };
-            zoomBehaviour.ZoomRequested += (o, e) =>
+            _zoomBehaviour = new CustomZoomBehaviour { IsEnabled = true };
+            _zoomBehaviour.ZoomRequested += (o, e) =>
             {
                 _startTime = (DateTime)e.FirstPoint.X;
                 NotifyOfPropertyChange(() => StartTime);
@@ -86,7 +86,7 @@ namespace IndiaTango.ViewModels
                     }
                 }
             };
-            zoomBehaviour.ZoomResetRequested += o =>
+            _zoomBehaviour.ZoomResetRequested += o =>
             {
                 foreach (var sensor in _sensorsToGraph)
                 {
@@ -97,13 +97,28 @@ namespace IndiaTango.ViewModels
                 SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
             };
 
-            behaviourManager.Behaviours.Add(zoomBehaviour);
+            behaviourManager.Behaviours.Add(_zoomBehaviour);
             #endregion
 
             #region Background Behaviour
             _background = new Canvas { Visibility = Visibility.Collapsed };
             var backgroundBehaviour = new GraphBackgroundBehaviour(_background);
             behaviourManager.Behaviours.Add(backgroundBehaviour);
+            #endregion
+
+            #region Selection Behaviour
+
+            _selectionBehaviour = new CustomSelectionBehaviour { IsEnabled = false };
+            _selectionBehaviour.SelectionMade += (start, end) =>
+                                                     {
+                                                         //TODO: Let the things know
+                                                     };
+
+            _selectionBehaviour.SelectionReset += o =>
+                                                      {
+                                                          //TODO:
+                                                      };
+            behaviourManager.Behaviours.Add(_selectionBehaviour);
             #endregion
 
             Behaviour = behaviourManager;
@@ -169,6 +184,8 @@ namespace IndiaTango.ViewModels
         private bool _canUndo;
         private bool _canRedo;
         private bool _showRaw;
+        private readonly CustomZoomBehaviour _zoomBehaviour;
+        private readonly CustomSelectionBehaviour _selectionBehaviour;
         #endregion
 
         #region Public Parameters
@@ -539,6 +556,20 @@ namespace IndiaTango.ViewModels
             {
                 _showRaw = value;
                 UpdateGraph(false);
+            }
+        }
+
+        public bool SelectionModeEnabled
+        {
+            get { return _selectionBehaviour.IsEnabled; }
+            set
+            {
+                _selectionBehaviour.IsEnabled = value;
+                _zoomBehaviour.IsEnabled = !value;
+                if(!value)
+                {
+                    _selectionBehaviour.MouseLeftButtonDoubleClick(new Point());
+                }
             }
         }
 

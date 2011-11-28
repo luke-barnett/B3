@@ -161,7 +161,7 @@
                 <Grid Grid.Row="1" x:Name="GraphSection" Margin="5">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
-                        <RowDefinition Height="110" />
+                        <RowDefinition Height="130" />
                     </Grid.RowDefinitions>
                     <charts:Chart x:Name="MainChart" Title="{Binding ChartTitle}" Grid.Row="0" Behaviour="{Binding Behaviour}" multiseries:MultiSeries.Source="{Binding ChartSeries}">
                         <charts:Chart.YAxis>
@@ -177,12 +177,15 @@
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Orientation="Horizontal">
+                            <StackPanel HorizontalAlignment="Right" Orientation="Vertical" Margin="5">
+                                <CheckBox Content="Graph Raw Data" IsChecked="{Binding GraphRawData,Mode=OneWayToSource}" VerticalAlignment="Center" />
+                                <CheckBox Content="Selection Mode" IsChecked="{Binding SelectionModeEnabled,Mode=OneWayToSource}" VerticalAlignment="Center" />
+                            </StackPanel>
+                            <StackPanel Grid.Row="0" Orientation="Horizontal" Height="25" VerticalAlignment="Top">
                                 <TextBlock Text="Range:" VerticalAlignment="Center" Margin="0,0,5,0" />
                                 <toolkit:DateTimePicker Width="125" Value="{Binding StartTime, UpdateSourceTrigger=PropertyChanged}" Format="Custom" FormatString="dd/MM/yy HH:mm" IsEnabled="{Binding CanEditDates}" cal:Message.Attach="[Event ValueChanged] = [Action StartTimeChanged($eventArgs)]" />
                                 <TextBlock Text=" - to - " VerticalAlignment="Center" Margin="5,0" />
                                 <toolkit:DateTimePicker Width="125" Value="{Binding EndTime, UpdateSourceTrigger=PropertyChanged}" Format="Custom" FormatString="dd/MM/yy HH:mm" IsEnabled="{Binding CanEditDates}" cal:Message.Attach="[Event ValueChanged] = [Action EndTimeChanged($eventArgs)]" />
-                                <CheckBox Margin="10,0" Content="Graph Raw Data" IsChecked="{Binding GraphRawData,Mode=OneWayToSource}" VerticalAlignment="Center" />
                             </StackPanel>
                             <Grid Grid.Row="1">
                                 <Grid.RowDefinitions>
@@ -214,7 +217,7 @@
                                 </i:Interaction.Triggers>
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/B3;component/Images/export_graph.png" Width="32" Height="32" VerticalAlignment="Center" />
-                                    <TextBlock Text="Export" VerticalAlignment="Center" Margin="5" />
+                                    <TextBlock Text="Export Graph" VerticalAlignment="Center" Margin="5" />
                                 </StackPanel>
                             </Button>
                         </Grid>
