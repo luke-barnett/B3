@@ -49,8 +49,8 @@ namespace IndiaTango.ViewModels
 
             _zooming.ZoomRequested += (o, e) =>
                                          {
-                                             var startTime = (DateTime)e.FirstPoint.X;
-                                             var endTime = (DateTime)e.SecondPoint.X;
+                                             var startTime = e.LowerX;
+                                             var endTime = e.UpperX;
                                              _selectedSensor.SetUpperAndLowerBounds(startTime, endTime);
                                              CalculateDateTimeEndPoints();
                                              FoundErroneousValues = FoundErroneousValues.Where(x => x.TimeStamp >= StartTime && x.TimeStamp <= EndTime).ToList();

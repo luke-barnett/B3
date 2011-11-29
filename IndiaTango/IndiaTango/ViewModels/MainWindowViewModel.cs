@@ -71,9 +71,10 @@ namespace IndiaTango.ViewModels
             _zoomBehaviour = new CustomZoomBehaviour { IsEnabled = true };
             _zoomBehaviour.ZoomRequested += (o, e) =>
             {
-                _startTime = (DateTime)e.FirstPoint.X;
+                _startTime = e.LowerX;
                 NotifyOfPropertyChange(() => StartTime);
-                EndTime = (DateTime)e.SecondPoint.X;
+                EndTime = e.UpperX;
+                Range = new DoubleRange(e.LowerY, e.UpperY);
                 foreach (var detectionMethod in _detectionMethods.Where(x => x.IsEnabled))
                 {
                     var itemsToRemove =
@@ -92,6 +93,7 @@ namespace IndiaTango.ViewModels
                 {
                     sensor.RemoveBounds();
                 }
+                Range = new DoubleRange(MinMinimum, MaxMaximum);
                 CheckTheseMethods(_detectionMethods.Where(x => x.IsEnabled));
                 CalculateGraphedEndPoints();
                 SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
@@ -566,7 +568,7 @@ namespace IndiaTango.ViewModels
             {
                 _selectionBehaviour.IsEnabled = value;
                 _zoomBehaviour.IsEnabled = !value;
-                if(!value)
+                if (!value)
                 {
                     _selectionBehaviour.MouseLeftButtonDoubleClick(new Point());
                 }

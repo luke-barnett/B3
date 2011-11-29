@@ -12,14 +12,14 @@ namespace IndiaTango.Models
         private bool _leftMouseDown;
         private Point _firstPosition;
 
-        public CustomZoomBehaviour() : base("Zoom Behaviour")
+        public CustomZoomBehaviour()
+            : base("Zoom Behaviour")
         {
+            _zoomRectangle.Visibility = Visibility.Visible;
         }
 
         protected override void Init()
         {
-            //Set up the zoom rectangle for use
-            _zoomRectangle.Visibility = Visibility.Visible;
             //Add it to the container
             BehaviourContainer.Children.Add(_zoomRectangle);
         }
@@ -27,7 +27,7 @@ namespace IndiaTango.Models
         public override void DeInit()
         {
             //Ensure that we remove the items we have added
-            if(BehaviourContainer != null && BehaviourContainer.Children.Contains(_zoomRectangle))
+            if (BehaviourContainer != null && BehaviourContainer.Children.Contains(_zoomRectangle))
                 BehaviourContainer.Children.Remove(_zoomRectangle);
         }
 
@@ -47,30 +47,30 @@ namespace IndiaTango.Models
 
         public override void MouseLeftButtonDown(Point position)
         {
-            if(BehaviourContainer.CaptureMouse())
+            if (Chart.XAxis.ActualRange == null || Chart.YAxis.ActualRange == null || !BehaviourContainer.CaptureMouse())
+                return;
+
+            _leftMouseDown = true;
+            _firstPosition = position;
+
+            //Set the up the zoom rectangle
+            _zoomRectangle.SetValue(Canvas.LeftProperty, position.X);
+            _zoomRectangle.SetValue(Canvas.TopProperty, position.Y);
+            _zoomRectangle.Width = 0;
+            _zoomRectangle.Height = 0;
+            if (_zoomRectangle.Border != null)
             {
-                _leftMouseDown = true;
-                _firstPosition = position;
-
-                //Set the up the zoom rectangle
-                _zoomRectangle.SetValue(Canvas.LeftProperty, position.X);
-                _zoomRectangle.SetValue(Canvas.TopProperty, 0.0);
-                _zoomRectangle.Width = 0;
-                _zoomRectangle.Height = Double.IsNaN(Chart.ActualWidth) ? 400 : Chart.ActualWidth;
-                if (_zoomRectangle.Border != null)
-                {
-                    _zoomRectangle.Border.Background = _zoomRectangle.Background;
-                    _zoomRectangle.Border.BorderBrush = _zoomRectangle.Foreground;
-                }
-
-                //Make it visible
-                _zoomRectangle.Visibility = Visibility.Visible;
+                _zoomRectangle.Border.Background = _zoomRectangle.Background;
+                _zoomRectangle.Border.BorderBrush = _zoomRectangle.Foreground;
             }
+
+            //Make it visible
+            _zoomRectangle.Visibility = Visibility.Visible;
         }
 
         public override void MouseMove(Point position)
         {
-            if(!_leftMouseDown)
+            if (!_leftMouseDown)
                 return;
             position = EnsurePointIsOnChart(position);
 
@@ -79,7 +79,7 @@ namespace IndiaTango.Models
 
         public override void MouseLeftButtonUp(Point position)
         {
-            if(!_leftMouseDown)
+            if (!_leftMouseDown)
                 return;
 
             position = EnsurePointIsOnChart(position);
@@ -95,14 +95,7 @@ namespace IndiaTango.Models
             if (Math.Abs(position.X - _firstPosition.X) < 2)
                 return;
 
-            var firstPoint = FindClosestPoint(_firstPosition);
-            var secondPoint = FindClosestPoint(position);
-
-            //As long as they aren't the same point request a zoom
-            if(firstPoint != secondPoint && firstPoint != null && secondPoint != null)
-            {
-                RequestZoom(firstPoint, secondPoint);
-            }
+            RequestZoom(_firstPosition, position);
         }
 
         public override void MouseLeftButtonDoubleClick(Point position)
@@ -132,36 +125,32 @@ namespace IndiaTango.Models
             if (position.X > _firstPosition.X)
             {
                 _zoomRectangle.Width = position.X - _firstPosition.X;
-                _zoomRectangle.SetValue(Canvas.LeftProperty, _firstPosition.X);
             }
             else
             {
                 _zoomRectangle.Width = _firstPosition.X - position.X;
                 _zoomRectangle.SetValue(Canvas.LeftProperty, position.X);
             }
-        }
 
-        private IDataPoint FindClosestPoint(Point position)
-        {
-            //If we have nothing to count from then we can't do anything
-            if (Chart.Series.Count == 0)
-                return null;
-
-            IDataPoint closestX = null;
-            foreach (IDataPoint point in Chart.Series[0].DataSeries)
+            if (position.Y > _firstPosition.Y)
             {
-                if (closestX == null)
-                    closestX = point;
-                else if (Math.Abs(Chart.Series[0].GetPointRenderPosition(point).X - position.X) < Math.Abs(Chart.Series[0].GetPointRenderPosition(closestX).X - position.X))
-                    closestX = point;
+                _zoomRectangle.Height = position.Y - _firstPosition.Y;
             }
-            return closestX;
+            else
+            {
+                _zoomRectangle.Height = _firstPosition.Y - position.Y;
+                _zoomRectangle.SetValue(Canvas.TopProperty, position.Y);
+            }
         }
 
-        private void RequestZoom(IDataPoint firstPoint, IDataPoint secondPoint)
+        private void RequestZoom(Point firstPoint, Point secondPoint)
         {
-            Debug.Print("Requesting a zoom between {0} and {1}", firstPoint, secondPoint);
-            OnZoomRequested(this, new ZoomRequestedArgs(firstPoint, secondPoint));
+            var x1 = (DateTime)Chart.XAxis.GetRenderPositionAsDataValueWithoutZoom(firstPoint.X);
+            var x2 = (DateTime)Chart.XAxis.GetRenderPositionAsDataValueWithoutZoom(secondPoint.X);
+            var y1 = (Double)Chart.YAxis.GetRenderPositionAsDataValueWithoutZoom(firstPoint.Y);
+            var y2 = (Double)Chart.YAxis.GetRenderPositionAsDataValueWithoutZoom(secondPoint.Y);
+
+            OnZoomRequested(this, new ZoomRequestedArgs(x1, x2, (float)y1, (float)y2));
         }
 
         private void OnZoomRequested(object o, ZoomRequestedArgs e)
@@ -173,13 +162,34 @@ namespace IndiaTango.Models
 
     public class ZoomRequestedArgs : EventArgs
     {
-        public readonly IDataPoint FirstPoint;
-        public readonly IDataPoint SecondPoint;
+        public readonly DateTime UpperX;
+        public readonly DateTime LowerX;
+        public readonly double UpperY;
+        public readonly double LowerY;
 
-        public ZoomRequestedArgs(IDataPoint firstPoint, IDataPoint secondPoint)
+        public ZoomRequestedArgs(DateTime x1, DateTime x2, float y1, float y2)
         {
-            FirstPoint = firstPoint;
-            SecondPoint = secondPoint;
+            if (x1 > x2)
+            {
+                UpperX = x1;
+                LowerX = x2;
+            }
+            else
+            {
+                UpperX = x2;
+                LowerX = x1;
+            }
+            if (y1 > y2)
+            {
+                UpperY = y1;
+                LowerY = y2;
+            }
+            else
+            {
+                UpperY = y2;
+                LowerY = y1;
+            }
+            Debug.Print("New Zoom Request Made: Date Range {0} - {1} , ValueRange {2} - {3}", LowerX, UpperX, LowerY, UpperY);
         }
     }
 

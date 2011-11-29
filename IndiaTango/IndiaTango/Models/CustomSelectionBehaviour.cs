@@ -15,11 +15,11 @@ namespace IndiaTango.Models
         public CustomSelectionBehaviour()
             : base("Selection Behaviour")
         {
+            _selectionRectangle.Visibility = Visibility.Visible;
         }
 
         protected override void Init()
         {
-            _selectionRectangle.Visibility = Visibility.Visible;
             BehaviourContainer.Children.Add(_selectionRectangle);
         }
 

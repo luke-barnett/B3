@@ -56,12 +56,12 @@ namespace IndiaTango.ViewModels
 
             var zoomBehaviour = new CustomZoomBehaviour { IsEnabled = true };
             zoomBehaviour.ZoomRequested += (o, e) =>
-            {
-                var startTime = (DateTime)e.FirstPoint.X;
-                var endTime = (DateTime)e.SecondPoint.X;
-                _graphableSensor.SetUpperAndLowerBounds(startTime, endTime);
-                UpdateGraph();
-            };
+                                               {
+                                                   var startTime = e.LowerX;
+                                                   var endTime = e.UpperX;
+                                                   _graphableSensor.SetUpperAndLowerBounds(startTime, endTime);
+                                                   UpdateGraph();
+                                               };
 
             zoomBehaviour.ZoomResetRequested += o =>
                                                     {
@@ -151,7 +151,7 @@ namespace IndiaTango.ViewModels
                 _sensor = value;
                 NotifyOfPropertyChange(() => SelectedSensor);
 
-                if(_sensor != null && _sensor.CurrentState != null)
+                if (_sensor != null && _sensor.CurrentState != null)
                     MissingValues = _sensor.CurrentState.GetMissingTimes(15, _ds.StartTimeStamp, _ds.EndTimeStamp);
 
                 NotifyOfPropertyChange(() => SensorName);
@@ -502,7 +502,7 @@ namespace IndiaTango.ViewModels
                 Common.MaximumGraphablePoints = int.MaxValue;
             }
 
-            if(_graphableSensor != null)
+            if (_graphableSensor != null)
                 SampleValues(Common.MaximumGraphablePoints, new Collection<GraphableSensor> { _graphableSensor });
         }
 
@@ -609,13 +609,13 @@ namespace IndiaTango.ViewModels
         #region Multi-level Undo/Redo Handling
         public void UndoPathSelected(SelectionChangedEventArgs e)
         {
-            if(e.AddedItems.Count > 0 && e.AddedItems[0] != null)
+            if (e.AddedItems.Count > 0 && e.AddedItems[0] != null)
             {
-                var item = (SensorStateListObject) e.AddedItems[0];
+                var item = (SensorStateListObject)e.AddedItems[0];
 
                 if (SelectedSensor != null && item != null)
                 {
-                    if(item.IsRaw)
+                    if (item.IsRaw)
                         SelectedSensor.RevertToRaw();
                     else
                         SelectedSensor.Undo(item.State.EditTimestamp);
@@ -695,6 +695,6 @@ namespace IndiaTango.ViewModels
                 return new ReadOnlyCollection<SensorStateListObject>(ss);
             }
         }
-#endregion
+        #endregion
     }
 }

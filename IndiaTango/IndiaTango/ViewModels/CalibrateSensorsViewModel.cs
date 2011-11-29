@@ -85,8 +85,7 @@ namespace IndiaTango.ViewModels
             _zoomBehav.ZoomRequested += (o, e) =>
                                             {
                                                 // Set the DateTime ranges for calibration via visual selection
-                                                UpdateGraphToShowRange((DateTime)e.FirstPoint.X,
-                                                                       (DateTime)e.SecondPoint.X);
+                                                UpdateGraphToShowRange(e.LowerX, e.UpperX);
                                             };
             _zoomBehav.ZoomResetRequested += (o) =>
                                                  {

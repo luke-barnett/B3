@@ -60,8 +60,8 @@ namespace IndiaTango.ViewModels
             var zoomBehaviour = new CustomZoomBehaviour { IsEnabled = true };
             zoomBehaviour.ZoomRequested += (o, e) =>
             {
-                var startTime = (DateTime)e.FirstPoint.X;
-                var endTime = (DateTime)e.SecondPoint.X;
+                var startTime = e.LowerX;
+                var endTime = e.UpperX;
                 _graphableSensor.SetUpperAndLowerBounds(startTime, endTime);
                 UpdateGraph();
             };

@@ -71,8 +71,8 @@ namespace IndiaTango.ViewModels
             var zoomBehaviour = new CustomZoomBehaviour { IsEnabled = !_selectionMode };
             zoomBehaviour.ZoomRequested += (o, e) =>
                                                  {
-                                                     StartTime = (DateTime)e.FirstPoint.X;
-                                                     EndTime = (DateTime)e.SecondPoint.X;
+                                                     StartTime = e.LowerX;
+                                                     EndTime = e.UpperX;
                                                      foreach (var sensor in _selectedSensors)
                                                      {
                                                          sensor.SetUpperAndLowerBounds(StartTime, EndTime);
