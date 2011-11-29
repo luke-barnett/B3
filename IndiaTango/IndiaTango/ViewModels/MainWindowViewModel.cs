@@ -111,14 +111,14 @@ namespace IndiaTango.ViewModels
             #region Selection Behaviour
 
             _selectionBehaviour = new CustomSelectionBehaviour { IsEnabled = false };
-            _selectionBehaviour.SelectionMade += (start, end) =>
+            _selectionBehaviour.SelectionMade += (sender, args) =>
                                                      {
-                                                         //TODO: Let the things know
+                                                         Selection = args;
                                                      };
 
-            _selectionBehaviour.SelectionReset += o =>
+            _selectionBehaviour.SelectionReset += sender =>
                                                       {
-                                                          //TODO:
+                                                          Selection = null;
                                                       };
             behaviourManager.Behaviours.Add(_selectionBehaviour);
             #endregion
@@ -188,6 +188,7 @@ namespace IndiaTango.ViewModels
         private bool _showRaw;
         private readonly CustomZoomBehaviour _zoomBehaviour;
         private readonly CustomSelectionBehaviour _selectionBehaviour;
+        private SelectionMadeArgs _selection;
         #endregion
 
         #region Public Parameters
@@ -262,6 +263,16 @@ namespace IndiaTango.ViewModels
                 var siteNamesList = DataSetFiles.Select(x => x.Substring(x.LastIndexOf('\\') + 1, x.Length - x.LastIndexOf('\\') - 4)).ToList();
                 siteNamesList.Insert(0, "Create new site...");
                 return siteNamesList.ToArray();
+            }
+        }
+
+        private SelectionMadeArgs Selection
+        {
+            get { return _selection; }
+            set
+            {
+                _selection = value;
+                NotifyOfPropertyChange(() => Selection);
             }
         }
 
@@ -924,8 +935,16 @@ namespace IndiaTango.ViewModels
                                             {
                                                 var box = o as ListBox;
                                                 if (box != null)
-                                                    dataEditingWrapper.IsEnabled = box.SelectedItems.Count > 0;
+                                                    dataEditingWrapper.IsEnabled = Selection != null || box.SelectedItems.Count > 0;
+                                                else
+                                                    dataEditingWrapper.IsEnabled = Selection != null;
                                             };
+
+            PropertyChanged += (o, e) =>
+                                   {
+                                       if (e.PropertyName == "Selection")
+                                           dataEditingWrapper.IsEnabled = Selection != null;
+                                   };
 
             Grid.SetRow(actions, 3);
 
@@ -1684,8 +1703,27 @@ namespace IndiaTango.ViewModels
         private void Interpolate(IEnumerable<ErroneousValue> values, IDetectionMethod methodCheckedAgainst)
         {
             values = values.ToList();
+
+            if (Selection != null && Common.Confirm("Should we use the values you've selected", "For this interpolation should we use the all the values in the range you've selected instead of those selected from the list of detected values"))
+            {
+                var list = new List<ErroneousValue>();
+                foreach (var sensor in _sensorsToCheckMethodsAgainst)
+                {
+                    list.AddRange(sensor.CurrentState.Values.Where(
+                        x =>
+                        x.Key >= Selection.LowerX && x.Key <= Selection.UpperX && x.Value >= Selection.LowerY &&
+                        x.Value <= Selection.UpperY).Select(x => new ErroneousValue(x.Key, sensor)));
+                }
+                values = list;
+            }
+
+
             if (values.Count() < 0)
+            {
+                Common.ShowMessageBox("No values to interpolate", "You haven't given us any values to work with!", false, false);
                 return;
+            }
+
 
             if (!Common.Confirm("Are you sure?", "Are you sure you want to interpolate these values?"))
                 return;
@@ -1726,10 +1764,30 @@ namespace IndiaTango.ViewModels
         private void RemoveValues(IEnumerable<ErroneousValue> values, IDetectionMethod methodCheckedAgainst)
         {
             values = values.ToList();
-            if (values.Count() < 0)
-                return;
+            var usingSelection = false;
+            if (Selection != null && Common.Confirm("Should we use the values you've selected?", "To remove values should we use the all the values in the range you've selected instead of those selected from the list of detected values"))
+            {
+                var list = new List<ErroneousValue>();
+                foreach (var sensor in _sensorsToCheckMethodsAgainst)
+                {
+                    list.AddRange(sensor.CurrentState.Values.Where(
+                        x =>
+                        x.Key >= Selection.LowerX && x.Key <= Selection.UpperX && x.Value >= Selection.LowerY &&
+                        x.Value <= Selection.UpperY).Select(x => new ErroneousValue(x.Key, sensor)));
+                }
+                values = list;
+                usingSelection = true;
+            }
 
-            if (methodCheckedAgainst == _missingValuesDetector)
+
+            if (values.Count() < 0)
+            {
+                Common.ShowMessageBox("No values to remove", "You haven't given us any values to work with!", false, false);
+                return;
+            }
+
+
+            if (methodCheckedAgainst == _missingValuesDetector && !usingSelection)
             {
                 Common.ShowMessageBox("Sorry, but that's a little hard",
                                       "We can't remove values that are already removed! Try another option", false,
@@ -1776,8 +1834,27 @@ namespace IndiaTango.ViewModels
         private void SpecifyValue(IEnumerable<ErroneousValue> values, IDetectionMethod methodCheckedAgainst)
         {
             values = values.ToList();
+
+            if (Selection != null && Common.Confirm("Should we use the values you've selected?", "Should we use the all the values in the range you've selected instead of those selected from the list of detected values"))
+            {
+                var list = new List<ErroneousValue>();
+                foreach (var sensor in _sensorsToCheckMethodsAgainst)
+                {
+                    list.AddRange(sensor.CurrentState.Values.Where(
+                        x =>
+                        x.Key >= Selection.LowerX && x.Key <= Selection.UpperX && x.Value >= Selection.LowerY &&
+                        x.Value <= Selection.UpperY).Select(x => new ErroneousValue(x.Key, sensor)));
+                }
+                values = list;
+            }
+
+
             if (values.Count() < 0)
+            {
+                Common.ShowMessageBox("No values to set value to", "You haven't given us any values to work with!", false, false);
                 return;
+            }
+
 
             var sensorList = values.Select(x => x.Owner).Distinct().ToList();
 
