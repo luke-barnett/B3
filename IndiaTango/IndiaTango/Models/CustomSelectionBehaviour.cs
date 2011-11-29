@@ -12,7 +12,8 @@ namespace IndiaTango.Models
         private bool _leftMouseDown;
         private Point _firstPosition;
 
-        public CustomSelectionBehaviour() : base("Selection Behaviour")
+        public CustomSelectionBehaviour()
+            : base("Selection Behaviour")
         {
         }
 
@@ -24,7 +25,7 @@ namespace IndiaTango.Models
 
         public override void DeInit()
         {
-            if(BehaviourContainer != null && BehaviourContainer.Children.Contains(_selectionRectangle))
+            if (BehaviourContainer != null && BehaviourContainer.Children.Contains(_selectionRectangle))
                 BehaviourContainer.Children.Remove(_selectionRectangle);
         }
 
@@ -44,25 +45,25 @@ namespace IndiaTango.Models
 
         public override void MouseLeftButtonDown(Point position)
         {
-            if (BehaviourContainer.CaptureMouse())
+            if (Chart.XAxis.ActualRange == null || Chart.YAxis.ActualRange == null || !BehaviourContainer.CaptureMouse())
+                return;
+
+            _leftMouseDown = true;
+            _firstPosition = position;
+
+            //Set the up the zoom rectangle
+            _selectionRectangle.SetValue(Canvas.LeftProperty, position.X);
+            _selectionRectangle.SetValue(Canvas.TopProperty, position.Y);
+            _selectionRectangle.Width = 0;
+            _selectionRectangle.Height = 0;
+            if (_selectionRectangle.Border != null)
             {
-                _leftMouseDown = true;
-                _firstPosition = position;
-
-                //Set the up the zoom rectangle
-                _selectionRectangle.SetValue(Canvas.LeftProperty, position.X);
-                _selectionRectangle.SetValue(Canvas.TopProperty, position.Y);
-                _selectionRectangle.Width = 0;
-                _selectionRectangle.Height = 0;
-                if (_selectionRectangle.Border != null)
-                {
-                    _selectionRectangle.Border.Background = _selectionRectangle.Background;
-                    _selectionRectangle.Border.BorderBrush = _selectionRectangle.Foreground;
-                }
-
-                //Make it visible
-                _selectionRectangle.Visibility = Visibility.Visible;
+                _selectionRectangle.Border.Background = _selectionRectangle.Background;
+                _selectionRectangle.Border.BorderBrush = _selectionRectangle.Foreground;
             }
+
+            //Make it visible
+            _selectionRectangle.Visibility = Visibility.Visible;
         }
 
         public override void MouseMove(Point position)
@@ -85,20 +86,13 @@ namespace IndiaTango.Models
 
             BehaviourContainer.ReleaseMouseCapture();
 
-            if(Math.Abs(position.X - _firstPosition.X) < 2)
+            if (Math.Abs(position.X - _firstPosition.X) < 2)
             {
                 _selectionRectangle.Width = 0;
                 _selectionRectangle.Height = 0;
             }
 
-            var firstPoint = FindClosestPoint(_firstPosition);
-            var secondPoint = FindClosestPoint(position);
-
-            //As long as they aren't the same point request a zoom
-            if (firstPoint != secondPoint && firstPoint != null && secondPoint != null)
-            {
-                MakeSelection(firstPoint, secondPoint);
-            }
+            MakeSelection(_firstPosition, position);
         }
 
         public override void MouseLeftButtonDoubleClick(Point position)
@@ -135,7 +129,7 @@ namespace IndiaTango.Models
                 _selectionRectangle.SetValue(Canvas.LeftProperty, position.X);
             }
 
-            if(position.Y > _firstPosition.Y)
+            if (position.Y > _firstPosition.Y)
             {
                 _selectionRectangle.Height = position.Y - _firstPosition.Y;
             }
@@ -146,41 +140,49 @@ namespace IndiaTango.Models
             }
         }
 
-        private IDataPoint FindClosestPoint(Point position)
+        private void MakeSelection(Point firstPoint, Point secondPoint)
         {
-            //If we have nothing to count from then we can't do anything
-            if (Chart.Series.Count == 0)
-                return null;
+            var x1 = (DateTime)Chart.XAxis.GetRenderPositionAsDataValueWithoutZoom(firstPoint.X);
+            var x2 = (DateTime)Chart.XAxis.GetRenderPositionAsDataValueWithoutZoom(secondPoint.X);
+            var y1 = (Double)Chart.YAxis.GetRenderPositionAsDataValueWithoutZoom(firstPoint.Y);
+            var y2 = (Double)Chart.YAxis.GetRenderPositionAsDataValueWithoutZoom(secondPoint.Y);
 
-            IDataPoint closestX = null;
-            foreach (IDataPoint point in Chart.Series[0].DataSeries)
-            {
-                if (closestX == null)
-                    closestX = point;
-                else if (Math.Abs(Chart.Series[0].GetPointRenderPosition(point).X - position.X) < Math.Abs(Chart.Series[0].GetPointRenderPosition(closestX).X - position.X))
-                    closestX = point;
-            }
-            return closestX;
-        }
-
-        private void MakeSelection(IDataPoint firstPoint, IDataPoint secondPoint)
-        {
-            Debug.Print("A new selection made between {0} and {1}", firstPoint, secondPoint);
             if (SelectionMade != null)
-                SelectionMade(this, new SelectionMadeArgs(firstPoint, secondPoint));
+                SelectionMade(this, new SelectionMadeArgs(x1, x2, (float)y1, (float)y2));
         }
 
     }
 
     public class SelectionMadeArgs : EventArgs
     {
-        public readonly IDataPoint FirstPoint;
-        public readonly IDataPoint SecondPoint;
+        public readonly DateTime UpperX;
+        public readonly DateTime LowerX;
+        public readonly double UpperY;
+        public readonly double LowerY;
 
-        public SelectionMadeArgs(IDataPoint firstPoint, IDataPoint secondPoint)
+        public SelectionMadeArgs(DateTime x1, DateTime x2, float y1, float y2)
         {
-            FirstPoint = firstPoint;
-            SecondPoint = secondPoint;
+            if (x1 > x2)
+            {
+                UpperX = x1;
+                LowerX = x2;
+            }
+            else
+            {
+                UpperX = x2;
+                LowerX = x1;
+            }
+            if (y1 > y2)
+            {
+                UpperY = y1;
+                LowerY = y2;
+            }
+            else
+            {
+                UpperY = y2;
+                LowerY = y1;
+            }
+            Debug.Print("New Selection Made: Date Range {0} - {1} , ValueRange {2} - {3}", LowerX, UpperX, LowerY, UpperY);
         }
     }
 

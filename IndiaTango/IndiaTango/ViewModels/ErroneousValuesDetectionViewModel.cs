@@ -69,8 +69,8 @@ namespace IndiaTango.ViewModels
             _selection.SelectionMade += (o, e) =>
                                            {
                                                _selectionMade = true;
-                                               _startSelectionDate = (DateTime)e.FirstPoint.X;
-                                               _endSelectionDate = (DateTime)e.SecondPoint.X;
+                                               _startSelectionDate = e.LowerX;
+                                               _endSelectionDate = e.UpperX;
                                                ActionButtonsEnabled = true;
                                            };
 
