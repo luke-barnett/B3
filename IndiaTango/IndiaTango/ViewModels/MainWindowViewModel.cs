@@ -1211,6 +1211,10 @@ namespace IndiaTango.ViewModels
 
                                                 if (validFormula)
                                                 {
+                                                    var useSelected = false;
+                                                    if (Selection != null)
+                                                        useSelected = Common.Confirm("Should we use your selection?",
+                                                                                     "Should we use the date range of your selection for to apply the formula on?");
                                                     var skipMissingValues = false;
                                                     var detector = new MissingValuesDetector();
 
@@ -1238,7 +1242,10 @@ namespace IndiaTango.ViewModels
                                                     }
 
                                                     ApplicationCursor = Cursors.Wait;
-                                                    _evaluator.EvaluateFormula(formula, StartTime, EndTime, skipMissingValues);
+                                                    if (useSelected)
+                                                        _evaluator.EvaluateFormula(formula, Selection.LowerX, Selection.UpperX, skipMissingValues);
+                                                    else
+                                                        _evaluator.EvaluateFormula(formula, StartTime, EndTime, skipMissingValues);
 
                                                     ApplicationCursor = Cursors.Arrow;
 
@@ -1247,8 +1254,15 @@ namespace IndiaTango.ViewModels
                                                     Common.ShowMessageBox("Formula applied", "The formula was successfully applied to the selected sensor.",
                                                                           false, false);
                                                     var sensorsUsed = formula.SensorsUsed.Select(x => x.Sensor);
+                                                    foreach (var sensor in sensorsUsed)
+                                                    {
+                                                        Debug.Print("The sensor {0} was used", sensor.Name);
+                                                    }
                                                     foreach (var graphableSensor in GraphableSensors.Where(x => sensorsUsed.Contains(x.Sensor)))
+                                                    {
                                                         graphableSensor.RefreshDataPoints();
+                                                        Debug.Print("The sensor {0} points were updated", graphableSensor.Sensor.Name);
+                                                    }
                                                     UpdateGraph(false);
                                                     UpdateUndoRedo();
                                                 }
@@ -1497,12 +1511,19 @@ namespace IndiaTango.ViewModels
 
             autoApplyButton.Click += (o, e) =>
                                          {
+                                             var useSelected = false;
+                                             if (Selection != null)
+                                                 useSelected = Common.Confirm("Should we use your selection?",
+                                                                              "Should we use the date range of your selection for to apply the formula on?");
                                              var successfulSensors = new List<Sensor>();
                                              foreach (var sensor in _sensorsToCheckMethodsAgainst)
                                              {
                                                  try
                                                  {
-                                                     sensor.AddState(sensor.CurrentState.Calibrate(StartTime, EndTime, calibratedAValue, calibratedBValue, currentAValue, currentBValue));
+                                                     if (useSelected)
+                                                         sensor.AddState(sensor.CurrentState.Calibrate(Selection.LowerX, Selection.UpperX, calibratedAValue, calibratedBValue, currentAValue, currentBValue));
+                                                     else
+                                                         sensor.AddState(sensor.CurrentState.Calibrate(StartTime, EndTime, calibratedAValue, calibratedBValue, currentAValue, currentBValue));
                                                      successfulSensors.Add(sensor);
                                                  }
                                                  catch (Exception ex)
