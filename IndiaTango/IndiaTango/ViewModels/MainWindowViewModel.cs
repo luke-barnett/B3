@@ -2424,6 +2424,12 @@ namespace IndiaTango.ViewModels
             NotifyOfPropertyChange(() => CanEditDates);
         }
 
+        public void ShowLog()
+        {
+            var logWindow = (LogWindowViewModel)_container.GetInstance(typeof(LogWindowViewModel), "LogWindowViewModel");
+            _windowManager.ShowWindow(logWindow);
+        }
+
         #endregion
 
         #region Event Handlers

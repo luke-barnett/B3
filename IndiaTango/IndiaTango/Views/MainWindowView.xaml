@@ -34,13 +34,16 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Menu Grid.Row="0" x:Name="MainMenu" IsMainMenu="True">
-            <MenuItem Header="_File" IsEnabled="{Binding FeaturesEnabled}">
+        <Menu Grid.Row="0" x:Name="MainMenu" IsMainMenu="True" IsEnabled="{Binding FeaturesEnabled}">
+            <MenuItem Header="_File">
                 <MenuItem Header="_Save" cal:Message.Attach="[Event Click] = [Action Save]" />
                 <MenuItem Header="_Import" cal:Message.Attach="[Event Click] = [Action Import]" />
                 <MenuItem Header="E_xport" cal:Message.Attach="[Event Click] = [Action Export]" />
                 <MenuItem Header="_New Site" cal:Message.Attach="[Event Click] = [Action CreateNewSite]" />
                 <MenuItem Header="_Exit" cal:Message.Attach="[Event Click] = [Action Exit]" />
+            </MenuItem>
+            <MenuItem Header="_View">
+                <MenuItem Header="_Log" cal:Message.Attach="[Event Click] = [Action ShowLog]" />
             </MenuItem>
         </Menu>
 
