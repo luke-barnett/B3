@@ -141,8 +141,8 @@
                     <TabControl SelectedIndex="0" BorderThickness="0" Background="Transparent" IsEnabled="{Binding FeaturesEnabled}" ItemsSource="{Binding DetectionTabItems}" cal:Message.Attach="[Event SelectionChanged] = [Action DetectionMethodChanged($eventArgs)]" />
                 </GroupBox>
             </Grid>
-            
-            <GridSplitter Grid.Column="1" ResizeBehavior="PreviousAndNext" VerticalAlignment="Stretch" Width="5" Background="Transparent" />
+
+            <GridSplitter Grid.Column="1" ResizeBehavior="PreviousAndNext" VerticalAlignment="Stretch" Width="1" Background="OrangeRed" Margin="2,15" />
 
             <Grid Grid.Column="2" x:Name="RightSection" Margin="5,5,10,0">
                 <Grid.RowDefinitions>
