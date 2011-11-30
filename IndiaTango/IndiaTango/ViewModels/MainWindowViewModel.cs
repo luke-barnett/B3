@@ -1238,9 +1238,9 @@ namespace IndiaTango.ViewModels
 
                                                     ApplicationCursor = Cursors.Wait;
                                                     if (useSelected)
-                                                        _evaluator.EvaluateFormula(formula, Selection.LowerX, Selection.UpperX, skipMissingValues);
+                                                        _evaluator.EvaluateFormula(formula, Selection.LowerX.Round(TimeSpan.FromMinutes(CurrentDataset.DataInterval)), Selection.UpperX, skipMissingValues);
                                                     else
-                                                        _evaluator.EvaluateFormula(formula, StartTime, EndTime, skipMissingValues);
+                                                        _evaluator.EvaluateFormula(formula, StartTime.Round(TimeSpan.FromMinutes(CurrentDataset.DataInterval)), EndTime, skipMissingValues);
 
                                                     ApplicationCursor = Cursors.Arrow;
 
