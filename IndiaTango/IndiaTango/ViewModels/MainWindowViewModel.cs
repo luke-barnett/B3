@@ -347,8 +347,7 @@ namespace IndiaTango.ViewModels
             {
                 _waitText = value;
                 NotifyOfPropertyChange(() => WaitEventString);
-                if (!_waitText.Contains("Importing from"))
-                    EventLogger.LogInfo(CurrentDataset, "Wait Event String", string.Format("Updated to {0}", _waitText));
+                Debug.Print("Wait Event String set to \"{0}\"", WaitEventString);
             }
         }
 
@@ -2233,7 +2232,7 @@ namespace IndiaTango.ViewModels
         /// </summary>
         public void Export()
         {
-            if(CurrentDataset == null)
+            if (CurrentDataset == null)
             {
                 Common.ShowMessageBox("No site selected", "To export you first need to have selected a site", false,
                                       false);
