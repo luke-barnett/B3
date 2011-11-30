@@ -2233,7 +2233,18 @@ namespace IndiaTango.ViewModels
         /// </summary>
         public void Export()
         {
+            if(CurrentDataset == null)
+            {
+                Common.ShowMessageBox("No site selected", "To export you first need to have selected a site", false,
+                                      false);
+                return;
+            }
 
+            var exportWindow =
+                    _container.GetInstance(typeof(ExportViewModel), "ExportViewModel") as ExportViewModel;
+            exportWindow.Dataset = CurrentDataset;
+
+            _windowManager.ShowDialog(exportWindow);
         }
 
         /// <summary>
