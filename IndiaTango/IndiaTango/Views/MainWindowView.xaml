@@ -58,9 +58,10 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="2*" />
                     <RowDefinition Height="3*" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <GroupBox Grid.Row="0" x:Name="TableSection" Margin="0,0,0,5" Header="Sensors" BorderBrush="OrangeRed">
+                <GroupBox Grid.Row="0" x:Name="TableSection" Header="Sensors" BorderBrush="OrangeRed">
                     <DataGrid x:Name="DataGrid" IsEnabled="{Binding FeaturesEnabled}" ItemsSource="{Binding GraphableSensors}" AlternatingRowBackground="LightGray" AlternationCount="2" AutoGenerateColumns="False" CanUserReorderColumns="True" FrozenColumnCount="3" BorderThickness="0" Background="Transparent" SelectionMode="Single" EnableRowVirtualization="False">
                         <DataGrid.ContextMenu>
                             <ContextMenu x:Name="dataGridContextMenu" IsEnabled="{Binding FeaturesEnabled}">
@@ -76,26 +77,6 @@
                             </ContextMenu>
                         </DataGrid.ContextMenu>
                         <DataGrid.Columns>
-                            <!--<DataGridTemplateColumn Header="Edit">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <CheckBox Content="{Binding This}" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                            <i:Interaction.Triggers>
-                                                <i:EventTrigger EventName="Checked">
-                                                    <cal:ActionMessage MethodName="AddToEditingSensors">
-                                                        <cal:Parameter Value="$eventArgs" />
-                                                    </cal:ActionMessage>
-                                                </i:EventTrigger>
-                                                <i:EventTrigger EventName="Unchecked">
-                                                    <cal:ActionMessage MethodName="RemoveFromEditingSensors">
-                                                        <cal:Parameter Value="$eventArgs" />
-                                                    </cal:ActionMessage>
-                                                </i:EventTrigger>
-                                            </i:Interaction.Triggers>
-                                        </CheckBox>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>-->
                             <DataGridTemplateColumn Header="">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
@@ -136,9 +117,47 @@
                         </DataGrid.Columns>
                     </DataGrid>
                 </GroupBox>
-
-                <GroupBox Grid.Row="1" x:Name="TabSection" Header="Detection Methods" BorderBrush="OrangeRed" Margin="0,0,0,5">
+                <GroupBox Grid.Row="1" x:Name="TabSection" Header="Detection Methods" BorderBrush="OrangeRed" >
                     <TabControl SelectedIndex="0" BorderThickness="0" Background="Transparent" IsEnabled="{Binding FeaturesEnabled}" ItemsSource="{Binding DetectionTabItems}" cal:Message.Attach="[Event SelectionChanged] = [Action DetectionMethodChanged($eventArgs)]" />
+                </GroupBox>
+                <GroupBox Grid.Row="2" x:Name="ActionsSection" Header="Actions" BorderBrush="OrangeRed" Margin="0,0,0,5">
+                    <StackPanel>
+                        <WrapPanel HorizontalAlignment="Center">
+                            <toolkit:SplitButton FontSize="15"  Width="155" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5" IsEnabled="{Binding CanUndo}" cal:Message.Attach="[Event Click] = [Action Undo]">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/B3;component/Images/cancel_32.png" Width="32" Height="32" />
+                                    <TextBlock Text="Undo" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                </StackPanel>
+                            </toolkit:SplitButton>
+                            <toolkit:SplitButton FontSize="15"  Width="155" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5" IsEnabled="{Binding CanRedo}" cal:Message.Attach="[Event Click] = [Action Redo]">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/B3;component/Images/redo_32.png" Width="32" Height="32" />
+                                    <TextBlock Text="Redo" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                </StackPanel>
+                            </toolkit:SplitButton>
+                        </WrapPanel>
+                        <Rectangle Height="3" Margin="0,2" Fill="OrangeRed" Stroke="White" SnapsToDevicePixels="True" />
+                        <WrapPanel Margin="5" IsEnabled="{Binding ActionsEnabled}" HorizontalAlignment="Center">
+                            <Button FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5" VerticalContentAlignment="Center" cal:Message.Attach="[Event Click] = [Action Interpolate]">
+                                <StackPanel>
+                                    <Image Width="64" Height="64" Source="/B3;component/Images/graph_interpolate.png" />
+                                    <TextBlock Text="Interpolate" HorizontalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
+                            <Button FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5" VerticalContentAlignment="Center" cal:Message.Attach="[Event Click] = [Action RemoveValues]">
+                                <StackPanel>
+                                    <Image Width="64" Height="64" Source="/B3;component/Images/remove_point.png" />
+                                    <TextBlock Text="Delete" HorizontalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
+                            <Button FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5" VerticalContentAlignment="Center" cal:Message.Attach="[Event Click] = [Action SpecifyValue]">
+                                <StackPanel>
+                                    <Image Width="64" Height="64" Source="/B3;component/Images/graph_specify.png" />
+                                    <TextBlock Text="Specify Value" HorizontalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
+                        </WrapPanel>
+                    </StackPanel>
                 </GroupBox>
             </Grid>
 

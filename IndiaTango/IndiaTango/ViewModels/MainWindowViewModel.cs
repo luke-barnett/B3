@@ -11,10 +11,8 @@ using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using Caliburn.Micro;
 using IndiaTango.Models;
-using Microsoft.Windows.Controls;
 using Visiblox.Charts;
 using Application = System.Windows.Application;
 using Button = System.Windows.Controls.Button;
@@ -185,6 +183,7 @@ namespace IndiaTango.ViewModels
         private readonly CustomZoomBehaviour _zoomBehaviour;
         private readonly CustomSelectionBehaviour _selectionBehaviour;
         private SelectionMadeArgs _selection;
+        private bool _actionsEnabled;
         #endregion
 
         #region Public Parameters
@@ -230,26 +229,6 @@ namespace IndiaTango.ViewModels
         private bool CurrentDataSetNotNull
         {
             get { return CurrentDataset != null; }
-        }
-
-        private bool CanUndo
-        {
-            get { return _canUndo; }
-            set
-            {
-                _canUndo = value;
-                NotifyOfPropertyChange(() => CanUndo);
-            }
-        }
-
-        private bool CanRedo
-        {
-            get { return _canRedo; }
-            set
-            {
-                _canRedo = value;
-                NotifyOfPropertyChange(() => CanRedo);
-            }
         }
 
         private string[] SiteNamesNoSelectedIndexRefresh
@@ -581,6 +560,36 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        public bool ActionsEnabled
+        {
+            get { return _actionsEnabled; }
+            set
+            {
+                _actionsEnabled = value;
+                NotifyOfPropertyChange(() => ActionsEnabled);
+            }
+        }
+
+        public bool CanUndo
+        {
+            get { return _canUndo; }
+            set
+            {
+                _canUndo = value;
+                NotifyOfPropertyChange(() => CanUndo);
+            }
+        }
+
+        public bool CanRedo
+        {
+            get { return _canRedo; }
+            set
+            {
+                _canRedo = value;
+                NotifyOfPropertyChange(() => CanRedo);
+            }
+        }
+
         #endregion
 
         #region Private Methods
@@ -752,7 +761,6 @@ namespace IndiaTango.ViewModels
             tabItemGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
             tabItemGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
             tabItemGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-            tabItemGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
 
             var title = new TextBlock { Text = method.Name, FontWeight = FontWeights.Bold, FontSize = 16, Margin = new Thickness(3), TextWrapping = TextWrapping.Wrap };
 
@@ -786,164 +794,20 @@ namespace IndiaTango.ViewModels
 
             tabItemGrid.Children.Add(detectionMethodListBox);
 
-            var actions = new GroupBox { Header = "Actions", BorderBrush = Brushes.OrangeRed };
-
-            var actionsStackPanelWrapper = new StackPanel();
-
-            var undoRedoWrap = new WrapPanel { HorizontalAlignment = HorizontalAlignment.Center };
-
-            var undoButton = new SplitButton { FontSize = 15, Width = 155, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(5), IsEnabled = CanUndo };
-            undoButton.Click += (o, e) =>
-                                    {
-                                        Undo();
-                                        UpdateUndoRedo();
-                                    };
-            PropertyChanged += (o, e) =>
-                                   {
-                                       if (e.PropertyName == "CanUndo")
-                                       {
-                                           undoButton.IsEnabled = CanUndo;
-                                       }
-                                   };
-            var undoButtonStackPanel = new StackPanel { Orientation = Orientation.Horizontal };
-
-            undoButtonStackPanel.Children.Add(new Image { Width = 32, Height = 32, Source = new BitmapImage(new Uri("pack://application:,,,/Images/cancel_32.png", UriKind.Absolute)) });
-            undoButtonStackPanel.Children.Add(new TextBlock { Text = "Undo", VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center });
-
-            undoButton.Content = undoButtonStackPanel;
-
-            undoRedoWrap.Children.Add(undoButton);
-
-            var redoButton = new SplitButton { FontSize = 15, Width = 155, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(5), IsEnabled = CanRedo };
-            redoButton.Click += (o, e) =>
-                                    {
-                                        Redo();
-                                        UpdateUndoRedo();
-                                    };
-            PropertyChanged += (o, e) =>
-                                   {
-                                       if (e.PropertyName == "CanRedo")
-                                       {
-                                           redoButton.IsEnabled = CanRedo;
-                                       }
-                                   };
-            var redoButtonStackPanel = new StackPanel { Orientation = Orientation.Horizontal };
-
-            redoButtonStackPanel.Children.Add(new Image { Width = 32, Height = 32, Source = new BitmapImage(new Uri("pack://application:,,,/Images/redo_32.png", UriKind.Absolute)) });
-            redoButtonStackPanel.Children.Add(new TextBlock { Text = "Redo", VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center });
-
-            redoButton.Content = redoButtonStackPanel;
-
-            undoRedoWrap.Children.Add(redoButton);
-
-            actionsStackPanelWrapper.Children.Add(undoRedoWrap);
-
-            actionsStackPanelWrapper.Children.Add(new Rectangle { Height = 3, Margin = new Thickness(0, 10, 0, 10), Fill = Brushes.OrangeRed, Stroke = Brushes.White, SnapsToDevicePixels = true });
-
-            var dataEditingWrapper = new WrapPanel { Margin = new Thickness(5), IsEnabled = false, HorizontalAlignment = HorizontalAlignment.Center };
-
-            var interpolateButton = new Button
-                                        {
-                                            FontSize = 15,
-                                            Width = 100,
-                                            Height = 100,
-                                            VerticalAlignment = VerticalAlignment.Center,
-                                            HorizontalAlignment = HorizontalAlignment.Right,
-                                            Margin = new Thickness(5),
-                                            VerticalContentAlignment = VerticalAlignment.Bottom
-                                        };
-
-            interpolateButton.Click += (o, e) => Interpolate(listBox.SelectedItems.Cast<ErroneousValue>(), method);
-
-            var interpolateButtonStackPanel = new StackPanel();
-
-            interpolateButtonStackPanel.Children.Add(new Image { Width = 64, Height = 64, Source = new BitmapImage(new Uri("pack://application:,,,/Images/graph_interpolate.png", UriKind.Absolute)) });
-            interpolateButtonStackPanel.Children.Add(new TextBlock
-                                                         {
-                                                             Text = "Interpolate",
-                                                             HorizontalAlignment = HorizontalAlignment.Center
-                                                         });
-
-
-
-            interpolateButton.Content = interpolateButtonStackPanel;
-
-            dataEditingWrapper.Children.Add(interpolateButton);
-
-            var deleteButton = new Button
-            {
-                FontSize = 15,
-                Width = 100,
-                Height = 100,
-                VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Right,
-                Margin = new Thickness(5),
-                VerticalContentAlignment = VerticalAlignment.Bottom
-            };
-
-            var deleteButtonStackPanel = new StackPanel();
-
-            deleteButtonStackPanel.Children.Add(new Image { Width = 64, Height = 64, Source = new BitmapImage(new Uri("pack://application:,,,/Images/remove_point.png", UriKind.Absolute)) });
-            deleteButtonStackPanel.Children.Add(new TextBlock
-            {
-                Text = "Delete",
-                HorizontalAlignment = HorizontalAlignment.Center
-            });
-
-            deleteButton.Content = deleteButtonStackPanel;
-
-            deleteButton.Click += (o, e) => RemoveValues(listBox.SelectedItems.Cast<ErroneousValue>(), method);
-
-            dataEditingWrapper.Children.Add(deleteButton);
-
-            var specifyButton = new Button
-            {
-                FontSize = 15,
-                Width = 100,
-                Height = 100,
-                VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Right,
-                Margin = new Thickness(5),
-                VerticalContentAlignment = VerticalAlignment.Bottom
-            };
-
-            var specifyButtonStackPanel = new StackPanel();
-
-            specifyButtonStackPanel.Children.Add(new Image { Width = 64, Height = 64, Source = new BitmapImage(new Uri("pack://application:,,,/Images/graph_specify.png", UriKind.Absolute)) });
-            specifyButtonStackPanel.Children.Add(new TextBlock
-            {
-                Text = "Specify Value",
-                HorizontalAlignment = HorizontalAlignment.Center
-            });
-
-            specifyButton.Content = specifyButtonStackPanel;
-
-            specifyButton.Click += (o, e) => SpecifyValue(listBox.SelectedItems.Cast<ErroneousValue>(), method);
-
-            dataEditingWrapper.Children.Add(specifyButton);
-
-            actionsStackPanelWrapper.Children.Add(dataEditingWrapper);
-
-            actions.Content = actionsStackPanelWrapper;
-
             listBox.SelectionChanged += (o, e) =>
                                             {
                                                 var box = o as ListBox;
                                                 if (box != null)
-                                                    dataEditingWrapper.IsEnabled = Selection != null || box.SelectedItems.Count > 0;
+                                                    ActionsEnabled = Selection != null || box.SelectedItems.Count > 0;
                                                 else
-                                                    dataEditingWrapper.IsEnabled = Selection != null;
+                                                    ActionsEnabled = Selection != null;
                                             };
 
             PropertyChanged += (o, e) =>
                                    {
                                        if (e.PropertyName == "Selection")
-                                           dataEditingWrapper.IsEnabled = Selection != null;
+                                           ActionsEnabled = Selection != null;
                                    };
-
-            Grid.SetRow(actions, 3);
-
-            tabItemGrid.Children.Add(actions);
 
             tabItem.Content = tabItemGrid;
             return tabItem;
@@ -956,82 +820,17 @@ namespace IndiaTango.ViewModels
             var tabItemGrid = new Grid();
             tabItem.Content = tabItemGrid;
 
-            tabItemGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) }); //Undo-Redo
             tabItemGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) }); //Formula area
 
-            #region Undo Redo Building
-
-            var undoRedoStackPanel = new StackPanel { Orientation = Orientation.Horizontal };
-            Grid.SetRow(undoRedoStackPanel, 0);
-            tabItemGrid.Children.Add(undoRedoStackPanel);
-
-            var undoButton = new SplitButton { FontSize = 15, Width = 155, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(5), IsEnabled = CanUndo };
-            undoButton.Click += (o, e) =>
-                                    {
-                                        Undo();
-                                        UpdateUndoRedo();
-                                    };
-            PropertyChanged += (o, e) =>
-                                   {
-                                       if (e.PropertyName == "CanUndo")
-                                       {
-                                           undoButton.IsEnabled = CanUndo;
-                                       }
-                                   };
-            undoRedoStackPanel.Children.Add(undoButton);
-
-            var undoButtonStackPanel = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center };
-
-            undoButtonStackPanel.Children.Add(new Image { Width = 32, Height = 32, Source = new BitmapImage(new Uri("pack://application:,,,/Images/cancel_32.png", UriKind.Absolute)) });
-            undoButtonStackPanel.Children.Add(new TextBlock { Text = "Undo", VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center });
-
-            undoButton.Content = undoButtonStackPanel;
-
-            var redoButton = new SplitButton { FontSize = 15, Width = 155, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(5), IsEnabled = CanRedo };
-            redoButton.Click += (o, e) =>
-                                    {
-                                        Redo();
-                                        UpdateUndoRedo();
-                                    };
-            PropertyChanged += (o, e) =>
-                                   {
-                                       if (e.PropertyName == "CanRedo")
-                                       {
-                                           redoButton.IsEnabled = CanRedo;
-                                       }
-                                   };
-            undoRedoStackPanel.Children.Add(redoButton);
-
-            var redoButtonStackPanel = new StackPanel { Orientation = Orientation.Horizontal };
-
-            redoButtonStackPanel.Children.Add(new Image { Width = 32, Height = 32, Source = new BitmapImage(new Uri("pack://application:,,,/Images/redo_32.png", UriKind.Absolute)) });
-            redoButtonStackPanel.Children.Add(new TextBlock { Text = "Redo", VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center });
-
-            redoButton.Content = redoButtonStackPanel;
-
-            #endregion
-
             var contentGrid = new Grid();
-            Grid.SetRow(contentGrid, 1);
+            Grid.SetRow(contentGrid, 0);
             tabItemGrid.Children.Add(contentGrid);
 
             contentGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
-            contentGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
             contentGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
-            var seperator = new Rectangle
-                                {
-                                    Height = 3,
-                                    Margin = new Thickness(5),
-                                    Fill = Brushes.OrangeRed,
-                                    SnapsToDevicePixels = true,
-                                    Stroke = Brushes.White
-                                };
-            Grid.SetRow(seperator, 0);
-            contentGrid.Children.Add(seperator);
-
             var calibrationMethodStackPanel = new StackPanel { Margin = new Thickness(5), Orientation = Orientation.Horizontal };
-            Grid.SetRow(calibrationMethodStackPanel, 1);
+            Grid.SetRow(calibrationMethodStackPanel, 0);
             contentGrid.Children.Add(calibrationMethodStackPanel);
             calibrationMethodStackPanel.Children.Add(new TextBlock
                                                          {
@@ -1063,7 +862,7 @@ namespace IndiaTango.ViewModels
                                                          {
                                                              Content = "Drift Adjustment"
                                                          });
-            Grid.SetRow(manualAutoTabControl, 2);
+            Grid.SetRow(manualAutoTabControl, 1);
             contentGrid.Children.Add(manualAutoTabControl);
 
             #region Manual Tab
@@ -1515,10 +1314,17 @@ namespace IndiaTango.ViewModels
                                              {
                                                  try
                                                  {
-                                                     if (useSelected)
-                                                         sensor.AddState(sensor.CurrentState.Calibrate(Selection.LowerX, Selection.UpperX, calibratedAValue, calibratedBValue, currentAValue, currentBValue));
-                                                     else
-                                                         sensor.AddState(sensor.CurrentState.Calibrate(StartTime, EndTime, calibratedAValue, calibratedBValue, currentAValue, currentBValue));
+                                                     sensor.AddState(useSelected
+                                                                         ? sensor.CurrentState.Calibrate(
+                                                                             Selection.LowerX, Selection.UpperX,
+                                                                             calibratedAValue, calibratedBValue,
+                                                                             currentAValue, currentBValue)
+                                                                         : sensor.CurrentState.Calibrate(StartTime,
+                                                                                                         EndTime,
+                                                                                                         calibratedAValue,
+                                                                                                         calibratedBValue,
+                                                                                                         currentAValue,
+                                                                                                         currentBValue));
                                                      successfulSensors.Add(sensor);
                                                  }
                                                  catch (Exception ex)
@@ -1962,82 +1768,6 @@ namespace IndiaTango.ViewModels
             CanRedo = Sensors.FirstOrDefault(x => x.RedoStates.Count > 0) != null;
         }
 
-        private void Undo()
-        {
-            var orderedSensors = Sensors.OrderBy(x =>
-                                                     {
-                                                         var state = x.UndoStates.DefaultIfEmpty(new SensorState(x, DateTime.MaxValue)).FirstOrDefault();
-                                                         return state != null ? state.EditTimestamp : new DateTime();
-                                                     });
-
-            var firstSensor = orderedSensors.FirstOrDefault();
-            if (firstSensor == null) return;
-
-            var sensorState = firstSensor.UndoStates.FirstOrDefault();
-            if (sensorState == null) return;
-
-            var timestamp = sensorState.EditTimestamp;
-            var sensorsToUndo = orderedSensors.TakeWhile(x =>
-                                                             {
-                                                                 var firstOrDefault = x.UndoStates.FirstOrDefault();
-                                                                 //TODO: Not the best
-                                                                 return firstOrDefault != null && firstOrDefault.EditTimestamp - timestamp < new TimeSpan(0, 0, 2);
-                                                             }).ToList();
-
-            foreach (var sensor in sensorsToUndo)
-            {
-                sensor.Undo();
-            }
-            var message = sensorsToUndo.Aggregate("Sucessfully stepped back the following sensors: \n\r\n\r", (current, sensorVariable) =>
-                                              current + string.Format("{0}\n\r", sensorVariable.Name));
-
-            foreach (var graphableSensor in GraphableSensors.Where(x => sensorsToUndo.Contains(x.Sensor)))
-                graphableSensor.RefreshDataPoints();
-            SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
-            Common.ShowMessageBox("Undo suceeded", message, false, false);
-        }
-
-        private void Redo()
-        {
-            var orderedSensors = Sensors.OrderBy(x =>
-                                                     {
-                                                         var state =
-                                                             x.RedoStates.DefaultIfEmpty(new SensorState(x,
-                                                                                                         DateTime.
-                                                                                                             MaxValue)).
-                                                                 FirstOrDefault();
-                                                         return state != null ? state.EditTimestamp : new DateTime();
-                                                     });
-
-            var firstSensor = orderedSensors.FirstOrDefault();
-            if (firstSensor == null) return;
-
-            var sensorState = firstSensor.RedoStates.FirstOrDefault();
-            if (sensorState == null) return;
-
-            var timestamp = sensorState.EditTimestamp;
-            var sensorsToRedo = orderedSensors.TakeWhile(x =>
-                                                             {
-                                                                 var firstOrDefault = x.RedoStates.FirstOrDefault();
-                                                                 //TODO: Not the best
-                                                                 return firstOrDefault != null &&
-                                                                        firstOrDefault.EditTimestamp - timestamp <
-                                                                        new TimeSpan(0, 0, 2);
-                                                             }).ToList();
-
-            foreach (var sensor in sensorsToRedo)
-            {
-                sensor.Redo();
-            }
-            var message = sensorsToRedo.Aggregate("Sucessfully stepped forward the following sensors: \n\r\n\r", (current, sensorVariable) =>
-                                              current + string.Format("{0}\n\r", sensorVariable.Name));
-
-            foreach (var graphableSensor in GraphableSensors.Where(x => sensorsToRedo.Contains(x.Sensor)))
-                graphableSensor.RefreshDataPoints();
-            SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
-            Common.ShowMessageBox("Redo suceeded", message, false, false);
-        }
-
         #endregion
 
         #region Public Methods
@@ -2237,6 +1967,8 @@ namespace IndiaTango.ViewModels
 
             var exportWindow =
                     _container.GetInstance(typeof(ExportViewModel), "ExportViewModel") as ExportViewModel;
+            if (exportWindow == null)
+                return;
             exportWindow.Dataset = CurrentDataset;
 
             _windowManager.ShowDialog(exportWindow);
@@ -2423,6 +2155,109 @@ namespace IndiaTango.ViewModels
         {
             var logWindow = (LogWindowViewModel)_container.GetInstance(typeof(LogWindowViewModel), "LogWindowViewModel");
             _windowManager.ShowWindow(logWindow);
+        }
+
+        public void Undo()
+        {
+            var orderedSensors = Sensors.OrderBy(x =>
+            {
+                var state = x.UndoStates.DefaultIfEmpty(new SensorState(x, DateTime.MaxValue)).FirstOrDefault();
+                return state != null ? state.EditTimestamp : new DateTime();
+            });
+
+            var firstSensor = orderedSensors.FirstOrDefault();
+            if (firstSensor == null) return;
+
+            var sensorState = firstSensor.UndoStates.FirstOrDefault();
+            if (sensorState == null) return;
+
+            var timestamp = sensorState.EditTimestamp;
+            var sensorsToUndo = orderedSensors.TakeWhile(x =>
+            {
+                var firstOrDefault = x.UndoStates.FirstOrDefault();
+                //TODO: Not the best
+                return firstOrDefault != null && firstOrDefault.EditTimestamp - timestamp < new TimeSpan(0, 0, 2);
+            }).ToList();
+
+            foreach (var sensor in sensorsToUndo)
+            {
+                sensor.Undo();
+            }
+            var message = sensorsToUndo.Aggregate("Sucessfully stepped back the following sensors: \n\r\n\r", (current, sensorVariable) =>
+                                              current + string.Format("{0}\n\r", sensorVariable.Name));
+
+            foreach (var graphableSensor in GraphableSensors.Where(x => sensorsToUndo.Contains(x.Sensor)))
+                graphableSensor.RefreshDataPoints();
+            SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
+            Common.ShowMessageBox("Undo suceeded", message, false, false);
+        }
+
+        public void Redo()
+        {
+            var orderedSensors = Sensors.OrderBy(x =>
+            {
+                var state =
+                    x.RedoStates.DefaultIfEmpty(new SensorState(x,
+                                                                DateTime.
+                                                                    MaxValue)).
+                        FirstOrDefault();
+                return state != null ? state.EditTimestamp : new DateTime();
+            });
+
+            var firstSensor = orderedSensors.FirstOrDefault();
+            if (firstSensor == null) return;
+
+            var sensorState = firstSensor.RedoStates.FirstOrDefault();
+            if (sensorState == null) return;
+
+            var timestamp = sensorState.EditTimestamp;
+            var sensorsToRedo = orderedSensors.TakeWhile(x =>
+            {
+                var firstOrDefault = x.RedoStates.FirstOrDefault();
+                //TODO: Not the best
+                return firstOrDefault != null &&
+                       firstOrDefault.EditTimestamp - timestamp <
+                       new TimeSpan(0, 0, 2);
+            }).ToList();
+
+            foreach (var sensor in sensorsToRedo)
+            {
+                sensor.Redo();
+            }
+            var message = sensorsToRedo.Aggregate("Sucessfully stepped forward the following sensors: \n\r\n\r", (current, sensorVariable) =>
+                                              current + string.Format("{0}\n\r", sensorVariable.Name));
+
+            foreach (var graphableSensor in GraphableSensors.Where(x => sensorsToRedo.Contains(x.Sensor)))
+                graphableSensor.RefreshDataPoints();
+            SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
+            Common.ShowMessageBox("Redo suceeded", message, false, false);
+        }
+
+        public void Interpolate()
+        {
+            var detectionMethod = _detectionMethods.FirstOrDefault(x => x.IsEnabled);
+            if (detectionMethod == null)
+                return;
+
+            Interpolate(detectionMethod.ListBox.SelectedItems.Cast<ErroneousValue>(), detectionMethod);
+        }
+
+        public void RemoveValues()
+        {
+            var detectionMethod = _detectionMethods.FirstOrDefault(x => x.IsEnabled);
+            if (detectionMethod == null)
+                return;
+
+            RemoveValues(detectionMethod.ListBox.SelectedItems.Cast<ErroneousValue>(), detectionMethod);
+        }
+
+        public void SpecifyValue()
+        {
+            var detectionMethod = _detectionMethods.FirstOrDefault(x => x.IsEnabled);
+            if (detectionMethod == null)
+                return;
+
+            SpecifyValue(detectionMethod.ListBox.SelectedItems.Cast<ErroneousValue>(), detectionMethod);
         }
 
         #endregion
