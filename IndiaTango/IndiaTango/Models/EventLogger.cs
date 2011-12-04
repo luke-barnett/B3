@@ -11,10 +11,12 @@ namespace IndiaTango.Models
     public class EventLoggedArgs : EventArgs
     {
         public readonly string EventLog;
+        public readonly string Filename;
 
-        public EventLoggedArgs(string eventLog)
+        public EventLoggedArgs(string eventLog, string filename)
         {
             EventLog = eventLog;
+            Filename = filename;
         }
 
     }
@@ -108,7 +110,7 @@ namespace IndiaTango.Models
 
             WriteLogToFile(logString, destFile);
 
-            OnLogEvent(null, new EventLoggedArgs(logString));
+            OnLogEvent(null, new EventLoggedArgs(logString, destFile));
 
             _logRefNum++;
 
@@ -197,6 +199,40 @@ namespace IndiaTango.Models
 
             _logRefNum = currentRef + 1;
             return q.Aggregate("", (current, s) => current + s);
+        }
+
+        public static string[] GetLast20FromFile(string file)
+        {
+            var list = new List<string>();
+
+            if (File.Exists(file))
+                using (var sr = new StreamReader(file))
+                {
+                    while (!sr.EndOfStream)
+                        list.Add(sr.ReadLine());
+                }
+
+            return list.SkipWhile((x, index) => index < list.Count - 20).ToArray();
+        }
+
+        public static string[] GetLogFiles()
+        {
+            var list = new List<string>();
+
+            var basePath = Path.Combine(Common.AppDataPath, "Logs");
+
+            list.Add(LogFilePath);
+
+            var sites = Directory.GetDirectories(basePath);
+
+            foreach (var site in sites)
+            {
+                list.AddRange(Directory.GetFiles(site));
+                if (Directory.Exists(Path.Combine(site, "SensorLogs")))
+                    list.AddRange(Directory.GetFiles(Path.Combine(site, "SensorLogs")));
+            }
+
+            return list.ToArray();
         }
         #endregion
     }

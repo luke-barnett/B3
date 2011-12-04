@@ -1,18 +1,33 @@
 ﻿<Window x:Class="IndiaTango.Views.LogWindowView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="{Binding Title}" Height="300" Width="300">
+        Title="{Binding Title}" Icon="{Binding Icon}" Height="300" Width="300">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <ComboBox Grid.Row="0" Margin="5" Name="comboBox1" SelectedValue="{Binding Mode}">
-            <ComboBoxItem Content="All" IsSelected="True" />
-            <ComboBoxItem Content="INFO" />
-            <ComboBoxItem Content="WARNING" />
-            <ComboBoxItem Content="ERROR" />
-        </ComboBox>
-        <TextBox Grid.Row="1" Margin="5" Name="textBoxLog" Text="{Binding LogText}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" DataContext="{Binding}" IsReadOnly="True" TextChanged="textBoxLog_TextChanged" />
+        <ComboBox Grid.Row="0" Margin="5" SelectedIndex="{Binding SelectedLogFileIndex, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding LogFiles}" />
+        <ComboBox Grid.Row="1" Margin="5" SelectedIndex="{Binding SelectedModeIndex, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding Modes}" />
+
+        <ListBox Grid.Row="2" Margin="5" ItemsSource="{Binding Logs}" SelectionMode="Single">
+            <ListBox.Resources>
+                <Style TargetType="ListBoxItem">
+                    <Style.Resources>
+                        <!-- SelectedItem with focus -->
+                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}"
+                       Color="Transparent" />
+                        <!-- SelectedItem without focus -->
+                        <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}"
+                       Color="Transparent" />
+                        <!-- SelectedItem text foreground -->
+                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}"
+                       Color="Black" />
+                    </Style.Resources>
+                    <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                </Style>
+            </ListBox.Resources>
+        </ListBox>
     </Grid>
 </Window>

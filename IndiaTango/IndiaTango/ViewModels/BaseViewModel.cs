@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using IndiaTango.Models;
 using Screen = Caliburn.Micro.Screen;
 

@@ -1,71 +1,96 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Windows.Controls;
-using Caliburn.Micro;
 using IndiaTango.Models;
 
 namespace IndiaTango.ViewModels
 {
     class LogWindowViewModel : BaseViewModel
     {
-        private readonly SimpleContainer _container;
-        private readonly IWindowManager _windowManager;
-        private string _logText;
-        private ComboBoxItem _mode;
+        private int _selectedModeIndex;
+        private string[] _logs;
+        private string[] _logFiles;
+        private int _selectedLogFileIndex;
 
-        public LogWindowViewModel(IWindowManager windowManager, SimpleContainer container)
+        public LogWindowViewModel()
         {
-            _windowManager = windowManager;
-            _container = container;
             EventLogger.Changed += EventLogged;
-            _logText = EventLogger.GetLast20();
-            _mode = null;
-        }
-
-        public string LogText
-        {
-            get
-            {
-                var returnString = "";
-                if (_mode != null && (string) _mode.Content != "All" && _logText != "")
-                {
-                    var lines = _logText.Split('\n');
-                    foreach (var line in lines)
-                    {
-                        if (line == "") continue;
-                        var parts = line.Split(' ');
-                        if (parts[5] == (string) _mode.Content)
-                            returnString += line + "\n";
-                    }
-                    return returnString;
-                }
-                return _logText;
-            }
-            set
-            {
-                _logText = value + "\n";
-                NotifyOfPropertyChange(() => LogText);
-            }
+            LogFiles = EventLogger.GetLogFiles();
+            SelectedLogFileIndex = 0;
+            SelectedModeIndex = 0;
         }
 
         public void EventLogged(object sender, EventLoggedArgs e)
         {
-            LogText = _logText + e.EventLog;
+            if (!_logFiles.Contains(e.Filename))
+            {
+                var currentlySelected = _logFiles[_selectedLogFileIndex];
+                LogFiles = EventLogger.GetLogFiles();
+                SelectedLogFileIndex = Array.IndexOf(LogFiles, currentlySelected);
+            }
+
+            if (e.Filename != LogFiles[SelectedLogFileIndex]) return;
+
+            var temp = new string[Logs.Length + 1];
+            for (var i = 0; i < Logs.Length; i++)
+            {
+                temp[i] = Logs[i];
+            }
+            temp[Logs.Length] = e.EventLog;
+            Logs = temp;
         }
 
-        public ComboBoxItem Mode
+        public string[] Modes
         {
-            get { return _mode; }
-            set { _mode = value;
-                NotifyOfPropertyChange(() => Mode); NotifyOfPropertyChange(() => LogText); }
+            get
+            {
+                return new[] { "ALL", "INFO", "WARNING", "ERROR" };
+            }
+        }
+
+        public int SelectedModeIndex
+        {
+            get { return _selectedModeIndex; }
+            set
+            {
+                _selectedModeIndex = value;
+                NotifyOfPropertyChange(() => Logs);
+            }
         }
 
         public string Title
         {
             get { return "Log"; }
+        }
+
+        public string[] LogFiles
+        {
+            get { return _logFiles; }
+            set
+            {
+                _logFiles = value;
+                NotifyOfPropertyChange(() => LogFiles);
+            }
+        }
+
+        public int SelectedLogFileIndex
+        {
+            get { return _selectedLogFileIndex; }
+            set
+            {
+                _selectedLogFileIndex = value;
+                NotifyOfPropertyChange(() => SelectedLogFileIndex);
+                Logs = EventLogger.GetLast20FromFile(LogFiles[SelectedLogFileIndex]);
+            }
+        }
+
+        public string[] Logs
+        {
+            get { return _logs.Where(x => SelectedModeIndex == 0 || x.Contains(Modes[SelectedModeIndex])).ToArray(); }
+            set
+            {
+                _logs = value;
+                NotifyOfPropertyChange(() => Logs);
+            }
         }
     }
 }
