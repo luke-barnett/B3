@@ -121,6 +121,12 @@ namespace IndiaTango.ViewModels
 
             #endregion
 
+            PropertyChanged += (o, e) =>
+                                   {
+                                       if (e.PropertyName == "Selection")
+                                           ActionsEnabled = Selection != null;
+                                   };
+
             BuildDetectionMethodTabItems();
         }
 
@@ -802,12 +808,6 @@ namespace IndiaTango.ViewModels
                                                 else
                                                     ActionsEnabled = Selection != null;
                                             };
-
-            PropertyChanged += (o, e) =>
-                                   {
-                                       if (e.PropertyName == "Selection")
-                                           ActionsEnabled = Selection != null;
-                                   };
 
             tabItem.Content = tabItemGrid;
             return tabItem;
