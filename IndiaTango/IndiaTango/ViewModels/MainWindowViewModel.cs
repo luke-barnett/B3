@@ -203,6 +203,7 @@ namespace IndiaTango.ViewModels
         private readonly CustomSelectionBehaviour _selectionBehaviour;
         private SelectionMadeArgs _selection;
         private bool _actionsEnabled;
+        private bool _detectionMethodsEnabled;
         #endregion
 
         #region Public Parameters
@@ -1421,6 +1422,9 @@ namespace IndiaTango.ViewModels
 
         private void CheckTheseMethods(IEnumerable<IDetectionMethod> methodsToCheck)
         {
+            if (!_detectionMethodsEnabled)
+                return;
+
             var bw = new BackgroundWorker();
 
             methodsToCheck = methodsToCheck.ToList();
@@ -1483,6 +1487,9 @@ namespace IndiaTango.ViewModels
 
         private void CheckTheseMethodsForThisSensor(IEnumerable<IDetectionMethod> methodsToCheck, Sensor sensor)
         {
+            if(!_detectionMethodsEnabled)
+                return;
+
             var bw = new BackgroundWorker();
 
             bw.DoWork += (o, e) =>
@@ -2261,6 +2268,16 @@ namespace IndiaTango.ViewModels
                 return;
 
             SpecifyValue(detectionMethod.ListBox.SelectedItems.Cast<ErroneousValue>(), detectionMethod);
+        }
+
+        public void EnableDetectionMethods()
+        {
+            _detectionMethodsEnabled = true;
+        }
+
+        public void DisableDetectionMethods()
+        {
+            _detectionMethodsEnabled = false;
         }
 
         #endregion

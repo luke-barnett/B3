@@ -118,7 +118,14 @@
                     </DataGrid>
                 </GroupBox>
                 <GroupBox Grid.Row="1" x:Name="TabSection" Header="Detection Methods" BorderBrush="OrangeRed" >
-                    <TabControl SelectedIndex="0" BorderThickness="0" Background="Transparent" IsEnabled="{Binding FeaturesEnabled}" ItemsSource="{Binding DetectionTabItems}" cal:Message.Attach="[Event SelectionChanged] = [Action DetectionMethodChanged($eventArgs)]" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <CheckBox Content="Detection Methods Enabled" Margin="2" cal:Message.Attach="[Event Checked] = [Action EnableDetectionMethods];[Event Unchecked] = [Action DisableDetectionMethods]" />
+                    <TabControl Grid.Row="1" SelectedIndex="0" BorderThickness="0" Background="Transparent" IsEnabled="{Binding FeaturesEnabled}" ItemsSource="{Binding DetectionTabItems}" cal:Message.Attach="[Event SelectionChanged] = [Action DetectionMethodChanged($eventArgs)]" />
+                    </Grid>
                 </GroupBox>
                 <GroupBox Grid.Row="2" x:Name="ActionsSection" Header="Actions" BorderBrush="OrangeRed" Margin="0,0,0,5">
                     <StackPanel>
