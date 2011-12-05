@@ -219,6 +219,8 @@ namespace IndiaTango.ViewModels
                 _currentDataset = value;
                 Debug.WriteLine("Updating for new Dataset");
                 if (Sensors == null)
+                    CurrentDataset.Sensors = new List<Sensor>();
+                if (Sensors == null)
                     return;
                 if (Sensors.FirstOrDefault(x => x.Variable == null) != null)
                 {
