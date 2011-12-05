@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Linq;
 using System.IO;
 using System.Runtime.Serialization;
 
@@ -236,58 +237,20 @@ namespace IndiaTango.Models
         }
         #endregion
 
-        private static int _nextID;
-
         public static int NextID
         {
-            get { return ++_nextID; }
-            set
+            get
             {
-                if ((value - 1) < -1)
-                    throw new ArgumentException("Next ID value must be greater than or equal to 0.");
-
-                _nextID = value - 1;
-            }
-        }
-
-        public static void ExportAll(ObservableCollection<Site> buoys)
-        {
-            EventLogger.LogInfo(null, "IndiaTango.Site.cs", "Site list export started.");
-            var dcs = new DataContractSerializer(typeof(ObservableCollection<Site>));
-            var stream = new FileStream(ExportPath, FileMode.Create);
-            dcs.WriteObject(stream, buoys);
-            stream.Close();
-            EventLogger.LogInfo(null, "IndiaTango.Site.cs", "Site list export complete. File saved to: " + ExportPath);
-        }
-
-        public static ObservableCollection<Site> ImportAll()
-        {
-            EventLogger.LogInfo(null, "IndiaTango.Site.cs", "Site list import started. Loading from: " + ExportPath);
-            var dcs = new DataContractSerializer(typeof(ObservableCollection<Site>));
-
-            if (!File.Exists(ExportPath))
-                return new ObservableCollection<Site>();
-
-            var stream = new FileStream(ExportPath, FileMode.Open);
-            var list = (ObservableCollection<Site>)dcs.ReadObject(stream);
-            stream.Close();
-
-            var contacts = Contact.ImportAll();
-
-            // Get the contact object associated with the operation
-            foreach (Site s in list)
-                foreach (Contact c in contacts)
+                var i = 1;
+                var currentIds = Directory.GetFiles(Common.DatasetSaveLocation).Select(x => x.Substring(x.LastIndexOf('\\') + 1, x.Length - x.LastIndexOf('\\') - 4)).Select(x => x.Substring(0, x.IndexOf(' '))).ToArray();
+                while (true)
                 {
-                    if (s.PrimaryContactID == c.ID)
-                        s.PrimaryContact = c;
-                    if (s.SecondaryContactID == c.ID)
-                        s.SecondaryContact = c;
-                    if (s.UniversityContactID == c.ID)
-                        s.UniversityContact = c;
+                    if (currentIds.Contains(i.ToString()))
+                        i++;
+                    else
+                        return i;
                 }
-
-            EventLogger.LogInfo(null, "IndiaTango.Site.cs", "Site list import complete.");
-            return list;
+            }
         }
 
         public override bool Equals(object obj)

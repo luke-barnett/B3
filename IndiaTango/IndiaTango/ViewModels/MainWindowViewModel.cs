@@ -284,8 +284,8 @@ namespace IndiaTango.ViewModels
                 var siteNamesList = DataSetFiles.Select(x => x.Substring(x.LastIndexOf('\\') + 1, x.Length - x.LastIndexOf('\\') - 4)).ToList();
                 siteNamesList.Insert(0, "Create new site...");
                 var siteNames = siteNamesList.ToArray();
-                if (CurrentDataset != null && siteNames.Contains(CurrentDataset.Site.Name))
-                    ChosenSelectedIndex = Array.IndexOf(siteNames, CurrentDataset.Site.Name);
+                if (CurrentDataset != null && DataSetFiles.Contains(CurrentDataset.SaveLocation))
+                    ChosenSelectedIndex = Array.IndexOf(DataSetFiles, CurrentDataset.SaveLocation) + 1;
                 return siteNames;
             }
         }
@@ -2047,17 +2047,7 @@ namespace IndiaTango.ViewModels
                                          {
                                              ShowProgressArea = false;
                                              EnableFeatures();
-
-                                             var newSitesName = "New Site";
-                                             if (File.Exists(Path.Combine(Common.DatasetSaveLocation, "New Site.b3")))
-                                             {
-                                                 var x = 1;
-                                                 while (File.Exists(Path.Combine(Common.DatasetSaveLocation, string.Format("New Site{0}.b3", x))))
-                                                     x++;
-
-                                                 newSitesName = "New Site" + x;
-                                             }
-                                             var newDataset = new Dataset(new Site(0, newSitesName, "", null, null, null, null));
+                                             var newDataset = new Dataset(new Site(Site.NextID, "New Site", "", null, null, null, null));
                                              ShowSiteInformation(newDataset);
                                              CurrentDataset = newDataset;
                                              NotifyOfPropertyChange(() => SiteNames);
@@ -2079,15 +2069,15 @@ namespace IndiaTango.ViewModels
         /// Update the selected site to the one corresponding to the selected index
         /// </summary>
         public void UpdateSelectedSite()
-        {
-            if (CurrentDataset != null && SiteNamesNoSelectedIndexRefresh[_chosenSelectedIndex] == CurrentDataset.Site.Name)
-                return;
-
+        {            
             if (_chosenSelectedIndex == 0)
             {
                 CreateNewSite();
                 return;
             }
+
+            if (CurrentDataset != null && DataSetFiles[_chosenSelectedIndex - 1] == CurrentDataset.SaveLocation)
+                return;
 
             _sensorsToGraph.Clear();
             _sensorsToCheckMethodsAgainst.Clear();

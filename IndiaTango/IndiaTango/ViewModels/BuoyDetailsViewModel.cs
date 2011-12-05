@@ -22,7 +22,7 @@ namespace IndiaTango.ViewModels
         {
             _windowManager = windowManager;
             _container = container;
-            _allBuoys = Site.ImportAll(); // TODO: Make this a singleton across whole app?
+            //_allBuoys = Site.ImportAll(); // TODO: Make this a singleton across whole app?
         	_allContacts = Contact.ImportAll();
 
 			//YUCK YUCK YUCK. We need to store all the contacts externally, 
@@ -183,7 +183,7 @@ namespace IndiaTango.ViewModels
                 SelectedSite.Name = SiteName;
                 SelectedSite.UniversityContact = UniversityContact;
 
-                Site.ExportAll(_allBuoys);
+                //Site.ExportAll(_allBuoys);
                 this.TryClose();
             }
             catch (Exception e)
@@ -201,7 +201,7 @@ namespace IndiaTango.ViewModels
             {
                 b = new Site(Site.NextID, SiteName, Owner, PrimaryContact, SecondaryContact, UniversityContact, new GPSCoords(Latitude, Longitude));
                 _allBuoys.Add(b);
-                Site.ExportAll(_allBuoys);
+                //Site.ExportAll(_allBuoys);
                 this.TryClose();
             }
             catch (Exception e)
@@ -315,7 +315,7 @@ namespace IndiaTango.ViewModels
                     AllBuoys = allBuoys;
                     SelectedSite = null;
 
-                    Site.ExportAll(AllBuoys);
+                    //Site.ExportAll(AllBuoys);
 
                     Common.ShowMessageBox("Success", "Site successfully removed.", false, false);
                 }

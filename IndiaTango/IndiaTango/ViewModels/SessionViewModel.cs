@@ -60,7 +60,7 @@ namespace IndiaTango.ViewModels
             _windowManager = windowManager;
             _container = container;
             _ds = new Dataset(null);
-            _allSites = Site.ImportAll();
+            //_allSites = Site.ImportAll();
             _allContacts = Contact.ImportAll();
 
             //Hack used to force the damn buttons to update
@@ -897,7 +897,7 @@ namespace IndiaTango.ViewModels
                     AllSites = allSites;
                     SelectedSite = null;
 
-                    Site.ExportAll(AllSites);
+                    //Site.ExportAll(AllSites);
 
                     Common.ShowMessageBox("Site Management", "Site successfully removed.", false, false);
                 }
@@ -928,12 +928,12 @@ namespace IndiaTango.ViewModels
                     Site b = new Site(Site.NextID, SiteName, Owner, PrimaryContact, SecondaryContact, UniversityContact, GPSCoords.Parse(Latitude, Longitude));
                     b.Images = _siteImages.ToList();
                     _allSites.Add(b);
-                    Site.ExportAll(_allSites);
+                    //Site.ExportAll(_allSites);
                     SelectedSite = b;
                     EventLogger.LogInfo(_ds, GetType().ToString(), "Site created. Site name: " + SelectedSite.Name);
                 }
 
-                Site.ExportAll(_allSites);
+                //Site.ExportAll(_allSites);
 
                 CreateEditDeleteVisible = Visibility.Visible;
                 DoneCancelVisible = Visibility.Collapsed;
