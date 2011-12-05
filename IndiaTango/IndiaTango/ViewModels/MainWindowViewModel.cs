@@ -89,7 +89,7 @@ namespace IndiaTango.ViewModels
                                                          {
                                                              sensor.RemoveBounds();
                                                          }
-                                                         CalculateYAxis(false);
+                                                         CalculateYAxis(true);
                                                          CheckTheseMethods(_detectionMethods.Where(x => x.IsEnabled));
                                                          CalculateGraphedEndPoints();
                                                          SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
@@ -122,7 +122,7 @@ namespace IndiaTango.ViewModels
                                                      {
                                                          sensor.RemoveBounds();
                                                      }
-                                                     CalculateYAxis(false);
+                                                     CalculateYAxis(true);
                                                      CheckTheseMethods(_detectionMethods.Where(x => x.IsEnabled));
                                                      CalculateGraphedEndPoints();
                                                      SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
