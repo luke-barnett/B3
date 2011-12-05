@@ -3,20 +3,25 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using ProtoBuf;
 
 namespace IndiaTango.Models
 {
     [Serializable]
-    [DataContract]
+    [ProtoContract]
     public class Dataset
     {
         private Site _site;
         private DateTime _startTimeStamp;
         private DateTime _endTimeStamp;
         private List<Sensor> _sensors;
+        [ProtoMember(6)]
         private int _expectedDataPointCount;
+        [ProtoMember(7)]
         private int _actualDataPointCount;
         private int _dataInterval;
+
+        public Dataset() {} //For Protobuf-net
 
         /// <summary>
         /// Creates a new dataset with a specified start and end timestamp
@@ -50,7 +55,7 @@ namespace IndiaTango.Models
         /// Gets and sets the Site that this dataset came from
         /// </summary>
         ///
-        [DataMember]
+        [ProtoMember(1)]
         public Site Site
         {
             get { return _site; }
@@ -60,7 +65,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Returns the start time stamp for this dataset
         /// </summary>
-        [DataMember]
+        [ProtoMember(2)]
         public DateTime StartTimeStamp
         {
             get { return _startTimeStamp; }
@@ -70,7 +75,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Returns the end time stamp for this dataset
         /// </summary>
-        [DataMember]
+        [ProtoMember(3)]
         public DateTime EndTimeStamp
         {
             get { return _endTimeStamp; }
@@ -80,7 +85,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Returns the list of sensors for this dataset
         /// </summary>
-        [DataMember]
+        [ProtoMember(4)]
         public List<Sensor> Sensors
         {
             get { return _sensors; }
@@ -163,6 +168,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Returns the time interval in minutes the data points are placed at
         /// </summary>
+        [ProtoMember(5)]
         public int DataInterval
         {
             get { return _dataInterval; }
@@ -240,8 +246,12 @@ namespace IndiaTango.Models
         public static Dataset LoadDataSet(string fileName)
         {
             EventLogger.LogInfo(null, "Loading", "Started loading from file: " + fileName);
+            /* .NET BinaryFormatter
             using (var stream = new FileStream(fileName, FileMode.Open))
                 return (Dataset)new BinaryFormatter().Deserialize(stream);
+             * */
+            using (var file = File.OpenRead(fileName))
+                return Serializer.Deserialize<Dataset>(file);
         }
 
         public void SaveToFile()
@@ -249,8 +259,13 @@ namespace IndiaTango.Models
             if (!Directory.Exists(Common.DatasetSaveLocation))
                 Directory.CreateDirectory(Common.DatasetSaveLocation);
 
+            /* .NET BinaryFormatter
             using (var stream = new FileStream(SaveLocation, FileMode.Create))
                 new BinaryFormatter().Serialize(stream, this);
+             * */
+
+            using (var file = File.Create(SaveLocation))
+                Serializer.Serialize(file, this);
         }
     }
 }

@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.Serialization;
+using ProtoBuf;
 
 namespace IndiaTango.Models
 {
@@ -11,7 +10,7 @@ namespace IndiaTango.Models
     /// A class representing a sensor state; that is, the values a sensor held at a given instance in time.
     /// </summary>
     [Serializable]
-    [DataContract]
+    [ProtoContract(SkipConstructor = true)]
     public class SensorState
     {
         private DateTime _editTimestamp;
@@ -20,7 +19,8 @@ namespace IndiaTango.Models
         private Dictionary<DateTime, float> _upperLine;
         private Dictionary<DateTime, float> _lowerLine;
         private Dictionary<DateTime, LinkedList<int>> _changes;
-        private bool _isRaw = false;
+        private bool _isRaw;
+        [ProtoMember(6, AsReference = true)]
         private readonly Sensor _owner;
 
         public SensorState Clone()
@@ -40,6 +40,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Creates a new sensor state with the specified timestamp representing the date it was last edited.
         /// </summary>
+        /// <param name="owner">The sensor that this state belongs to</param>
         /// <param name="editTimestamp">A DateTime object representing the last edit date and time for this sensor state.</param>
         public SensorState(Sensor owner, DateTime editTimestamp)
             : this(owner, editTimestamp, new Dictionary<DateTime, float>(), new Dictionary<DateTime, LinkedList<int>>())
@@ -49,8 +50,10 @@ namespace IndiaTango.Models
         /// <summary>
         /// Creates a new sensor state with the specified timestamp representing the date it was last edited, and a list of values representing data values recorded in this state.
         /// </summary>
+        /// <param name="owner">The sensor that this state belongs to</param>
         /// <param name="editTimestamp">A DateTime object representing the last edit date and time for this sensor state.</param>
         /// <param name="valueList">A list of data values, representing values recorded in this sensor state.</param>
+        /// <param name="changes">The list of changes that have occured for this sensor</param>
         public SensorState(Sensor owner, DateTime editTimestamp, Dictionary<DateTime, float> valueList, Dictionary<DateTime, LinkedList<int>> changes) : this(owner, editTimestamp, valueList, "", false, changes) { }
 
         /// <summary>
@@ -61,10 +64,11 @@ namespace IndiaTango.Models
         /// <param name="valueList">A list of data values, representing values recorded in this sensor state.</param>
         /// <param name="reason">A string indicating the reason for the changes made in this state.</param>
         /// <param name="isRaw">Whether or not this represents the sensors raw data.</param>
+        /// <param name="changes">The list of changes that have occured for this sensor</param>
         public SensorState(Sensor owner, DateTime editTimestamp, Dictionary<DateTime, float> valueList, string reason, bool isRaw, Dictionary<DateTime, LinkedList<int>> changes)
         {
             if (valueList == null)
-                throw new ArgumentNullException("The list of values in this state cannot be null.");
+                throw new ArgumentNullException("valueList");
 
             _reason = reason;
             _editTimestamp = editTimestamp;
@@ -76,14 +80,14 @@ namespace IndiaTango.Models
 
         #endregion
 
-        [DataMember]
+        [ProtoMember(1)]
         public Dictionary<DateTime, LinkedList<int>> Changes
         {
             get { return _changes; }
             set { _changes = value; }
         }
 
-        [DataMember]
+        [ProtoMember(2)]
         public bool IsRaw
         {
             get { return _isRaw; }
@@ -93,7 +97,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the timestamp of the last edit to this sensor state.
         /// </summary>
-        [DataMember]
+        [ProtoMember(3)]
         public DateTime EditTimestamp
         {
             get { return _editTimestamp; }
@@ -103,13 +107,14 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the list of values this sensor state holds.
         /// </summary>
-        [DataMember]
+        [ProtoMember(4,OverwriteList = true)] //TODO: WHY?
         public Dictionary<DateTime, float> Values
         {
             get { return _valueList; }
             set { _valueList = value; }
         }
 
+        [ProtoMember(5)]
         public string Reason
         {
             get { return _reason; }
@@ -123,26 +128,15 @@ namespace IndiaTango.Models
         /// <returns>Whether or not the given object, and this SensorState, are equal.</returns>
         public override bool Equals(object obj) // TODO: test this
         {
-            SensorState s = null;
-
             if (!(obj is SensorState))
                 return false;
 
-            s = obj as SensorState;
+            var s = obj as SensorState;
 
             if (!(s.EditTimestamp == EditTimestamp))
                 return false;
 
-            if (s.Values.Count != Values.Count)
-                return false;
-
-            foreach (var f in _valueList)
-            {
-                if (!s.Values[f.Key].Equals(f.Value))
-                    return false;
-            }
-
-            return true;
+            return s.Values.Count == Values.Count && _valueList.All(f => s.Values[f.Key].Equals(f.Value));
         }
 
         public List<DateTime> GetMissingTimes(int timeGap, DateTime start, DateTime end)
@@ -167,7 +161,7 @@ namespace IndiaTango.Models
             var prev = 0f;
             for (var time = start; time <= end; time = time.AddMinutes(timeGap))
             {
-                var value = 0f;
+                float value;
                 if (!Values.TryGetValue(time, out value)) continue;
                 if (value < lowerLimit || value > upperLimit)
                     outliers.Add(time);
@@ -197,17 +191,17 @@ namespace IndiaTango.Models
                  i < start.AddMinutes((timeGap * (smoothingPeriod / 2)));
                  i = i.AddMinutes(timeGap))
             {
-                var value = 0f;
+                float value;
                 value = (Values.TryGetValue(i, out value) ? value : float.NaN);
                 values.AddLast(value);
             }
             for (var time = start; time <= end; time = time.AddMinutes(timeGap))
             {
                 values.RemoveFirst();
-                var next = 0f;
+                float next;
                 next = (Values.TryGetValue(time.AddMinutes(timeGap * (smoothingPeriod / 2)), out next) ? next : float.NaN);
                 values.AddLast(next);
-                var value = 0f;
+                float value;
                 value = (Values.TryGetValue(time, out value) ? value : float.NaN);
 
                 if (float.IsNaN(value)) continue;
@@ -314,7 +308,6 @@ namespace IndiaTango.Models
             return (y - y2) / Math.Abs(y1 - y2);
         }
 
-
         /// <summary>
         /// Given a timestamp which represents a missing value, interpolates the dataset using the first known point before the given point, and the first known point after the given point in the list of keys.
         /// </summary>
@@ -326,13 +319,13 @@ namespace IndiaTango.Models
             EventLogger.LogInfo(_owner.Owner, GetType().ToString(), "Starting extrapolation process");
 
             if (valuesToInterpolate == null)
-                throw new ArgumentNullException("You must specify a list of keys.");
+                throw new ArgumentNullException("valuesToInterpolate");
 
             if (valuesToInterpolate.Count == 0)
                 throw new ArgumentException("You must specify at least one value to use for extrapolation.");
 
             if (ds == null)
-                throw new ArgumentNullException("You must specify the containing data set for this sensor.");
+                throw new ArgumentNullException("ds");
 
             //First remove values
             var newState = RemoveValues(valuesToInterpolate);
@@ -514,7 +507,6 @@ namespace IndiaTango.Models
             return newState;
         }
 
-        // TODO: test this!
         public override string ToString()
         {
             var title = (Values.Count > 0) ? Values.First().Key + " " + Values.First().Value : "Unknown";

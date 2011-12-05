@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.IO;
 using System.Runtime.Serialization;
+using ProtoBuf;
 
 namespace IndiaTango.Models
 {
     [Serializable]
-    [DataContract]
+    [ProtoContract]
     public class Site
     {
         private int _iD;
@@ -64,7 +64,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Sets and gets the ID of the Site
         /// </summary>
-        [DataMember(Name = "ID")]
+        [ProtoMember(1)]
         public int Id
         {
             get { return _iD; }
@@ -79,7 +79,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Sets and gets the site name of the Site
         /// </summary>
-        [DataMember(Name = "Name")]
+        [ProtoMember(2)]
         public string Name
         {
             get { return _name; }
@@ -94,7 +94,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Sets and gets the owner of the Site
         /// </summary>
-        [DataMember(Name = "Owner")]
+        [ProtoMember(3)]
         public string Owner
         {
             get { return _owner; }
@@ -106,7 +106,7 @@ namespace IndiaTango.Models
             }
         }
 
-        [DataMember]
+        [ProtoMember(4)]
         public int PrimaryContactID
         {
             get
@@ -125,7 +125,7 @@ namespace IndiaTango.Models
             }
         }
 
-        [DataMember]
+        [ProtoMember(5)]
         public int SecondaryContactID
         {
             get
@@ -144,7 +144,7 @@ namespace IndiaTango.Models
             }
         }
 
-        [DataMember]
+        [ProtoMember(6)]
         public int UniversityContactID
         {
             get
@@ -163,7 +163,7 @@ namespace IndiaTango.Models
             }
         }
 
-        [DataMember]
+        [ProtoMember(7)]
         public List<NamedBitmap> Images
         {
             get { return _images; }
@@ -173,6 +173,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Sets and gets the details of the primary contact for this Site
         /// </summary>
+        [ProtoMember(8)]
         public Contact PrimaryContact
         {
             get { return _primaryContact; }
@@ -187,6 +188,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Sets and gets the details of the secondary contact for this Site
         /// </summary>
+        [ProtoMember(9)]
         public Contact SecondaryContact
         {
             get { return _secondaryContact; }
@@ -196,6 +198,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Sets and gets the details of the university contact for this Site
         /// </summary>
+        [ProtoMember(10)]
         public Contact UniversityContact
         {
             get { return _universityContact; }
@@ -205,13 +208,13 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets the list of events for this Site
         /// </summary>
-        [DataMember(Name = "Events")]
+        [ProtoMember(11)]
         public List<Event> Events { get; private set; }
 
         /// <summary>
         /// Sets and gets the GPS location of this Site
         /// </summary>
-        [DataMember(Name = "GPSLocation")]
+        [ProtoMember(12)]
         public GPSCoords GpsLocation
         {
             get { return _gpsLocation; }

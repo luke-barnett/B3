@@ -1,14 +1,15 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
+using ProtoBuf;
 
 namespace IndiaTango.Models
 {
     [Serializable]
     [DataContract]
+    [ProtoContract]
     public class Contact
     {
         private string _email;
@@ -25,6 +26,7 @@ namespace IndiaTango.Models
         private int _id;
 
         [DataMember]
+        [ProtoMember(1)]
         public int ID
         {
             get { return _id; }
@@ -75,36 +77,42 @@ namespace IndiaTango.Models
         /// Gets or sets the title of the contact
         /// </summary>
         [DataMember(Name = "Title")]
+        [ProtoMember(2)]
         public string Title { get; set; }
 
         /// <summary>
         /// Gets and sets the first name of the contact
         /// </summary>
         [DataMember(Name = "FirstName")]
+        [ProtoMember(3)]
         public string FirstName { get; set; }
 
         /// <summary>
         /// Gets and sets the second name of the contact
         /// </summary>
         [DataMember(Name = "LastName")]
+        [ProtoMember(4)]
         public string LastName { get; set; }
 
         /// <summary>
         /// Gets and sets the email address of the contact, also checks the email for validity
         /// </summary>
         [DataMember(Name = "Email")]
+        [ProtoMember(5)]
         public string Email { get { return _email; } set { if (EmailIsValid(value)) _email = value; else throw new ArgumentException("Invalid Email Address"); } }
 
         /// <summary>
         /// Gets and sets the business name of the contact
         /// </summary>
         [DataMember(Name = "Business")]
+        [ProtoMember(6)]
         public string Business { get; set; }
 
         /// <summary>
         /// Gets and sets the phone number of the contact
         /// </summary>
         [DataMember(Name = "Phone")]
+        [ProtoMember(7)]
         public string Phone { get; set; }
 
 

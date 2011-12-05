@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Runtime.Serialization;
+using ProtoBuf;
 
 namespace IndiaTango.Models
 {
@@ -7,7 +7,7 @@ namespace IndiaTango.Models
     /// Represents a pair of GPS co-ordinates, optionally constructed using DMS (Degrees Minutes Seconds) or Decimal Degrees notation.
     /// </summary>
     [Serializable]
-    [DataContract]
+    [ProtoContract]
     public class GPSCoords
     {
         private decimal _latitude;
@@ -92,13 +92,13 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the latitude value, using decimal degrees.
         /// </summary>
-        [DataMember(Name="Latitude")]
+        [ProtoMember(1)]
         public decimal DecimalDegreesLatitude { get { return _latitude; } set { _latitude = value; } }
 
         /// <summary>
         /// Gets or sets the longitude value, using decimal degrees.
         /// </summary>
-        [DataMember(Name="Longitude")]
+        [ProtoMember(2)]
         public decimal DecimalDegreesLongitude { get { return _longitude; } set { _longitude = value; } }
 
         /// <summary>

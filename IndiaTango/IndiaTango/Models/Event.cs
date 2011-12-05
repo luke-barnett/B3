@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Runtime.Serialization;
+using ProtoBuf;
 
 namespace IndiaTango.Models
 {
@@ -7,7 +7,7 @@ namespace IndiaTango.Models
     /// Represents a pertinent event that can be recorded.
     /// </summary>
     [Serializable]
-    [DataContract]
+    [ProtoContract]
     public class Event
     {
         private string _action;
@@ -31,13 +31,13 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the date and time this event occurred.
         /// </summary>
-        [DataMember(Name = "Timestamp")]
+        [ProtoMember(1)]
         public DateTime TimeStamp { get; set; }
 
         /// <summary>
         /// Gets or sets a string describing the action that occurred. 
         /// </summary>
-        [DataMember(Name = "Action")]
+        [ProtoMember(2)]
         public string Action
         {
             get { return _action; }
