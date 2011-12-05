@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using IndiaTango.Models;
 
 namespace IndiaTango.ViewModels
@@ -13,17 +15,21 @@ namespace IndiaTango.ViewModels
         private Sensor _selectedNewSensor;
         private Sensor _selectedExistingSensor;
         private SensorMatch _selectedSensorMatch;
+        private bool _runSensorMatch;
 
         #endregion
 
         #region Public Parameters
+
+        public string Title { get { return "Sensor Matching"; } }
 
         public List<Sensor> ExistingSensors
         {
             get { return _existingSensors; }
             set
             {
-                _existingSensors = value;
+                _existingSensors = new List<Sensor>(value);
+                SensorMatch();
                 NotifyOfPropertyChange(() => ExistingSensors);
             }
         }
@@ -34,6 +40,7 @@ namespace IndiaTango.ViewModels
             set
             {
                 _newSensors = value;
+                SensorMatch();
                 NotifyOfPropertyChange(() => NewSensors);
             }
         }
@@ -54,6 +61,7 @@ namespace IndiaTango.ViewModels
             set
             {
                 _selectedNewSensor = value;
+                Debug.Print("New Selected New Sensor {0}", SelectedNewSensor);
                 NotifyOfPropertyChange(() => SelectedNewSensor);
             }
         }
@@ -64,6 +72,7 @@ namespace IndiaTango.ViewModels
             set
             {
                 _selectedExistingSensor = value;
+                Debug.Print("New Selected Existing Sensor {0}", SelectedExistingSensor);
                 NotifyOfPropertyChange(() => SelectedExistingSensor);
             }
         }
@@ -84,17 +93,75 @@ namespace IndiaTango.ViewModels
 
         public void MakeLink()
         {
-
+            MakeLink(SelectedExistingSensor, SelectedNewSensor);
         }
 
         public void RemoveLink()
         {
+            if (SelectedSensorMatch == null || !SensorLinks.Contains(SelectedSensorMatch))
+                return;
 
+            ExistingSensors.Add(SelectedSensorMatch.ExistingSensor);
+            ExistingSensors = new List<Sensor>(ExistingSensors);
+
+            NewSensors.Add(SelectedSensorMatch.MatchingSensor);
+            NewSensors = new List<Sensor>(NewSensors);
+
+            SensorLinks.Remove(SelectedSensorMatch);
+            SensorLinks = new List<SensorMatch>(SensorLinks);
         }
 
         public void Done()
         {
             TryClose();
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private void MakeLink(Sensor existing, Sensor matching)
+        {
+            Debug.Print("Existing {0} Matching {1} Existing in list {2} Matching in list {3}", existing, matching, ExistingSensors.Contains(existing), NewSensors.Contains(matching));
+            if (existing == null || matching == null || !ExistingSensors.Contains(existing) || !NewSensors.Contains(matching))
+                return;
+
+            SensorLinks.Add(new SensorMatch(existing, matching));
+            SensorLinks = new List<SensorMatch>(SensorLinks);
+
+            ExistingSensors.Remove(existing);
+            ExistingSensors = new List<Sensor>(ExistingSensors);
+            NewSensors.Remove(matching);
+            NewSensors = new List<Sensor>(NewSensors);
+        }
+
+        private void SensorMatch()
+        {
+            if (_runSensorMatch || NewSensors.Count == 0 || ExistingSensors.Count == 0)
+                return;
+            _runSensorMatch = true;
+
+            var matchesMade = new List<SensorMatch>();
+
+            foreach (var newSensor in NewSensors)
+            {
+                var matchingExistingSensor = ExistingSensors.FirstOrDefault(x => x.Name == newSensor.Name);
+                if (matchingExistingSensor == null)
+                    continue;
+                if (matchesMade.FirstOrDefault(x => x.ExistingSensor == matchingExistingSensor) == null)
+                    matchesMade.Add(new SensorMatch(matchingExistingSensor, newSensor));
+            }
+
+            foreach (var sensorMatch in matchesMade)
+            {
+                ExistingSensors.Remove(sensorMatch.ExistingSensor);
+                NewSensors.Remove(sensorMatch.MatchingSensor);
+            }
+
+            ExistingSensors = new List<Sensor>(ExistingSensors);
+            NewSensors = new List<Sensor>(NewSensors);
+
+            SensorLinks = new List<SensorMatch>(matchesMade);
         }
 
         #endregion
