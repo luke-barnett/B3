@@ -218,7 +218,8 @@ namespace IndiaTango.Models
                                                           Value = _requestedNumerOfStandardDeviations,
                                                           Maximum = 5,
                                                           Minimum = 0,
-                                                          TickFrequency = 0.5,
+                                                          TickFrequency = 0.05,
+                                                          IsSnapToTickEnabled = true,
                                                           TickPlacement = TickPlacement.BottomRight
                                                       };
                     standarDeviationsSlider.ValueChanged += (o, e) =>
