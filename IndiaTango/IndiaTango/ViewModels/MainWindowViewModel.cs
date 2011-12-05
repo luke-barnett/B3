@@ -984,23 +984,23 @@ namespace IndiaTango.ViewModels
                                            "'x = time.Date'\n" +
                                            "'x = x * Cos(x + 1) + 2'";
 
-                                        if(Sensors.Count > 1)
-                                        message =
-                                           "The program applies the formula entered across all sensors data points within the specified range.\n" +
-                                           "The following gives an indication of the operations and syntax.\n\n" +
-                                           "Mathematical operations\t [ -, +, *, ^, % ]\n" +
-                                           "Mathematical functions\t [ Sin(y), Cos(y), Tan(y), Pi ]\n\n" +
-                                           "To set a data points value for a particular sensor, use that sensors variable followed by a space and an equals sign, then by the value.\n" +
-                                           "   eg: To set the values of the sensor " + Sensors[0].Name + " to 5 for all points, use '" + Sensors[0].Variable.VariableName + " = 5' \n\n" +
-                                           "To use a sensors values in a calculation, use that sesnors variable.\n" +
-                                           "   eg: To make all the values of the sensor " + Sensors[0].Name + " equal to " + Sensors[1].Name +
-                                               ", use " + Sensors[0].Variable.VariableName + " = " + Sensors[1].Variable.VariableName + "\n\n" +
-                                           "To use the data points time stamp in calculations use 'time.' followed by the time part desired.\n" +
-                                           "   eg: time.Year, time.Month, time.Day, time.Hour, time.Minute, time.Second\n\n" +
-                                           "Examples:\n" +
-                                           "'x = x + 1'\n" +
-                                           "'x = time.Date'\n" +
-                                           "'x = x * Cos(x + 1) + 2'";
+                                        if (Sensors.Count > 1)
+                                            message =
+                                               "The program applies the formula entered across all sensors data points within the specified range.\n" +
+                                               "The following gives an indication of the operations and syntax.\n\n" +
+                                               "Mathematical operations\t [ -, +, *, ^, % ]\n" +
+                                               "Mathematical functions\t [ Sin(y), Cos(y), Tan(y), Pi ]\n\n" +
+                                               "To set a data points value for a particular sensor, use that sensors variable followed by a space and an equals sign, then by the value.\n" +
+                                               "   eg: To set the values of the sensor " + Sensors[0].Name + " to 5 for all points, use '" + Sensors[0].Variable.VariableName + " = 5' \n\n" +
+                                               "To use a sensors values in a calculation, use that sesnors variable.\n" +
+                                               "   eg: To make all the values of the sensor " + Sensors[0].Name + " equal to " + Sensors[1].Name +
+                                                   ", use " + Sensors[0].Variable.VariableName + " = " + Sensors[1].Variable.VariableName + "\n\n" +
+                                               "To use the data points time stamp in calculations use 'time.' followed by the time part desired.\n" +
+                                               "   eg: time.Year, time.Month, time.Day, time.Hour, time.Minute, time.Second\n\n" +
+                                               "Examples:\n" +
+                                               "'x = x + 1'\n" +
+                                               "'x = time.Date'\n" +
+                                               "'x = x * Cos(x + 1) + 2'";
                                         Common.ShowMessageBox("Formula Help", message, false, false);
                                     };
             buttonsWrapper.Children.Add(helpButton);
@@ -1502,7 +1502,7 @@ namespace IndiaTango.ViewModels
 
         private void CheckTheseMethodsForThisSensor(IEnumerable<IDetectionMethod> methodsToCheck, Sensor sensor)
         {
-            if(!_detectionMethodsEnabled)
+            if (!_detectionMethodsEnabled)
                 return;
 
             var bw = new BackgroundWorker();
@@ -1561,7 +1561,7 @@ namespace IndiaTango.ViewModels
         {
             values = values.ToList();
 
-            if (Selection != null && Common.Confirm("Should we use the values you've selected", "For this interpolation should we use the all the values in the range you've selected instead of those selected from the list of detected values"))
+            if (Selection != null && (values.Count() == 0 || Common.Confirm("Should we use the values you've selected", "For this interpolation should we use the all the values in the range you've selected instead of those selected from the list of detected values")))
             {
                 var list = new List<ErroneousValue>();
                 foreach (var sensor in _sensorsToCheckMethodsAgainst)
@@ -1622,7 +1622,7 @@ namespace IndiaTango.ViewModels
         {
             values = values.ToList();
             var usingSelection = false;
-            if (Selection != null && Common.Confirm("Should we use the values you've selected?", "To remove values should we use the all the values in the range you've selected instead of those selected from the list of detected values"))
+            if (Selection != null && (values.Count() == 0 || Common.Confirm("Should we use the values you've selected?", "To remove values should we use the all the values in the range you've selected instead of those selected from the list of detected values")))
             {
                 var list = new List<ErroneousValue>();
                 foreach (var sensor in _sensorsToCheckMethodsAgainst)
@@ -1692,7 +1692,7 @@ namespace IndiaTango.ViewModels
         {
             values = values.ToList();
 
-            if (Selection != null && Common.Confirm("Should we use the values you've selected?", "Should we use the all the values in the range you've selected instead of those selected from the list of detected values"))
+            if (Selection != null && (values.Count() == 0 || Common.Confirm("Should we use the values you've selected?", "Should we use the all the values in the range you've selected instead of those selected from the list of detected values")))
             {
                 var list = new List<ErroneousValue>();
                 foreach (var sensor in _sensorsToCheckMethodsAgainst)
@@ -1891,7 +1891,7 @@ namespace IndiaTango.ViewModels
                                                  var keepOldValues = askUser.ComboBoxSelectedIndex == 0;
 
                                                  var sensorMatchView =
-                                                     _container.GetInstance(typeof (MatchToExistingSensorsViewModel),
+                                                     _container.GetInstance(typeof(MatchToExistingSensorsViewModel),
                                                                             "MatchToExistingSensorsViewModel") as
                                                      MatchToExistingSensorsViewModel;
 
@@ -2079,7 +2079,7 @@ namespace IndiaTango.ViewModels
         /// Update the selected site to the one corresponding to the selected index
         /// </summary>
         public void UpdateSelectedSite()
-        {            
+        {
             if (_chosenSelectedIndex == 0)
             {
                 CreateNewSite();
@@ -2249,28 +2249,22 @@ namespace IndiaTango.ViewModels
         public void Interpolate()
         {
             var detectionMethod = _detectionMethods.FirstOrDefault(x => x.IsEnabled);
-            if (detectionMethod == null)
-                return;
 
-            Interpolate(detectionMethod.ListBox.SelectedItems.Cast<ErroneousValue>(), detectionMethod);
+            Interpolate(detectionMethod != null ? detectionMethod.ListBox.SelectedItems.Cast<ErroneousValue>() : new List<ErroneousValue>(), detectionMethod);
         }
 
         public void RemoveValues()
         {
             var detectionMethod = _detectionMethods.FirstOrDefault(x => x.IsEnabled);
-            if (detectionMethod == null)
-                return;
 
-            RemoveValues(detectionMethod.ListBox.SelectedItems.Cast<ErroneousValue>(), detectionMethod);
+            RemoveValues(detectionMethod != null ? detectionMethod.ListBox.SelectedItems.Cast<ErroneousValue>() : new List<ErroneousValue>(), detectionMethod);
         }
 
         public void SpecifyValue()
         {
             var detectionMethod = _detectionMethods.FirstOrDefault(x => x.IsEnabled);
-            if (detectionMethod == null)
-                return;
 
-            SpecifyValue(detectionMethod.ListBox.SelectedItems.Cast<ErroneousValue>(), detectionMethod);
+            SpecifyValue(detectionMethod != null ? detectionMethod.ListBox.SelectedItems.Cast<ErroneousValue>() : new List<ErroneousValue>(), detectionMethod);
         }
 
         public void EnableDetectionMethods()
