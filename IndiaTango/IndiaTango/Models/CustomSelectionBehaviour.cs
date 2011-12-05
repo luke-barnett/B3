@@ -16,6 +16,11 @@ namespace IndiaTango.Models
             : base("Selection Behaviour")
         {
             _selectionRectangle.Visibility = Visibility.Visible;
+            PropertyChanged += (sender, args) =>
+                                   {
+                                       if(args.PropertyName == "IsEnabled")
+                                           _selectionRectangle.Visibility = Visibility.Visible;
+                                   };
         }
 
         protected override void Init()
@@ -40,6 +45,11 @@ namespace IndiaTango.Models
         /// Fired when a selection is reset
         /// </summary>
         public event SelectionReset SelectionReset;
+
+        /// <summary>
+        /// Fired on a double mouse click to reset the zoom
+        /// </summary>
+        public event ZoomResetRequested ResetZoom;
 
         #endregion
 
@@ -97,12 +107,9 @@ namespace IndiaTango.Models
 
         public override void MouseLeftButtonDoubleClick(Point position)
         {
-            Debug.WriteLine("Reseting selection");
-            _selectionRectangle.Width = 0;
-            _selectionRectangle.Height = 0;
-            _selectionRectangle.Visibility = Visibility.Collapsed;
-            if (SelectionReset != null)
-                SelectionReset(this);
+            Debug.WriteLine("Resetting Zoom");
+            if (ResetZoom != null)
+                ResetZoom(this);
         }
 
         public override void LostMouseCapture()
@@ -147,10 +154,27 @@ namespace IndiaTango.Models
             var y1 = (Double)Chart.YAxis.GetRenderPositionAsDataValueWithoutZoom(firstPoint.Y);
             var y2 = (Double)Chart.YAxis.GetRenderPositionAsDataValueWithoutZoom(secondPoint.Y);
 
-            if (SelectionMade != null)
-                SelectionMade(this, new SelectionMadeArgs(x1, x2, (float)y1, (float)y2));
+            Debug.Print("x1 {0} x2 {1} y1 {2} y2 {3}", x1, x2, y1, y2);
+
+            if(x1 != x2 || Math.Abs(y1 - y2) > 0.0001)
+            {
+                if (SelectionMade != null)
+                    SelectionMade(this, new SelectionMadeArgs(x1, x2, (float)y1, (float)y2));
+            }
+            else
+            {
+                ResetSelection();
+            }
         }
 
+        private void ResetSelection()
+        {
+            Debug.WriteLine("Reseting selection");
+            _selectionRectangle.Width = 0;
+            _selectionRectangle.Height = 0;
+            if (SelectionReset != null)
+                SelectionReset(this);
+        }
     }
 
     public class SelectionMadeArgs : EventArgs

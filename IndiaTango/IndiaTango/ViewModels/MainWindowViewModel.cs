@@ -68,30 +68,34 @@ namespace IndiaTango.ViewModels
             #region Zoom Behaviour
             _zoomBehaviour = new CustomZoomBehaviour { IsEnabled = true };
             _zoomBehaviour.ZoomRequested += (o, e) =>
-            {
-                _startTime = e.LowerX;
-                NotifyOfPropertyChange(() => StartTime);
-                EndTime = e.UpperX;
-                Range = new DoubleRange(e.LowerY, e.UpperY);
-                foreach (var detectionMethod in _detectionMethods.Where(x => x.IsEnabled))
-                {
-                    var itemsToKeep = detectionMethod.ListBox.Items.Cast<ErroneousValue>().Where(
-                            x => x.TimeStamp >= StartTime && x.TimeStamp <= EndTime).ToList();
-                    detectionMethod.ListBox.Items.Clear();
-                    itemsToKeep.ForEach(x => detectionMethod.ListBox.Items.Add(x));
-                }
-            };
+                                                {
+                                                    _startTime = e.LowerX;
+                                                    NotifyOfPropertyChange(() => StartTime);
+                                                    EndTime = e.UpperX;
+                                                    Range = new DoubleRange(e.LowerY, e.UpperY);
+                                                    foreach (
+                                                        var detectionMethod in _detectionMethods.Where(x => x.IsEnabled)
+                                                        )
+                                                    {
+                                                        var itemsToKeep =
+                                                            detectionMethod.ListBox.Items.Cast<ErroneousValue>().Where(
+                                                                x => x.TimeStamp >= StartTime && x.TimeStamp <= EndTime)
+                                                                .ToList();
+                                                        detectionMethod.ListBox.Items.Clear();
+                                                        itemsToKeep.ForEach(x => detectionMethod.ListBox.Items.Add(x));
+                                                    }
+                                                };
             _zoomBehaviour.ZoomResetRequested += o =>
-            {
-                foreach (var sensor in _sensorsToGraph)
-                {
-                    sensor.RemoveBounds();
-                }
-                Range = new DoubleRange(MinMinimum, MaxMaximum);
-                CheckTheseMethods(_detectionMethods.Where(x => x.IsEnabled));
-                CalculateGraphedEndPoints();
-                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
-            };
+                                                     {
+                                                         foreach (var sensor in _sensorsToGraph)
+                                                         {
+                                                             sensor.RemoveBounds();
+                                                         }
+                                                         Range = new DoubleRange(MinMinimum, MaxMaximum);
+                                                         CheckTheseMethods(_detectionMethods.Where(x => x.IsEnabled));
+                                                         CalculateGraphedEndPoints();
+                                                         SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
+                                                     };
 
             behaviourManager.Behaviours.Add(_zoomBehaviour);
             #endregion
@@ -114,6 +118,17 @@ namespace IndiaTango.ViewModels
                                                       {
                                                           Selection = null;
                                                       };
+            _selectionBehaviour.ResetZoom += sender =>
+                                                 {
+                                                     foreach (var sensor in _sensorsToGraph)
+                                                     {
+                                                         sensor.RemoveBounds();
+                                                     }
+                                                     Range = new DoubleRange(MinMinimum, MaxMaximum);
+                                                     CheckTheseMethods(_detectionMethods.Where(x => x.IsEnabled));
+                                                     CalculateGraphedEndPoints();
+                                                     SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
+                                                 };
             behaviourManager.Behaviours.Add(_selectionBehaviour);
             #endregion
 
