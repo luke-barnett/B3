@@ -6,19 +6,12 @@ namespace IndiaTango.Models
 {
     [Serializable]
     [DataContract]
-    public class NamedBitmap : ISerializable
+    public class NamedBitmap
     {
         private Bitmap _bitmap;
         private string _name;
 
-        protected NamedBitmap(SerializationInfo info, StreamingContext context)
-        {
-            _name = info.GetString("Name");
-            _bitmap = info.GetValue("Bitmap", typeof (Bitmap)) as Bitmap;
-        }
-
         private NamedBitmap() { }
-
 
         public NamedBitmap(Bitmap bitmap, string name)
         {
@@ -38,12 +31,6 @@ namespace IndiaTango.Models
         {
             get { return _name; }
             set { _name = value; }
-        }
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("Name", Name, typeof(string));
-            info.AddValue("Bitmap", Bitmap, typeof(Bitmap));
         }
     }
 }

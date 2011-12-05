@@ -8,18 +8,12 @@ namespace IndiaTango.Models
     /// </summary>
     [Serializable]
     [DataContract]
-    public class GPSCoords : ISerializable
+    public class GPSCoords
     {
         private decimal _latitude;
         private decimal _longitude;
 
         private GPSCoords() {} // Necessary for serialisation.
-
-        protected GPSCoords(SerializationInfo info, StreamingContext context)
-        {
-            _latitude = info.GetDecimal("DecimalDegreesLatitude");
-            _longitude = info.GetDecimal("DecimalDegreesLongitude");
-        }
 
         /// <summary>
         /// Creates a GPSCoords object using Decimal Degrees values.
@@ -122,12 +116,6 @@ namespace IndiaTango.Models
         {
             return (obj is GPSCoords) && (obj as GPSCoords).DecimalDegreesLatitude == DecimalDegreesLatitude &&
                    (obj as GPSCoords).DecimalDegreesLongitude == DecimalDegreesLongitude;
-        }
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("DecimalDegreesLatitude", DecimalDegreesLatitude);
-            info.AddValue("DecimalDegreesLongitude", DecimalDegreesLongitude);
         }
 
         public static GPSCoords Parse(string latitude, string longitude)

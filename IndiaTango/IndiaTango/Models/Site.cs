@@ -8,7 +8,7 @@ namespace IndiaTango.Models
 {
     [Serializable]
     [DataContract]
-    public class Site : ISerializable
+    public class Site
     {
         private int _iD;
         private string _name;
@@ -25,22 +25,6 @@ namespace IndiaTango.Models
         }
 
         private Site() { } // Necessary for serialisation.
-
-        protected Site(SerializationInfo info, StreamingContext context)
-        {
-            _iD = info.GetInt32("Id");
-            _name = info.GetString("Name");
-            _owner = info.GetString("Owner");
-            PrimaryContactID = info.GetInt32("PrimaryContactId");
-            SecondaryContactID = info.GetInt32("SecondaryContactID");
-            UniversityContactID = info.GetInt32("UniversityContactID");
-            _images = info.GetValue("Images", typeof(List<NamedBitmap>)) as List<NamedBitmap>;
-            _primaryContact = info.GetValue("PrimaryContact", typeof(Contact)) as Contact;
-            _secondaryContact = info.GetValue("SecondaryContact", typeof(Contact)) as Contact;
-            _universityContact = info.GetValue("UniversityContact", typeof(Contact)) as Contact;
-            Events = info.GetValue("Events", typeof(List<Event>)) as List<Event>;
-            _gpsLocation = info.GetValue("GpsLocation", typeof(GPSCoords)) as GPSCoords;
-        }
 
         /// <summary>
         /// Creates a new Site.
@@ -334,22 +318,6 @@ namespace IndiaTango.Models
             return (site.GpsLocation.Equals(GpsLocation) && site.Id == Id &&
                     site.Owner == Owner && site.PrimaryContact.Equals(PrimaryContact) &&
                     ctwo && site.Name == Name && cthree);
-        }
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("Id", Id);
-            info.AddValue("Name", Name, typeof(string));
-            info.AddValue("Owner", Owner, typeof(string));
-            info.AddValue("PrimaryContactId", PrimaryContactID);
-            info.AddValue("SecondaryContactID", SecondaryContactID);
-            info.AddValue("UniversityContactID", UniversityContactID);
-            info.AddValue("Images", Images, typeof(List<NamedBitmap>));
-            info.AddValue("PrimaryContact", PrimaryContact, typeof(Contact));
-            info.AddValue("SecondaryContact", SecondaryContact, typeof(Contact));
-            info.AddValue("UniversityContact", UniversityContact, typeof(Contact));
-            info.AddValue("Events", Events, typeof(List<Event>));
-            info.AddValue("GpsLocation", GpsLocation, typeof(GPSCoords));
         }
 
         public override string ToString()

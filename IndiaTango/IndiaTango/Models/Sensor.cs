@@ -15,7 +15,7 @@ namespace IndiaTango.Models
     /// </summary>
     [Serializable]
     [DataContract]
-    public class Sensor : INotifyPropertyChanged, ISerializable
+    public class Sensor : INotifyPropertyChanged
     {
         #region Private Members
         private Stack<SensorState> _undoStack;
@@ -38,27 +38,6 @@ namespace IndiaTango.Models
         #endregion
 
         #region Constructors
-
-        protected Sensor(SerializationInfo info, StreamingContext context)
-        {
-            _undoStack = info.GetValue("UndoStack", typeof(Stack<SensorState>)) as Stack<SensorState>;
-            _redoStack = info.GetValue("RedoStack", typeof(Stack<SensorState>)) as Stack<SensorState>;
-            RawName = info.GetString("RawName");
-            _name = info.GetString("Name");
-            _description = info.GetString("Description");
-            _depth = info.GetSingle("Depth");
-            _lowerLimit = info.GetSingle("LowerLimit");
-            _upperLimit = info.GetSingle("UpperLimit");
-            _unit = info.GetString("Unit");
-            _maxRateOfChange = info.GetSingle("MaxRateOfChange");
-            _manufacturer = info.GetString("Manufacturer");
-            _serialNumber = info.GetString("SerialNumber");
-            _colour = (Colour)info.GetValue("Colour", typeof(Colour));
-            _errorThreshold = info.GetInt32("ErrorThreshold");
-            Owner = info.GetValue("Owner", typeof(Dataset)) as Dataset;
-            _rawData = info.GetValue("RawData", typeof(SensorState)) as SensorState;
-            _summaryType = (SummaryType)info.GetValue("SummaryType", typeof(SummaryType));
-        }
 
         /// <summary>
         /// Creates a new sensor, with the specified sensor name and measurement unit.
@@ -577,27 +556,6 @@ namespace IndiaTango.Models
         public override string ToString()
         {
             return Name;
-        }
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("UndoStack", UndoStack, typeof(Stack<SensorState>));
-            info.AddValue("RedoStack", RedoStack, typeof(Stack<SensorState>));
-            info.AddValue("RawName", RawName, typeof(string));
-            info.AddValue("Name", Name, typeof(string));
-            info.AddValue("Description", Description, typeof(string));
-            info.AddValue("Depth", Depth);
-            info.AddValue("LowerLimit", LowerLimit);
-            info.AddValue("UpperLimit", UpperLimit);
-            info.AddValue("Unit", Unit, typeof(string));
-            info.AddValue("MaxRateOfChange", MaxRateOfChange);
-            info.AddValue("Manufacturer", Manufacturer, typeof(string));
-            info.AddValue("SerialNumber", SerialNumber, typeof(string));
-            info.AddValue("Colour", Colour, typeof(Colour));
-            info.AddValue("ErrorThreshold", ErrorThreshold);
-            info.AddValue("Owner", Owner, typeof(Dataset));
-            info.AddValue("RawData", RawData, typeof(SensorState));
-            info.AddValue("SummaryType", SummaryType, typeof(SummaryType));
         }
 
         #endregion

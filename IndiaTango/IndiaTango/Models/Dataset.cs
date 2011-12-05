@@ -8,7 +8,7 @@ namespace IndiaTango.Models
 {
     [Serializable]
     [DataContract]
-    public class Dataset : ISerializable
+    public class Dataset
     {
         private Site _site;
         private DateTime _startTimeStamp;
@@ -17,17 +17,6 @@ namespace IndiaTango.Models
         private int _expectedDataPointCount;
         private int _actualDataPointCount;
         private int _dataInterval;
-
-        protected Dataset(SerializationInfo info, StreamingContext context)
-        {
-            _site = info.GetValue("Site", typeof(Site)) as Site;
-            _startTimeStamp = info.GetDateTime("StartTimeStamp");
-            _endTimeStamp = info.GetDateTime("EndTimeStamp");
-            _sensors = info.GetValue("Sensors", typeof (List<Sensor>)) as List<Sensor>;
-            _expectedDataPointCount = info.GetInt32("ExpectedDataPointCount");
-            _actualDataPointCount = info.GetInt32("ActualDataPointCount");
-            _dataInterval = info.GetInt32("DataInterval");
-        }
 
         /// <summary>
         /// Creates a new dataset with a specified start and end timestamp
@@ -262,17 +251,6 @@ namespace IndiaTango.Models
 
             using (var stream = new FileStream(SaveLocation, FileMode.Create))
                 new BinaryFormatter().Serialize(stream, this);
-        }
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("Site", Site, typeof(Site));
-            info.AddValue("StartTimeStamp", StartTimeStamp);
-            info.AddValue("EndTimeStamp", EndTimeStamp);
-            info.AddValue("Sensors", Sensors, typeof(List<Sensor>));
-            info.AddValue("ExpectedDataPointCount", ExpectedDataPointCount);
-            info.AddValue("ActualDataPointCount", ActualDataPointCount);
-            info.AddValue("DataInterval", DataInterval);
         }
     }
 }

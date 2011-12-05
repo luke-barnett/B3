@@ -8,15 +8,9 @@ namespace IndiaTango.Models
     /// </summary>
     [Serializable]
     [DataContract]
-    public class Event : ISerializable
+    public class Event
     {
         private string _action;
-
-        protected Event(SerializationInfo info, StreamingContext context)
-        {
-            TimeStamp = info.GetDateTime("TimeStamp");
-            _action = info.GetString("Action");
-        }
 
         private Event() { } // Necessary for serialisation
 
@@ -58,12 +52,6 @@ namespace IndiaTango.Models
         public override bool Equals(object obj)
         {
             return obj is Event && (obj as Event).Action == Action && (obj as Event).TimeStamp == TimeStamp;
-        }
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("Action", Action, typeof(string));
-            info.AddValue("TimeStamp", TimeStamp);
         }
     }
 }

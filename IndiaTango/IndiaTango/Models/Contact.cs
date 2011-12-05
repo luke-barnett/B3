@@ -8,7 +8,8 @@ using System.Runtime.Serialization;
 namespace IndiaTango.Models
 {
     [Serializable]
-    public class Contact : ISerializable
+    [DataContract]
+    public class Contact
     {
         private string _email;
 
@@ -34,17 +35,6 @@ namespace IndiaTango.Models
 
                 _id = value;
             }
-        }
-        
-        protected Contact(SerializationInfo info, StreamingContext context)
-        {
-            _id = info.GetInt32("ID");
-            Title = info.GetString("Title");
-            FirstName = info.GetString("FirstName");
-            LastName = info.GetString("LastName");
-            _email = info.GetString("Email");
-            Business = info.GetString("Business");
-            Phone = info.GetString("Phone");
         }
 
         public Contact(string title, string firstName, string lastName, string email, string business, string phone)
@@ -130,17 +120,6 @@ namespace IndiaTango.Models
 
             return contact.Business == Business && contact.Email == Email && contact.FirstName == FirstName &&
                    contact.LastName == LastName && contact.Phone == Phone && contact.Title == Title;
-        }
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("ID", ID);
-            info.AddValue("Title", Title, typeof(string));
-            info.AddValue("FirstName", FirstName, typeof(string));
-            info.AddValue("LastName", LastName, typeof(string));
-            info.AddValue("Email", Email, typeof(string));
-            info.AddValue("Business", Business, typeof(string));
-            info.AddValue("Phone", Phone, typeof(string));
         }
 
         #region private methods

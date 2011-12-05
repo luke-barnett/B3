@@ -12,7 +12,7 @@ namespace IndiaTango.Models
     /// </summary>
     [Serializable]
     [DataContract]
-    public class SensorState : ISerializable
+    public class SensorState
     {
         private DateTime _editTimestamp;
         private Dictionary<DateTime, float> _valueList;
@@ -33,16 +33,6 @@ namespace IndiaTango.Models
         }
 
         #region Constructors
-
-        protected SensorState(SerializationInfo info, StreamingContext context)
-        {
-            _owner = info.GetValue("Owner", typeof(Sensor)) as Sensor;
-            _changes = info.GetValue("Changes", typeof(Dictionary<DateTime, LinkedList<int>>)) as Dictionary<DateTime, LinkedList<int>>;
-            _isRaw = info.GetBoolean("IsRaw");
-            _editTimestamp = info.GetDateTime("EditTimestamp");
-            _valueList = info.GetValue("Values", typeof(Dictionary<DateTime, float>)) as Dictionary<DateTime, float>;
-            _reason = info.GetString("Reason");
-        }
 
         public SensorState(Sensor owner, Dictionary<DateTime, float> valueList, string reason, Dictionary<DateTime, LinkedList<int>> changes) : this(owner, DateTime.Now, valueList, reason, false, changes) { }
         public SensorState(Sensor owner, Dictionary<DateTime, float> valueList, Dictionary<DateTime, LinkedList<int>> changes) : this(owner, DateTime.Now, valueList, changes) { }
@@ -153,16 +143,6 @@ namespace IndiaTango.Models
             }
 
             return true;
-        }
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("Owner", _owner, typeof(Sensor));
-            info.AddValue("Changes", Changes, typeof(Dictionary<DateTime, LinkedList<int>>));
-            info.AddValue("IsRaw", IsRaw);
-            info.AddValue("EditTimestamp", EditTimestamp);
-            info.AddValue("Values", Values, typeof(Dictionary<DateTime, float>));
-            info.AddValue("Reason", Reason, typeof(string));
         }
 
         public List<DateTime> GetMissingTimes(int timeGap, DateTime start, DateTime end)
