@@ -73,9 +73,7 @@ namespace IndiaTango.ViewModels
                                                     NotifyOfPropertyChange(() => StartTime);
                                                     EndTime = e.UpperX;
                                                     Range = new DoubleRange(e.LowerY, e.UpperY);
-                                                    foreach (
-                                                        var detectionMethod in _detectionMethods.Where(x => x.IsEnabled)
-                                                        )
+                                                    foreach (var detectionMethod in _detectionMethods.Where(x => x.IsEnabled))
                                                     {
                                                         var itemsToKeep =
                                                             detectionMethod.ListBox.Items.Cast<ErroneousValue>().Where(
@@ -91,7 +89,7 @@ namespace IndiaTango.ViewModels
                                                          {
                                                              sensor.RemoveBounds();
                                                          }
-                                                         Range = new DoubleRange(MinMinimum, MaxMaximum);
+                                                         CalculateYAxis(false);
                                                          CheckTheseMethods(_detectionMethods.Where(x => x.IsEnabled));
                                                          CalculateGraphedEndPoints();
                                                          SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
@@ -124,7 +122,7 @@ namespace IndiaTango.ViewModels
                                                      {
                                                          sensor.RemoveBounds();
                                                      }
-                                                     Range = new DoubleRange(MinMinimum, MaxMaximum);
+                                                     CalculateYAxis(false);
                                                      CheckTheseMethods(_detectionMethods.Where(x => x.IsEnabled));
                                                      CalculateGraphedEndPoints();
                                                      SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
