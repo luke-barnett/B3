@@ -218,6 +218,8 @@ namespace IndiaTango.ViewModels
             {
                 _currentDataset = value;
                 Debug.WriteLine("Updating for new Dataset");
+                if (Sensors == null)
+                    return;
                 if (Sensors.FirstOrDefault(x => x.Variable == null) != null)
                 {
                     var sensorVariables = SensorVariable.CreateSensorVariablesFromSensors(Sensors);
@@ -1847,7 +1849,7 @@ namespace IndiaTango.ViewModels
 
                                              var sensors = (List<Sensor>)e.Result;
 
-                                             if (CurrentDataset.Sensors.Count == 0)
+                                             if (CurrentDataset.Sensors == null || CurrentDataset.Sensors.Count == 0)
                                                  CurrentDataset.Sensors = sensors;
                                              else
                                              {
@@ -1875,32 +1877,25 @@ namespace IndiaTango.ViewModels
 
                                                  var keepOldValues = askUser.ComboBoxSelectedIndex == 0;
 
+                                                 var sensorMatchView =
+                                                     _container.GetInstance(typeof (MatchToExistingSensorsViewModel),
+                                                                            "MatchToExistingSensorsViewModel") as
+                                                     MatchToExistingSensorsViewModel;
+
+                                                 if (sensorMatchView == null)
+                                                     return;
+
+                                                 sensorMatchView.ExistingSensors = CurrentDataset.Sensors;
+                                                 sensorMatchView.NewSensors = sensors;
+
+                                                 _windowManager.ShowDialog(sensorMatchView);
+
                                                  foreach (var sensor in sensors)
                                                  {
-                                                     var askUserDialog =
-                                                         _container.GetInstance(typeof(SpecifyValueViewModel),
-                                                                                "SpecifyValueViewModel") as
-                                                         SpecifyValueViewModel;
-
-                                                     if (askUserDialog == null)
-                                                         return;
-
-                                                     askUserDialog.Title = "What sensor does this belong to?";
-                                                     askUserDialog.ComboBoxItems =
-                                                         new List<string>(
-                                                             (from x in CurrentDataset.Sensors select x.Name));
-                                                     askUserDialog.ShowComboBox = true;
-                                                     askUserDialog.ShowCancel = true;
-                                                     askUserDialog.ComboBoxSelectedIndex = 0;
-                                                     askUserDialog.CanEditComboBox = false;
-                                                     askUserDialog.Message =
-                                                         string.Format(
-                                                             "Match {0} against an existing sensor. \n\r Cancel to create a new sensor",
-                                                             sensor.Name);
-
-                                                     _windowManager.ShowDialog(askUserDialog);
-
-                                                     if (askUserDialog.WasCanceled)
+                                                     var match =
+                                                         sensorMatchView.SensorLinks.FirstOrDefault(
+                                                             x => x.MatchingSensor == sensor);
+                                                     if (match == null)
                                                      {
                                                          Debug.WriteLine("Adding new sensor");
                                                          CurrentDataset.Sensors.Add(sensor);
@@ -1908,13 +1903,8 @@ namespace IndiaTango.ViewModels
                                                      else
                                                      {
                                                          var matchingSensor =
-                                                             CurrentDataset.Sensors.Where(
-                                                                 x =>
-                                                                 x.Name.CompareTo(
-                                                                     askUserDialog.ComboBoxItems[
-                                                                         askUserDialog.ComboBoxSelectedIndex]) == 0)
-                                                                 .
-                                                                 DefaultIfEmpty(null).FirstOrDefault();
+                                                             CurrentDataset.Sensors.FirstOrDefault(
+                                                                 x => x == match.ExistingSensor);
 
                                                          if (matchingSensor == null)
                                                          {
