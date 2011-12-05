@@ -2273,6 +2273,7 @@ namespace IndiaTango.ViewModels
         public void EnableDetectionMethods()
         {
             _detectionMethodsEnabled = true;
+            CheckTheseMethods(_detectionMethods.Where(x => x.IsEnabled));
         }
 
         public void DisableDetectionMethods()
