@@ -971,10 +971,21 @@ namespace IndiaTango.ViewModels
                                  };
             helpButton.Click += (o, e) =>
                                     {
-                                        if (!CurrentDataSetNotNull || Sensors.Count < 2)
+                                        if (!CurrentDataSetNotNull)
                                             return;
 
                                         var message =
+                                            "The program applies the formula entered across all sensors data points within the specified range.\n" +
+                                           "The following gives an indication of the operations and syntax.\n\n" +
+                                           "Mathematical operations\t [ -, +, *, ^, % ]\n" +
+                                           "Mathematical functions\t [ Sin(y), Cos(y), Tan(y), Pi ]\n\n" +
+                                           "Examples:\n" +
+                                           "'x = x + 1'\n" +
+                                           "'x = time.Date'\n" +
+                                           "'x = x * Cos(x + 1) + 2'";
+
+                                        if(Sensors.Count > 1)
+                                        message =
                                            "The program applies the formula entered across all sensors data points within the specified range.\n" +
                                            "The following gives an indication of the operations and syntax.\n\n" +
                                            "Mathematical operations\t [ -, +, *, ^, % ]\n" +
