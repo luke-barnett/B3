@@ -971,7 +971,7 @@ namespace IndiaTango.ViewModels
                                  };
             helpButton.Click += (o, e) =>
                                     {
-                                        if (!CurrentDataSetNotNull && Sensors.Count < 2)
+                                        if (!CurrentDataSetNotNull || Sensors.Count < 2)
                                             return;
 
                                         var message =

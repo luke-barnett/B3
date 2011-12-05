@@ -21,11 +21,11 @@ namespace IndiaTango.Models
         readonly ArrayList _mathMembers = new ArrayList();
         readonly Hashtable _mathMembersMap = new Hashtable();
         StringBuilder _source = new StringBuilder();
-		readonly CodeDomProvider _codeProvider;
+        readonly CodeDomProvider _codeProvider;
         readonly CompilerParameters _parms;
         private readonly List<SensorVariable> _sensorStates;
-    	private List<SensorVariable> _variablesUsed;
-    	private List<SensorVariable> _variablesAssignedTo;
+        private List<SensorVariable> _variablesUsed;
+        private List<SensorVariable> _variablesAssignedTo;
         private string _loopStartCode = "";
         private string _loopEndCode = "";
         private readonly int _interval;
@@ -33,21 +33,21 @@ namespace IndiaTango.Models
         #region PublicMethods
         public FormulaEvaluator(List<Sensor> sensorStates, int interval)
         {
-        	_codeProvider = CodeDomProvider.CreateProvider(CodeDomProvider.GetLanguageFromExtension(".cs"));
-			
+            _codeProvider = CodeDomProvider.CreateProvider(CodeDomProvider.GetLanguageFromExtension(".cs"));
+
 
             _interval = interval;
             _sensorStates = SensorVariable.CreateSensorVariablesFromSensors(sensorStates);
 
             //add compiler parameters and assembly references
-        	_parms = new CompilerParameters
-        	         	{
-        	         		CompilerOptions = "/target:library /optimize",
-        	         		GenerateExecutable = false,
-        	         		GenerateInMemory = true,
-        	         		IncludeDebugInformation = false
-        	         	};
-        	_parms.ReferencedAssemblies.Add("mscorlib.dll");
+            _parms = new CompilerParameters
+                        {
+                            CompilerOptions = "/target:library /optimize",
+                            GenerateExecutable = false,
+                            GenerateInMemory = true,
+                            IncludeDebugInformation = false
+                        };
+            _parms.ReferencedAssemblies.Add("mscorlib.dll");
             _parms.ReferencedAssemblies.Add("System.dll");
             _parms.ReferencedAssemblies.Add("System.Windows.Forms.dll");
             _parms.ReferencedAssemblies.Add("System.Core.dll");
@@ -56,7 +56,7 @@ namespace IndiaTango.Models
             Debug.WriteLine(Assembly.GetExecutingAssembly().Location);
             //Add any aditional references needed
             //foreach (string refAssembly in IndiaTango )
-              //  _parms.ReferencedAssemblies.Add(refAssembly);
+            //  _parms.ReferencedAssemblies.Add(refAssembly);
 
             GetMathMemberNames();
         }
@@ -65,7 +65,7 @@ namespace IndiaTango.Models
         {
             var regularExpression = new Regex("^[0-9x/.=/-/+/*/^/(/)/t (t/..+)]*$");
 
-            return  regularExpression.IsMatch(formula);
+            return regularExpression.IsMatch(formula);
         }
 
         public Formula CompileFormula(string formula)
@@ -74,9 +74,9 @@ namespace IndiaTango.Models
             _variablesUsed = new List<SensorVariable>();
             foreach (SensorVariable sensorVariable in _sensorStates)
             {
-				//TODO: Regex this up yall
-                if (formula.Contains(sensorVariable.VariableName + " ")  || formula.Contains(" " + sensorVariable.VariableName) || 
-					formula.Contains("(" + sensorVariable.VariableName) || formula.Contains(sensorVariable.VariableName + ")"))
+                //TODO: Regex this up yall
+                if (formula.Contains(sensorVariable.VariableName + " ") || formula.Contains(" " + sensorVariable.VariableName) ||
+                    formula.Contains("(" + sensorVariable.VariableName) || formula.Contains(sensorVariable.VariableName + ")"))
                 {
                     _variablesUsed.Add(sensorVariable);
                 }
@@ -126,37 +126,37 @@ namespace IndiaTango.Models
             // build the class using codedom
             BuildClass(formula);
 
-			//actually compile the code
-			CompilerResults results = _codeProvider.CompileAssemblyFromSource(_parms, _source.ToString());
-			
-			//Do we have any compiler errors?
-			if (results.Errors.Count > 0)
-			{
-				foreach (CompilerError error in results.Errors)
-					Debug.WriteLine("Compile Error. Line " +error.Line + ":" + error.ErrorText);
-			}
+            //actually compile the code
+            CompilerResults results = _codeProvider.CompileAssemblyFromSource(_parms, _source.ToString());
+
+            //Do we have any compiler errors?
+            if (results.Errors.Count > 0)
+            {
+                foreach (CompilerError error in results.Errors)
+                    Debug.WriteLine("Compile Error. Line " + error.Line + ":" + error.ErrorText);
+            }
 
             Debug.WriteLine("...........................\r\n");
             Debug.WriteLine(_source.ToString());
 
-            return new Formula(results,_variablesUsed);
+            return new Formula(results, _variablesUsed);
         }
 
-        public List<Sensor> EvaluateFormula(Formula formula,  DateTime startTime, DateTime endTime, bool skipMissingValues)
+        public List<Sensor> EvaluateFormula(Formula formula, DateTime startTime, DateTime endTime, bool skipMissingValues)
         {
             if (startTime >= endTime)
                 throw new ArgumentException("End time must be greater than start time");
 
             // if the code compiled okay,
             // run the code using the new assembly (which is inside the results)
-			if (formula.CompilerResults != null && formula.CompilerResults.CompiledAssembly != null)
+            if (formula.CompilerResults != null && formula.CompilerResults.CompiledAssembly != null)
             {
-				//Foreach variable assigned to, give it a new sensor state
-            	foreach (var sensorVariable in _variablesAssignedTo)
-            		sensorVariable.Sensor.AddState(sensorVariable.Sensor.CurrentState.Clone());
+                //Foreach variable assigned to, give it a new sensor state
+                foreach (var sensorVariable in _variablesAssignedTo)
+                    sensorVariable.Sensor.AddState(sensorVariable.Sensor.CurrentState.Clone());
 
                 // run the evaluation function
-				return RunCode(formula.CompilerResults, startTime, endTime, skipMissingValues);
+                return RunCode(formula.CompilerResults, startTime, endTime, skipMissingValues);
             }
             else
             {
@@ -198,14 +198,21 @@ namespace IndiaTango.Models
                 replacelist.Add(m.Value);
             }
 
-            
-			//Make sure all values are cast back as floats
+            //Make sure all values are cast back as floats
             eval = eval.Replace("=", "= (float)");
 
-			//Make sure all newlines have semicolins before them
-        	eval = eval.Replace("\n", ";\n");
+            var numbers = new Regex("[0-9].[0-9]+");
+            var numberMatches = numbers.Matches(eval);
+            foreach (var numberMatch in numberMatches)
+            {
+                Debug.Print("Float detected {0}", numberMatch);
+                eval = eval.Replace(numberMatch.ToString(), numberMatch + "f");
+            }
 
-			// return the modified evaluation string
+            //Make sure all newlines have semicolins before them
+            eval = eval.Replace("\n", ";\n");
+
+            // return the modified evaluation string
             return eval;
         }
 
@@ -250,14 +257,14 @@ namespace IndiaTango.Models
             }
         }
 
-    	/// <summary>
-    	/// Runs the Calculate method in our on-the-fly assembly
-    	/// </summary>
-    	/// <param name="results">The results for compiling the code</param>
-    	/// <param name="startTime">Date to start the formula from</param>
-    	/// <param name="endTime">Date to stop applying the formula</param>
-    	/// <param name="skipMissingValues">Wether to assign to missing values or not</param>
-    	private List<Sensor> RunCode(CompilerResults results, DateTime startTime, DateTime endTime, bool skipMissingValues)
+        /// <summary>
+        /// Runs the Calculate method in our on-the-fly assembly
+        /// </summary>
+        /// <param name="results">The results for compiling the code</param>
+        /// <param name="startTime">Date to start the formula from</param>
+        /// <param name="endTime">Date to stop applying the formula</param>
+        /// <param name="skipMissingValues">Wether to assign to missing values or not</param>
+        private List<Sensor> RunCode(CompilerResults results, DateTime startTime, DateTime endTime, bool skipMissingValues)
         {
             Assembly executingAssembly = results.CompiledAssembly;
             try
@@ -279,7 +286,7 @@ namespace IndiaTango.Models
                         {
                             if (mi.Name == "ApplyFormula")
                             {
-								return (List<Sensor>)mi.Invoke(assemblyInstance, new object[] { _sensorStates, startTime, endTime, skipMissingValues});
+                                return (List<Sensor>)mi.Invoke(assemblyInstance, new object[] { _sensorStates, startTime, endTime, skipMissingValues });
                             }
                         }
                     }
@@ -295,7 +302,7 @@ namespace IndiaTango.Models
             return null;
         }
 
-    	/// <summary>
+        /// <summary>
         /// Main driving routine for building a class
         /// </summary>
         private void BuildClass(string expression)
@@ -308,7 +315,7 @@ namespace IndiaTango.Models
             var codeProvider = new CSharpCodeProvider();
             var generator = codeProvider.CreateGenerator(sw);
             var codeOpts = new CodeGeneratorOptions();
-            
+
 
             //Setup the namespace and imports
             var myNamespace = new CodeNamespace("IndiaTango");
@@ -319,20 +326,20 @@ namespace IndiaTango.Models
             myNamespace.Imports.Add(new CodeNamespaceImport("IndiaTango.Models"));
             //myNamespace.Imports.Add(new CodeNamespaceImport("System.Math"));
             //Build the class declaration and member variables			
-        	var classDeclaration = new CodeTypeDeclaration {IsClass = true, Name = "Calculator", Attributes = MemberAttributes.Public};
+            var classDeclaration = new CodeTypeDeclaration { IsClass = true, Name = "Calculator", Attributes = MemberAttributes.Public };
 
-        	//default constructor
-        	var defaultConstructor = new CodeConstructor {Attributes = MemberAttributes.Public};
-        	defaultConstructor.Comments.Add(new CodeCommentStatement("Default Constructor for class", true));
+            //default constructor
+            var defaultConstructor = new CodeConstructor { Attributes = MemberAttributes.Public };
+            defaultConstructor.Comments.Add(new CodeCommentStatement("Default Constructor for class", true));
             classDeclaration.Members.Add(defaultConstructor);
 
             //Our Calculate Method
-        	var myMethod = new CodeMemberMethod {Name = "ApplyFormula", ReturnType = new CodeTypeReference(typeof (List<Sensor>))};
-        	myMethod.Comments.Add(new CodeCommentStatement("Apply a formula across a dataset", true));
+            var myMethod = new CodeMemberMethod { Name = "ApplyFormula", ReturnType = new CodeTypeReference(typeof(List<Sensor>)) };
+            myMethod.Comments.Add(new CodeCommentStatement("Apply a formula across a dataset", true));
             myMethod.Parameters.Add(new CodeParameterDeclarationExpression(new CodeTypeReference(typeof(List<SensorVariable>)), "sensorStates"));
             myMethod.Parameters.Add(new CodeParameterDeclarationExpression(new CodeTypeReference(typeof(DateTime)), "startTime"));
             myMethod.Parameters.Add(new CodeParameterDeclarationExpression(new CodeTypeReference(typeof(DateTime)), "endTime"));
-			myMethod.Parameters.Add(new CodeParameterDeclarationExpression(new CodeTypeReference(typeof(bool)), "skipMissingValues"));
+            myMethod.Parameters.Add(new CodeParameterDeclarationExpression(new CodeTypeReference(typeof(bool)), "skipMissingValues"));
             myMethod.Attributes = MemberAttributes.Public;
             myMethod.Statements.Add(new CodeSnippetExpression(_loopStartCode));
 
@@ -353,30 +360,30 @@ namespace IndiaTango.Models
         #endregion
     }
 
-	public class Formula
-	{
-		private readonly CompilerResults _results;
-		private readonly List<SensorVariable> _sensors;
+    public class Formula
+    {
+        private readonly CompilerResults _results;
+        private readonly List<SensorVariable> _sensors;
 
-		public Formula(CompilerResults results, List<SensorVariable> sensorsUsed)
-		{
-			_results = results;
-			_sensors = sensorsUsed;
-		}
+        public Formula(CompilerResults results, List<SensorVariable> sensorsUsed)
+        {
+            _results = results;
+            _sensors = sensorsUsed;
+        }
 
-		public CompilerResults CompilerResults
-		{
-			get { return _results; }
-		}
+        public CompilerResults CompilerResults
+        {
+            get { return _results; }
+        }
 
-		public List<SensorVariable> SensorsUsed
-		{
-			get { return _sensors; }
-		}
+        public List<SensorVariable> SensorsUsed
+        {
+            get { return _sensors; }
+        }
 
-		public bool IsValid
-		{
-			get { return _results != null && _results.Errors.Count == 0 && _results.CompiledAssembly != null; }
-		}
-	}
+        public bool IsValid
+        {
+            get { return _results != null && _results.Errors.Count == 0 && _results.CompiledAssembly != null; }
+        }
+    }
 }
