@@ -151,7 +151,7 @@ namespace IndiaTango.Models
                         i += j + 1;
                     }
 
-                    dataBlocks.ForEach(x => Debug.WriteLine(x));
+                    //dataBlocks.ForEach(x => Debug.WriteLine(x));
                 }
                 return dataBlocks.ToArray();
             }

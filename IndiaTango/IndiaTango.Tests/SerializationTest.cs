@@ -40,6 +40,16 @@ namespace IndiaTango.Tests
             _ds.Sensors = new List<Sensor> { sensor };
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            if (File.Exists(_ds.SaveLocation))
+                File.Delete(_ds.SaveLocation);
+
+            if(File.Exists(_tempFile))
+                File.Delete(_tempFile);
+        }
+
         [Test]
         public void SerializeToMemoryStream()
         {
@@ -67,9 +77,6 @@ namespace IndiaTango.Tests
             SerializeToFileUsingDataSetMethod();
             var clone = Dataset.LoadDataSet(_ds.SaveLocation);
             TestClone(clone);
-            
-            if(File.Exists(_ds.SaveLocation))
-                File.Delete(_ds.SaveLocation);
         }
 
         [Test]
