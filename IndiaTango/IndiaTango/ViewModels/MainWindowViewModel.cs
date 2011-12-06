@@ -1800,7 +1800,7 @@ namespace IndiaTango.ViewModels
 
         private void UpdateUndoRedo()
         {
-            CanUndo = SensorsForEditing.FirstOrDefault(x => x.UndoStates.Count > 1) != null;
+            CanUndo = SensorsForEditing.FirstOrDefault(x => x.UndoStates.Count > 0) != null;
             CanRedo = SensorsForEditing.FirstOrDefault(x => x.RedoStates.Count > 0) != null;
         }
 

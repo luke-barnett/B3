@@ -133,10 +133,10 @@ namespace IndiaTango.Models
 
             var s = obj as SensorState;
 
-            if (!(s.EditTimestamp == EditTimestamp))
+            if ((s.EditTimestamp - EditTimestamp).TotalMilliseconds > 0.00001)
                 return false;
 
-            return s.Values.Count == Values.Count && _valueList.All(f => s.Values[f.Key].Equals(f.Value));
+            return s.Values.Count == Values.Count && _valueList.All(f => s.Values.ContainsKey(f.Key) && s.Values[f.Key].Equals(f.Value));
         }
 
         public List<DateTime> GetMissingTimes(int timeGap, DateTime start, DateTime end)

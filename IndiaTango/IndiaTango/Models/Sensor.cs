@@ -33,6 +33,8 @@ namespace IndiaTango.Models
         private float _lowerLimit;
         private float _upperLimit;
         private SummaryType _summaryType;
+        private SensorState _rawData;
+        private SensorState _currentState;
         [NonSerialized]
         private SensorVariable _sensorVariable;
         #endregion
@@ -195,7 +197,6 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets the undo stack for this sensor. The undo stack contains a list of previous states this sensor was in before its current state. This stack cannot be null.
         /// </summary>
-        //[ProtoMember(1)] TODO: Sort out saving of undo/redo stack
         private Stack<SensorState> UndoStack
         {
             get { return _undoStack; }
@@ -211,7 +212,6 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets the redo stack for this sensor. The redo stack contains a list of previous states this sensor can be in after the current state. This stack cannot be null.
         /// </summary>
-        //[ProtoMember(2)] TODO: Sort out saving of undo/redo stack
         private Stack<SensorState> RedoStack
         {
             get { return _redoStack; }
@@ -227,7 +227,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the list of dates this sensor was calibrated on. The list of calibration dates cannot be null.
         /// </summary>
-        [ProtoMember(3)]
+        [ProtoMember(1)]
         public List<DateTime> CalibrationDates
         {
             get { return _calibrationDates; }
@@ -243,13 +243,13 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets the first name this sensor was given (i.e. the name used to import)
         /// </summary>
-        [ProtoMember(4)]
+        [ProtoMember(2)]
         public string RawName { get; private set; }
 
         /// <summary>
         /// Gets or sets the name of this sensor. The sensor name cannot be null.
         /// </summary>
-        [ProtoMember(5)]
+        [ProtoMember(3)]
         public string Name
         {
             get { return _name; }
@@ -264,7 +264,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the description of this sensor's purpose or function.
         /// </summary>
-        [ProtoMember(6)]
+        [ProtoMember(4)]
         public string Description
         {
             get { return _description; }
@@ -278,7 +278,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the depth of the sensor
         /// </summary>
-        [ProtoMember(7)]
+        [ProtoMember(5)]
         public float Depth
         {
             get { return _depth; }
@@ -292,7 +292,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the lower limit for values reported by this sensor.
         /// </summary>
-        [ProtoMember(8)]
+        [ProtoMember(6)]
         public float LowerLimit
         {
             get { return _lowerLimit; }
@@ -314,7 +314,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the upper limit for values reported by this sensor.
         /// </summary>
-        [ProtoMember(9)]
+        [ProtoMember(7)]
         public float UpperLimit
         {
             get { return _upperLimit; }
@@ -335,7 +335,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the measurement unit reported with values collected by this sensor.
         /// </summary>
-        [ProtoMember(10)]
+        [ProtoMember(8)]
         public string Unit
         {
             get { return _unit; }
@@ -350,7 +350,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the maximum rate of change allowed for values reported by this sensor.
         /// </summary>
-        [ProtoMember(11)]
+        [ProtoMember(9)]
         public float MaxRateOfChange
         {
             get
@@ -367,7 +367,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the name of the manufacturer of this sensor.
         /// </summary>
-        [ProtoMember(12)]
+        [ProtoMember(10)]
         public string Manufacturer
         {
             get { return _manufacturer; }
@@ -382,7 +382,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the serial number of this sensor
         /// </summary>
-        [ProtoMember(13)]
+        [ProtoMember(11)]
         public string SerialNumber
         {
             get { return _serialNumber; }
@@ -409,20 +409,17 @@ namespace IndiaTango.Models
             }
         }
 
-        [ProtoMember(14)]
+        [ProtoMember(12)]
         public SensorState CurrentState
         {
-            get { return (UndoStack.Count != 0) ? UndoStack.Peek() : RawData; }
-            set
-            {
-                UndoStack.Push(value);
-            }
+            get { return (_currentState == null) ? RawData : _currentState; }
+            set { _currentState = value; }
         }
 
         /// <summary>
         /// The colour to use when graphing the sensor
         /// </summary>
-        [ProtoMember(15)]
+        [ProtoMember(13)]
         public Colour Colour
         {
             get { return _colour; }
@@ -433,7 +430,7 @@ namespace IndiaTango.Models
             }
         }
 
-        [ProtoMember(16)]
+        [ProtoMember(14)]
         public int ErrorThreshold
         {
             get { return _errorThreshold; }
@@ -446,15 +443,14 @@ namespace IndiaTango.Models
             }
         }
 
-        [ProtoMember(17, AsReference = true)]
+        [ProtoMember(15, AsReference = true)]
         public Dataset Owner { get; private set; }
 
-        private SensorState _rawData;
-
-        [ProtoMember(18)]
+        [ProtoMember(16)]
         public SensorState RawData
         {
-            get { return _rawData ?? (_rawData = new SensorState(this, DateTime.Now, new Dictionary<DateTime, float>(), "", true, null)); }
+            get { return _rawData ?? (_rawData =  new SensorState(this, DateTime.Now, new Dictionary<DateTime, float>(), "", true, null)); }
+            private set { _rawData = value; }
         }
 
         /// <summary>
@@ -498,7 +494,7 @@ namespace IndiaTango.Models
             return false;
         }
 
-        [ProtoMember(19)]
+        [ProtoMember(17)]
         public SummaryType SummaryType
         {
             get { return _summaryType; }
@@ -517,10 +513,11 @@ namespace IndiaTango.Models
         public void Undo()
         {
             // This is because the undo stack has to have at least one item on it - the current state
-            if (UndoStack.Count < 1)
+            if (UndoStack.Count == 0)
                 throw new InvalidOperationException("Undo is not possible at this stage. There are no more possible states to undo to.");
-
-            RedoStack.Push(UndoStack.Pop());
+            
+            RedoStack.Push(CurrentState);
+            _currentState = UndoStack.Pop();
         }
 
         /// <summary>
@@ -531,7 +528,8 @@ namespace IndiaTango.Models
             if (RedoStack.Count == 0)
                 throw new InvalidOperationException("Redo is not possible at this stage. There are no more possible states to redo to.");
 
-            UndoStack.Push(RedoStack.Pop());
+            UndoStack.Push(CurrentState);
+            _currentState = RedoStack.Pop();
         }
 
         /// <summary>
@@ -540,30 +538,23 @@ namespace IndiaTango.Models
         /// <param name="newState"></param>
         public void AddState(SensorState newState)
         {
-            if (UndoStack.Count == 5)
+            if(_rawData == null)
             {
-                // Remove from the bottom, so reverse and pop, then reverse again
-                var reverse = new Stack<SensorState>();
-
-                while (_undoStack.Count > 0)
-                    reverse.Push(_undoStack.Pop());
-
-                reverse.Pop();
-
-                while (reverse.Count > 0)
-                    UndoStack.Push(reverse.Pop());
+                RawData = newState;
             }
+            else
+            {
+                UndoStack.Push(CurrentState);
+                RedoStack.Clear();
 
-            UndoStack.Push(newState);
-            RedoStack.Clear();
+                _currentState = newState;
+            }
+            
         }
 
         public void RevertToRaw()
         {
-            while (UndoStack.Count > 0)
-                RedoStack.Push(UndoStack.Pop());
-
-            UndoStack.Clear();
+            _currentState = null;
         }
 
         public override string ToString()
@@ -587,7 +578,7 @@ namespace IndiaTango.Models
                 while (UndoStack.Count > 0)
                 {
                     // Keep undoing until at desired state
-                    if (UndoStack.Peek() != sensor)
+                    if (CurrentState != sensor)
                         Undo();
                     else
                         break;
@@ -611,7 +602,7 @@ namespace IndiaTango.Models
                 while (RedoStack.Count > 0)
                 {
                     // Keep undoing until at desired state
-                    if (UndoStack.Peek() != sensor)
+                    if (CurrentState != sensor)
                         Redo();
                     else
                         break;

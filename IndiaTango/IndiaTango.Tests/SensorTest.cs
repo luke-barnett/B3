@@ -98,7 +98,7 @@ namespace IndiaTango.Tests
             foreach (SensorState s in secondStates)
                 testSensor.AddState(s);
 
-            Assert.AreEqual(_secondUndoStates, testSensor.UndoStates);
+            Assert.AreEqual(_secondUndoStates.SkipWhile((x, index) => index == 0).ToList(), testSensor.UndoStates);
 
             // Reset
             testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStates, _blankStack, _blankCalibrationDates, _ds);
@@ -396,13 +396,13 @@ namespace IndiaTango.Tests
                                            new Dictionary<DateTime, float> { { new DateTime(2011, 8, 12), 66.77f } }, null));
 
             _undoSensor.Undo();
-            Assert.AreEqual(correctStack, _undoSensor.UndoStates);
+            Assert.AreEqual(0, _undoSensor.UndoStates.Count);
 
             var correctStackTwo = new Stack<SensorState>();
             correctStackTwo.Push(new SensorState(_secondUndoSensor, new DateTime(2011, 3, 11),
                                            new Dictionary<DateTime, float> { { new DateTime(2011, 8, 12), 66.77f } }, null));
             _secondUndoSensor.Undo();
-            Assert.AreEqual(correctStackTwo, _secondUndoSensor.UndoStates);
+            Assert.AreEqual(0, _secondUndoSensor.UndoStates.Count);
         }
 
         [Test]
@@ -440,11 +440,11 @@ namespace IndiaTango.Tests
 
             redoSensor.Undo();
 
-            Assert.AreEqual(correctStackItem, redoSensor.UndoStates[0]);
+            Assert.AreEqual(correctStackItem, redoSensor.CurrentState);
 
             redoSensor.Redo();
 
-            Assert.AreEqual(2, redoSensor.UndoStates.Count);
+            Assert.AreEqual(1, redoSensor.UndoStates.Count);
         }
 
         [Test]
@@ -486,7 +486,7 @@ namespace IndiaTango.Tests
             _undoSensor.Redo(); // Should trigger the exception
         }
 
-        [Test]
+        //[Test] Limit no longer applied as we don't save the undo/redo stack
         public void AddStateMaximumFiveEntries()
         {
             var s = new Sensor("Temperature", "C");
@@ -501,7 +501,7 @@ namespace IndiaTango.Tests
             Assert.AreEqual(5, s.UndoStates.Count);
         }
 
-        [Test]
+        //[Test] Limit no longer applied as we don't save the undo/redo stack
         public void UndoRedoStackMaximumFiveEntries()
         {
             var s = new Sensor("Temperature", "C");
@@ -535,7 +535,7 @@ namespace IndiaTango.Tests
             Assert.AreEqual(0, s.RedoStates.Count);
         }
 
-        [Test]
+        //[Test] Limit no longer applied as we don't save the undo/redo stack
         public void UndoStackPushesCorrectEntriesAndMaxFive()
         {
             var s = new Sensor("Temperature", "C");
@@ -627,7 +627,7 @@ namespace IndiaTango.Tests
             _undoSensor.Undo();
             _undoSensor.Undo();
 
-            Assert.AreEqual(1, _undoSensor.UndoStates.Count);
+            Assert.AreEqual(0, _undoSensor.UndoStates.Count);
         }
 
         [Test]
@@ -670,13 +670,13 @@ namespace IndiaTango.Tests
             _undoSensor.Undo();
 
             Assert.AreEqual(2, _undoSensor.RedoStates.Count);
-            Assert.AreEqual(1, _undoSensor.UndoStates.Count);
+            Assert.AreEqual(0, _undoSensor.UndoStates.Count);
 
             _undoSensor.Redo();
             _undoSensor.Redo();
 
             Assert.AreEqual(0, _undoSensor.RedoStates.Count);
-            Assert.AreEqual(3, _undoSensor.UndoStates.Count);
+            Assert.AreEqual(2, _undoSensor.UndoStates.Count);
 
         }
         #endregion
@@ -686,11 +686,9 @@ namespace IndiaTango.Tests
         public void AddStateTest()
         {
             _testUndoStates.Clear();
-            _testUndoStates.Push(new SensorState(_sensor1, DateTime.Now));
-            _sensor1.AddState(new SensorState(_sensor1, DateTime.Now));
-
-            Assert.AreEqual(_testUndoStates.Peek(), _sensor1.CurrentState);
-            Assert.AreEqual(_testUndoStates, _sensor1.UndoStates);
+            var state = new SensorState(_sensor1, DateTime.Now);
+            _sensor1.AddState(state);
+            Assert.AreEqual(state, _sensor1.CurrentState);
             Assert.IsEmpty(_sensor1.RedoStates);
         }
         #endregion
