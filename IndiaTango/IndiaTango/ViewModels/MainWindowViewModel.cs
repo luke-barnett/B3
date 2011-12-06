@@ -1800,8 +1800,8 @@ namespace IndiaTango.ViewModels
 
         private void UpdateUndoRedo()
         {
-            CanUndo = Sensors.FirstOrDefault(x => x.UndoStates.Count > 1) != null;
-            CanRedo = Sensors.FirstOrDefault(x => x.RedoStates.Count > 0) != null;
+            CanUndo = SensorsForEditing.FirstOrDefault(x => x.UndoStates.Count > 1) != null;
+            CanRedo = SensorsForEditing.FirstOrDefault(x => x.RedoStates.Count > 0) != null;
         }
 
         #endregion
@@ -2173,7 +2173,7 @@ namespace IndiaTango.ViewModels
 
         public void Undo()
         {
-            var orderedSensors = Sensors.OrderBy(x =>
+            var orderedSensors = SensorsForEditing.OrderBy(x =>
             {
                 var state = x.UndoStates.DefaultIfEmpty(new SensorState(x, DateTime.MaxValue)).FirstOrDefault();
                 return state != null ? state.EditTimestamp : new DateTime();
@@ -2182,70 +2182,36 @@ namespace IndiaTango.ViewModels
             var firstSensor = orderedSensors.FirstOrDefault();
             if (firstSensor == null) return;
 
-            var sensorState = firstSensor.UndoStates.FirstOrDefault();
-            if (sensorState == null) return;
+            firstSensor.Undo();
 
-            var timestamp = sensorState.EditTimestamp;
-            var sensorsToUndo = orderedSensors.TakeWhile(x =>
-            {
-                var firstOrDefault = x.UndoStates.FirstOrDefault();
-                //TODO: Not the best
-                return firstOrDefault != null && firstOrDefault.EditTimestamp - timestamp < new TimeSpan(0, 0, 2);
-            }).ToList();
+            var graphToUpdate = GraphableSensors.FirstOrDefault(x => x.Sensor == firstSensor);
+            if(graphToUpdate != null)
+                graphToUpdate.RefreshDataPoints();
 
-            foreach (var sensor in sensorsToUndo)
-            {
-                sensor.Undo();
-            }
-            var message = sensorsToUndo.Aggregate("Sucessfully stepped back the following sensors: \n\r\n\r", (current, sensorVariable) =>
-                                              current + string.Format("{0}\n\r", sensorVariable.Name));
-
-            foreach (var graphableSensor in GraphableSensors.Where(x => sensorsToUndo.Contains(x.Sensor)))
-                graphableSensor.RefreshDataPoints();
             SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
-            Common.ShowMessageBox("Undo suceeded", message, false, false);
+            Common.ShowMessageBox("Undo suceeded", "Sucessfully stepped back the following sensors: \n\r\n\r" + firstSensor.Name, false, false);
             UpdateUndoRedo();
         }
 
         public void Redo()
         {
-            var orderedSensors = Sensors.OrderBy(x =>
+            var orderedSensors = SensorsForEditing.OrderBy(x =>
             {
-                var state =
-                    x.RedoStates.DefaultIfEmpty(new SensorState(x,
-                                                                DateTime.
-                                                                    MaxValue)).
-                        FirstOrDefault();
+                var state = x.RedoStates.DefaultIfEmpty(new SensorState(x, DateTime.MaxValue)).FirstOrDefault();
                 return state != null ? state.EditTimestamp : new DateTime();
             });
 
             var firstSensor = orderedSensors.FirstOrDefault();
             if (firstSensor == null) return;
 
-            var sensorState = firstSensor.RedoStates.FirstOrDefault();
-            if (sensorState == null) return;
+            firstSensor.Redo();
 
-            var timestamp = sensorState.EditTimestamp;
-            var sensorsToRedo = orderedSensors.TakeWhile(x =>
-            {
-                var firstOrDefault = x.RedoStates.FirstOrDefault();
-                //TODO: Not the best
-                return firstOrDefault != null &&
-                       firstOrDefault.EditTimestamp - timestamp <
-                       new TimeSpan(0, 0, 2);
-            }).ToList();
+            var graphToUpdate = GraphableSensors.FirstOrDefault(x => x.Sensor == firstSensor);
+            if (graphToUpdate != null)
+                graphToUpdate.RefreshDataPoints();
 
-            foreach (var sensor in sensorsToRedo)
-            {
-                sensor.Redo();
-            }
-            var message = sensorsToRedo.Aggregate("Sucessfully stepped forward the following sensors: \n\r\n\r", (current, sensorVariable) =>
-                                              current + string.Format("{0}\n\r", sensorVariable.Name));
-
-            foreach (var graphableSensor in GraphableSensors.Where(x => sensorsToRedo.Contains(x.Sensor)))
-                graphableSensor.RefreshDataPoints();
             SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
-            Common.ShowMessageBox("Redo suceeded", message, false, false);
+            Common.ShowMessageBox("Redo suceeded", "Sucessfully stepped forward the following sensors: \n\r\n\r" + firstSensor.Name, false, false);
             UpdateUndoRedo();
         }
 
@@ -2317,6 +2283,7 @@ namespace IndiaTango.ViewModels
             UpdateDetectionMethodGraphableSensors();
             EnableFeatures();
             AddToEditingSensors(eventArgs);
+            UpdateUndoRedo();
         }
 
         public void RemoveFromGraph(RoutedEventArgs eventArgs)
@@ -2331,6 +2298,7 @@ namespace IndiaTango.ViewModels
             UpdateDetectionMethodGraphableSensors();
             EnableFeatures();
             RemoveFromEditingSensors(eventArgs);
+            UpdateUndoRedo();
         }
 
         public void ShowCurrentSiteInformation()
