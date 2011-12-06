@@ -107,11 +107,62 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the list of values this sensor state holds.
         /// </summary>
-        [ProtoMember(4)]
         public Dictionary<DateTime, float> Values
         {
             get { return _valueList; }
             set { _valueList = value; }
+        }
+
+        [ProtoMember(4)]
+        public DataBlock[] CompressedValues
+        {
+            get
+            {
+                var dataBlocks = new List<DataBlock>();
+                if (Values != null)
+                {
+                    var orderedKeyValuePairs = Values.OrderBy(x => x.Key).ToArray();
+
+                    var i = 0;
+                    while (i < orderedKeyValuePairs.Length)
+                    {
+                        var dataBlock = new DataBlock
+                                            {
+                                                DataInterval = _owner.Owner.DataInterval,
+                                                StartTime = orderedKeyValuePairs[i].Key
+                                            };
+                        var values = new List<float> {orderedKeyValuePairs[i].Value};
+                        var j = 0;
+                        while (i + j + 1 < orderedKeyValuePairs.Length &&
+                               orderedKeyValuePairs[i + j + 1].Key - orderedKeyValuePairs[i + j].Key ==
+                               new TimeSpan(0, dataBlock.DataInterval, 0))
+                        {
+                            values.Add(orderedKeyValuePairs[i + j + 1].Value);
+                            j++;
+                        }
+
+                        dataBlock.Values = values.ToArray();
+                        dataBlocks.Add(dataBlock);
+                        i += j + 1;
+                    }
+
+                    dataBlocks.ForEach(x => Debug.WriteLine(x));
+                }
+                return dataBlocks.ToArray();
+            }
+            set
+            {
+                var dictionary = new Dictionary<DateTime, float>();
+                foreach (var block in value)
+                {
+                    for(var i = 0; i < block.Values.Length; i++)
+                    {
+                        dictionary[block.StartTime.AddMinutes(i*block.DataInterval)] = block.Values[i];
+                    }
+                }
+                Values = dictionary;
+            }
+
         }
 
         [ProtoMember(5)]
@@ -532,7 +583,22 @@ namespace IndiaTango.Models
         {
             return ((x2 - x1) * (yPoint - y1) - (y2 - y1) * (xPoint - x1)) > 0;
         }
+    }
 
+    [ProtoContract]
+    public class DataBlock
+    {
+        [ProtoMember(1)]
+        public DateTime StartTime;
+        [ProtoMember(2)]
+        public int DataInterval;
+        [ProtoMember(3, IsPacked = true)]
+        public float[] Values;
 
+        public override string ToString()
+        {
+            return Values.Aggregate(string.Format("Start Time {0} Data Interval {1} Values:\n\rCount {2}", StartTime, DataInterval,
+                                 Values.Length), (current, value) => current + string.Format("\n\r[{0}]", value));
+        }
     }
 }

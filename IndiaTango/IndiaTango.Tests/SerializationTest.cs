@@ -30,12 +30,12 @@ namespace IndiaTango.Tests
             sensor.RawData.Values[_baseTime.AddHours(2)] = 2;
             sensor.RawData.Values[_baseTime.AddHours(3)] = 3;
             sensor.RawData.Values[_baseTime.AddHours(4)] = 4;
-            sensor.RawData.Values[_baseTime.AddHours(5)] = 5;
             sensor.RawData.Values[_baseTime.AddHours(6)] = 6;
             sensor.RawData.Values[_baseTime.AddHours(7)] = 7;
             sensor.RawData.Values[_baseTime.AddHours(8)] = 8;
             sensor.RawData.Values[_baseTime.AddHours(9)] = 9;
-            sensor.RawData.Values[_baseTime.AddHours(10)] = 10;
+            sensor.RawData.Values[_baseTime.AddHours(14)] = 14;
+            sensor.RawData.Values[_baseTime.AddHours(15)] = 15;
 
             _ds.Sensors = new List<Sensor> { sensor };
         }
@@ -67,6 +67,9 @@ namespace IndiaTango.Tests
             SerializeToFileUsingDataSetMethod();
             var clone = Dataset.LoadDataSet(_ds.SaveLocation);
             TestClone(clone);
+            
+            if(File.Exists(_ds.SaveLocation))
+                File.Delete(_ds.SaveLocation);
         }
 
         [Test]
