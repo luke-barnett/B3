@@ -52,6 +52,7 @@ namespace IndiaTango.Tests
             SerializeToMemoryStream();
             _ms.Position = 0;
             var clone = Serializer.Deserialize<Dataset>(_ms);
+            TestClone(clone);
         }
 
         [Test]
@@ -65,6 +66,7 @@ namespace IndiaTango.Tests
         {
             SerializeToFileUsingDataSetMethod();
             var clone = Dataset.LoadDataSet(_ds.SaveLocation);
+            TestClone(clone);
         }
 
         [Test]
@@ -81,6 +83,13 @@ namespace IndiaTango.Tests
             SerializeToFile();
             using (var fileStream = File.OpenRead(_tempFile))
                 clone = Serializer.Deserialize<Dataset>(fileStream);
+            TestClone(clone);
+        }
+
+        private void TestClone(Dataset clone)
+        {
+            Assert.AreEqual(_ds.Site, clone.Site);
+            Assert.AreEqual(_ds.Sensors,clone.Sensors);
         }
     }
 }

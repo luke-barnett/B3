@@ -24,7 +24,10 @@ namespace IndiaTango.Models
             get { return Common.AppDataPath + "\\ExportedSites.xml"; }
         }
 
-        private Site() { } // Necessary for serialisation.
+        private Site()
+        {
+            Events = new List<Event>();
+        } // Necessary for serialisation.
 
         /// <summary>
         /// Creates a new Site.

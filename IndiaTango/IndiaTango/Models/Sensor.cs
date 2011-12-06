@@ -47,6 +47,7 @@ namespace IndiaTango.Models
         {
             UndoStack = new Stack<SensorState>();
             RedoStack = new Stack<SensorState>();
+            CalibrationDates = new List<DateTime>();
         } 
 
         /// <summary>
@@ -560,6 +561,61 @@ namespace IndiaTango.Models
         public override string ToString()
         {
             return Name;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is Sensor))
+                return false;
+
+            var sensorObj = obj as Sensor;
+
+            if (sensorObj.Name != Name)
+                return false;
+
+            //if (sensorObj.Owner != Owner) //TODO: Decide on a better way to handle this
+            //    return false;
+
+            //if (!sensorObj.CalibrationDates.Equals(CalibrationDates))
+            //    return false;
+
+            if (!sensorObj.CurrentState.Equals(CurrentState))
+                return false;
+
+            if (sensorObj.Depth != Depth)
+                return false;
+
+            if (sensorObj.Description != Description)
+                return false;
+
+            if (sensorObj.ErrorThreshold != ErrorThreshold)
+                return false;
+
+            if (sensorObj.LowerLimit != LowerLimit)
+                return false;
+
+            if (sensorObj.UpperLimit != UpperLimit)
+                return false;
+
+            if (sensorObj.Manufacturer != Manufacturer)
+                return false;
+
+            if (sensorObj.MaxRateOfChange != MaxRateOfChange)
+                return false;
+
+            if (!sensorObj.RawData.Equals(RawData))
+                return false;
+
+            if (sensorObj.RawName != RawName)
+                return false;
+
+            if (sensorObj.SerialNumber != SerialNumber)
+                return false;
+
+            if (sensorObj.SummaryType != SummaryType)
+                return false;
+
+            return ((sensorObj.Unit == null && Unit == null) || sensorObj.Unit.CompareTo(Unit) == 0);
         }
 
         #endregion
