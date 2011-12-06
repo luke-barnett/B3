@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Input;
 
 namespace IndiaTango.Views
 {
@@ -11,6 +12,14 @@ namespace IndiaTango.Views
         {
             InitializeComponent();
             NameScope.SetNameScope(dataGridContextMenu, NameScope.GetNameScope(this));
+        }
+
+        private void WindowKeyDown(object sender, KeyEventArgs e)
+        {
+            if(Keyboard.Modifiers == ModifierKeys.Alt && e.Key == Key.S)
+            {
+                chkBoxSelectionMode.IsChecked = !chkBoxSelectionMode.IsChecked;
+            }
         }
     }
 }

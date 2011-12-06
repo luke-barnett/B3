@@ -7,7 +7,7 @@
         xmlns:multiseries="clr-namespace:IndiaTango.MultiSeriesBinding"
         xmlns:models="clr-namespace:IndiaTango.Models"
         xmlns:toolkit="clr-namespace:Microsoft.Windows.Controls;assembly=WPFToolkit.Extended"
-        Title="{Binding Title}" Icon="{Binding Icon}" Height="775" Width="900" WindowStartupLocation="CenterScreen" Cursor="{Binding ApplicationCursor}">
+        Title="{Binding Title}" Icon="{Binding Icon}" Height="775" Width="900" WindowStartupLocation="CenterScreen" Cursor="{Binding ApplicationCursor}" KeyDown="WindowKeyDown">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closing">
             <cal:ActionMessage MethodName="ClosingRequested">
@@ -208,7 +208,7 @@
                             </Grid.RowDefinitions>
                             <StackPanel HorizontalAlignment="Right" Orientation="Vertical" Margin="5">
                                 <CheckBox Content="Graph Raw Data" IsChecked="{Binding GraphRawData,Mode=OneWayToSource}" VerticalAlignment="Center" />
-                                <CheckBox Content="Selection Mode" IsChecked="{Binding SelectionModeEnabled,Mode=OneWayToSource}" VerticalAlignment="Center" />
+                                <CheckBox x:Name="chkBoxSelectionMode" Content="Selection Mode" IsChecked="{Binding SelectionModeEnabled,Mode=OneWayToSource}" VerticalAlignment="Center" />
                             </StackPanel>
                             <StackPanel Grid.Row="0" Orientation="Horizontal" Height="25" VerticalAlignment="Top">
                                 <TextBlock Text="Range:" VerticalAlignment="Center" Margin="0,0,5,0" />
