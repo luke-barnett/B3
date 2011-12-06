@@ -9,6 +9,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Caliburn.Micro;
@@ -21,9 +22,9 @@ using GroupBox = System.Windows.Controls.GroupBox;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
 using ListBox = System.Windows.Controls.ListBox;
 using Orientation = System.Windows.Controls.Orientation;
-using Path = System.IO.Path;
 using SelectionMode = System.Windows.Controls.SelectionMode;
 using Cursors = System.Windows.Input.Cursors;
+using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using RadioButton = System.Windows.Controls.RadioButton;
 using TabControl = System.Windows.Controls.TabControl;
 using TextBox = System.Windows.Controls.TextBox;
@@ -579,7 +580,7 @@ namespace IndiaTango.ViewModels
                 _zoomBehaviour.IsEnabled = !value;
                 if (!value)
                 {
-                    _selectionBehaviour.MouseLeftButtonDoubleClick(new Point());
+                    _selectionBehaviour.MouseLeftButtonDown(new Point());
                 }
             }
         }
@@ -1799,7 +1800,7 @@ namespace IndiaTango.ViewModels
 
         private void UpdateUndoRedo()
         {
-            CanUndo = Sensors.FirstOrDefault(x => x.UndoStates.Count > 0) != null;
+            CanUndo = Sensors.FirstOrDefault(x => x.UndoStates.Count > 1) != null;
             CanRedo = Sensors.FirstOrDefault(x => x.RedoStates.Count > 0) != null;
         }
 
@@ -2203,6 +2204,7 @@ namespace IndiaTango.ViewModels
                 graphableSensor.RefreshDataPoints();
             SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
             Common.ShowMessageBox("Undo suceeded", message, false, false);
+            UpdateUndoRedo();
         }
 
         public void Redo()
@@ -2244,6 +2246,7 @@ namespace IndiaTango.ViewModels
                 graphableSensor.RefreshDataPoints();
             SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
             Common.ShowMessageBox("Redo suceeded", message, false, false);
+            UpdateUndoRedo();
         }
 
         public void Interpolate()
@@ -2513,6 +2516,36 @@ namespace IndiaTango.ViewModels
                     }
                 }
             }
+        }
+
+        public void KeyDown(KeyEventArgs eventArgs)
+        {
+            if (Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                switch (eventArgs.Key)
+                {
+                    case Key.S:
+                        Save();
+                        break;
+                    case Key.Z:
+                        if (CanUndo)
+                            Undo();
+                        break;
+                    case Key.Y:
+                        if (CanRedo)
+                            Redo();
+                        break;
+                }
+            }
+            else if(Keyboard.Modifiers == ModifierKeys.Shift)
+            {
+                if(eventArgs.Key == Key.S)
+                {
+                    SelectionModeEnabled = !SelectionModeEnabled;
+                    NotifyOfPropertyChange(() => SelectionModeEnabled);
+                }
+            }
+
         }
 
         #endregion

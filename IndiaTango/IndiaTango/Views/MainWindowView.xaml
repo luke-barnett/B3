@@ -7,19 +7,18 @@
         xmlns:multiseries="clr-namespace:IndiaTango.MultiSeriesBinding"
         xmlns:models="clr-namespace:IndiaTango.Models"
         xmlns:toolkit="clr-namespace:Microsoft.Windows.Controls;assembly=WPFToolkit.Extended"
-        Title="{Binding Title}" Icon="{Binding Icon}" Height="775" Width="900" WindowStartupLocation="CenterScreen" Cursor="{Binding ApplicationCursor}" KeyDown="WindowKeyDown">
+        Title="{Binding Title}" Icon="{Binding Icon}" Height="775" Width="900" WindowStartupLocation="CenterScreen" Cursor="{Binding ApplicationCursor}">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closing">
             <cal:ActionMessage MethodName="ClosingRequested">
                 <cal:Parameter Value="$eventArgs" />
             </cal:ActionMessage>
         </i:EventTrigger>
-        <models:InputBindingTrigger>
-            <models:InputBindingTrigger.InputBinding>
-                <KeyBinding Modifiers="Ctrl" Key="S" />
-            </models:InputBindingTrigger.InputBinding>
-            <cal:ActionMessage MethodName="Save" />
-        </models:InputBindingTrigger>
+        <i:EventTrigger EventName="KeyDown">
+            <cal:ActionMessage MethodName="KeyDown">
+                <cal:Parameter Value="$eventArgs" />
+            </cal:ActionMessage>
+        </i:EventTrigger>
     </i:Interaction.Triggers>
 
     <Window.Resources>
@@ -124,7 +123,7 @@
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                         <CheckBox Content="Check detection methods for values" Margin="2" cal:Message.Attach="[Event Checked] = [Action EnableDetectionMethods];[Event Unchecked] = [Action DisableDetectionMethods]" />
-                    <TabControl Grid.Row="1" SelectedIndex="0" BorderThickness="0" Background="Transparent" IsEnabled="{Binding FeaturesEnabled}" ItemsSource="{Binding DetectionTabItems}" cal:Message.Attach="[Event SelectionChanged] = [Action DetectionMethodChanged($eventArgs)]" />
+                        <TabControl Grid.Row="1" SelectedIndex="0" BorderThickness="0" Background="Transparent" IsEnabled="{Binding FeaturesEnabled}" ItemsSource="{Binding DetectionTabItems}" cal:Message.Attach="[Event SelectionChanged] = [Action DetectionMethodChanged($eventArgs)]" />
                     </Grid>
                 </GroupBox>
                 <GroupBox Grid.Row="2" x:Name="ActionsSection" Header="Actions" BorderBrush="OrangeRed" Margin="0,0,0,5">
@@ -208,7 +207,7 @@
                             </Grid.RowDefinitions>
                             <StackPanel HorizontalAlignment="Right" Orientation="Vertical" Margin="5">
                                 <CheckBox Content="Graph Raw Data" IsChecked="{Binding GraphRawData,Mode=OneWayToSource}" VerticalAlignment="Center" />
-                                <CheckBox x:Name="chkBoxSelectionMode" Content="Selection Mode" IsChecked="{Binding SelectionModeEnabled,Mode=OneWayToSource}" VerticalAlignment="Center" />
+                                <CheckBox Content="Selection Mode" IsChecked="{Binding SelectionModeEnabled,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" />
                             </StackPanel>
                             <StackPanel Grid.Row="0" Orientation="Horizontal" Height="25" VerticalAlignment="Top">
                                 <TextBlock Text="Range:" VerticalAlignment="Center" Margin="0,0,5,0" />
