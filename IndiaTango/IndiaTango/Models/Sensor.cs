@@ -33,7 +33,9 @@ namespace IndiaTango.Models
         private float _lowerLimit;
         private float _upperLimit;
         private SummaryType _summaryType;
+        [ProtoMember(16)]
         private SensorState _rawData;
+        [ProtoMember(12)]
         private SensorState _currentState;
         [NonSerialized]
         private SensorVariable _sensorVariable;
@@ -409,7 +411,6 @@ namespace IndiaTango.Models
             }
         }
 
-        [ProtoMember(12)]
         public SensorState CurrentState
         {
             get { return (_currentState == null) ? RawData : _currentState; }
@@ -446,7 +447,6 @@ namespace IndiaTango.Models
         [ProtoMember(15, AsReference = true)]
         public Dataset Owner { get; private set; }
 
-        [ProtoMember(16)]
         public SensorState RawData
         {
             get { return _rawData ?? (_rawData =  new SensorState(this, DateTime.Now, new Dictionary<DateTime, float>(), "", true, null)); }

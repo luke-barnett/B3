@@ -38,6 +38,10 @@
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="protobuf-net, Version=1.0.0.282, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Externals\protobuf-net\protobuf-net.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
@@ -53,6 +57,7 @@
     <Compile Include="FormulaEvaluatorTest.cs" />
     <Compile Include="MissingValuesDetectorTests.cs" />
     <Compile Include="SensorTemplateTest.cs" />
+    <Compile Include="SerializationTest.cs" />
     <Compile Include="SiteExportTest.cs" />
     <Compile Include="SiteTest.cs" />
     <Compile Include="ContactExportTests.cs" />

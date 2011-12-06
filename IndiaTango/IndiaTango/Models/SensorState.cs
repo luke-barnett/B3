@@ -107,7 +107,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Gets or sets the list of values this sensor state holds.
         /// </summary>
-        [ProtoMember(4, OverwriteList = true)] //TODO: WHY?
+        [ProtoMember(4)]
         public Dictionary<DateTime, float> Values
         {
             get { return _valueList; }
