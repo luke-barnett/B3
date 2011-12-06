@@ -568,6 +568,9 @@ namespace IndiaTango.Models
             if (!(obj is Sensor))
                 return false;
 
+            if (this == obj)
+                return true;
+
             var sensorObj = obj as Sensor;
 
             if (sensorObj.Name != Name)

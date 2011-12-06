@@ -10,7 +10,7 @@ namespace IndiaTango.Models
     /// A class representing a sensor state; that is, the values a sensor held at a given instance in time.
     /// </summary>
     [Serializable]
-    [ProtoContract(SkipConstructor = true)]
+    [ProtoContract]
     public class SensorState
     {
         private DateTime _editTimestamp;
@@ -33,6 +33,11 @@ namespace IndiaTango.Models
         }
 
         #region Constructors
+
+        public SensorState()
+        {
+            _changes = new Dictionary<DateTime, LinkedList<int>>();
+        }
 
         public SensorState(Sensor owner, Dictionary<DateTime, float> valueList, string reason, Dictionary<DateTime, LinkedList<int>> changes) : this(owner, DateTime.Now, valueList, reason, false, changes) { }
         public SensorState(Sensor owner, Dictionary<DateTime, float> valueList, Dictionary<DateTime, LinkedList<int>> changes) : this(owner, DateTime.Now, valueList, changes) { }
