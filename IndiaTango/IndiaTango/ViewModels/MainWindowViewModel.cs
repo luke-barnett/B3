@@ -8,7 +8,6 @@ using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -1790,10 +1789,10 @@ namespace IndiaTango.ViewModels
             var max = MaximumY(ChartSeries);
 
             if (Math.Abs(min - 0) < 0.01)
-                min = -1;
+                min = -0.2;
 
             if (Math.Abs(max - 0) < 0.01)
-                max = 1;
+                max = 0.2;
 
             if (min < double.MaxValue)
             {
