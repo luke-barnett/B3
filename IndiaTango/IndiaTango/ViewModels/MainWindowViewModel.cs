@@ -259,16 +259,6 @@ namespace IndiaTango.ViewModels
             get { return CurrentDataset != null; }
         }
 
-        private string[] SiteNamesNoSelectedIndexRefresh
-        {
-            get
-            {
-                var siteNamesList = DataSetFiles.Select(x => x.Substring(x.LastIndexOf('\\') + 1, x.Length - x.LastIndexOf('\\') - 4)).ToList();
-                siteNamesList.Insert(0, "Create new site...");
-                return siteNamesList.ToArray();
-            }
-        }
-
         private SelectionMadeArgs Selection
         {
             get { return _selection; }
@@ -635,17 +625,17 @@ namespace IndiaTango.ViewModels
             _sensorsToCheckMethodsAgainst.Clear();
             _sensorsToGraph.Clear();
 
-            if (!Thread.CurrentThread.IsBackground)
-                UpdateGraph(true);
-
             foreach (var gSensor in checkedSensors.Where(x => Sensors.Contains(x.Sensor)))
             {
                 var sensorToCheck = GraphableSensors.FirstOrDefault(x => gSensor.Sensor == x.Sensor);
                 if (sensorToCheck == null) continue;
 
                 sensorToCheck.IsChecked = true;
-                AddToGraph(new RoutedEventArgs(ToggleButton.CheckedEvent) { Source = new CheckBox { Content = sensorToCheck }});
+                AddToGraph(sensorToCheck, false);
             }
+
+            if (!Thread.CurrentThread.IsBackground)
+                UpdateGraph(true);
 
             NotifyOfPropertyChange(() => GraphableSensors);
         }
@@ -2300,10 +2290,8 @@ namespace IndiaTango.ViewModels
             Debug.WriteLine("Closing Program");
         }
 
-        public void AddToGraph(RoutedEventArgs eventArgs)
+        public void AddToGraph(GraphableSensor graphableSensor, bool updateGraph = true)
         {
-            var checkBox = (CheckBox)eventArgs.Source;
-            var graphableSensor = (GraphableSensor)checkBox.Content;
             if (_sensorsToGraph.FirstOrDefault(x => x.BoundsSet) != null)
                 graphableSensor.SetUpperAndLowerBounds(StartTime, EndTime);
             _sensorsToGraph.Add(graphableSensor);
@@ -2312,8 +2300,15 @@ namespace IndiaTango.ViewModels
             UpdateGraph(_sensorsToGraph.Count < 2);
             UpdateDetectionMethodGraphableSensors();
             EnableFeatures();
-            AddToEditingSensors(eventArgs);
+            AddToEditingSensors(graphableSensor);
             UpdateUndoRedo();
+        }
+
+        public void AddToGraph(RoutedEventArgs eventArgs)
+        {
+            var checkBox = (CheckBox)eventArgs.Source;
+            var graphableSensor = (GraphableSensor)checkBox.Content;
+            AddToGraph(graphableSensor);
         }
 
         public void RemoveFromGraph(RoutedEventArgs eventArgs)
@@ -2441,15 +2436,20 @@ namespace IndiaTango.ViewModels
             _windowManager.ShowDialog(exportView);
         }
 
-        public void AddToEditingSensors(RoutedEventArgs eventArgs)
+        public void AddToEditingSensors(GraphableSensor graphableSensor)
         {
-            var checkBox = (CheckBox)eventArgs.Source;
-            var graphableSensor = (GraphableSensor)checkBox.Content;
             _sensorsToCheckMethodsAgainst.Add(graphableSensor.Sensor);
             graphableSensor.Sensor.PropertyChanged += SensorPropertyChanged;
             UpdateDetectionMethodGraphableSensors();
             NotifyOfPropertyChange(() => SensorsForEditing);
             CheckTheseMethodsForThisSensor(_detectionMethods.Where(x => x.IsEnabled), graphableSensor.Sensor);
+        }
+
+        public void AddToEditingSensors(RoutedEventArgs eventArgs)
+        {
+            var checkBox = (CheckBox)eventArgs.Source;
+            var graphableSensor = (GraphableSensor)checkBox.Content;
+            AddToEditingSensors(graphableSensor);
         }
 
 
