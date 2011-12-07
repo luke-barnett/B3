@@ -347,9 +347,9 @@ namespace IndiaTango.Models
 
         public string Name { get { return _name; } }
 
-        public static DateColumnFormat TwoDateColumn { get { return new DateColumnFormat("Two Column", "Two date and time columns (dd/mm/yy | hh/mm)"); } }
+        public static DateColumnFormat TwoDateColumn { get { return new DateColumnFormat("Two Column", "Two date and time columns (DD/MM/YYYY | hhmm)"); } }
 
-        public static DateColumnFormat SplitDateColumn { get { return new DateColumnFormat("Split Column", "Split date and time columns (dd | mm | yy | hh | mm)"); } }
+        public static DateColumnFormat SplitDateColumn { get { return new DateColumnFormat("Split Column", "Split date and time columns (DD | MM | YYYY | hh | mm)"); } }
 
         #endregion
 
