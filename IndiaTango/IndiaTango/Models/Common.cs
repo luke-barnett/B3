@@ -47,7 +47,15 @@ namespace IndiaTango.Models
         public static string ChangeReasonsPath { get { return Path.Combine(AppDataPath, "ChangeReasons.txt"); } }
         public static string Icon { get { return "/B3;component/Images/icon.ico"; } }
         public static string TestDataPath { get { return "../../Test Data/"; } }
-        public static string DatasetSaveLocation { get { return Path.Combine(AppDataPath, "Sites"); } }
+        public static string DatasetSaveLocation
+        {
+            get
+            {
+                if (!Directory.Exists(Path.Combine(AppDataPath, "Sites")))
+                    Directory.CreateDirectory(Path.Combine(AppDataPath, "Sites"));
+                return Path.Combine(AppDataPath, "Sites");
+            }
+        }
         public static string AppDataPath
         {
             get
@@ -407,7 +415,7 @@ namespace IndiaTango.Models
                 EventLogger.LogInfo(sessionToSave, "Save daemon", "Session save aborted");
             delegatedBackgroundWorker.RunWorkerAsync();
         }
-        
+
         public static TimeSpan Round(this TimeSpan time, TimeSpan roundingInterval, MidpointRounding roundingType)
         {
             return new TimeSpan(
