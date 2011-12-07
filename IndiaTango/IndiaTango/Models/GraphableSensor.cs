@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows.Media;
@@ -10,7 +11,7 @@ namespace IndiaTango.Models
     /// <summary>
     /// Wraps a sensor with some needed graph data
     /// </summary>
-    public class GraphableSensor
+    public class GraphableSensor : INotifyPropertyChanged
     {
         private IEnumerable<DataPoint<DateTime, float>> _dataPoints;
         private IEnumerable<DataPoint<DateTime, float>> _rawDataPoints;
@@ -83,6 +84,18 @@ namespace IndiaTango.Models
         /// </summary>
         public GraphableSensor This { get { return this; } }
 
+        private bool _isChecked;
+        public bool IsChecked
+        {
+            get { return _isChecked; }
+            set
+            {
+                _isChecked = value;
+                if (PropertyChanged != null)
+                    PropertyChanged(this, new PropertyChangedEventArgs("IsChecked"));
+            }
+        }
+
         /// <summary>
         /// Re extracts the data points from the sensor
         /// </summary>
@@ -150,5 +163,7 @@ namespace IndiaTango.Models
         /// The upper bound of the data values
         /// </summary>
         public DateTime UpperBound { get; private set; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

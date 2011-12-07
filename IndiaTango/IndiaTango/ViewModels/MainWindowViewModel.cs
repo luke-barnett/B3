@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -90,7 +91,7 @@ namespace IndiaTango.ViewModels
                                                          {
                                                              sensor.RemoveBounds();
                                                          }
-                                                         CalculateYAxis(true);
+                                                         CalculateYAxis();
                                                          CheckTheseMethods(_detectionMethods.Where(x => x.IsEnabled));
                                                          CalculateGraphedEndPoints();
                                                          SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
@@ -123,7 +124,7 @@ namespace IndiaTango.ViewModels
                                                      {
                                                          sensor.RemoveBounds();
                                                      }
-                                                     CalculateYAxis(true);
+                                                     CalculateYAxis();
                                                      CheckTheseMethods(_detectionMethods.Where(x => x.IsEnabled));
                                                      CalculateGraphedEndPoints();
                                                      SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
@@ -131,7 +132,7 @@ namespace IndiaTango.ViewModels
             behaviourManager.Behaviours.Add(_selectionBehaviour);
             #endregion
 
-            behaviourManager.Behaviours.Add(new DateAnnotationBehaviour { IsEnabled = true });
+            //behaviourManager.Behaviours.Add(new DateAnnotationBehaviour { IsEnabled = true });
 
             Behaviour = behaviourManager;
 
@@ -624,7 +625,28 @@ namespace IndiaTango.ViewModels
         private void UpdateGUI()
         {
             NotifyOfPropertyChange(() => Sensors);
+            var checkedSensors = GraphableSensors.Where(x => x.IsChecked).ToArray();
             _graphableSensors = null;
+
+            foreach (var sensor in _sensorsToCheckMethodsAgainst)
+            {
+                sensor.PropertyChanged -= SensorPropertyChanged;
+            }
+            _sensorsToCheckMethodsAgainst.Clear();
+            _sensorsToGraph.Clear();
+
+            if (!Thread.CurrentThread.IsBackground)
+                UpdateGraph(true);
+
+            foreach (var gSensor in checkedSensors.Where(x => Sensors.Contains(x.Sensor)))
+            {
+                var sensorToCheck = GraphableSensors.FirstOrDefault(x => gSensor.Sensor == x.Sensor);
+                if (sensorToCheck == null) continue;
+
+                sensorToCheck.IsChecked = true;
+                AddToGraph(new RoutedEventArgs(ToggleButton.CheckedEvent) { Source = new CheckBox { Content = sensorToCheck }});
+            }
+
             NotifyOfPropertyChange(() => GraphableSensors);
         }
 
@@ -1941,12 +1963,8 @@ namespace IndiaTango.ViewModels
                                                          var insertedValues = false;
 
                                                          //And add values for any new dates we want
-                                                         foreach (
-                                                             var value in
-                                                                 sensor.CurrentState.Values.Where(
-                                                                     value =>
-                                                                     !keepOldValues ||
-                                                                     !newState.Values.ContainsKey(value.Key)))
+                                                         foreach (var value in sensor.CurrentState.Values.Where(value =>
+                                                                     !keepOldValues || !newState.Values.ContainsKey(value.Key)))
                                                          {
                                                              newState.Values[value.Key] = value.Value;
                                                              insertedValues = true;
@@ -2199,6 +2217,7 @@ namespace IndiaTango.ViewModels
                 graphToUpdate.RefreshDataPoints();
 
             SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
+            CalculateYAxis();
             Common.ShowMessageBox("Undo suceeded", "Sucessfully stepped back the following sensors: \n\r\n\r" + firstSensor.Name, false, false);
             UpdateUndoRedo();
         }
@@ -2221,6 +2240,7 @@ namespace IndiaTango.ViewModels
                 graphToUpdate.RefreshDataPoints();
 
             SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
+            CalculateYAxis();
             Common.ShowMessageBox("Redo suceeded", "Sucessfully stepped forward the following sensors: \n\r\n\r" + firstSensor.Name, false, false);
             UpdateUndoRedo();
         }

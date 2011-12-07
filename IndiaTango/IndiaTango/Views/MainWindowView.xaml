@@ -79,7 +79,7 @@
                             <DataGridTemplateColumn Header="">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <CheckBox Content="{Binding This}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="2">
+                                        <CheckBox Content="{Binding This}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="2" IsChecked="{Binding IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                                             <i:Interaction.Triggers>
                                                 <i:EventTrigger EventName="Checked">
                                                     <cal:ActionMessage MethodName="AddToGraph">

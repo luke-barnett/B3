@@ -39,7 +39,7 @@ namespace IndiaTango.ViewModels
             get { return _newSensors; }
             set
             {
-                _newSensors = value;
+                _newSensors = new List<Sensor>(value);
                 SensorMatch();
                 NotifyOfPropertyChange(() => NewSensors);
             }
