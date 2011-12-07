@@ -94,6 +94,7 @@
     <Compile Include="Models\BelowMinValueDetector.cs" />
     <Compile Include="Models\Colour.cs" />
     <Compile Include="Models\ColourConverter.cs" />
+    <Compile Include="Models\DateAnnotationBehaviour.cs" />
     <Compile Include="Models\ErroneousValue.cs" />
     <Compile Include="Models\IDetectionMethod.cs" />
     <Compile Include="Models\FormulaEvaluator.cs" />

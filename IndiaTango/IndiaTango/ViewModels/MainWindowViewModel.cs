@@ -131,6 +131,8 @@ namespace IndiaTango.ViewModels
             behaviourManager.Behaviours.Add(_selectionBehaviour);
             #endregion
 
+            behaviourManager.Behaviours.Add(new DateAnnotationBehaviour { IsEnabled = true });
+
             Behaviour = behaviourManager;
 
             #endregion
