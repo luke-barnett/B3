@@ -43,8 +43,8 @@ namespace IndiaTango.ViewModels
 
             #region Set Up Detection Methods
 
-            _minMaxRateofChangeDetector = new MinMaxDetector();
-            _minMaxRateofChangeDetector.GraphUpdateNeeded += () =>
+            _minMaxDetector = new MinMaxDetector();
+            _minMaxDetector.GraphUpdateNeeded += () =>
                                                                  {
                                                                      SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
                                                                      CalculateYAxis(false);
@@ -58,7 +58,7 @@ namespace IndiaTango.ViewModels
 
             _missingValuesDetector = new MissingValuesDetector { IsEnabled = true };
 
-            _detectionMethods = new List<IDetectionMethod> { _missingValuesDetector, _minMaxRateofChangeDetector, new ToHighRateOfChangeDetector(), _runningMeanStandardDeviationDetector };
+            _detectionMethods = new List<IDetectionMethod> { _missingValuesDetector, _minMaxDetector, new ToHighRateOfChangeDetector(), _runningMeanStandardDeviationDetector };
 
             #endregion
 
@@ -192,7 +192,7 @@ namespace IndiaTango.ViewModels
         private bool _featuresEnabled = true;
         private List<TabItem> _detectionTabItems;
         private readonly List<IDetectionMethod> _detectionMethods;
-        private readonly MinMaxDetector _minMaxRateofChangeDetector;
+        private readonly MinMaxDetector _minMaxDetector;
         private readonly RunningMeanStandardDeviationDetector _runningMeanStandardDeviationDetector;
         private readonly MissingValuesDetector _missingValuesDetector;
         private List<GraphableSensor> _graphableSensors;
@@ -1864,7 +1864,7 @@ namespace IndiaTango.ViewModels
                                                  EnableFeatures();
                                                  return;
                                              }
-                                                 
+
 
                                              var sensors = (List<Sensor>)e.Result;
 
@@ -2193,7 +2193,7 @@ namespace IndiaTango.ViewModels
             firstSensor.Undo();
 
             var graphToUpdate = GraphableSensors.FirstOrDefault(x => x.Sensor == firstSensor);
-            if(graphToUpdate != null)
+            if (graphToUpdate != null)
                 graphToUpdate.RefreshDataPoints();
 
             SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
@@ -2424,10 +2424,13 @@ namespace IndiaTango.ViewModels
             var checkBox = (CheckBox)eventArgs.Source;
             var graphableSensor = (GraphableSensor)checkBox.Content;
             _sensorsToCheckMethodsAgainst.Add(graphableSensor.Sensor);
+            graphableSensor.Sensor.PropertyChanged += SensorPropertyChanged;
             UpdateDetectionMethodGraphableSensors();
             NotifyOfPropertyChange(() => SensorsForEditing);
             CheckTheseMethodsForThisSensor(_detectionMethods.Where(x => x.IsEnabled), graphableSensor.Sensor);
         }
+
+
 
         public void RemoveFromEditingSensors(RoutedEventArgs eventArgs)
         {
@@ -2435,6 +2438,7 @@ namespace IndiaTango.ViewModels
             var graphableSensor = (GraphableSensor)checkBox.Content;
             if (_sensorsToCheckMethodsAgainst.Contains(graphableSensor.Sensor))
                 _sensorsToCheckMethodsAgainst.Remove(graphableSensor.Sensor);
+            graphableSensor.Sensor.PropertyChanged -= SensorPropertyChanged;
             NotifyOfPropertyChange(() => SensorsForEditing);
             UpdateDetectionMethodGraphableSensors();
 
@@ -2513,15 +2517,29 @@ namespace IndiaTango.ViewModels
                         break;
                 }
             }
-            else if(Keyboard.Modifiers == ModifierKeys.Shift)
+            else if (Keyboard.Modifiers == ModifierKeys.Shift)
             {
-                if(eventArgs.Key == Key.S)
+                if (eventArgs.Key == Key.S)
                 {
                     SelectionModeEnabled = !SelectionModeEnabled;
                     NotifyOfPropertyChange(() => SelectionModeEnabled);
                 }
             }
 
+        }
+
+        private void SensorPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (!_detectionMethodsEnabled) return;
+
+            var enabledDetector = _detectionMethods.FirstOrDefault(x => x.IsEnabled);
+            if (enabledDetector != null)
+            {
+                if (enabledDetector is MinMaxDetector && (e.PropertyName == "UpperLimit" || e.PropertyName == "LowerLimit"))
+                    CheckTheseMethods(new[] { enabledDetector });
+                else if (enabledDetector is ToHighRateOfChangeDetector && (e.PropertyName == "MaxRateOfChange"))
+                    CheckTheseMethods(new[] { enabledDetector });
+            }
         }
 
         #endregion
