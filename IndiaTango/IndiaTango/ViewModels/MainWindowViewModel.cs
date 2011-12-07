@@ -1859,7 +1859,12 @@ namespace IndiaTango.ViewModels
             bw.RunWorkerCompleted += (o, e) =>
                                          {
                                              if (e.Result == null)
+                                             {
+                                                 ShowProgressArea = false;
+                                                 EnableFeatures();
                                                  return;
+                                             }
+                                                 
 
                                              var sensors = (List<Sensor>)e.Result;
 
@@ -2086,6 +2091,9 @@ namespace IndiaTango.ViewModels
                 CreateNewSite();
                 return;
             }
+
+            if (DataSetFiles.Count() == 0)
+                CurrentDataset = null;
 
             if (CurrentDataset != null && DataSetFiles[_chosenSelectedIndex - 1] == CurrentDataset.SaveLocation)
                 return;

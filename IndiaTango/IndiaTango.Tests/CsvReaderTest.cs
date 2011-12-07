@@ -11,7 +11,7 @@ namespace IndiaTango.Tests
     {
         private CSVReader _reader;
         private const string TestDataFileName = "../../Test Data/lakeTutira120120110648.csv";
-        
+
 
         [SetUp]
         public void Setup()
@@ -36,7 +36,7 @@ namespace IndiaTango.Tests
 
             var sensorNames = (new string[] { "Temperature1", "Temperature2", "Temperature3", "Temperature4", "Temperature5", "Temperature6", "Temperature7", "Temperature8", "Temperature9", "Temperature10", "BatteryVolts", "DOSurfaceSat", "DODeepSat", "Chlorophyll", "Phycocyanin", "Turbidity", "LightLevel", "DOSurfaceCont", "DODeepCont", "WaterColumnDepth(ABS)", "WindDirection", "WindSpeed", "AirTemperature", "Humidity", "BarometricPressure", "Rainfall", "Hail" }).ToList();
 
-            foreach(var sensor in sensors)
+            foreach (var sensor in sensors)
             {
                 Assert.IsTrue(sensorNames.Contains(sensor.Name));
                 sensorNames.Remove(sensor.Name);
@@ -62,22 +62,124 @@ namespace IndiaTango.Tests
         }
 
         [Test]
-        public void ReadsCSVWithIndividualDatesCorrectly()
+        public void ReadsCSVWithYYYYMMDDmmhhSeperately()
         {
-            var testData = "mm,yyyy,dd,nn,hh,Awesome Sensor\r\n08,04,2011,15,00,100\r\n";
+            var fileName = Path.GetTempFileName() + ".csv";
 
-            var path = Path.Combine(Common.TestDataPath, "datasetIndividualColumnsTest.csv");
-            File.WriteAllText(path, testData);
+            File.WriteAllText(fileName, "YYYY,MM,DD,hh,mm,Test Sensor\r\n2011,05,10,13,00,100");
 
-            var r = new CSVReader(path);
-            var list = r.ReadSensors();
+            var reader = new CSVReader(fileName);
+            var sensors = reader.ReadSensors();
 
-            var sensorValue = list[0].CurrentState.Values;
-
-            Assert.AreEqual(sensorValue[new DateTime(2011, 8, 4, 0, 15, 0)], 100);
-            Assert.AreEqual(1, sensorValue.Count);
+            Assert.AreEqual(1, sensors.Count);
+            Assert.AreEqual(100, sensors[0].CurrentState.Values[new DateTime(2011, 5, 10, 13, 0, 0)]);
+            Assert.AreEqual(1, sensors[0].CurrentState.Values.Count);
         }
 
-        
+        [Test]
+        public void ReadsCSVWithYYYYMMDDTogetherAndmmhhTogether()
+        {
+            var fileName = Path.GetTempFileName() + ".csv";
+
+            File.WriteAllText(fileName, "YYYYMMDD,hhmm,Test Sensor\r\n20110510,1300,100");
+
+            var reader = new CSVReader(fileName);
+            var sensors = reader.ReadSensors();
+
+            Assert.AreEqual(1, sensors.Count);
+            Assert.AreEqual(100, sensors[0].CurrentState.Values[new DateTime(2011, 5, 10, 13, 0, 0)]);
+            Assert.AreEqual(1, sensors[0].CurrentState.Values.Count);
+        }
+
+        [Test]
+        public void ReadsCSVWithYYYYMMDDTogetherAndmmhhTogetherSplitBySlash()
+        {
+            var fileName = Path.GetTempFileName() + ".csv";
+
+            File.WriteAllText(fileName, "YYYY/MM/DD,hhmm,Test Sensor\r\n2011/05/10,1300,100");
+
+            var reader = new CSVReader(fileName);
+            var sensors = reader.ReadSensors();
+
+            Assert.AreEqual(1, sensors.Count);
+            Assert.AreEqual(100, sensors[0].CurrentState.Values[new DateTime(2011, 5, 10, 13, 0, 0)]);
+            Assert.AreEqual(1, sensors[0].CurrentState.Values.Count);
+        }
+
+        [Test]
+        public void ReadsCSVWithYYYYMMDDTogetherAndmmhhTogetherSplitByDash()
+        {
+            var fileName = Path.GetTempFileName() + ".csv";
+
+            File.WriteAllText(fileName, "YYYY-MM-DD,hhmm,Test Sensor\r\n2011-05-10,1300,100");
+
+            var reader = new CSVReader(fileName);
+            var sensors = reader.ReadSensors();
+
+            Assert.AreEqual(1, sensors.Count);
+            Assert.AreEqual(100, sensors[0].CurrentState.Values[new DateTime(2011, 5, 10, 13, 0, 0)]);
+            Assert.AreEqual(1, sensors[0].CurrentState.Values.Count);
+        }
+
+        [Test]
+        public void ReadsCSVWithYYYYMMDDTogetherAndmmhhTogetherSplitBySpace()
+        {
+            var fileName = Path.GetTempFileName() + ".csv";
+
+            File.WriteAllText(fileName, "YYYY MM DD,hhmm,Test Sensor\r\n2011 05 10,1300,100");
+
+            var reader = new CSVReader(fileName);
+            var sensors = reader.ReadSensors();
+
+            Assert.AreEqual(1, sensors.Count);
+            Assert.AreEqual(100, sensors[0].CurrentState.Values[new DateTime(2011, 5, 10, 13, 0, 0)]);
+            Assert.AreEqual(1, sensors[0].CurrentState.Values.Count);
+        }
+
+        [Test]
+        public void ReadsCSVWithYYYYMMDDTogetherAndmmhhTogetherSplitByColon()
+        {
+            var fileName = Path.GetTempFileName() + ".csv";
+
+            File.WriteAllText(fileName, "YYYYMMDD,hh:mm,Test Sensor\r\n20110510,13:00,100");
+
+            var reader = new CSVReader(fileName);
+            var sensors = reader.ReadSensors();
+
+            Assert.AreEqual(1, sensors.Count);
+            Assert.AreEqual(100, sensors[0].CurrentState.Values[new DateTime(2011, 5, 10, 13, 0, 0)]);
+            Assert.AreEqual(1, sensors[0].CurrentState.Values.Count);
+        }
+
+        [Test]
+        public void ReadsCSVWithYYYYSeperateMMDDTogetherAndmmhhTogether()
+        {
+            var fileName = Path.GetTempFileName() + ".csv";
+
+            File.WriteAllText(fileName, "YYYY,MMDD,hh:mm,Test Sensor\r\n2011,0510,13:00,100");
+
+            var reader = new CSVReader(fileName);
+            var sensors = reader.ReadSensors();
+
+            Assert.AreEqual(1, sensors.Count);
+            Assert.AreEqual(100, sensors[0].CurrentState.Values[new DateTime(2011, 5, 10, 13, 0, 0)]);
+            Assert.AreEqual(1, sensors[0].CurrentState.Values.Count);
+        }
+
+        [Test]
+        public void ReadsCSVWithYYYYMMTogetherDDSeperateAndmmhhTogether()
+        {
+            var fileName = Path.GetTempFileName() + ".csv";
+
+            File.WriteAllText(fileName, "YYYYMM,DD,hh:mm,Test Sensor\r\n201105,10,13:00,100");
+
+            var reader = new CSVReader(fileName);
+            var sensors = reader.ReadSensors();
+
+            Assert.AreEqual(1, sensors.Count);
+            Assert.AreEqual(100, sensors[0].CurrentState.Values[new DateTime(2011, 5, 10, 13, 0, 0)]);
+            Assert.AreEqual(1, sensors[0].CurrentState.Values.Count);
+        }
+
     }
 }

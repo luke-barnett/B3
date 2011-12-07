@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -22,7 +23,7 @@ namespace IndiaTango.Models
 
             _filename = fileName;
 
-        	//ProgressChanged += OnProgressChanged;
+            //ProgressChanged += OnProgressChanged;
         }
 
         public List<Sensor> ReadSensors()
@@ -32,120 +33,263 @@ namespace IndiaTango.Models
 
         public List<Sensor> ReadSensors(BackgroundWorker asyncWorker, Dataset owner)
         {
-        	if (_sensors != null)
+            if (_sensors != null)
                 return _sensors.ToList();
 
-            _sensors = new Sensor[0];
+            var linesInFile = File.ReadLines(_filename).Count();
+            var linesRead = 0d;
+            var oldProgresValue = 0;
 
-            try
+            using (var reader = new StreamReader(_filename))
             {
-                using (var sr = new StreamReader(_filename))
+                var csvHeaderLine = reader.ReadLine();
+                if (csvHeaderLine == null)
+                    throw new FileFormatException("Couldn't read the header line!");
+
+                linesRead++;
+
+                var headers = csvHeaderLine.Split(',');
+
+                var dateTimeComponents = new List<DateTimeComponent>();
+                var sensorIndexers = new List<SensorIndexer>();
+
+                foreach (var header in headers)
                 {
-                    var linesInFile = File.ReadLines(_filename).Count();
-					var linesRead = 0d;
-					var oldProgressValue = 0;
-
-                    var sensorNamesString = sr.ReadLine();
-
-                    String[] sensorNames;
-                    if (sensorNamesString != null)
-                        sensorNames = sensorNamesString.Split(',');
-                    else
-                        throw new FormatException("Couldn't get the sensor names from the csv");
-
-                    // First cell of column headings is a valid date/time component
-                    var isIndividualDateComponents = (sensorNames.Length >= 5 &&
-                                                      (sensorNames[0] == "dd" || sensorNames[0] == "yyyy" ||
-                                                       sensorNames[0] == "mm"));
-                    int startOffset = isIndividualDateComponents ? 5 : 2;
-
-                    //First two are the time stamp
-                    _sensors = new Sensor[sensorNames.Length - startOffset];
-
-                    for (int i = startOffset; i < sensorNames.Length; i++)
+                    DateTimeComponentType dateTimeComponent;
+                    var cleansedHeader = header.Replace(" ", "").Replace("-", "").Replace("/", "").Replace(":", "");
+                    var isDateTimeComponent = Enum.TryParse(cleansedHeader, out dateTimeComponent);
+                    Debug.Print("{0} is a dateTimeComponent: {1}", header, isDateTimeComponent);
+                    if (isDateTimeComponent)
                     {
-                        if (asyncWorker != null && asyncWorker.CancellationPending)
-                            return null;
-
-                        _sensors[i - startOffset] = new Sensor(sensorNames[i], null, owner);
-                    }
-
-
-                    string readLine;
-                    while ((readLine = sr.ReadLine()) != null)
-                    {
-                        if (asyncWorker != null && asyncWorker.CancellationPending)
-                            return null;
-
-                    	linesRead++;
-                    	var progressValue = (int) (linesRead/linesInFile*100);
-
-						//We now only trigger the event every time the return value increases.
-						//There seems to be a crazy overhead on firing events, so we only fire it when it matters (when that value has changed)
-						//Comment out 'OnProgressChanged()' below to see speed improvements if we dont fire events at all. Times can be seen in the log file or debug window
-						//I think we can easily afford to fire only 100 events, rather than ~50000 :) Speedy speed!!!
-                    	if(progressValue > oldProgressValue)
-                    	{
-                    		OnProgressChanged(this,new ReaderProgressChangedArgs(progressValue));
-                    		oldProgressValue = progressValue;
-                    	}
-
-						var values = readLine.Split(',');
-						if (values.Length != sensorNames.Length)
-							throw new FormatException("Number of values mismatch from the number of sensors");
-
-                        var components = new string[5];
-
-                        if(isIndividualDateComponents)
+                        dateTimeComponents.Add(new DateTimeComponent
                         {
-                            // Normalise to form dd/mm/yyy hh:mm
-                            for (int i = 0; i < 5; i++)
-                            {
-                                switch(sensorNames[i])
-                                {
-                                    case "dd":
-                                        components[0] = values[i];
-                                        break;
-                                    case "mm":
-                                        components[1] = values[i];
-                                        break;
-                                    case "yyyy":
-                                        components[2] = values[i];
-                                        break;
-                                    case "hh":
-                                        components[3] = values[i];
-                                        break;
-                                    case "nn":
-                                        components[4] = values[i];
-                                        break;
-                                }
-                            }
-                        }
-
-                        var timeStamp = DateTime.Parse((isIndividualDateComponents) ? components[0] + "/" + components[1] + "/" + components[2] + " " + components[3] + ":" + components[4] : values[0] + " " + values[1]);
-
-						for (int i = startOffset; i < values.Length; i++)
-						{
-							if (!String.IsNullOrWhiteSpace(values[i]))
-							{
-								try
-								{
-								    _sensors[i - startOffset].RawData.Values.Add(timeStamp, float.Parse(values[i]));
-								}
-								catch (Exception)
-								{
-								}
-							}
-						}
+                            Index = Array.IndexOf(headers, header),
+                            Type = dateTimeComponent
+                        });
+                    }
+                    else
+                    {
+                        sensorIndexers.Add(new SensorIndexer
+                        {
+                            Index = Array.IndexOf(headers, header),
+                            Sensor = new Sensor(header, null, owner)
+                        });
                     }
                 }
+
+                string lineRead;
+                while ((lineRead = reader.ReadLine()) != null)
+                {
+                    if (asyncWorker != null && asyncWorker.CancellationPending)
+                        return null;
+                    linesRead++;
+
+                    var progress = (int)(linesRead / linesInFile * 100);
+
+                    if (progress > oldProgresValue)
+                    {
+                        OnProgressChanged(this, new ReaderProgressChangedArgs(progress));
+                        oldProgresValue = progress;
+                    }
+
+                    var lineComponents = lineRead.Split(',');
+
+                    var cleansedLineComponenets = lineRead.Split(',');
+                    for (var i = 0; i < cleansedLineComponenets.Length; i++)
+                    {
+                        cleansedLineComponenets[i] = cleansedLineComponenets[i].Replace(" ", "").Replace("-", "").Replace("/", "").Replace(":", "");
+                    }
+
+                    var dateTime = DateTime.MinValue;
+                    var hasYear = false;
+                    var hasMonth = false;
+                    var hasDay = false;
+                    var hasHour = false;
+                    var hasMinute = false;
+                    foreach (var dateTimeComponent in dateTimeComponents)
+                    {
+                        if (dateTimeComponent.Index > cleansedLineComponenets.Length)
+                            throw new FileFormatException("There aren't enough values for the date-time components");
+                        try
+                        {
+                            #region Date Parsers
+                            if (dateTimeComponent.Type == DateTimeComponentType.DD)
+                            {
+                                dateTime = new DateTime(dateTime.Year, dateTime.Month, int.Parse(cleansedLineComponenets[dateTimeComponent.Index]), dateTime.Hour, dateTime.Minute, 0);
+                                hasDay = true;
+                            }
+                            else if (dateTimeComponent.Type == DateTimeComponentType.DDMM)
+                            {
+                                dateTime = new DateTime(dateTime.Year, int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(2)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(0, 2)), dateTime.Hour, dateTime.Minute, 0);
+                                hasDay = true;
+                                hasMonth = true;
+                            }
+                            else if (dateTimeComponent.Type == DateTimeComponentType.DDMMYYYY)
+                            {
+                                dateTime = new DateTime(int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(4)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(2, 2)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(0, 2)), dateTime.Hour, dateTime.Minute, 0);
+                                hasDay = true;
+                                hasMonth = true;
+                                hasYear = true;
+                            }
+                            else if (dateTimeComponent.Type == DateTimeComponentType.DDMMYYYYhhmm)
+                            {
+                                dateTime = new DateTime(int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(4, 4)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(2, 2)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(0, 2)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(8, 2)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(10, 2)), 0);
+                                hasDay = true;
+                                hasMonth = true;
+                                hasYear = true;
+                                hasHour = true;
+                                hasMinute = true;
+                            }
+                            else if (dateTimeComponent.Type == DateTimeComponentType.MM)
+                            {
+                                dateTime = new DateTime(dateTime.Year, int.Parse(cleansedLineComponenets[dateTimeComponent.Index]), dateTime.Day, dateTime.Hour, dateTime.Minute, 0);
+                                hasMonth = true;
+                            }
+                            else if (dateTimeComponent.Type == DateTimeComponentType.MMDD)
+                            {
+                                dateTime = new DateTime(dateTime.Year, int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(0, 2)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(2)), dateTime.Hour, dateTime.Minute, 0);
+                                hasMonth = true;
+                                hasDay = true;
+                            }
+                            else if (dateTimeComponent.Type == DateTimeComponentType.MMDDYYYY)
+                            {
+                                dateTime = new DateTime(int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(4)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(0, 2)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(2, 2)), dateTime.Hour, dateTime.Minute, 0);
+                                hasMonth = true;
+                                hasDay = true;
+                                hasYear = true;
+                            }
+                            else if (dateTimeComponent.Type == DateTimeComponentType.MMDDYYYYhhmm)
+                            {
+                                dateTime = new DateTime(int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(4, 4)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(0, 2)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(2, 2)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(8, 2)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(10, 2)), 0);
+                                hasMonth = true;
+                                hasDay = true;
+                                hasYear = true;
+                                hasHour = true;
+                                hasMinute = true;
+                            }
+                            else if (dateTimeComponent.Type == DateTimeComponentType.YYYY)
+                            {
+                                dateTime = new DateTime(int.Parse(cleansedLineComponenets[dateTimeComponent.Index]), dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute, 0);
+                                hasYear = true;
+                            }
+                            else if (dateTimeComponent.Type == DateTimeComponentType.YYYYDDMM)
+                            {
+                                dateTime = new DateTime(int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(0, 4)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(6)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(4, 2)), dateTime.Hour, dateTime.Minute, 0);
+                                hasYear = true;
+                                hasDay = true;
+                                hasMonth = true;
+                            }
+                            else if (dateTimeComponent.Type == DateTimeComponentType.YYYYDDMMhh)
+                            {
+                                dateTime = new DateTime(int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(0, 4)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(6, 2)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(4, 2)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(8)), dateTime.Minute, 0);
+                                hasYear = true;
+                                hasDay = true;
+                                hasMonth = true;
+                                hasHour = true;
+                            }
+                            else if (dateTimeComponent.Type == DateTimeComponentType.YYYYDDMMhhmm)
+                            {
+                                dateTime = new DateTime(int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(0, 4)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(6, 2)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(4, 2)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(8, 2)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(10)), 0);
+                                hasYear = true;
+                                hasDay = true;
+                                hasMonth = true;
+                                hasHour = true;
+                                hasMinute = true;
+                            }
+                            else if (dateTimeComponent.Type == DateTimeComponentType.YYYYMM)
+                            {
+                                dateTime = new DateTime(int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(0, 4)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(4)), dateTime.Day, dateTime.Hour, dateTime.Minute, 0);
+                                hasYear = true;
+                                hasMonth = true;
+                            }
+                            else if (dateTimeComponent.Type == DateTimeComponentType.YYYYMMDD)
+                            {
+                                dateTime = new DateTime(int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(0, 4)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(4, 2)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(6)), dateTime.Hour, dateTime.Minute, 0);
+                                hasYear = true;
+                                hasMonth = true;
+                                hasDay = true;
+                            }
+                            else if (dateTimeComponent.Type == DateTimeComponentType.YYYYMMDDhh)
+                            {
+                                dateTime = new DateTime(int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(0, 4)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(4, 2)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(6, 2)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(8)), dateTime.Minute, 0);
+                                hasYear = true;
+                                hasMonth = true;
+                                hasDay = true;
+                                hasHour = true;
+                            }
+                            else if (dateTimeComponent.Type == DateTimeComponentType.YYYYMMDDhhmm)
+                            {
+                                dateTime = new DateTime(int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(0, 4)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(4, 2)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(6, 2)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(8, 2)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(10)), 0);
+                                hasYear = true;
+                                hasMonth = true;
+                                hasDay = true;
+                                hasHour = true;
+                            }
+                            else if (dateTimeComponent.Type == DateTimeComponentType.hh)
+                            {
+                                dateTime = new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, int.Parse(cleansedLineComponenets[dateTimeComponent.Index]), dateTime.Minute, 0);
+                                hasHour = true;
+                            }
+                            else if (dateTimeComponent.Type == DateTimeComponentType.hhmm)
+                            {
+                                dateTime = new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(0, 2)), int.Parse(cleansedLineComponenets[dateTimeComponent.Index].Substring(2)), 0);
+                                hasHour = true;
+                                hasMinute = true;
+                            }
+                            else if (dateTimeComponent.Type == DateTimeComponentType.mm)
+                            {
+                                dateTime = new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, dateTime.Hour, int.Parse(cleansedLineComponenets[dateTimeComponent.Index]), 0);
+                                hasMinute = true;
+                            }
+                            #endregion
+                        }
+                        catch (ArgumentOutOfRangeException)
+                        {
+                            throw new FileFormatException(string.Format("The date time component for {0} on line {1} is not formatted correctly\r\n\nWe have read it as:\r\n{2}", headers[dateTimeComponent.Index], linesRead, lineComponents[dateTimeComponent.Index]));
+                        }
+
+                    }
+                    if (!hasYear || !hasMonth || !hasDay || !hasHour || !hasMinute)
+                    {
+                        var errorMessage = "Date wasn't complete\r\n";
+
+                        if (!hasYear)
+                            errorMessage += "\r\nMissing Year!";
+                        if (!hasMonth)
+                            errorMessage += "\r\nMissing Month!";
+                        if (!hasDay)
+                            errorMessage += "\r\nMissing Day!";
+                        if (!hasHour)
+                            errorMessage += "\r\nMissing Hour!";
+                        if (!hasMinute)
+                            errorMessage += "\r\nMissing Minute!";
+
+                        errorMessage += "\r\nPlease reformat for the ISO 8601 standard\r\n\nDate Headers Recognized:";
+                        errorMessage = dateTimeComponents.Aggregate(errorMessage,
+                                                                    (current, component) =>
+                                                                    string.Format("{0}\r\n{1}", current, headers[component.Index]));
+
+                        errorMessage += "\r\n\r\nFailing Line (Line Number " + linesRead + "):\r\n" + lineRead;
+                        throw new FileFormatException(errorMessage);
+                    }
+
+                    foreach (var sensorIndexer in sensorIndexers)
+                    {
+                        if (sensorIndexer.Index > lineComponents.Length)
+                            throw new FileFormatException("There aren't enough values for all the sensors");
+
+                        float value;
+                        if (float.TryParse(lineComponents[sensorIndexer.Index], out value))
+                            sensorIndexer.Sensor.RawData.Values[dateTime] = value;
+                    }
+                }
+
+                //Convert SensorIndexes to Array
+                _sensors = sensorIndexers.OrderBy(x => x.Index).Select(x => x.Sensor).ToArray();
             }
-            catch (IOException e)
-            {
-                Common.ShowMessageBox("An Error Occured", e.Message, false, true);
-                return null;
-            }
-            
+
+            if (_sensors == null)
+                throw new FileFormatException("No sensors were read! File is of bad format");
             return _sensors.ToList();
         }
 
@@ -173,4 +317,39 @@ namespace IndiaTango.Models
     }
 
     public delegate void ReaderProgressChanged(object o, ReaderProgressChangedArgs e);
+
+    public enum DateTimeComponentType
+    {
+        YYYY,
+        MM,
+        DD,
+        hh,
+        mm,
+        YYYYMM,
+        YYYYMMDD,
+        YYYYMMDDhhmm,
+        YYYYMMDDhh,
+        YYYYDDMM,
+        YYYYDDMMhhmm,
+        YYYYDDMMhh,
+        MMDD,
+        DDMM,
+        DDMMYYYY,
+        DDMMYYYYhhmm,
+        MMDDYYYY,
+        MMDDYYYYhhmm,
+        hhmm
+    }
+
+    public class DateTimeComponent
+    {
+        public int Index;
+        public DateTimeComponentType Type;
+    }
+
+    public class SensorIndexer
+    {
+        public int Index;
+        public Sensor Sensor;
+    }
 }

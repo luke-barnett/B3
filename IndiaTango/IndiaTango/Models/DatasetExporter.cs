@@ -119,8 +119,8 @@ namespace IndiaTango.Models
 			{
 				const char del = ',';
 				var columnHeadings = dateColumnFormat.Equals(DateColumnFormat.SplitDateColumn)
-				                        	? "dd" + del + "mm" + del + "yyyy" + del + "hh" + del + "nn"
-				                        	: "dd/mm/yyyy" + del + "hhnn"; //Not a typo
+				                        	? "DD" + del + "MM" + del + "YYYY" + del + "hh" + del + "mm"
+				                        	: "DD/MM/YYYY" + del + "hhmm";
 				var currentSensorIndex = 0;
 				var outputData = new string[Data.Sensors.Count,(Data.ExpectedDataPointCount/numOfPointsToSummarise) + 1];
 				var rowDate = Data.StartTimeStamp;
