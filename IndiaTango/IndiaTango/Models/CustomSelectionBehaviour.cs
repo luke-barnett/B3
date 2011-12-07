@@ -167,7 +167,7 @@ namespace IndiaTango.Models
             }
         }
 
-        private void ResetSelection()
+        public void ResetSelection()
         {
             Debug.WriteLine("Reseting selection");
             _selectionRectangle.Width = 0;

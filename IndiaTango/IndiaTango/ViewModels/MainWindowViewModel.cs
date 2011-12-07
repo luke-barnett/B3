@@ -2297,7 +2297,7 @@ namespace IndiaTango.ViewModels
             Debug.Print("{0} was added to the graph list", graphableSensor.Sensor);
             DisableFeatures();
             UpdateGraph(_sensorsToGraph.Count < 2);
-            UpdateDetectionMethodGraphableSensors();
+            //UpdateDetectionMethodGraphableSensors();
             EnableFeatures();
             AddToEditingSensors(graphableSensor);
             UpdateUndoRedo();
@@ -2314,6 +2314,7 @@ namespace IndiaTango.ViewModels
         {
             var checkBox = (CheckBox)eventArgs.Source;
             var graphableSensor = (GraphableSensor)checkBox.Content;
+            _selectionBehaviour.ResetSelection();
             if (_sensorsToGraph.Contains(graphableSensor))
                 _sensorsToGraph.Remove(graphableSensor);
             Debug.Print("{0} was removed from the graph list", graphableSensor.Sensor);
@@ -2451,8 +2452,6 @@ namespace IndiaTango.ViewModels
             AddToEditingSensors(graphableSensor);
         }
 
-
-
         public void RemoveFromEditingSensors(RoutedEventArgs eventArgs)
         {
             var checkBox = (CheckBox)eventArgs.Source;
@@ -2545,6 +2544,10 @@ namespace IndiaTango.ViewModels
                     SelectionModeEnabled = !SelectionModeEnabled;
                     NotifyOfPropertyChange(() => SelectionModeEnabled);
                 }
+            }
+            else if(ActionsEnabled && eventArgs.Key == Key.Delete)
+            {
+                RemoveValues();
             }
 
         }
