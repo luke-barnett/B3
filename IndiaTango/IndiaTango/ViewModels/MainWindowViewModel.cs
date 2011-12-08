@@ -58,6 +58,7 @@ namespace IndiaTango.ViewModels
                 () => CheckTheseMethods(new Collection<IDetectionMethod> { _runningMeanStandardDeviationDetector });
 
             _missingValuesDetector = new MissingValuesDetector { IsEnabled = true };
+            _selectedMethod = _missingValuesDetector;
 
             _detectionMethods = new List<IDetectionMethod> { _missingValuesDetector, _minMaxDetector, new ToHighRateOfChangeDetector(), _runningMeanStandardDeviationDetector };
 
@@ -1806,7 +1807,7 @@ namespace IndiaTango.ViewModels
                 min = min - (Math.Abs(min * .2));
                 max = max + (Math.Abs(max * .2));
 
-                if (_sensorsToGraph.Count < 2 && resetRange)
+                if (resetRange)
                     Range = new DoubleRange(min, max);
             }
 
