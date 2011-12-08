@@ -46,12 +46,12 @@ namespace IndiaTango.ViewModels
             _minMaxDetector = new MinMaxDetector();
             _minMaxDetector.GraphUpdateNeeded += () =>
                                                                  {
-                                                                     SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
+                                                                     SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "MinMaxDetectorGraphUpdate");
                                                                      CalculateYAxis(false);
                                                                  };
 
             _runningMeanStandardDeviationDetector = new RunningMeanStandardDeviationDetector();
-            _runningMeanStandardDeviationDetector.GraphUpdateNeeded += () => SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
+            _runningMeanStandardDeviationDetector.GraphUpdateNeeded += () => SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph,"RunningMeanGraphUpdate");
 
             _runningMeanStandardDeviationDetector.RefreshDetectedValues +=
                 () => CheckTheseMethods(new Collection<IDetectionMethod> { _runningMeanStandardDeviationDetector });
@@ -93,7 +93,7 @@ namespace IndiaTango.ViewModels
                                                          CalculateYAxis();
                                                          CheckTheseMethods(_detectionMethods.Where(x => x.IsEnabled));
                                                          CalculateGraphedEndPoints();
-                                                         SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
+                                                         SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph,"ZoomReset");
                                                      };
 
             behaviourManager.Behaviours.Add(_zoomBehaviour);
@@ -126,7 +126,7 @@ namespace IndiaTango.ViewModels
                                                      CalculateYAxis();
                                                      CheckTheseMethods(_detectionMethods.Where(x => x.IsEnabled));
                                                      CalculateGraphedEndPoints();
-                                                     SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
+                                                     SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph,"SelectionZoomReset");
                                                  };
             behaviourManager.Behaviours.Add(_selectionBehaviour);
             #endregion
@@ -521,7 +521,7 @@ namespace IndiaTango.ViewModels
                     Common.MaximumGraphablePoints = int.MaxValue;
                 }
 
-                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
+                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph,"SamplingCountChanged");
             }
         }
 
@@ -639,8 +639,9 @@ namespace IndiaTango.ViewModels
             NotifyOfPropertyChange(() => GraphableSensors);
         }
 
-        private void SampleValues(int numberOfPoints, ICollection<GraphableSensor> sensors)
+        private void SampleValues(int numberOfPoints, ICollection<GraphableSensor> sensors, string sender)
         {
+            Debug.Print("[{0}]Sampling Values", sender);
             var generatedSeries = new List<LineSeries>();
 
             HideBackground();
@@ -1379,7 +1380,7 @@ namespace IndiaTango.ViewModels
 
                                              foreach (var graphableSensor in GraphableSensors.Where(x => successfulSensors.Contains(x.Sensor)))
                                                  graphableSensor.RefreshDataPoints();
-                                             SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
+                                             SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph,"AutoCalibration");
                                              UpdateUndoRedo();
                                          };
             autoButtonsWrapPanel.Children.Add(autoApplyButton);
@@ -1618,7 +1619,7 @@ namespace IndiaTango.ViewModels
                                              //Update the needed graphed items
                                              foreach (var graphableSensor in GraphableSensors.Where(x => sensorList.Contains(x.Sensor)))
                                                  graphableSensor.RefreshDataPoints();
-                                             SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
+                                             SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph,"Interpolate");
                                              UpdateUndoRedo();
                                              Common.ShowMessageBox("Values Updated", "The selected values were interpolated", false, false);
                                              Common.RequestReason(sensorList, _container, _windowManager, "Values were interpolated");
@@ -1688,7 +1689,7 @@ namespace IndiaTango.ViewModels
                 //Update the needed graphed items
                 foreach (var graphableSensor in GraphableSensors.Where(x => sensorList.Contains(x.Sensor)))
                     graphableSensor.RefreshDataPoints();
-                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
+                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph,"RemoveValues");
                 UpdateUndoRedo();
                 Common.ShowMessageBox("Values Updated", "The selected values were removed", false, false);
                 Common.RequestReason(sensorList, _container, _windowManager, "Values were removed");
@@ -1769,7 +1770,7 @@ namespace IndiaTango.ViewModels
                 //Update the needed graphed items
                 foreach (var graphableSensor in GraphableSensors.Where(x => sensorList.Contains(x.Sensor)))
                     graphableSensor.RefreshDataPoints();
-                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
+                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph,"SpecifyValues");
                 UpdateUndoRedo();
                 Common.ShowMessageBox("Values Updated", "The selected values set to " + value, false, false);
                 Common.RequestReason(sensorList, _container, _windowManager, "Values were set to " + value);
@@ -2175,7 +2176,7 @@ namespace IndiaTango.ViewModels
                 ChartTitle += string.Format(" and {0} [{1}m]", _sensorsToGraph[i].Sensor.Name, _sensorsToGraph[i].Sensor.Depth);
 
             YAxisTitle = ((from sensor in _sensorsToGraph select sensor.Sensor.Unit).Distinct().Count() == 1) ? _sensorsToGraph[0].Sensor.Unit : String.Empty;
-            SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
+            SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph,"UpdateGraph");
             CalculateYAxis();
             if (recalculateDateRange)
                 CalculateGraphedEndPoints();
@@ -2205,7 +2206,7 @@ namespace IndiaTango.ViewModels
             if (graphToUpdate != null)
                 graphToUpdate.RefreshDataPoints();
 
-            SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
+            SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph,"Undo");
             CalculateYAxis();
             Common.ShowMessageBox("Undo suceeded", "Sucessfully stepped back the following sensors: \n\r\n\r" + firstSensor.Name, false, false);
             UpdateUndoRedo();
@@ -2228,7 +2229,7 @@ namespace IndiaTango.ViewModels
             if (graphToUpdate != null)
                 graphToUpdate.RefreshDataPoints();
 
-            SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
+            SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph,"Redo");
             CalculateYAxis();
             Common.ShowMessageBox("Redo suceeded", "Sucessfully stepped forward the following sensors: \n\r\n\r" + firstSensor.Name, false, false);
             UpdateUndoRedo();
@@ -2351,7 +2352,7 @@ namespace IndiaTango.ViewModels
             }
 
             if ((DateTime)e.OldValue != DateTime.MinValue)
-                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
+                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph,"StartTimeChanged");
         }
 
         /// <summary>
@@ -2374,7 +2375,7 @@ namespace IndiaTango.ViewModels
             }
 
             if ((DateTime)e.OldValue != DateTime.MaxValue)
-                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
+                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph,"EndTimeChanged");
         }
 
         public void ColourChanged(RoutedPropertyChangedEventArgs<Color> args, GraphableSensor owner)
@@ -2494,7 +2495,7 @@ namespace IndiaTango.ViewModels
                         oldDetectionMethod.SettingsGrid.IsEnabled = false;
                         oldDetectionMethod.ListBox.Items.Clear();
                         oldDetectionMethod.ListBox.IsEnabled = false;
-                        SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph);
+                        SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph,"DetectionMethodChanged");
                     }
                 }
             }
@@ -2545,7 +2546,7 @@ namespace IndiaTango.ViewModels
                     NotifyOfPropertyChange(() => SelectionModeEnabled);
                 }
             }
-            else if(ActionsEnabled && eventArgs.Key == Key.Delete)
+            else if (ActionsEnabled && eventArgs.Key == Key.Delete)
             {
                 RemoveValues();
             }
