@@ -179,9 +179,9 @@ namespace IndiaTango.Models
 					if (includeEmptyLines || line.Length != Data.Sensors.Count)
 					{
 						line = dateColumnFormat.Equals(DateColumnFormat.SplitDateColumn)
-						       	? rowDate.ToString("dd") + del + rowDate.ToString("MM") + del + rowDate.ToString("yyyy") + del +
-						       	  rowDate.ToString("HH") + del + rowDate.ToString("mm") + line
-						       	: rowDate.ToString("dd/MM/yyyy") + del + rowDate.ToString("HH:mm") + line;
+						       	? rowDate.ToString("DD") + del + rowDate.ToString("MM") + del + rowDate.ToString("YYYY") + del +
+						       	  rowDate.ToString("hh") + del + rowDate.ToString("mm") + line
+						       	: rowDate.ToString("DD/MM/YYYY") + del + rowDate.ToString("hh:mm") + line;
 						writer.WriteLine(line);
 					}
 
@@ -206,9 +206,9 @@ namespace IndiaTango.Models
 	            for (var time = Data.StartTimeStamp; time <= Data.EndTimeStamp; time = time.AddMinutes(Data.DataInterval))
                 {
                     line = dateColumnFormat.Equals(DateColumnFormat.SplitDateColumn)
-                            ? time.ToString("dd") + ',' + time.ToString("MM") + ',' + time.ToString("yyyy") + ',' +
-                              time.ToString("HH") + ',' + time.ToString("mm") + ','
-                            : time.ToString("dd/MM/yyyy") + ',' + time.ToString("HH:mm") + ',';
+                            ? time.ToString("DD") + ',' + time.ToString("MM") + ',' + time.ToString("YYYY") + ',' +
+                              time.ToString("hh") + ',' + time.ToString("mm") + ','
+                            : time.ToString("DD/MM/YYYY") + ',' + time.ToString("hh:mm") + ',';
                     foreach (var sensor in Data.Sensors)
                     {
                         LinkedList<int> vals;
