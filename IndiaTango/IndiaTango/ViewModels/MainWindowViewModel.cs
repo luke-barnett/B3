@@ -2276,6 +2276,53 @@ namespace IndiaTango.ViewModels
             _selectedMethod.IsEnabled = false;
         }
 
+        public void RevertToRaw()
+        {
+            if (!CurrentDataSetNotNull || Sensors == null || Sensors.Count == 0)
+                return;
+
+            var onlyGraphed = false;
+
+            if (_sensorsToGraph.Count > 0)
+            {
+                var specify = _container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel") as SpecifyValueViewModel;
+                if (specify == null)
+                    return;
+                specify.CanEditComboBox = false;
+                specify.ShowComboBox = true;
+                specify.Title = "What are we reverting to raw?";
+                specify.Message = _sensorsToGraph.Aggregate("You are currently graphing these sensors:\r\n\n",
+                                          (current, sensor) => current + string.Format("\r\n{0}", sensor.Sensor.Name));
+                specify.Message +=
+                    "\r\n\n Would you like to only revert to raw the sensors currently graphed or all your sensors?";
+                specify.ShowCancel = true;
+
+                specify.ComboBoxItems = new List<string> { "Only the graphed sensors", "All sensors" };
+                specify.ComboBoxSelectedIndex = 0;
+
+                _windowManager.ShowDialog(specify);
+
+                if (specify.WasCanceled)
+                    return;
+
+                onlyGraphed = specify.ComboBoxSelectedIndex == 0;
+            }
+            else
+            {
+                if (!Common.Confirm("Reverting to raw", "Are you sure you want to revert all sensors to their raw values?"))
+                    return;
+            }
+
+            if(onlyGraphed)
+                _sensorsToCheckMethodsAgainst.ForEach(x => x.RevertToRaw());
+            else
+                Sensors.ForEach(x => x.RevertToRaw());
+
+            GraphableSensors.ForEach(x => x.RefreshDataPoints());
+
+            SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "RevertedToRaw");
+        }
+
         #endregion
 
         #region Event Handlers

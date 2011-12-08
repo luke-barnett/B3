@@ -41,6 +41,9 @@
                 <MenuItem Header="_New Site" cal:Message.Attach="[Event Click] = [Action CreateNewSite]" />
                 <MenuItem Header="_Exit" cal:Message.Attach="[Event Click] = [Action Exit]" />
             </MenuItem>
+            <MenuItem Header="_Sensors">
+                <MenuItem Header="_Revert to raw" cal:Message.Attach="[Event Click] = [Action RevertToRaw]" />
+            </MenuItem>
             <MenuItem Header="_View">
                 <MenuItem Header="_Log" cal:Message.Attach="[Event Click] = [Action ShowLog]" />
             </MenuItem>
