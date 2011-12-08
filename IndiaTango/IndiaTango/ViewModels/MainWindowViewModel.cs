@@ -1248,7 +1248,7 @@ namespace IndiaTango.ViewModels
                                      VerticalAlignment = VerticalAlignment.Center,
                                      HorizontalAlignment = HorizontalAlignment.Center
                                  };
-            Grid.SetRow(aTextBlock, 1);
+            Grid.SetRow(aTextBlock, 2);
             Grid.SetColumn(aTextBlock, 0);
             automaticValuesGrid.Children.Add(aTextBlock);
 
@@ -1258,7 +1258,7 @@ namespace IndiaTango.ViewModels
                                      VerticalAlignment = VerticalAlignment.Center,
                                      HorizontalAlignment = HorizontalAlignment.Center
                                  };
-            Grid.SetRow(bTextBlock, 2);
+            Grid.SetRow(bTextBlock, 1);
             Grid.SetColumn(bTextBlock, 0);
             automaticValuesGrid.Children.Add(bTextBlock);
 
@@ -1274,7 +1274,8 @@ namespace IndiaTango.ViewModels
             var calibratedATextBox = new TextBox
                                        {
                                            VerticalAlignment = VerticalAlignment.Center,
-                                           Margin = new Thickness(2)
+                                           Margin = new Thickness(2),
+                                           TabIndex = 1
                                        };
             calibratedATextBox.KeyUp += (o, e) =>
                                             {
@@ -1285,14 +1286,15 @@ namespace IndiaTango.ViewModels
                                                 // ReSharper restore AccessToModifiedClosure
                                             };
 
-            Grid.SetRow(calibratedATextBox, 1);
+            Grid.SetRow(calibratedATextBox, 2);
             Grid.SetColumn(calibratedATextBox, 1);
             automaticValuesGrid.Children.Add(calibratedATextBox);
 
             var calibratedBTextBox = new TextBox
                                          {
                                              VerticalAlignment = VerticalAlignment.Center,
-                                             Margin = new Thickness(2)
+                                             Margin = new Thickness(2),
+                                             TabIndex = 0
                                          };
             calibratedBTextBox.KeyUp += (o, e) =>
                                             {
@@ -1302,14 +1304,15 @@ namespace IndiaTango.ViewModels
                                                 autoApplyButton.IsEnabled = calibratedAValid && calibratedBValid && currentAValid && currentBValid;
                                                 // ReSharper restore AccessToModifiedClosure
                                             };
-            Grid.SetRow(calibratedBTextBox, 2);
+            Grid.SetRow(calibratedBTextBox, 1);
             Grid.SetColumn(calibratedBTextBox, 1);
             automaticValuesGrid.Children.Add(calibratedBTextBox);
 
             var currentATextBox = new TextBox
                                          {
                                              VerticalAlignment = VerticalAlignment.Center,
-                                             Margin = new Thickness(2)
+                                             Margin = new Thickness(2),
+                                             TabIndex = 3
                                          };
             currentATextBox.KeyUp += (o, e) =>
                                          {
@@ -1319,14 +1322,15 @@ namespace IndiaTango.ViewModels
                                              autoApplyButton.IsEnabled = calibratedAValid && calibratedBValid && currentAValid && currentBValid;
                                              // ReSharper restore AccessToModifiedClosure
                                          };
-            Grid.SetRow(currentATextBox, 1);
+            Grid.SetRow(currentATextBox, 2);
             Grid.SetColumn(currentATextBox, 2);
             automaticValuesGrid.Children.Add(currentATextBox);
 
             var currentBTextBox = new TextBox
                                          {
                                              VerticalAlignment = VerticalAlignment.Center,
-                                             Margin = new Thickness(2)
+                                             Margin = new Thickness(2),
+                                             TabIndex = 2
                                          };
             currentBTextBox.KeyUp += (o, e) =>
                                          {
@@ -1336,7 +1340,7 @@ namespace IndiaTango.ViewModels
                                              autoApplyButton.IsEnabled = calibratedAValid && calibratedBValid && currentAValid && currentBValid;
                                              // ReSharper restore AccessToModifiedClosure
                                          };
-            Grid.SetRow(currentBTextBox, 2);
+            Grid.SetRow(currentBTextBox, 1);
             Grid.SetColumn(currentBTextBox, 2);
             automaticValuesGrid.Children.Add(currentBTextBox);
 
