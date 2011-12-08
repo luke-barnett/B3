@@ -1959,6 +1959,7 @@ namespace IndiaTango.ViewModels
                                                                      !keepOldValues || !newState.Values.ContainsKey(value.Key)))
                                                          {
                                                              newState.Values[value.Key] = value.Value;
+                                                             matchingSensor.RawData.Values[value.Key] = value.Value;
                                                              insertedValues = true;
                                                          }
                                                          //Give a reason
