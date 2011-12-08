@@ -77,12 +77,14 @@ namespace IndiaTango.Models
                     checkBox.Checked += (o, e) =>
                                             {
                                                 _showMaxMinLines = true;
-                                                GraphUpdateNeeded();
+                                                if (IsEnabled)
+                                                    GraphUpdateNeeded();
                                             };
                     checkBox.Unchecked += (o, e) =>
                                               {
                                                   _showMaxMinLines = false;
-                                                  GraphUpdateNeeded();
+                                                  if (IsEnabled)
+                                                      GraphUpdateNeeded();
                                               };
 
                     stackPanel.Children.Add(checkBox);
@@ -113,8 +115,8 @@ namespace IndiaTango.Models
                                                                       PropertyChangedInSelectedSensor;
 
 
-
-                                                              GraphUpdateNeeded();
+                                                              if (IsEnabled)
+                                                                  GraphUpdateNeeded();
                                                           };
 
                     graphOptions.Children.Add(_sensorsCombo);
@@ -130,7 +132,7 @@ namespace IndiaTango.Models
 
         private void PropertyChangedInSelectedSensor(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "UpperLimit" || e.PropertyName == "LowerLimit")
+            if ((e.PropertyName == "UpperLimit" || e.PropertyName == "LowerLimit") && IsEnabled)
                 GraphUpdateNeeded();
         }
 
@@ -183,7 +185,7 @@ namespace IndiaTango.Models
 
                 if (_sensorsCombo.Items.Count == 1)
                     _sensorsCombo.SelectedIndex = 0;
-                else if (_selectedSensor != null && !_sensorsCombo.Items.Contains(_selectedSensor))
+                else if (_selectedSensor != null && !_sensorsCombo.Items.Contains(_selectedSensor) && IsEnabled)
                     GraphUpdateNeeded();
             }
         }

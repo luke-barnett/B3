@@ -87,7 +87,7 @@ namespace IndiaTango.Models
                     var graphGrid = new Grid();
                     var graphCheckBox = new CheckBox
                                             {
-                                                Content = new TextBlock {Text = "Show Graph"},
+                                                Content = new TextBlock { Text = "Show Graph" },
                                                 HorizontalAlignment = HorizontalAlignment.Left,
                                                 IsChecked = _showGraph
                                             };
@@ -95,19 +95,21 @@ namespace IndiaTango.Models
                     graphCheckBox.Checked += (o, e) =>
                                                  {
                                                      _showGraph = true;
-                                                     GraphUpdateNeeded();
+                                                     if (IsEnabled)
+                                                         GraphUpdateNeeded();
                                                  };
                     graphCheckBox.Unchecked += (o, e) =>
                                                    {
                                                        _showGraph = false;
-                                                       GraphUpdateNeeded();
+                                                       if (IsEnabled)
+                                                           GraphUpdateNeeded();
                                                    };
 
                     graphGrid.Children.Add(graphCheckBox);
 
                     var updateGraphButton = new Button
                                                 {
-                                                    Content = new TextBlock {Text = "Update Graph"},
+                                                    Content = new TextBlock { Text = "Update Graph" },
                                                     HorizontalAlignment = HorizontalAlignment.Right
                                                 };
 
@@ -117,8 +119,7 @@ namespace IndiaTango.Models
 
                     stackPanel.Children.Add(graphGrid);
 
-                    var graphOptions = new StackPanel
-                                           {Orientation = Orientation.Horizontal, Margin = new Thickness(0, 5, 0, 0)};
+                    var graphOptions = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 5, 0, 0) };
 
                     graphOptions.Children.Add(new TextBlock
                                                   {
@@ -126,14 +127,15 @@ namespace IndiaTango.Models
                                                       Margin = new Thickness(0, 0, 10, 0)
                                                   });
 
-                    _sensorsCombo = new ComboBox {Width = 100};
+                    _sensorsCombo = new ComboBox { Width = 100 };
 
                     _sensorsCombo.SelectionChanged += (o, e) =>
                                                           {
                                                               if (e.AddedItems.Count < 1)
                                                                   return;
                                                               _graphedSensor = e.AddedItems[0] as Sensor;
-                                                              GraphUpdateNeeded();
+                                                              if (IsEnabled)
+                                                                  GraphUpdateNeeded();
                                                           };
 
                     graphOptions.Children.Add(_sensorsCombo);
@@ -141,10 +143,8 @@ namespace IndiaTango.Models
                     stackPanel.Children.Add(graphOptions);
 
                     var smoothingPeriodGrid = new Grid();
-                    smoothingPeriodGrid.RowDefinitions.Add(new RowDefinition
-                                                               {Height = new GridLength(1, GridUnitType.Star)});
-                    smoothingPeriodGrid.RowDefinitions.Add(new RowDefinition
-                                                               {Height = new GridLength(1, GridUnitType.Star)});
+                    smoothingPeriodGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+                    smoothingPeriodGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
                     var smoothingPeriodTitle = new TextBlock
                                                    {
@@ -157,20 +157,19 @@ namespace IndiaTango.Models
 
                     var smoothingPeriodHoursText = new TextBlock
                                                        {
-                                                           Text = _requestedSmoothingPeriod/60 + " Hour(s)",
+                                                           Text = _requestedSmoothingPeriod / 60 + " Hour(s)",
                                                            HorizontalAlignment = HorizontalAlignment.Right
                                                        };
 
                     Grid.SetRow(smoothingPeriodHoursText, 0);
                     smoothingPeriodGrid.Children.Add(smoothingPeriodHoursText);
 
-                    var smoothingPeriodSlider = new Slider
-                                                    {Value = _requestedSmoothingPeriod/60d, Maximum = 60, Minimum = 1};
+                    var smoothingPeriodSlider = new Slider { Value = _requestedSmoothingPeriod / 60d, Maximum = 60, Minimum = 1 };
                     smoothingPeriodSlider.ValueChanged += (o, e) =>
                                                               {
-                                                                  _requestedSmoothingPeriod = (int) e.NewValue*60;
+                                                                  _requestedSmoothingPeriod = (int)e.NewValue * 60;
                                                                   smoothingPeriodHoursText.Text =
-                                                                      _requestedSmoothingPeriod/60 + " Hour(s)";
+                                                                      _requestedSmoothingPeriod / 60 + " Hour(s)";
                                                               };
                     smoothingPeriodSlider.PreviewMouseUp += (o, e) =>
                                                                 {
@@ -180,7 +179,8 @@ namespace IndiaTango.Models
                                                                         GenerateUpperAndLowerLines(_currentSensor);
                                                                         Debug.WriteLine("Refresh of values needed");
                                                                         RefreshDetectedValues();
-                                                                        GraphUpdateNeeded();
+                                                                        if (IsEnabled)
+                                                                            GraphUpdateNeeded();
                                                                     }
 
                                                                 };
@@ -190,10 +190,8 @@ namespace IndiaTango.Models
                     stackPanel.Children.Add(smoothingPeriodGrid);
 
                     var standarDeviationsGrid = new Grid();
-                    standarDeviationsGrid.RowDefinitions.Add(new RowDefinition
-                                                                 {Height = new GridLength(1, GridUnitType.Star)});
-                    standarDeviationsGrid.RowDefinitions.Add(new RowDefinition
-                                                                 {Height = new GridLength(1, GridUnitType.Star)});
+                    standarDeviationsGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+                    standarDeviationsGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
                     var standarDeviationsTitle = new TextBlock
                                                      {
@@ -225,7 +223,7 @@ namespace IndiaTango.Models
                     standarDeviationsSlider.ValueChanged += (o, e) =>
                                                                 {
                                                                     _requestedNumerOfStandardDeviations =
-                                                                        (float) e.NewValue;
+                                                                        (float)e.NewValue;
                                                                     standardDeviationsText.Text =
                                                                         _requestedNumerOfStandardDeviations.ToString();
                                                                 };
@@ -240,7 +238,8 @@ namespace IndiaTango.Models
                                                                           GenerateUpperAndLowerLines(_currentSensor);
                                                                           Debug.WriteLine("Refresh of values needed");
                                                                           RefreshDetectedValues();
-                                                                          GraphUpdateNeeded();
+                                                                          if (IsEnabled)
+                                                                              GraphUpdateNeeded();
                                                                       }
                                                                   };
                     Grid.SetRow(standarDeviationsSlider, 1);
@@ -403,7 +402,7 @@ namespace IndiaTango.Models
 
                 if (_sensorsCombo.Items.Count == 1)
                     _sensorsCombo.SelectedIndex = 0;
-                else if (_graphedSensor != null && !_sensorsCombo.Items.Contains(_graphedSensor))
+                else if (_graphedSensor != null && !_sensorsCombo.Items.Contains(_graphedSensor) && IsEnabled)
                     GraphUpdateNeeded();
             }
         }
