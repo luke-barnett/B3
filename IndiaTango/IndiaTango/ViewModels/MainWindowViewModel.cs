@@ -1082,17 +1082,20 @@ namespace IndiaTango.ViewModels
                                                         skipMissingValues = specify.ComboBoxSelectedIndex == 1;
                                                     }
 
+                                                    var reason = Common.RequestReason(_container, _windowManager, "Please give a reason to apply the formula\r\n\n'" + manualFormulaTextBox.Text + "'");
+
                                                     ApplicationCursor = Cursors.Wait;
                                                     if (useSelected)
-                                                        _evaluator.EvaluateFormula(formula, Selection.LowerX.Round(TimeSpan.FromMinutes(CurrentDataset.DataInterval)), Selection.UpperX, skipMissingValues);
+                                                        _evaluator.EvaluateFormula(formula, Selection.LowerX.Round(TimeSpan.FromMinutes(CurrentDataset.DataInterval)), Selection.UpperX, skipMissingValues, reason);
                                                     else
-                                                        _evaluator.EvaluateFormula(formula, StartTime.Round(TimeSpan.FromMinutes(CurrentDataset.DataInterval)), EndTime, skipMissingValues);
+                                                        _evaluator.EvaluateFormula(formula, StartTime.Round(TimeSpan.FromMinutes(CurrentDataset.DataInterval)), EndTime, skipMissingValues, reason);
 
                                                     ApplicationCursor = Cursors.Arrow;
 
-                                                    Common.RequestReason(SensorVariable.CreateSensorsFromSensorVariables(formula.SensorsUsed), _container, _windowManager, "Formula '" + manualFormulaTextBox.Text + "' successfully applied to the sensor.");
+                                                    //TODO: Give reason for formula applied
+                                                    //
 
-                                                    Common.ShowMessageBox("Formula applied", "The formula was successfully applied to the selected sensor.",
+                                                    Common.ShowMessageBox("Formula applied", "The formula was successfully applied to the sensor(s) involved.",
                                                                           false, false);
                                                     var sensorsUsed = formula.SensorsUsed.Select(x => x.Sensor);
                                                     foreach (var sensor in sensorsUsed)
@@ -1383,7 +1386,8 @@ namespace IndiaTango.ViewModels
                                                      Common.ShowMessageBox("An Error Occured", ex.Message, false, true);
                                                  }
                                              }
-                                             Common.RequestReason(successfulSensors, _container, _windowManager, "Calibration CalA='" + calibratedAValue + "', CalB='" + calibratedBValue + "', CurA='" + currentAValue + "', CurB='" + currentBValue + "' successfully applied to the sensor.");
+                                             //TODO: Give reason calibration
+                                             //Common.RequestReason(successfulSensors, _container, _windowManager, "Calibration CalA='" + calibratedAValue + "', CalB='" + calibratedBValue + "', CurA='" + currentAValue + "', CurB='" + currentBValue + "' successfully applied to the sensor.");
 
                                              foreach (var graphableSensor in GraphableSensors.Where(x => successfulSensors.Contains(x.Sensor)))
                                                  graphableSensor.RefreshDataPoints();
@@ -1603,19 +1607,17 @@ namespace IndiaTango.ViewModels
                 return;
             }
 
-
-            if (!Common.Confirm("Are you sure?", "Are you sure you want to interpolate these values?"))
-                return;
-
             var sensorList = values.Select(x => x.Owner).Distinct().ToList();
 
             var bw = new BackgroundWorker();
+
+            var reason = Common.RequestReason(_container, _windowManager, "Values were interpolated");
 
             bw.DoWork += (o, e) =>
                              {
                                  foreach (var sensor in sensorList)
                                  {
-                                     sensor.AddState(sensor.CurrentState.Interpolate(values.Where(x => x.Owner == sensor).Select(x => x.TimeStamp).ToList(), sensor.Owner));
+                                     sensor.AddState(sensor.CurrentState.Interpolate(values.Where(x => x.Owner == sensor).Select(x => x.TimeStamp).ToList(), sensor.Owner, reason));
                                  }
                              };
 
@@ -1629,7 +1631,6 @@ namespace IndiaTango.ViewModels
                                              SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "Interpolate");
                                              UpdateUndoRedo();
                                              Common.ShowMessageBox("Values Updated", "The selected values were interpolated", false, false);
-                                             Common.RequestReason(sensorList, _container, _windowManager, "Values were interpolated");
                                              CheckTheseMethods(new Collection<IDetectionMethod> { methodCheckedAgainst });
                                          };
 
@@ -1674,18 +1675,15 @@ namespace IndiaTango.ViewModels
                 return;
             }
 
-            if (!Common.Confirm("Are you sure?", "Are you sure you want to remove these values?"))
-                return;
-
             var sensorList = values.Select(x => x.Owner).Distinct().ToList();
 
             var bw = new BackgroundWorker();
-
+            var reason = Common.RequestReason(_container, _windowManager, "Values were removed");
             bw.DoWork += (o, e) =>
             {
                 foreach (var sensor in sensorList)
                 {
-                    sensor.AddState(sensor.CurrentState.RemoveValues(values.Where(x => x.Owner == sensor).Select(x => x.TimeStamp).ToList()));
+                    sensor.AddState(sensor.CurrentState.RemoveValues(values.Where(x => x.Owner == sensor).Select(x => x.TimeStamp).ToList(), reason));
                 }
             };
 
@@ -1699,7 +1697,6 @@ namespace IndiaTango.ViewModels
                 SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "RemoveValues");
                 UpdateUndoRedo();
                 Common.ShowMessageBox("Values Updated", "The selected values were removed", false, false);
-                Common.RequestReason(sensorList, _container, _windowManager, "Values were removed");
                 CheckTheseMethods(new Collection<IDetectionMethod> { methodCheckedAgainst });
             };
 
@@ -1759,6 +1756,7 @@ namespace IndiaTango.ViewModels
                 return;
             }
 
+            var reason = Common.RequestReason(_container, _windowManager, "Values were set to " + value);
 
             var bw = new BackgroundWorker();
 
@@ -1766,7 +1764,7 @@ namespace IndiaTango.ViewModels
             {
                 foreach (var sensor in sensorList)
                 {
-                    sensor.AddState(sensor.CurrentState.MakeValue(values.Where(x => x.Owner == sensor).Select(x => x.TimeStamp).ToList(), value));
+                    sensor.AddState(sensor.CurrentState.MakeValue(values.Where(x => x.Owner == sensor).Select(x => x.TimeStamp).ToList(), value, reason));
                 }
             };
 
@@ -1780,7 +1778,6 @@ namespace IndiaTango.ViewModels
                 SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "SpecifyValues");
                 UpdateUndoRedo();
                 Common.ShowMessageBox("Values Updated", "The selected values set to " + value, false, false);
-                Common.RequestReason(sensorList, _container, _windowManager, "Values were set to " + value);
                 CheckTheseMethods(new Collection<IDetectionMethod> { methodCheckedAgainst });
             };
 
@@ -1958,19 +1955,21 @@ namespace IndiaTango.ViewModels
                                                          var newState = matchingSensor.CurrentState.Clone();
                                                          //Check to see if values are inserted
                                                          var insertedValues = false;
-
+                                                         var reason = ChangeReason.AddNewChangeReason("[Importer] Imported new values on " + DateTime.Now);
                                                          //And add values for any new dates we want
                                                          foreach (var value in sensor.CurrentState.Values.Where(value =>
                                                                      !keepOldValues || !newState.Values.ContainsKey(value.Key)))
                                                          {
                                                              newState.Values[value.Key] = value.Value;
+                                                             newState.AddToChanges(value.Key, reason.ID);
                                                              matchingSensor.RawData.Values[value.Key] = value.Value;
                                                              insertedValues = true;
                                                          }
-                                                         //Give a reason
-                                                         newState.Reason = "Imported new values on " + DateTime.Now;
+                                                         
                                                          if (insertedValues)
                                                          {
+                                                             //Give a reason
+                                                             newState.Reason = reason;
                                                              //Insert new state
                                                              matchingSensor.AddState(newState);
                                                              EventLogger.LogSensorInfo(CurrentDataset,

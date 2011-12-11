@@ -1162,10 +1162,11 @@ namespace IndiaTango.ViewModels
                         newState.Values[value.Key] = value.Value;
                         insertedValues = true;
                     }
-                    //Give a reason
-                    newState.Reason = "Imported new values on " + DateTime.Now;
+                    
                     if (insertedValues)
                     {
+                        //Give a reason
+                        newState.Reason = ChangeReason.AddNewChangeReason("[Importer] Imported new values on " + DateTime.Now);
                         //Insert new state
                         matchingSensor.AddState(newState);
                         EventLogger.LogSensorInfo(_ds, matchingSensor.Name, "Added values from new import");

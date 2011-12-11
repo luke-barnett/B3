@@ -754,11 +754,9 @@ namespace IndiaTango.ViewModels
                 }
 
                 ViewCursor = Cursors.Wait;
-                _eval.EvaluateFormula(_formula, StartTime, EndTime, skipMissingValues);
+                _eval.EvaluateFormula(_formula, StartTime, EndTime, skipMissingValues,Common.RequestReason(_container, _windowManager, "Formula '" + FormulaText + "' successfully applied to the sensor."));
 
                 ViewCursor = Cursors.Arrow;
-
-                Common.RequestReason(SensorVariable.CreateSensorsFromSensorVariables(_formula.SensorsUsed), _container, _windowManager, "Formula '" + FormulaText + "' successfully applied to the sensor.");
 
                 Common.ShowMessageBox("Formula applied", "The formula was successfully applied to the selected sensor.",
                                       false, false);
@@ -791,7 +789,7 @@ namespace IndiaTango.ViewModels
                                                                                                 _calAValue, _calBValue,
                                                                                                 _curAValue, _curBValue));
 
-                    Common.RequestReason(SelectedSensor.Sensor, _container, _windowManager, "Calibration CalA='" + _calBValue + "', CalB='" + _calBValue + "', CurA='" + _curAValue + "', CurB='" + _curBValue + "' successfully applied to the sensor.");
+                    Common.RequestReason(_container, _windowManager, "Calibration CalA='" + _calBValue + "', CalB='" + _calBValue + "', CurA='" + _curAValue + "', CurB='" + _curBValue + "' successfully applied to the sensor.");
 
                 }
                 catch (Exception ex)

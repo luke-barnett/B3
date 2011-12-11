@@ -145,7 +145,7 @@ namespace IndiaTango.Tests
             _data.Sensors = new List<Sensor> { _data.Sensors[0] };
             using (var writer = File.CreateText(_outputFilePath + "ChangesTest.csv"))
             {
-                writer.WriteLine("Change log for file: " + Path.GetFileName(_outputFilePath));
+                writer.WriteLine("Change matrix for file: " + Path.GetFileName(_outputFilePath));
                 writer.WriteLine("Date,Time,Temperature");
                 for (var time = _data.StartTimeStamp; time <= _data.EndTimeStamp; time = time.AddMinutes(_data.DataInterval))
                 {
@@ -161,7 +161,7 @@ namespace IndiaTango.Tests
             }
             _exporter = new DatasetExporter(_data);
             _exporter.Export(_outputFilePath, ExportFormat.CSV, true, false, true);
-            Assert.AreEqual(Tools.GenerateMD5HashFromFile(_outputFilePath + "ChangesTest.csv"), Tools.GenerateMD5HashFromFile(_outputFilePath + "Change Log.csv"));
+            Assert.AreEqual(Tools.GenerateMD5HashFromFile(_outputFilePath + "ChangesTest.csv"), Tools.GenerateMD5HashFromFile(_outputFilePath + " Changes Matrix.csv"));
         }
     }
 }

@@ -539,7 +539,7 @@ namespace IndiaTango.ViewModels
 
             var bw = new BackgroundWorker();
 
-            bw.DoWork += (o, e) => _selectedSensor.Sensor.AddState(_selectedSensor.Sensor.CurrentState.Interpolate(dates, _selectedSensor.Sensor.Owner));
+            bw.DoWork += (o, e) => _selectedSensor.Sensor.AddState(_selectedSensor.Sensor.CurrentState.Interpolate(dates, _selectedSensor.Sensor.Owner, null));
 
             bw.RunWorkerCompleted += (o, e) =>
                                          {
@@ -566,7 +566,7 @@ namespace IndiaTango.ViewModels
 
             var bw = new BackgroundWorker();
 
-            bw.DoWork += (o, e) => _selectedSensor.Sensor.AddState(_selectedSensor.Sensor.CurrentState.MakeZero(dates));
+            bw.DoWork += (o, e) => _selectedSensor.Sensor.AddState(_selectedSensor.Sensor.CurrentState.MakeZero(dates, null));
 
             bw.RunWorkerCompleted += (o, e) =>
                                          {
@@ -604,7 +604,7 @@ namespace IndiaTango.ViewModels
 
                 var bw = new BackgroundWorker();
 
-                bw.DoWork += (o, e) => _selectedSensor.Sensor.AddState(_selectedSensor.Sensor.CurrentState.MakeValue(dates, value));
+                bw.DoWork += (o, e) => _selectedSensor.Sensor.AddState(_selectedSensor.Sensor.CurrentState.MakeValue(dates, value, null));
 
                 bw.RunWorkerCompleted += (o, e) =>
                                              {
@@ -831,7 +831,7 @@ namespace IndiaTango.ViewModels
 
             UpdateGraph();
 
-            Common.RequestReason(_selectedSensor.Sensor, _container, _windowManager, taskPerformed);
+            Common.RequestReason(_container, _windowManager, taskPerformed);
         }
 
         #region Graphing Methods

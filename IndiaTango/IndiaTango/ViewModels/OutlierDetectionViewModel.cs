@@ -26,7 +26,7 @@ namespace IndiaTango.ViewModels
         private bool _minMaxMode = true;
         private float _numStdDev = 1;
         private int _smoothingPeriod = 4;
-		private Cursor _viewCursor = Cursors.Arrow;
+        private Cursor _viewCursor = Cursors.Arrow;
 
         private List<LineSeries> _chartSeries = new List<LineSeries>();
         private BehaviourManager _behaviour;
@@ -94,11 +94,11 @@ namespace IndiaTango.ViewModels
             }
         }
 
-		public Cursor ViewCursor
-		{
-			get { return _viewCursor; }
-			set { _viewCursor = value; NotifyOfPropertyChange(() => ViewCursor); }
-		}
+        public Cursor ViewCursor
+        {
+            get { return _viewCursor; }
+            set { _viewCursor = value; NotifyOfPropertyChange(() => ViewCursor); }
+        }
 
         public int ZoomLevel
         {
@@ -138,7 +138,7 @@ namespace IndiaTango.ViewModels
                 var list = new List<String>();
                 foreach (var time in _outliers)
                 {
-                    list.Add(time.ToShortDateString().PadRight(12)+time.ToShortTimeString().PadRight(15) + _sensor.CurrentState.Values[time]);
+                    list.Add(time.ToShortDateString().PadRight(12) + time.ToShortTimeString().PadRight(15) + _sensor.CurrentState.Values[time]);
                 }
                 return list;
             }
@@ -180,8 +180,8 @@ namespace IndiaTango.ViewModels
                 NotifyOfPropertyChange(() => SelectedSensor);
                 NotifyOfPropertyChange(() => SensorName);
                 NotifyOfPropertyChange(() => OutliersStrings);
-				NotifyOfPropertyChange(() => UndoButtonEnabled);
-				NotifyOfPropertyChange(() => RedoButtonEnabled);
+                NotifyOfPropertyChange(() => UndoButtonEnabled);
+                NotifyOfPropertyChange(() => RedoButtonEnabled);
                 _graphableSensor = _sensor != null ? new GraphableSensor(_sensor) : null;
                 UpdateGraph();
             }
@@ -192,7 +192,7 @@ namespace IndiaTango.ViewModels
             get { return _selectedValues; }
             set
             {
-                if(value!=null)
+                if (value != null)
                     _selectedValues = value;
                 else
                     _selectedValues = new List<DateTime>();
@@ -203,13 +203,13 @@ namespace IndiaTango.ViewModels
         public Boolean MinMaxMode
         {
             get { return _minMaxMode; }
-            set 
-            { 
+            set
+            {
                 _minMaxMode = value;
-                NotifyOfPropertyChange(()=>MinMaxMode);
-                NotifyOfPropertyChange(() =>StdDevMode);
-                NotifyOfPropertyChange(()=>OutliersStrings);
-                NotifyOfPropertyChange(()=>SelectedSensor);
+                NotifyOfPropertyChange(() => MinMaxMode);
+                NotifyOfPropertyChange(() => StdDevMode);
+                NotifyOfPropertyChange(() => OutliersStrings);
+                NotifyOfPropertyChange(() => SelectedSensor);
             }
         }
 
@@ -233,7 +233,7 @@ namespace IndiaTango.ViewModels
             {
                 _numStdDev = value;
                 NotifyOfPropertyChange(() => NumStdDev);
-                NotifyOfPropertyChange(()=>SelectedSensor);
+                NotifyOfPropertyChange(() => SelectedSensor);
             }
 
         }
@@ -245,25 +245,25 @@ namespace IndiaTango.ViewModels
 
         public int SmoothingPeriod
         {
-            get{return (int)Math.Ceiling(_smoothingPeriod / (60d / _ds.DataInterval));}
+            get { return (int)Math.Ceiling(_smoothingPeriod / (60d / _ds.DataInterval)); }
             set
             {
 
-                _smoothingPeriod = value*(60/_ds.DataInterval);
+                _smoothingPeriod = value * (60 / _ds.DataInterval);
                 NotifyOfPropertyChange(() => SmoothingPeriod);
                 NotifyOfPropertyChange(() => SelectedSensor);
             }
         }
 
-		public bool RedoButtonEnabled
-		{
-			get { return SelectedSensor != null && SelectedSensor.RedoStates.Count > 0; }
-		}
+        public bool RedoButtonEnabled
+        {
+            get { return SelectedSensor != null && SelectedSensor.RedoStates.Count > 0; }
+        }
 
-		public bool UndoButtonEnabled
-		{
+        public bool UndoButtonEnabled
+        {
             get { return SelectedSensor != null && !SelectedSensor.CurrentState.IsRaw; }
-		}
+        }
 
         public List<LineSeries> ChartSeries { get { return _chartSeries; } set { _chartSeries = value; NotifyOfPropertyChange(() => ChartSeries); } }
 
@@ -301,8 +301,8 @@ namespace IndiaTango.ViewModels
             if (_selectedValues.Count == 0)
                 return;
 
-        	ViewCursor = Cursors.Wait;
-            _sensor.AddState(_sensor.CurrentState.RemoveValues(SelectedValues));
+            ViewCursor = Cursors.Wait;
+            _sensor.AddState(_sensor.CurrentState.RemoveValues(SelectedValues, null));
 
             Finalise("Removed selected values from dataset.");
 
@@ -311,7 +311,7 @@ namespace IndiaTango.ViewModels
 
             NotifyOfPropertyChange(() => UndoButtonEnabled);
             NotifyOfPropertyChange(() => RedoButtonEnabled);
-        	ViewCursor = Cursors.Arrow;
+            ViewCursor = Cursors.Arrow;
         }
 
         public void btnMakeZero()
@@ -321,8 +321,8 @@ namespace IndiaTango.ViewModels
             if (_selectedValues.Count == 0)
                 return;
 
-			ViewCursor = Cursors.Wait;
-            _sensor.AddState(_sensor.CurrentState.ChangeToZero(SelectedValues));
+            ViewCursor = Cursors.Wait;
+            _sensor.AddState(_sensor.CurrentState.ChangeToZero(SelectedValues, null));
 
             Finalise("Set selected values to 0.");
             RefreshGraph();
@@ -330,7 +330,7 @@ namespace IndiaTango.ViewModels
 
             NotifyOfPropertyChange(() => UndoButtonEnabled);
             NotifyOfPropertyChange(() => RedoButtonEnabled);
-			ViewCursor = Cursors.Arrow;
+            ViewCursor = Cursors.Arrow;
         }
 
         private void Finalise(string taskPerformed)
@@ -346,7 +346,7 @@ namespace IndiaTango.ViewModels
             NotifyOfPropertyChange(() => Outliers);
             NotifyOfPropertyChange(() => OutliersStrings);
 
-            Common.RequestReason(_sensor, _container, _windowManager, taskPerformed);
+            Common.RequestReason(_container, _windowManager, taskPerformed);
         }
 
         public void btnSpecify()
@@ -377,8 +377,8 @@ namespace IndiaTango.ViewModels
                 }
             }
 
-			ViewCursor = Cursors.Wait;
-            _sensor.AddState(_sensor.CurrentState.ChangeToValue(SelectedValues, value));
+            ViewCursor = Cursors.Wait;
+            _sensor.AddState(_sensor.CurrentState.ChangeToValue(SelectedValues, value, null));
 
             Finalise("Specified values for selected data points as " + value + ".");
 
@@ -387,7 +387,7 @@ namespace IndiaTango.ViewModels
 
             NotifyOfPropertyChange(() => UndoButtonEnabled);
             NotifyOfPropertyChange(() => RedoButtonEnabled);
-			ViewCursor = Cursors.Arrow;
+            ViewCursor = Cursors.Arrow;
         }
 
         public void btnUndo()
@@ -440,7 +440,7 @@ namespace IndiaTango.ViewModels
             if (_sampleRate > 1) ShowBackground();
 
             var upperLimit = (_sampleRate > 1 && StdDevMode) ? new DataSeries<DateTime, float>("Upper Limit", sensor.UpperLine.Where((x, index) => index % _sampleRate == 0)) : new DataSeries<DateTime, float>("Upper Limit", sensor.UpperLine);
-            generatedSeries.Add(new LineSeries { DataSeries = upperLimit, LineStroke = Brushes.OrangeRed });           
+            generatedSeries.Add(new LineSeries { DataSeries = upperLimit, LineStroke = Brushes.OrangeRed });
             var lowerLimit = (_sampleRate > 1 && StdDevMode) ? new DataSeries<DateTime, float>("Lower Limit", sensor.LowerLine.Where((x, index) => index % _sampleRate == 0)) : new DataSeries<DateTime, float>("Lower Limit", sensor.LowerLine);
             generatedSeries.Add(new LineSeries { DataSeries = lowerLimit, LineStroke = Brushes.OrangeRed });
             ChartSeries = generatedSeries;

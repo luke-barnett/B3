@@ -9,23 +9,23 @@ using IndiaTango.Models;
 
 namespace IndiaTango.Tests
 {
-	[TestFixture]
-	class FormulaEvaluatorTest
-	{
-	    private FormulaEvaluator _eval;
-	    private Dataset _ds;
-	    private CSVReader _reader;
+    [TestFixture]
+    class FormulaEvaluatorTest
+    {
+        private FormulaEvaluator _eval;
+        private Dataset _ds;
+        private CSVReader _reader;
         private Site _s = new Site(1, "dsf", "asdf", new Contact("asdf", "asdf", "adsf@sdfg.com", "uerh", "sadf"), new Contact("asdf", "asdf", "adsf@sdfg.com", "uerh", "sadf"), null, new GPSCoords(32, 5));
-	    private double delta = 0.0000001;
+        private double delta = 0.0000001;
 
-		[SetUp]
-		public void Setup()
-		{
+        [SetUp]
+        public void Setup()
+        {
             _reader = new CSVReader(Path.Combine(Common.TestDataPath, "lakeTutira120120110648_extra_small.csv"));
             _ds = new Dataset(_s, _reader.ReadSensors());
 
-            _eval = new FormulaEvaluator(_ds.Sensors,_ds.DataInterval);
-		}
+            _eval = new FormulaEvaluator(_ds.Sensors, _ds.DataInterval);
+        }
 
         //Parsing not yet implemented
 
@@ -75,43 +75,43 @@ namespace IndiaTango.Tests
         [Test]
         public void ValidCompilerResults2()
         {
-			Formula formula = _eval.CompileFormula("a = Cos(time.Month) * 7");
-			Assert.IsTrue(formula.IsValid);
+            Formula formula = _eval.CompileFormula("a = Cos(time.Month) * 7");
+            Assert.IsTrue(formula.IsValid);
         }
 
         [Test]
         public void ValidCompilerResults3()
         {
-			Formula formula = _eval.CompileFormula("a = Pi * 8");
-			Assert.IsTrue(formula.IsValid);
+            Formula formula = _eval.CompileFormula("a = Pi * 8");
+            Assert.IsTrue(formula.IsValid);
         }
 
         [Test]
         public void InvalidCompilerResults1()
         {
-			Formula formula = _eval.CompileFormula("a = potatoes");
-			Assert.IsTrue(!formula.IsValid);
+            Formula formula = _eval.CompileFormula("a = potatoes");
+            Assert.IsTrue(!formula.IsValid);
         }
 
         [Test]
         public void InvalidCompilerResults2()
         {
-			Formula formula = _eval.CompileFormula("a = time.Potato");
-			Assert.IsTrue(!formula.IsValid);
+            Formula formula = _eval.CompileFormula("a = time.Potato");
+            Assert.IsTrue(!formula.IsValid);
         }
 
         [Test]
         public void InvalidCompilerResults3()
         {
-			Formula formula = _eval.CompileFormula("a = eleven");
-			Assert.IsTrue(!formula.IsValid);
+            Formula formula = _eval.CompileFormula("a = eleven");
+            Assert.IsTrue(!formula.IsValid);
         }
 
         [Test]
         public void SetValuetoMonth()
         {
-			Formula formula = _eval.CompileFormula("a = time.Month");
-			_eval.EvaluateFormula(formula, _ds.StartTimeStamp, _ds.EndTimeStamp,false);
+            Formula formula = _eval.CompileFormula("a = time.Month");
+            _eval.EvaluateFormula(formula, _ds.StartTimeStamp, _ds.EndTimeStamp, false, new ChangeReason(0, "Test"));
 
             foreach (var pair in _ds.Sensors[0].CurrentState.Values)
             {
@@ -122,8 +122,8 @@ namespace IndiaTango.Tests
         [Test]
         public void SetValuetoCosDay()
         {
-			Formula formula = _eval.CompileFormula("b = Cos(time.Day)");
-			_eval.EvaluateFormula(formula, _ds.StartTimeStamp, _ds.EndTimeStamp, false);
+            Formula formula = _eval.CompileFormula("b = Cos(time.Day)");
+            _eval.EvaluateFormula(formula, _ds.StartTimeStamp, _ds.EndTimeStamp, false, new ChangeReason(0, "Test"));
 
             foreach (var pair in _ds.Sensors[1].CurrentState.Values)
             {
@@ -134,12 +134,12 @@ namespace IndiaTango.Tests
         [Test]
         public void SetLToM()
         {
-			Formula formula = _eval.CompileFormula("l = m");
-			_eval.EvaluateFormula(formula, _ds.StartTimeStamp, _ds.EndTimeStamp, false);
+            Formula formula = _eval.CompileFormula("l = m");
+            _eval.EvaluateFormula(formula, _ds.StartTimeStamp, _ds.EndTimeStamp, false, new ChangeReason(0, "Test"));
 
             foreach (var pair in _ds.Sensors[11].CurrentState.Values)
             {
-                Assert.AreEqual(pair.Value,_ds.Sensors[12].CurrentState.Values[pair.Key]);
+                Assert.AreEqual(pair.Value, _ds.Sensors[12].CurrentState.Values[pair.Key]);
             }
         }
 
@@ -153,7 +153,7 @@ namespace IndiaTango.Tests
                 actual += sensorVariable.VariableName + ",";
 
             actual = actual.Remove(actual.Length - 1);
-            Assert.AreEqual(expected,actual);
+            Assert.AreEqual(expected, actual);
         }
-	}
+    }
 }

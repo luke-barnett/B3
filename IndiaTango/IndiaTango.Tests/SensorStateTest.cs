@@ -16,7 +16,7 @@ namespace IndiaTango.Tests
         private DateTime modifiedDate = new DateTime(2011, 11, 17, 5, 0, 0);
         private Dictionary<DateTime, float> valueList;
         private Dictionary<DateTime, float> secondValueList;
-        private string _reason = "Updated because values were wrong";
+        private ChangeReason _reason = new ChangeReason(0, "Out of range");
         private DateTime baseDate = new DateTime(2011, 5, 7, 12, 15, 0);
         private Contact _sampleContact = new Contact("Steven", "McTainsh", "steven@mctainsh.com", "Awesome", "1212121");
         private Sensor _testSensor;
@@ -104,10 +104,10 @@ namespace IndiaTango.Tests
         [Test]
         public void SetsRawCorrectlyOnConstruction()
         {
-            var testState = new SensorState(_testSensor, DateTime.Now, new Dictionary<DateTime, float>(), "", true, null);
+            var testState = new SensorState(_testSensor, DateTime.Now, new Dictionary<DateTime, float>(), null, true, null);
             Assert.IsTrue(testState.IsRaw);
 
-            testState = new SensorState(_testSensor, DateTime.Now, new Dictionary<DateTime, float>(), "", false, null);
+            testState = new SensorState(_testSensor, DateTime.Now, new Dictionary<DateTime, float>(), null, false, null);
             Assert.IsTrue(!testState.IsRaw);
         }
 
@@ -178,10 +178,10 @@ namespace IndiaTango.Tests
         {
             var s = new SensorState(_testSensor, DateTime.Now,
                                     new Dictionary<DateTime, float> { { new DateTime(2011, 5, 7, 12, 20, 0), 200 } }, null);
-            Assert.AreEqual("", s.Reason);
+            Assert.AreEqual(null, s.Reason);
 
             s.Reason = _reason;
-            Assert.AreEqual("Updated because values were wrong", s.Reason);
+            Assert.AreEqual(_reason, s.Reason);
         }
 
         [Test]
@@ -218,7 +218,7 @@ namespace IndiaTango.Tests
 
             var a = new SensorState(_testSensor, baseDate,
                                        new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 200 }, { baseDate.AddMinutes(30), 200 }, { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 200 } }, null);
-            a.Interpolate(new List<DateTime>(), ds);
+            a.Interpolate(new List<DateTime>(), ds, new ChangeReason(0, "Test"));
 
         }
 
@@ -232,7 +232,7 @@ namespace IndiaTango.Tests
 
             var a = new SensorState(_testSensor, baseDate,
                                        new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 200 }, { baseDate.AddMinutes(30), 200 }, { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 200 } }, null);
-            a.Interpolate(null, ds);
+            a.Interpolate(null, ds, new ChangeReason(0, "Test"));
 
         }
 
@@ -246,7 +246,7 @@ namespace IndiaTango.Tests
 
             var A = new SensorState(_testSensor, baseDate,
                                        new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 200 }, { baseDate.AddMinutes(30), 200 }, { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 200 } }, null);
-            A.Interpolate(new List<DateTime> { { baseDate.AddMinutes(60) } }, null);
+            A.Interpolate(new List<DateTime> { { baseDate.AddMinutes(60) } }, null, new ChangeReason(0, "Test"));
 
         }
 
@@ -261,7 +261,7 @@ namespace IndiaTango.Tests
             var a = new SensorState(_testSensor, baseDate,
                                        new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 50 }, { baseDate.AddMinutes(30), 100 }, { baseDate.AddMinutes(60), 200 } }, null);
 
-            var state = a.Interpolate(new List<DateTime> { baseDate.AddMinutes(45) }, ds);
+            var state = a.Interpolate(new List<DateTime> { baseDate.AddMinutes(45) }, ds, new ChangeReason(0, "Test"));
 
             Assert.AreEqual(150, state.Values[baseDate.AddMinutes(45)]);
         }
@@ -277,7 +277,7 @@ namespace IndiaTango.Tests
             var A = new SensorState(_testSensor, baseDate,
                                        new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 50 }, { baseDate.AddMinutes(60), 200 } }, null);
 
-            var state = A.Interpolate(new List<DateTime> { baseDate.AddMinutes(30), baseDate.AddMinutes(45) }, ds);
+            var state = A.Interpolate(new List<DateTime> { baseDate.AddMinutes(30), baseDate.AddMinutes(45) }, ds, new ChangeReason(0, "Test"));
 
             Assert.AreEqual(100, state.Values[baseDate.AddMinutes(30)]);
             Assert.AreEqual(150, state.Values[baseDate.AddMinutes(45)]);
@@ -294,7 +294,7 @@ namespace IndiaTango.Tests
             list.Add(date);
 
             var oldState = new SensorState(_testSensor, DateTime.Now, new Dictionary<DateTime, float>(), null);
-            var newState = oldState.MakeZero(list);
+            var newState = oldState.MakeZero(list, new ChangeReason(0, "Test"));
 
             Assert.AreEqual(0, newState.Values[date]);
         }
@@ -312,7 +312,7 @@ namespace IndiaTango.Tests
             var oldState = new SensorState(_testSensor, DateTime.Now, new Dictionary<DateTime, float>(), null);
             oldState.Values.Add(date, 5000);
 
-            var newState = oldState.MakeZero(list);
+            var newState = oldState.MakeZero(list, new ChangeReason(0, "Test"));
 
             Assert.AreNotEqual(0, newState.Values[date]);
             Assert.AreEqual(0, newState.Values[list[0]]);
@@ -325,7 +325,7 @@ namespace IndiaTango.Tests
         public void NullZeroValueList()
         {
             var oldState = new SensorState(_testSensor, DateTime.Now, new Dictionary<DateTime, float>(), null);
-            oldState.MakeZero(null);
+            oldState.MakeZero(null, new ChangeReason(0, "Test"));
         }
 
         [Test]
@@ -338,7 +338,7 @@ namespace IndiaTango.Tests
             list.Add(date);
 
             var oldState = new SensorState(_testSensor, DateTime.Now, new Dictionary<DateTime, float>(), null);
-            var newState = oldState.MakeValue(list, 5);
+            var newState = oldState.MakeValue(list, 5, new ChangeReason(0, "Test"));
 
             Assert.AreEqual(5, newState.Values[date]);
         }
@@ -356,7 +356,7 @@ namespace IndiaTango.Tests
             var oldState = new SensorState(_testSensor, DateTime.Now, new Dictionary<DateTime, float>(), null);
             oldState.Values.Add(date, 5000);
 
-            var newState = oldState.MakeValue(list, 20);
+            var newState = oldState.MakeValue(list, 20, new ChangeReason(0, "Test"));
 
             Assert.AreNotEqual(20, newState.Values[date]);
             Assert.AreEqual(20, newState.Values[list[0]]);
@@ -369,7 +369,7 @@ namespace IndiaTango.Tests
         public void NullMakeValueList()
         {
             var oldState = new SensorState(_testSensor, DateTime.Now, new Dictionary<DateTime, float>(), null);
-            oldState.MakeValue(null, 5);
+            oldState.MakeValue(null, 5, new ChangeReason(0, "Test"));
         }
         #endregion
 

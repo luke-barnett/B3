@@ -327,7 +327,7 @@ namespace IndiaTango.ViewModels
             if (_selectedValues.Count == 0)
                 return;
 
-            _sensor.AddState(_sensor.CurrentState.MakeZero(SelectedValues));
+            _sensor.AddState(_sensor.CurrentState.MakeZero(SelectedValues, null));
 
             Finalise("Selected values set to 0.");
 
@@ -367,7 +367,7 @@ namespace IndiaTango.ViewModels
             }
 
             ViewCursor = Cursors.Wait;
-            _sensor.AddState(_sensor.CurrentState.MakeValue(SelectedValues, value));
+            _sensor.AddState(_sensor.CurrentState.MakeValue(SelectedValues, value, null));
 
             Finalise("Selected values has been set to " + value + ".");
 
@@ -384,7 +384,7 @@ namespace IndiaTango.ViewModels
             NotifyOfPropertyChange(() => MissingValues);
             NotifyOfPropertyChange(() => MissingCount);
 
-            Common.RequestReason(_sensor, _container, _windowManager, taskPerformed);
+            Common.RequestReason(_container, _windowManager, taskPerformed);
         }
 
         public void btnInterpolate()
@@ -416,7 +416,7 @@ namespace IndiaTango.ViewModels
 
             try
             {
-                var newState = SelectedSensor.CurrentState.Interpolate(SelectedValues, Dataset);
+                var newState = SelectedSensor.CurrentState.Interpolate(SelectedValues, Dataset, null);
                 SelectedSensor.AddState(newState);
 
                 Finalise("Value extrapolation performed.");
@@ -484,7 +484,7 @@ namespace IndiaTango.ViewModels
             }
 
             ViewCursor = Cursors.Wait;
-            _sensor.AddState(_sensor.CurrentState.MakeValue(SelectedValues, value));
+            _sensor.AddState(_sensor.CurrentState.MakeValue(SelectedValues, value, null));
 
             UpdateUndoRedo();
 

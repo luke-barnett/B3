@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -42,7 +43,6 @@ namespace IndiaTango.Models
         public static int MaximumGraphablePoints = 15000;
 
         public static bool HasInitdTaskDlgs;
-        private static List<string> _changeReasons;
 
         public static string ChangeReasonsPath { get { return Path.Combine(AppDataPath, "ChangeReasons.txt"); } }
         public static string Icon { get { return "/B3;component/Images/icon.ico"; } }
@@ -297,37 +297,17 @@ namespace IndiaTango.Models
             EventLogger.LogInfo(null, "Image Exporter", "Saved graph as image to: " + filename);
         }
 
-        public static void RequestReason(Sensor sensor, SimpleContainer container, IWindowManager windowManager, string taskPerformed)
+        public static ChangeReason RequestReason(SimpleContainer container, IWindowManager windowManager, string taskPerformed)
         {
-            RequestReason(new List<Sensor> { sensor }, container, windowManager, taskPerformed);
-        }
+            var specify = (SpecifyValueViewModel)container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel");
+            specify.Title = "Log Reason";
+            specify.Message = "Please specify a reason for this change:";
+            specify.ShowComboBox = true;
+            specify.ComboBoxItems = ChangeReason.ChangeReasons.Where(x => !x.Reason.StartsWith("[Importer]")).Select(x => x.Reason).ToList();
 
-        public static void RequestReason(List<Sensor> sensors, SimpleContainer container, IWindowManager windowManager, string taskPerformed)
-        {
-            if (sensors.Count > 0)
-            {
-                var specify = (SpecifyValueViewModel)container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel");
-                specify.Title = "Log Reason";
-                specify.Message = "Please specify a reason for this change:";
-                specify.ShowComboBox = true;
-                specify.ComboBoxItems = GetChangeReasons();
-                specify.Deactivated += (o, e) =>
-                {
-                    foreach (Sensor sensor in sensors)
-                    {
-                        // Specify reason
-                        sensor.CurrentState.Reason = specify.Text;
+            windowManager.ShowDialog(specify);
 
-                        // Log this change to the file!
-                        sensor.CurrentState.LogChange(sensor.Name, taskPerformed);
-                    }
-
-                    //Add the change to the list
-                    AddChangeReason(specify.Text);
-                };
-
-                windowManager.ShowDialog(specify);
-            }
+            return ChangeReason.ChangeReasons.FirstOrDefault(x => x.Reason == specify.Text) ?? ChangeReason.AddNewChangeReason(specify.Text);
         }
 
         public static List<string> GenerateSamplingCaps()
@@ -335,43 +315,6 @@ namespace IndiaTango.Models
             var samplingCaps = new List<string> { "1000", "5000", "10000", "15000", "20000", "30000", "40000", "All" };
 
             return samplingCaps;
-        }
-
-        public static List<string> GetChangeReasons()
-        {
-            if (_changeReasons == null)
-            {
-                _changeReasons = new List<string>();
-
-                if (File.Exists(ChangeReasonsPath))
-                {
-                    using (var reader = new StreamReader(ChangeReasonsPath))
-                    {
-                        string line;
-                        while ((line = reader.ReadLine()) != null)
-                            _changeReasons.Add(line);
-                    }
-                }
-            }
-
-            return _changeReasons;
-        }
-
-        public static void AddChangeReason(string reason)
-        {
-            if (String.IsNullOrWhiteSpace(reason) || _changeReasons.Contains(reason))
-                return;
-
-            _changeReasons.Add(reason);
-            _changeReasons.Sort();
-
-            using (var writer = new StreamWriter(ChangeReasonsPath))
-            {
-                foreach (string changeReason in _changeReasons)
-                    writer.WriteLine(changeReason);
-            }
-
-            Debug.WriteLine("Added change reason: '" + reason + "'");
         }
 
         public static ImageSource BitmapToImageSource(Bitmap bitmap)

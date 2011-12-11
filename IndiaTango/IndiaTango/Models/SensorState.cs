@@ -15,7 +15,7 @@ namespace IndiaTango.Models
     {
         private DateTime _editTimestamp;
         private Dictionary<DateTime, float> _valueList;
-        private string _reason = "";
+        private ChangeReason _reason;
         private Dictionary<DateTime, float> _upperLine;
         private Dictionary<DateTime, float> _lowerLine;
         private Dictionary<DateTime, LinkedList<int>> _changes;
@@ -39,7 +39,7 @@ namespace IndiaTango.Models
             _changes = new Dictionary<DateTime, LinkedList<int>>();
         }
 
-        public SensorState(Sensor owner, Dictionary<DateTime, float> valueList, string reason, Dictionary<DateTime, LinkedList<int>> changes) : this(owner, DateTime.Now, valueList, reason, false, changes) { }
+        public SensorState(Sensor owner, Dictionary<DateTime, float> valueList, ChangeReason reason, Dictionary<DateTime, LinkedList<int>> changes) : this(owner, DateTime.Now, valueList, reason, false, changes) { }
         public SensorState(Sensor owner, Dictionary<DateTime, float> valueList, Dictionary<DateTime, LinkedList<int>> changes) : this(owner, DateTime.Now, valueList, changes) { }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace IndiaTango.Models
         /// <param name="editTimestamp">A DateTime object representing the last edit date and time for this sensor state.</param>
         /// <param name="valueList">A list of data values, representing values recorded in this sensor state.</param>
         /// <param name="changes">The list of changes that have occured for this sensor</param>
-        public SensorState(Sensor owner, DateTime editTimestamp, Dictionary<DateTime, float> valueList, Dictionary<DateTime, LinkedList<int>> changes) : this(owner, editTimestamp, valueList, "", false, changes) { }
+        public SensorState(Sensor owner, DateTime editTimestamp, Dictionary<DateTime, float> valueList, Dictionary<DateTime, LinkedList<int>> changes) : this(owner, editTimestamp, valueList, null, false, changes) { }
 
         /// <summary>
         /// Creates a new sensor state with the specified timestamp representing the date it was last edited, a list of values representing data values recorded in this state, and a reason for the changes stored in this state.
@@ -70,7 +70,7 @@ namespace IndiaTango.Models
         /// <param name="reason">A string indicating the reason for the changes made in this state.</param>
         /// <param name="isRaw">Whether or not this represents the sensors raw data.</param>
         /// <param name="changes">The list of changes that have occured for this sensor</param>
-        public SensorState(Sensor owner, DateTime editTimestamp, Dictionary<DateTime, float> valueList, string reason, bool isRaw, Dictionary<DateTime, LinkedList<int>> changes)
+        public SensorState(Sensor owner, DateTime editTimestamp, Dictionary<DateTime, float> valueList, ChangeReason reason, bool isRaw, Dictionary<DateTime, LinkedList<int>> changes)
         {
             if (valueList == null)
                 throw new ArgumentNullException("valueList");
@@ -136,7 +136,7 @@ namespace IndiaTango.Models
                                                 DataInterval = _owner.Owner.DataInterval,
                                                 StartTime = orderedKeyValuePairs[i].Key
                                             };
-                        var values = new List<float> {orderedKeyValuePairs[i].Value};
+                        var values = new List<float> { orderedKeyValuePairs[i].Value };
                         var j = 0;
                         while (i + j + 1 < orderedKeyValuePairs.Length &&
                                orderedKeyValuePairs[i + j + 1].Key - orderedKeyValuePairs[i + j].Key ==
@@ -160,9 +160,9 @@ namespace IndiaTango.Models
                 var dictionary = new Dictionary<DateTime, float>();
                 foreach (var block in value)
                 {
-                    for(var i = 0; i < block.Values.Length; i++)
+                    for (var i = 0; i < block.Values.Length; i++)
                     {
-                        dictionary[block.StartTime.AddMinutes(i*block.DataInterval)] = block.Values[i];
+                        dictionary[block.StartTime.AddMinutes(i * block.DataInterval)] = block.Values[i];
                     }
                 }
                 Values = dictionary;
@@ -171,7 +171,7 @@ namespace IndiaTango.Models
         }
 
         [ProtoMember(5)]
-        public string Reason
+        public ChangeReason Reason
         {
             get { return _reason; }
             set { _reason = value; }
@@ -370,7 +370,7 @@ namespace IndiaTango.Models
         /// <param name="valuesToInterpolate">A list of data point 'keys' where values are missing.</param>
         /// <param name="ds">A dataset to use, which indicates the length of time that elapses between readings.</param>
         /// <returns>A sensor state with the interpolated data.</returns>
-        public SensorState Interpolate(List<DateTime> valuesToInterpolate, Dataset ds)
+        public SensorState Interpolate(List<DateTime> valuesToInterpolate, Dataset ds, ChangeReason reason)
         {
             EventLogger.LogInfo(_owner.Owner, GetType().ToString(), "Starting extrapolation process");
 
@@ -384,7 +384,8 @@ namespace IndiaTango.Models
                 throw new ArgumentNullException("ds");
 
             //First remove values
-            var newState = RemoveValues(valuesToInterpolate);
+            var newState = RemoveValues(valuesToInterpolate, reason);
+            newState.Reason = reason;
 
             foreach (var time in valuesToInterpolate)
             {
@@ -422,13 +423,7 @@ namespace IndiaTango.Models
                 {
                     newState.Values[startValue.AddMinutes(i)] = (float)Math.Round(value, 2);
 
-                    if (newState.Changes.ContainsKey(time))
-                        newState.Changes[time].AddFirst(EventLogger.NextRefNum);
-                    else
-                    {
-                        newState.Changes.Add(time, new LinkedList<int>());
-                        newState.Changes[time].AddFirst(EventLogger.NextRefNum);
-                    }
+                    newState.AddToChanges(startValue.AddMinutes(i), reason.ID);
 
                     value += step;
                 }
@@ -495,69 +490,62 @@ namespace IndiaTango.Models
             return Values.Keys.Where(x => x > dataValue).Min();
         }
 
-        public SensorState MakeZero(List<DateTime> values)
+        public SensorState MakeZero(List<DateTime> values, ChangeReason reason)
         {
-            return MakeValue(values, 0);
+            return MakeValue(values, 0, reason);
         }
 
-        public SensorState MakeValue(List<DateTime> values, float value)
-        {
-            if (values == null)
-                throw new ArgumentNullException("A non-null list of keys to set as " + value + " must be specified.");
-
-            var newState = Clone();
-
-            foreach (var time in values)
-            {
-                newState.Values[time] = value;
-                AddChange(newState, time);
-            }
-
-            return newState;
-        }
-
-        public SensorState ChangeToZero(List<DateTime> values)
-        {
-            return ChangeToValue(values, 0);
-        }
-
-        public SensorState ChangeToValue(List<DateTime> values, float value)
+        public SensorState MakeValue(List<DateTime> values, float value, ChangeReason reason)
         {
             if (values == null)
                 throw new ArgumentNullException("A non-null list of keys to set as " + value + " must be specified.");
 
             var newState = Clone();
+            newState.Reason = reason;
 
             foreach (var time in values)
             {
                 newState.Values[time] = value;
-                AddChange(newState, time);
+                newState.AddToChanges(time, reason.ID);
             }
 
             return newState;
         }
 
-        public static void AddChange(SensorState newState, DateTime time)
+        public SensorState ChangeToZero(List<DateTime> values, ChangeReason reason)
         {
-            if (newState.Changes.ContainsKey(time))
-                newState.Changes[time].AddFirst(EventLogger.NextRefNum);
-            else
-            {
-                newState.Changes.Add(time, new LinkedList<int>());
-                newState.Changes[time].AddFirst(EventLogger.NextRefNum);
-            }
+            return ChangeToValue(values, 0, reason);
         }
 
-        public SensorState RemoveValues(List<DateTime> values)
+        public SensorState ChangeToValue(List<DateTime> values, float value, ChangeReason reason)
+        {
+            if (values == null)
+                throw new ArgumentNullException("A non-null list of keys to set as " + value + " must be specified.");
+
+            var newState = Clone();
+            newState.Reason = reason;
+
+            foreach (var time in values)
+            {
+                newState.Values[time] = value;
+                newState.AddToChanges(time, reason.ID);
+            }
+
+            return newState;
+        }
+
+        public SensorState RemoveValues(List<DateTime> values, ChangeReason reason)
         {
             if (values == null)
                 throw new ArgumentException("A non-null list to be removed must be specified");
 
             var newState = Clone();
+            newState.Reason = reason;
+
             foreach (var time in values)
             {
                 newState.Values.Remove(time);
-                AddChange(newState, time);
+                newState.AddToChanges(time, reason.ID);
             }
 
             return newState;
@@ -587,6 +575,14 @@ namespace IndiaTango.Models
         private bool IsPointAbove(double x1, double y1, double x2, double y2, double xPoint, double yPoint)
         {
             return ((x2 - x1) * (yPoint - y1) - (y2 - y1) * (xPoint - x1)) > 0;
+        }
+
+        public void AddToChanges(DateTime timestamp, int changeID)
+        {
+            if (!Changes.Keys.Contains(timestamp))
+                Changes[timestamp] = new LinkedList<int>();
+
+            Changes[timestamp].AddFirst(changeID);
         }
     }
 

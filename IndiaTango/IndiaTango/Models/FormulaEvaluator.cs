@@ -117,7 +117,7 @@ namespace IndiaTango.Models
                 if (_variablesAssignedTo.Contains(_sensorStates[v]))
                 {
                     _loopEndCode += "if(!skipMissingValues || sensorStates[" + v + "].Sensor.CurrentState.Values.ContainsKey(time)){ sensorStates[" + v + "].Sensor.CurrentState.Values[time] = " +
-                                   _sensorStates[v].VariableName + ";\n SensorState.AddChange(sensorStates[" + v + "].Sensor.CurrentState,time);}";
+                                   _sensorStates[v].VariableName + ";\n sensorStates[" + v + "].Sensor.CurrentState.AddToChanges(time,reason.ID);}";
                 }
             }
 
@@ -142,7 +142,7 @@ namespace IndiaTango.Models
             return new Formula(results, _variablesUsed);
         }
 
-        public List<Sensor> EvaluateFormula(Formula formula, DateTime startTime, DateTime endTime, bool skipMissingValues)
+        public List<Sensor> EvaluateFormula(Formula formula, DateTime startTime, DateTime endTime, bool skipMissingValues, ChangeReason reason)
         {
             if (startTime >= endTime)
                 throw new ArgumentException("End time must be greater than start time");
@@ -156,7 +156,7 @@ namespace IndiaTango.Models
                     sensorVariable.Sensor.AddState(sensorVariable.Sensor.CurrentState.Clone());
 
                 // run the evaluation function
-                return RunCode(formula.CompilerResults, startTime, endTime, skipMissingValues);
+                return RunCode(formula.CompilerResults, startTime, endTime, skipMissingValues,reason);
             }
             else
             {
@@ -264,7 +264,7 @@ namespace IndiaTango.Models
         /// <param name="startTime">Date to start the formula from</param>
         /// <param name="endTime">Date to stop applying the formula</param>
         /// <param name="skipMissingValues">Wether to assign to missing values or not</param>
-        private List<Sensor> RunCode(CompilerResults results, DateTime startTime, DateTime endTime, bool skipMissingValues)
+        private List<Sensor> RunCode(CompilerResults results, DateTime startTime, DateTime endTime, bool skipMissingValues, ChangeReason reason)
         {
             Assembly executingAssembly = results.CompiledAssembly;
             try
@@ -286,7 +286,7 @@ namespace IndiaTango.Models
                         {
                             if (mi.Name == "ApplyFormula")
                             {
-                                return (List<Sensor>)mi.Invoke(assemblyInstance, new object[] { _sensorStates, startTime, endTime, skipMissingValues });
+                                return (List<Sensor>)mi.Invoke(assemblyInstance, new object[] { _sensorStates, startTime, endTime, skipMissingValues, reason });
                             }
                         }
                     }
@@ -340,6 +340,7 @@ namespace IndiaTango.Models
             myMethod.Parameters.Add(new CodeParameterDeclarationExpression(new CodeTypeReference(typeof(DateTime)), "startTime"));
             myMethod.Parameters.Add(new CodeParameterDeclarationExpression(new CodeTypeReference(typeof(DateTime)), "endTime"));
             myMethod.Parameters.Add(new CodeParameterDeclarationExpression(new CodeTypeReference(typeof(bool)), "skipMissingValues"));
+            myMethod.Parameters.Add(new CodeParameterDeclarationExpression(new CodeTypeReference(typeof (ChangeReason)), "reason"));
             myMethod.Attributes = MemberAttributes.Public;
             myMethod.Statements.Add(new CodeSnippetExpression(_loopStartCode));
 
