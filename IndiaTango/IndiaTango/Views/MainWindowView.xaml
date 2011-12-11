@@ -64,7 +64,7 @@
                 </Grid.RowDefinitions>
 
                 <GroupBox Grid.Row="0" x:Name="TableSection" Header="Sensors" BorderBrush="OrangeRed">
-                    <DataGrid x:Name="DataGrid" IsEnabled="{Binding FeaturesEnabled}" ItemsSource="{Binding GraphableSensors}" AlternatingRowBackground="LightGray" AlternationCount="2" AutoGenerateColumns="False" CanUserReorderColumns="True" FrozenColumnCount="3" BorderThickness="0" Background="Transparent" SelectionMode="Single" EnableRowVirtualization="False">
+                    <DataGrid x:Name="DataGrid" IsEnabled="{Binding FeaturesEnabled}" ItemsSource="{Binding GraphableSensors}" AlternatingRowBackground="LightGray" AlternationCount="2" AutoGenerateColumns="False" CanUserReorderColumns="True" FrozenColumnCount="2" BorderThickness="0" Background="Transparent" SelectionMode="Single" EnableRowVirtualization="False">
                         <DataGrid.ContextMenu>
                             <ContextMenu x:Name="dataGridContextMenu" IsEnabled="{Binding FeaturesEnabled}">
                                 <MenuItem Header="Delete">
@@ -100,7 +100,19 @@
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                             <DataGridTextColumn Header="Name" Binding="{Binding Sensor.Name}" />
-                            <DataGridTextColumn Header="Variable" Binding="{Binding Sensor.Variable}" IsReadOnly="True" />
+                            <DataGridTemplateColumn Header="Type" CanUserSort="True" SortMemberPath="Sensor.SensorType">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Sensor.SensorType}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <ComboBox ItemsSource="{Binding Sensor.SensorVocabulary}" SelectedItem="{Binding Sensor.SensorType,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Variable" Binding="{Binding Sensor.Variable}" IsReadOnly="True" SortMemberPath="Sensor.Variable.VariableName" />
                             <DataGridTextColumn Header="Depth (m)" Binding="{Binding Sensor.Depth, Converter={StaticResource floatStringConverter}}" />
                             <DataGridTextColumn Header="Unit" Binding="{Binding Sensor.Unit}"/>
                             <DataGridTextColumn Header="Lower Limit" Binding="{Binding Sensor.LowerLimit, Converter={StaticResource floatStringConverter}}" />

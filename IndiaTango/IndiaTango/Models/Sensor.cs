@@ -39,6 +39,7 @@ namespace IndiaTango.Models
         private SensorState _currentState;
         [NonSerialized]
         private SensorVariable _sensorVariable;
+        private string _sensorType;
         #endregion
 
         #region Constructors
@@ -48,7 +49,7 @@ namespace IndiaTango.Models
             UndoStack = new Stack<SensorState>();
             RedoStack = new Stack<SensorState>();
             CalibrationDates = new List<DateTime>();
-        } 
+        }
 
         /// <summary>
         /// Creates a new sensor, with the specified sensor name and measurement unit.
@@ -450,7 +451,7 @@ namespace IndiaTango.Models
 
         public SensorState RawData
         {
-            get { return _rawData ?? (_rawData =  new SensorState(this, DateTime.Now, new Dictionary<DateTime, float>(), null, true, null)); }
+            get { return _rawData ?? (_rawData = new SensorState(this, DateTime.Now, new Dictionary<DateTime, float>(), null, true, null)); }
             private set { _rawData = value; }
         }
 
@@ -505,6 +506,17 @@ namespace IndiaTango.Models
                 FirePropertyChanged("SummaryType");
             }
         }
+
+        [ProtoMember(18)]
+        public string SensorType
+        {
+            get { return _sensorType; }
+            set
+            {
+                _sensorType = value;
+                FirePropertyChanged("SensorType");
+            }
+        }
         #endregion
 
         #region Public Methods
@@ -516,7 +528,7 @@ namespace IndiaTango.Models
             // This is because the undo stack has to have at least one item on it - the current state
             if (UndoStack.Count == 0)
                 throw new InvalidOperationException("Undo is not possible at this stage. There are no more possible states to undo to.");
-            
+
             RedoStack.Push(CurrentState);
             _currentState = UndoStack.Pop();
         }
@@ -539,7 +551,7 @@ namespace IndiaTango.Models
         /// <param name="newState"></param>
         public void AddState(SensorState newState)
         {
-            if(_rawData == null)
+            if (_rawData == null)
             {
                 RawData = newState;
             }
@@ -550,7 +562,7 @@ namespace IndiaTango.Models
 
                 _currentState = newState;
             }
-            
+
         }
 
         public void RevertToRaw()
@@ -698,6 +710,11 @@ namespace IndiaTango.Models
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyThatChanged));
             }
+        }
+
+        public List<string> SensorVocabulary
+        {
+            get { return Models.SensorVocabulary.Vocabulary; }
         }
     }
 }

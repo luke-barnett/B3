@@ -5,7 +5,7 @@ using System.Text;
 
 namespace IndiaTango.Models
 {
-    public class SensorVariable
+    public class SensorVariable : IComparable<SensorVariable>
     {
         private Sensor _sensor;
         private string _variableName;
@@ -32,7 +32,12 @@ namespace IndiaTango.Models
             get { return _variableName; }
         }
 
-		public override string ToString()
+        public int CompareTo(SensorVariable other)
+        {
+            return VariableName.CompareTo(other.VariableName);
+        }
+
+        public override string ToString()
 		{
 			return VariableName;
 		}
