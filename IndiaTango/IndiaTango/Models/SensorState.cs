@@ -303,7 +303,7 @@ namespace IndiaTango.Models
             return sum / count;
         }
 
-        public SensorState Calibrate(DateTime start, DateTime end, double origA, double origB, double newA, double newB)
+        public SensorState Calibrate(DateTime start, DateTime end, double origA, double origB, double newA, double newB, ChangeReason reason)
         {
             if (start >= end)
                 throw new ArgumentException("End time must be greater than start time");
@@ -351,6 +351,7 @@ namespace IndiaTango.Models
                 double normalisationScale = GetRelativePositionBetweenLines(interceptA, interceptMedian, slopeA, slopeMedian, timeDiff, value.Value);
 
                 newState.Values[value.Key] = (float)(value.Value - (normalisationScale * normalisationIncrement + calibrationIncrement) * timeDiff);
+                newState.AddToChanges(value.Key, reason.ID);
             }
 
             return newState;

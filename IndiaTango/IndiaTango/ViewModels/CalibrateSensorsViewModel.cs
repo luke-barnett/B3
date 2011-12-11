@@ -754,7 +754,7 @@ namespace IndiaTango.ViewModels
                 }
 
                 ViewCursor = Cursors.Wait;
-                _eval.EvaluateFormula(_formula, StartTime, EndTime, skipMissingValues,Common.RequestReason(_container, _windowManager, "Formula '" + FormulaText + "' successfully applied to the sensor."));
+                _eval.EvaluateFormula(_formula, StartTime, EndTime, skipMissingValues, Common.RequestReason(_container, _windowManager, "Formula '" + FormulaText + "' successfully applied to the sensor."));
 
                 ViewCursor = Cursors.Arrow;
 
@@ -787,7 +787,7 @@ namespace IndiaTango.ViewModels
                 {
                     SelectedSensor.Sensor.AddState(SelectedSensor.Sensor.CurrentState.Calibrate(StartTime, EndTime,
                                                                                                 _calAValue, _calBValue,
-                                                                                                _curAValue, _curBValue));
+                                                                                                _curAValue, _curBValue, null));
 
                     Common.RequestReason(_container, _windowManager, "Calibration CalA='" + _calBValue + "', CalB='" + _calBValue + "', CurA='" + _curAValue + "', CurB='" + _curBValue + "' successfully applied to the sensor.");
 

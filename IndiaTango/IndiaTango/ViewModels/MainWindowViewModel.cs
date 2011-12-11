@@ -1092,9 +1092,6 @@ namespace IndiaTango.ViewModels
 
                                                     ApplicationCursor = Cursors.Arrow;
 
-                                                    //TODO: Give reason for formula applied
-                                                    //
-
                                                     Common.ShowMessageBox("Formula applied", "The formula was successfully applied to the sensor(s) involved.",
                                                                           false, false);
                                                     var sensorsUsed = formula.SensorsUsed.Select(x => x.Sensor);
@@ -1363,6 +1360,7 @@ namespace IndiaTango.ViewModels
                                              if (Selection != null)
                                                  useSelected = Common.Confirm("Should we use your selection?",
                                                                               "Should we use the date range of your selection for to apply the formula on?");
+                                             var reason = Common.RequestReason(_container, _windowManager, "Calibration CalA='" + calibratedAValue + "', CalB='" + calibratedBValue + "', CurA='" + currentAValue + "', CurB='" + currentBValue + "' successfully applied to the sensor.");
                                              var successfulSensors = new List<Sensor>();
                                              foreach (var sensor in _sensorsToCheckMethodsAgainst)
                                              {
@@ -1372,13 +1370,14 @@ namespace IndiaTango.ViewModels
                                                                          ? sensor.CurrentState.Calibrate(
                                                                              Selection.LowerX, Selection.UpperX,
                                                                              calibratedAValue, calibratedBValue,
-                                                                             currentAValue, currentBValue)
+                                                                             currentAValue, currentBValue, reason)
                                                                          : sensor.CurrentState.Calibrate(StartTime,
                                                                                                          EndTime,
                                                                                                          calibratedAValue,
                                                                                                          calibratedBValue,
                                                                                                          currentAValue,
-                                                                                                         currentBValue));
+                                                                                                         currentBValue, reason));
+                                                     sensor.CurrentState.Reason = reason;
                                                      successfulSensors.Add(sensor);
                                                  }
                                                  catch (Exception ex)
@@ -1386,8 +1385,6 @@ namespace IndiaTango.ViewModels
                                                      Common.ShowMessageBox("An Error Occured", ex.Message, false, true);
                                                  }
                                              }
-                                             //TODO: Give reason calibration
-                                             //Common.RequestReason(successfulSensors, _container, _windowManager, "Calibration CalA='" + calibratedAValue + "', CalB='" + calibratedBValue + "', CurA='" + currentAValue + "', CurB='" + currentBValue + "' successfully applied to the sensor.");
 
                                              foreach (var graphableSensor in GraphableSensors.Where(x => successfulSensors.Contains(x.Sensor)))
                                                  graphableSensor.RefreshDataPoints();
@@ -1965,7 +1962,7 @@ namespace IndiaTango.ViewModels
                                                              matchingSensor.RawData.Values[value.Key] = value.Value;
                                                              insertedValues = true;
                                                          }
-                                                         
+
                                                          if (insertedValues)
                                                          {
                                                              //Give a reason
@@ -2313,7 +2310,7 @@ namespace IndiaTango.ViewModels
                     return;
             }
 
-            if(onlyGraphed)
+            if (onlyGraphed)
                 _sensorsToCheckMethodsAgainst.ForEach(x => x.RevertToRaw());
             else
                 Sensors.ForEach(x => x.RevertToRaw());
