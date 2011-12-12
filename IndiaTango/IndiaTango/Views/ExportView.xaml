@@ -38,7 +38,7 @@
             <TextBlock Margin="7" TextAlignment="Right" Text="Include Empty Lines:" Grid.Row="2" Grid.Column="0" />
             <CheckBox Grid.Column="1" Grid.Row="2" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" IsChecked="{Binding IncludeEmptyLines, Mode=TwoWay}" />
 
-            <TextBlock Margin="7" TextAlignment="Right" Text="Include Site Meta Data File:" Grid.Row="3" Grid.Column="0" />
+            <TextBlock Margin="7" TextAlignment="Right" Text="Include Meta Data File:" Grid.Row="3" Grid.Column="0" />
             <CheckBox Grid.Column="1" Grid.Row="3" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" IsChecked="{Binding IncludeMetaData, Mode=TwoWay}" />
 
             <TextBlock Margin="7" TextAlignment="Right" Text="Include Modifications Log:" Grid.Row="4" Grid.Column="0" />

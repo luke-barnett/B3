@@ -131,7 +131,7 @@ namespace IndiaTango.Tests
             _exporter = new DatasetExporter(_data);
             _exporter.Export(_outputFilePath, ExportFormat.CSV, true, false, false, ExportedPoints.AllPoints, DateColumnFormat.TwoDateColumn, true);
 
-            reader = new CSVReader(_outputFilePath);
+            reader = new CSVReader(_outputFilePath + " Raw.csv");
             _data.Sensors = reader.ReadSensors();
 
             Assert.AreNotEqual(0, _data.Sensors[0].CurrentState.Values[new DateTime(2009, 1, 10, 7, 45, 0)]);

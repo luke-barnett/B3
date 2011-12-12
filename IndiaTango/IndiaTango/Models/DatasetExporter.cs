@@ -94,7 +94,10 @@ namespace IndiaTango.Models
 
             if (format.Equals(ExportFormat.CSV))
             {
-                ExportCSV(filePath, includeEmptyLines, dateColumnFormat, exportRaw, numOfPointsToSummarise);
+                ExportCSV(filePath, includeEmptyLines, dateColumnFormat, false, numOfPointsToSummarise);
+
+                if (exportRaw)
+                    ExportCSV(filePath + " Raw.csv", includeEmptyLines, dateColumnFormat, true, numOfPointsToSummarise);
 
                 if (addMetaDataFile && Data.Site != null)
                     ExportMetaData(filePath, metaDataFilePath);
@@ -262,7 +265,7 @@ namespace IndiaTango.Models
                 {
                     writer.WriteLine("Secondary Contact:");
                     writer.WriteLine("\tName: " + Data.Site.SecondaryContact.FirstName + " " +
-                                     Data.Site.PrimaryContact.LastName);
+                                     Data.Site.SecondaryContact.LastName);
                     writer.WriteLine("\tBusiness: " + Data.Site.SecondaryContact.Business);
                     writer.WriteLine("\tPhone: " + Data.Site.SecondaryContact.Phone);
                     writer.WriteLine("\tEmail: " + Data.Site.SecondaryContact.Email);
@@ -272,10 +275,25 @@ namespace IndiaTango.Models
                 {
                     writer.WriteLine("University Contact:");
                     writer.WriteLine("\tName: " + Data.Site.UniversityContact.FirstName + " " +
-                                     Data.Site.PrimaryContact.LastName);
+                                     Data.Site.UniversityContact.LastName);
                     writer.WriteLine("\tBusiness: " + Data.Site.UniversityContact.Business);
                     writer.WriteLine("\tPhone: " + Data.Site.UniversityContact.Phone);
                     writer.WriteLine("\tEmail: " + Data.Site.UniversityContact.Email);
+                }
+
+                if (Data.Sensors != null && Data.Sensors.Count > 0)
+                {
+                    writer.WriteLine("Sensors:");
+                    foreach (var sensor in Data.Sensors)
+                    {
+                        writer.WriteLine("\t" + sensor.Name);
+                        writer.WriteLine("\t\tDescription: " + sensor.Description);
+                        writer.WriteLine("\t\tSensor Type: " + sensor.SensorType);
+                        writer.WriteLine("\t\tUnit: " + sensor.Unit);
+                        writer.WriteLine("\t\tDepth (m): " + sensor.Depth);
+                        writer.WriteLine("\t\tManufacturer: " + sensor.Manufacturer);
+                        writer.WriteLine("\t\tSerial Number: " + sensor.SerialNumber);
+                    }
                 }
 
                 Debug.WriteLine(metaDataFilePath);
