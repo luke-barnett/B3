@@ -22,6 +22,7 @@ namespace IndiaTango.Models
                                        if (args.PropertyName == "IsEnabled")
                                            _selectionRectangle.Visibility = Visibility.Visible;
                                    };
+            
         }
 
         protected override void Init()
@@ -64,8 +65,8 @@ namespace IndiaTango.Models
             _selectionRectangle.Height = 0;
             if (_selectionRectangle.Border != null)
             {
-                _selectionRectangle.Border.Background = _selectionRectangle.Background;
-                _selectionRectangle.Border.BorderBrush = _selectionRectangle.Foreground;
+                _selectionRectangle.Border.Background = _selectionRectangle.NotZoomableBackground;
+                _selectionRectangle.Border.BorderBrush = _selectionRectangle.NotZoomableForeground;
             }
 
             //Make it visible
