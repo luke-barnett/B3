@@ -133,7 +133,8 @@ namespace IndiaTango.ViewModels
             behaviourManager.Behaviours.Add(_selectionBehaviour);
             #endregion
 
-            //behaviourManager.Behaviours.Add(new DateAnnotationBehaviour { IsEnabled = true });
+            _dateAnnotator = new DateAnnotationBehaviour {IsEnabled = true};
+            behaviourManager.Behaviours.Add(_dateAnnotator);
 
             Behaviour = behaviourManager;
 
@@ -206,6 +207,7 @@ namespace IndiaTango.ViewModels
         private bool _showRaw;
         private readonly CustomZoomBehaviour _zoomBehaviour;
         private readonly CustomSelectionBehaviour _selectionBehaviour;
+        private readonly DateAnnotationBehaviour _dateAnnotator;
         private SelectionMadeArgs _selection;
         private bool _actionsEnabled;
         private bool _detectionMethodsEnabled;
@@ -241,9 +243,11 @@ namespace IndiaTango.ViewModels
                 if (CurrentDataSetNotNull)
                 {
                     _evaluator = new FormulaEvaluator(Sensors, CurrentDataset.DataInterval);
+                    _dateAnnotator.DataInterval = CurrentDataset.DataInterval;
                 }
                 UpdateGUI();
                 UpdateUndoRedo();
+                
             }
         }
 
@@ -274,7 +278,6 @@ namespace IndiaTango.ViewModels
 
         private bool RevertGraphedButtonIsVisible
         {
-            get { return _revertGraphedToRawIsVisible; }
             set
             {
                 _revertGraphedToRawIsVisible = value;
@@ -625,6 +628,12 @@ namespace IndiaTango.ViewModels
         public Visibility RevertGraphedToRawVisibility
         {
             get { return _revertGraphedToRawIsVisible ? Visibility.Visible : Visibility.Collapsed; }
+        }
+
+        public bool AnnotationsModeEnabled
+        {
+            get { return _dateAnnotator.IsEnabled; }
+            set { _dateAnnotator.IsEnabled = value; }
         }
 
         #endregion
@@ -2005,6 +2014,7 @@ namespace IndiaTango.ViewModels
                                                  }
                                              }
                                              _evaluator = new FormulaEvaluator(Sensors, CurrentDataset.DataInterval);
+                                             _dateAnnotator.DataInterval = CurrentDataset.DataInterval;
 
                                              ShowProgressArea = false;
                                              EnableFeatures();

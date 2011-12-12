@@ -219,7 +219,7 @@
                 <Grid Grid.Row="1" x:Name="GraphSection" Margin="5">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
-                        <RowDefinition Height="155" />
+                        <RowDefinition Height="140" />
                     </Grid.RowDefinitions>
                     <charts:Chart x:Name="MainChart" Title="{Binding ChartTitle}" Grid.Row="0" Behaviour="{Binding Behaviour}" multiseries:MultiSeries.Source="{Binding ChartSeries}">
                         <charts:Chart.YAxis>
@@ -236,16 +236,21 @@
                                 <RowDefinition Height="*" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-                            <StackPanel HorizontalAlignment="Right" Orientation="Vertical" Margin="5">
+                            <StackPanel HorizontalAlignment="Right" Orientation="Vertical" Margin="5,0">
                                 <CheckBox Content="Graph Raw Data" IsChecked="{Binding GraphRawData,Mode=OneWayToSource}" VerticalAlignment="Center" />
-                                <CheckBox Content="Selection Mode" IsChecked="{Binding SelectionModeEnabled,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" Margin="0,2" />
-                                <Button Content="Revert to Raw" cal:Message.Attach="[Event Click] = [Action RevertGraphedToRaw]" Visibility="{Binding RevertGraphedToRawVisibility}" />
+                                <Button Content="Revert to Raw" cal:Message.Attach="[Event Click] = [Action RevertGraphedToRaw]" Visibility="{Binding RevertGraphedToRawVisibility}" Margin="0,2" />
                             </StackPanel>
-                            <StackPanel Grid.Row="0" Orientation="Horizontal" Height="25" VerticalAlignment="Top">
-                                <TextBlock Text="Range:" VerticalAlignment="Center" Margin="0,0,5,0" />
-                                <toolkit:DateTimePicker Width="125" Value="{Binding StartTime, UpdateSourceTrigger=PropertyChanged}" Format="Custom" FormatString="dd/MM/yy HH:mm" IsEnabled="{Binding CanEditDates}" cal:Message.Attach="[Event ValueChanged] = [Action StartTimeChanged($eventArgs)]" />
-                                <TextBlock Text=" - to - " VerticalAlignment="Center" Margin="5,0" />
-                                <toolkit:DateTimePicker Width="125" Value="{Binding EndTime, UpdateSourceTrigger=PropertyChanged}" Format="Custom" FormatString="dd/MM/yy HH:mm" IsEnabled="{Binding CanEditDates}" cal:Message.Attach="[Event ValueChanged] = [Action EndTimeChanged($eventArgs)]" />
+                            <StackPanel Grid.Row="0">
+                                <StackPanel Orientation="Horizontal" Height="25" VerticalAlignment="Top">
+                                    <TextBlock Text="Range:" VerticalAlignment="Center" Margin="0,0,5,0" />
+                                    <toolkit:DateTimePicker Width="125" Value="{Binding StartTime, UpdateSourceTrigger=PropertyChanged}" Format="Custom" FormatString="dd/MM/yy HH:mm" IsEnabled="{Binding CanEditDates}" cal:Message.Attach="[Event ValueChanged] = [Action StartTimeChanged($eventArgs)]" />
+                                    <TextBlock Text=" - to - " VerticalAlignment="Center" Margin="5,0" />
+                                    <toolkit:DateTimePicker Width="125" Value="{Binding EndTime, UpdateSourceTrigger=PropertyChanged}" Format="Custom" FormatString="dd/MM/yy HH:mm" IsEnabled="{Binding CanEditDates}" cal:Message.Attach="[Event ValueChanged] = [Action EndTimeChanged($eventArgs)]" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Height="25" VerticalAlignment="Top">
+                                    <CheckBox Content="Selection Mode" IsChecked="{Binding SelectionModeEnabled,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" />
+                                    <CheckBox Content="Show Annotations" IsChecked="{Binding AnnotationsModeEnabled,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" Margin="5,0" />
+                                </StackPanel>
                             </StackPanel>
                             <Grid Grid.Row="2">
                                 <Grid.RowDefinitions>
