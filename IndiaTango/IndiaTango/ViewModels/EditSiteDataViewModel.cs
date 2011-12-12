@@ -409,6 +409,7 @@ namespace IndiaTango.ViewModels
             }
 
             NotifyOfPropertyChange(() => SiteImages);
+            NotifyOfPropertyChange(() => StackPanelSiteImages);
         }
 
         private void NewContact()
