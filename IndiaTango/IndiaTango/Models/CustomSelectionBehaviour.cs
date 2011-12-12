@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using Visiblox.Charts;
 
 namespace IndiaTango.Models
@@ -18,7 +19,7 @@ namespace IndiaTango.Models
             _selectionRectangle.Visibility = Visibility.Visible;
             PropertyChanged += (sender, args) =>
                                    {
-                                       if(args.PropertyName == "IsEnabled")
+                                       if (args.PropertyName == "IsEnabled")
                                            _selectionRectangle.Visibility = Visibility.Visible;
                                    };
         }
@@ -45,11 +46,6 @@ namespace IndiaTango.Models
         /// Fired when a selection is reset
         /// </summary>
         public event SelectionReset SelectionReset;
-
-        /// <summary>
-        /// Fired on a double mouse click to reset the zoom
-        /// </summary>
-        public event ZoomResetRequested ResetZoom;
 
         #endregion
 
@@ -78,8 +74,16 @@ namespace IndiaTango.Models
 
         public override void MouseMove(Point position)
         {
+            if (Keyboard.Modifiers != ModifierKeys.Shift)
+            {
+                if (_leftMouseDown)
+                    ResetSelection();
+                _leftMouseDown = false;
+            }
+
             if (!_leftMouseDown)
                 return;
+
             position = EnsurePointIsOnChart(position);
 
             ChangeSelectionRectangle(position);
@@ -87,6 +91,13 @@ namespace IndiaTango.Models
 
         public override void MouseLeftButtonUp(Point position)
         {
+            if (Keyboard.Modifiers != ModifierKeys.Shift)
+            {
+                if (_leftMouseDown)
+                    ResetSelection();
+                _leftMouseDown = false;
+            }
+
             if (!_leftMouseDown)
                 return;
 
@@ -103,13 +114,6 @@ namespace IndiaTango.Models
             }
 
             MakeSelection(_firstPosition, position);
-        }
-
-        public override void MouseLeftButtonDoubleClick(Point position)
-        {
-            Debug.WriteLine("Resetting Zoom");
-            if (ResetZoom != null)
-                ResetZoom(this);
         }
 
         public override void LostMouseCapture()
@@ -156,7 +160,7 @@ namespace IndiaTango.Models
 
             Debug.Print("x1 {0} x2 {1} y1 {2} y2 {3}", x1, x2, y1, y2);
 
-            if(x1 != x2 || Math.Abs(y1 - y2) > 0.0001)
+            if (x1 != x2 || Math.Abs(y1 - y2) > 0.0001)
             {
                 if (SelectionMade != null)
                     SelectionMade(this, new SelectionMadeArgs(x1, x2, (float)y1, (float)y2));

@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using Visiblox.Charts;
 
 namespace IndiaTango.Models
@@ -47,7 +48,7 @@ namespace IndiaTango.Models
 
         public override void MouseLeftButtonDown(Point position)
         {
-            if (Chart.XAxis.ActualRange == null || Chart.YAxis.ActualRange == null || !BehaviourContainer.CaptureMouse())
+            if (Chart.XAxis.ActualRange == null || Chart.YAxis.ActualRange == null || !BehaviourContainer.CaptureMouse() || Keyboard.Modifiers == ModifierKeys.Shift)
                 return;
 
             _leftMouseDown = true;

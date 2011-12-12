@@ -109,7 +109,7 @@ namespace IndiaTango.ViewModels
 
             #region Selection Behaviour
 
-            _selectionBehaviour = new CustomSelectionBehaviour { IsEnabled = false };
+            _selectionBehaviour = new CustomSelectionBehaviour { IsEnabled = true };
             _selectionBehaviour.SelectionMade += (sender, args) =>
                                                      {
                                                          Selection = args;
@@ -119,17 +119,6 @@ namespace IndiaTango.ViewModels
                                                       {
                                                           Selection = null;
                                                       };
-            _selectionBehaviour.ResetZoom += sender =>
-                                                 {
-                                                     foreach (var sensor in _sensorsToGraph)
-                                                     {
-                                                         sensor.RemoveBounds();
-                                                     }
-                                                     CalculateYAxis();
-                                                     CheckTheseMethods(_detectionMethods.Where(x => x.IsEnabled));
-                                                     CalculateGraphedEndPoints();
-                                                     SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "SelectionZoomReset");
-                                                 };
             behaviourManager.Behaviours.Add(_selectionBehaviour);
             #endregion
 
@@ -2651,14 +2640,6 @@ namespace IndiaTango.ViewModels
                         if (CanRedo)
                             Redo();
                         break;
-                }
-            }
-            else if (Keyboard.Modifiers == ModifierKeys.Shift)
-            {
-                if (eventArgs.Key == Key.S)
-                {
-                    SelectionModeEnabled = !SelectionModeEnabled;
-                    NotifyOfPropertyChange(() => SelectionModeEnabled);
                 }
             }
             else if (ActionsEnabled && eventArgs.Key == Key.Delete)
