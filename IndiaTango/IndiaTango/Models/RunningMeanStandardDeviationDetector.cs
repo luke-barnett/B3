@@ -95,14 +95,12 @@ namespace IndiaTango.Models
                     graphCheckBox.Checked += (o, e) =>
                                                  {
                                                      _showGraph = true;
-                                                     if (IsEnabled)
-                                                         GraphUpdateNeeded();
+                                                     GraphUpdateNeeded();
                                                  };
                     graphCheckBox.Unchecked += (o, e) =>
                                                    {
                                                        _showGraph = false;
-                                                       if (IsEnabled)
-                                                           GraphUpdateNeeded();
+                                                       GraphUpdateNeeded();
                                                    };
 
                     graphGrid.Children.Add(graphCheckBox);
@@ -134,7 +132,7 @@ namespace IndiaTango.Models
                                                               if (e.AddedItems.Count < 1)
                                                                   return;
                                                               _graphedSensor = e.AddedItems[0] as Sensor;
-                                                              if (IsEnabled)
+                                                              if (_showGraph)
                                                                   GraphUpdateNeeded();
                                                           };
 
@@ -179,7 +177,7 @@ namespace IndiaTango.Models
                                                                         GenerateUpperAndLowerLines(_currentSensor);
                                                                         Debug.WriteLine("Refresh of values needed");
                                                                         RefreshDetectedValues();
-                                                                        if (IsEnabled)
+                                                                        if (_showGraph)
                                                                             GraphUpdateNeeded();
                                                                     }
 
@@ -238,7 +236,7 @@ namespace IndiaTango.Models
                                                                           GenerateUpperAndLowerLines(_currentSensor);
                                                                           Debug.WriteLine("Refresh of values needed");
                                                                           RefreshDetectedValues();
-                                                                          if (IsEnabled)
+                                                                          if (_showGraph)
                                                                               GraphUpdateNeeded();
                                                                       }
                                                                   };
@@ -256,7 +254,7 @@ namespace IndiaTango.Models
 
         public bool HasGraphableSeries
         {
-            get { return (_sensorsCombo != null) ? (_showGraph && _upperLine.Count != 0 && _lowerLine.Count != 0 && _sensorsCombo.SelectedIndex > -1) : (_showGraph && _upperLine.Count != 0 && _lowerLine.Count != 0); }
+            get { return (_sensorsCombo != null) ? (_showGraph && _sensorsCombo.SelectedIndex > -1) : (_showGraph && _upperLine.Count != 0 && _lowerLine.Count != 0); }
         }
 
         public bool CheckIndividualValue(Sensor sensor, DateTime timeStamp)
@@ -402,7 +400,7 @@ namespace IndiaTango.Models
 
                 if (_sensorsCombo.Items.Count == 1)
                     _sensorsCombo.SelectedIndex = 0;
-                else if (_graphedSensor != null && !_sensorsCombo.Items.Contains(_graphedSensor) && IsEnabled)
+                else if (_graphedSensor != null && !_sensorsCombo.Items.Contains(_graphedSensor) && _showGraph)
                     GraphUpdateNeeded();
             }
         }

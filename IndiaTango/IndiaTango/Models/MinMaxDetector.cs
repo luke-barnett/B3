@@ -77,14 +77,12 @@ namespace IndiaTango.Models
                     checkBox.Checked += (o, e) =>
                                             {
                                                 _showMaxMinLines = true;
-                                                if (IsEnabled)
-                                                    GraphUpdateNeeded();
+                                                GraphUpdateNeeded();
                                             };
                     checkBox.Unchecked += (o, e) =>
                                               {
                                                   _showMaxMinLines = false;
-                                                  if (IsEnabled)
-                                                      GraphUpdateNeeded();
+                                                  GraphUpdateNeeded();
                                               };
 
                     stackPanel.Children.Add(checkBox);
@@ -114,9 +112,7 @@ namespace IndiaTango.Models
                                                                   _selectedSensor.PropertyChanged +=
                                                                       PropertyChangedInSelectedSensor;
 
-
-                                                              if (IsEnabled)
-                                                                  GraphUpdateNeeded();
+                                                              GraphUpdateNeeded();
                                                           };
 
                     graphOptions.Children.Add(_sensorsCombo);
@@ -132,7 +128,7 @@ namespace IndiaTango.Models
 
         private void PropertyChangedInSelectedSensor(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if ((e.PropertyName == "UpperLimit" || e.PropertyName == "LowerLimit") && IsEnabled)
+            if ((e.PropertyName == "UpperLimit" || e.PropertyName == "LowerLimit") && _showMaxMinLines)
                 GraphUpdateNeeded();
         }
 
@@ -185,7 +181,7 @@ namespace IndiaTango.Models
 
                 if (_sensorsCombo.Items.Count == 1)
                     _sensorsCombo.SelectedIndex = 0;
-                else if (_selectedSensor != null && !_sensorsCombo.Items.Contains(_selectedSensor) && IsEnabled)
+                else if (_selectedSensor != null && !_sensorsCombo.Items.Contains(_selectedSensor) && _showMaxMinLines)
                     GraphUpdateNeeded();
             }
         }
