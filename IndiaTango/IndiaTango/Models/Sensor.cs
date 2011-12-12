@@ -40,6 +40,9 @@ namespace IndiaTango.Models
         [NonSerialized]
         private SensorVariable _sensorVariable;
         private string _sensorType;
+        private float _accuracy;
+        private DateTime _dateOfInstallation;
+        private TimeSpan _idealCalibrationFrequency;
         #endregion
 
         #region Constructors
@@ -517,6 +520,39 @@ namespace IndiaTango.Models
                 FirePropertyChanged("SensorType");
             }
         }
+        
+        [ProtoMember(19)]
+        public float Accuracy
+        {
+            get { return _accuracy; }
+            set
+            {
+                _accuracy = value;
+                FirePropertyChanged("Accuracy");
+            }
+        }
+        
+        [ProtoMember(20)]
+        public DateTime DateOfInstallation
+        {
+            get { return _dateOfInstallation; }
+            set
+            {
+                _dateOfInstallation = value;
+                FirePropertyChanged("DateOfInstallation");
+            }
+        }
+
+        [ProtoMember(21)]
+        public TimeSpan IdealCalibrationFrequency
+        {
+            get { return _idealCalibrationFrequency; }
+            set
+            {
+                _idealCalibrationFrequency = value;
+                FirePropertyChanged("IdealCalibrationFrequency");
+            }
+        }
         #endregion
 
         #region Public Methods
@@ -572,12 +608,12 @@ namespace IndiaTango.Models
 
         public void RevertToRaw(DateTime startDateTime, DateTime endDateTime, float lowerYLimit = float.NaN, float upperYLimit = float.NaN)
         {
-            if(startDateTime > endDateTime)
+            if (startDateTime > endDateTime)
                 throw new ArgumentException("startDateTime");
 
             var newState = CurrentState.Clone();
             var changesMadeInTimePeriod = newState.Changes.Keys.Where(x => x >= startDateTime && x <= endDateTime).ToArray();
-            if(!(float.IsNaN(lowerYLimit) || float.IsNaN(upperYLimit)))
+            if (!(float.IsNaN(lowerYLimit) || float.IsNaN(upperYLimit)))
             {
                 changesMadeInTimePeriod =
                     changesMadeInTimePeriod.Where(

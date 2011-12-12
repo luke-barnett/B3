@@ -293,6 +293,9 @@ namespace IndiaTango.Models
                         writer.WriteLine("\t\tDepth (m): " + sensor.Depth);
                         writer.WriteLine("\t\tManufacturer: " + sensor.Manufacturer);
                         writer.WriteLine("\t\tSerial Number: " + sensor.SerialNumber);
+                        writer.WriteLine("\t\tAccuracy (+/-): " + sensor.Accuracy);
+                        writer.WriteLine("\t\tDate of Installation: " + sensor.DateOfInstallation.ToString("yyyy/MM/dd"));
+                        writer.WriteLine("\t\tIdeal Calibration Frequency (Days): " + sensor.IdealCalibrationFrequency.Days);
                     }
                 }
 

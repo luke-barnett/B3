@@ -23,6 +23,7 @@
 
     <Window.Resources>
         <models:FloatStringConverter x:Key="floatStringConverter" />
+        <models:TimeSpanStringConverter x:Key="timeSpanStringConverter" />
         <models:ColourConverter x:Key="colourConverter" />
     </Window.Resources>
 
@@ -115,6 +116,7 @@
                             </DataGridTemplateColumn>
                             <DataGridTextColumn Header="Unit" Binding="{Binding Sensor.Unit}"/>
                             <DataGridTextColumn Header="Depth (m)" Binding="{Binding Sensor.Depth, Converter={StaticResource floatStringConverter}}" />
+                            <DataGridTextColumn Header="Accuracy (+/-)" Binding="{Binding Sensor.Accuracy, Converter={StaticResource floatStringConverter}}" />
                             <DataGridTextColumn Header="Lower Limit" Binding="{Binding Sensor.LowerLimit, Converter={StaticResource floatStringConverter}}" />
                             <DataGridTextColumn Header="Upper Limit" Binding="{Binding Sensor.UpperLimit, Converter={StaticResource floatStringConverter}}" />
                             <DataGridTextColumn Header="Max Rate of Change" Binding="{Binding Sensor.MaxRateOfChange, Converter={StaticResource floatStringConverter}}" />
@@ -133,6 +135,19 @@
                                             <models:SummaryType>Average</models:SummaryType>
                                             <models:SummaryType>Sum</models:SummaryType>
                                         </ComboBox>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Ideal Calibration Frequency (Days)" Binding="{Binding Sensor.IdealCalibrationFrequency, Converter={StaticResource timeSpanStringConverter}}" />
+                            <DataGridTemplateColumn Header="Date of Installation">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Sensor.DateOfInstallation, StringFormat=yyyy/MM/dd}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <toolkit:DateTimePicker Value="{Binding Sensor.DateOfInstallation,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Format="Custom" FormatString="yyyy/MM/dd" />
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellEditingTemplate>
                             </DataGridTemplateColumn>
