@@ -587,7 +587,7 @@ namespace IndiaTango.ViewModels
                 _zoomBehaviour.IsEnabled = !value;
                 if (!value)
                 {
-                    _selectionBehaviour.MouseLeftButtonDown(new Point());
+                    _selectionBehaviour.ResetSelection();
                 }
             }
         }

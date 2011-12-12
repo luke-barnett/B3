@@ -219,7 +219,7 @@
                 <Grid Grid.Row="1" x:Name="GraphSection" Margin="5">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
-                        <RowDefinition Height="150" />
+                        <RowDefinition Height="155" />
                     </Grid.RowDefinitions>
                     <charts:Chart x:Name="MainChart" Title="{Binding ChartTitle}" Grid.Row="0" Behaviour="{Binding Behaviour}" multiseries:MultiSeries.Source="{Binding ChartSeries}">
                         <charts:Chart.YAxis>
