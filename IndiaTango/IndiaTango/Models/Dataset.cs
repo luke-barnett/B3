@@ -14,6 +14,7 @@ namespace IndiaTango.Models
         private Site _site;
         private DateTime _startTimeStamp;
         private DateTime _endTimeStamp;
+        [ProtoMember(4)]
         private List<Sensor> _sensors;
         [ProtoMember(6)]
         private int _expectedDataPointCount;
@@ -85,7 +86,6 @@ namespace IndiaTango.Models
         /// <summary>
         /// Returns the list of sensors for this dataset
         /// </summary>
-        [ProtoMember(4)]
         public List<Sensor> Sensors
         {
             get { return _sensors; }

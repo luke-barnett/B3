@@ -12,6 +12,8 @@ namespace IndiaTango.Models
     [ProtoContract]
     public class ChangeReason
     {
+        public ChangeReason() {} //FOR PROTOBUF
+
         public ChangeReason(int id, string reason)
         {
             ID = id;

@@ -694,7 +694,7 @@ namespace IndiaTango.ViewModels
                 generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour) });
                 if (_showRaw)
                 {
-                    var rawSeries = (_sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name + "[RAW]", sensor.RawDataPoints.Where((x, index) => index % _sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.RawDataPoints);
+                    var rawSeries = (_sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name + "[RAW]", sensor.RawDataPoints.Where((x, index) => index % _sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name + "[RAW]", sensor.RawDataPoints);
                     generatedSeries.Add(new LineSeries { DataSeries = rawSeries, LineStroke = new SolidColorBrush(sensor.RawDataColour) });
                 }
                 if (_sampleRate > 1) ShowBackground();

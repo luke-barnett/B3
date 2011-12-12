@@ -63,7 +63,10 @@ namespace IndiaTango.Models
 
         public override void MouseMove(Point position)
         {
-            _annotationCanvas.SetValue(Canvas.LeftProperty, position.X);
+            if (position.X + 15 + _annotationCanvas.Width > BehaviourContainer.ActualWidth)
+                _annotationCanvas.SetValue(Canvas.LeftProperty, position.X - (_annotationCanvas.Width + 15));
+            else
+                _annotationCanvas.SetValue(Canvas.LeftProperty, position.X + 15);
             _annotationCanvas.SetValue(Canvas.TopProperty, position.Y);
             _annotationCanvas.Height = 30;
             Value = string.Empty;
@@ -77,7 +80,7 @@ namespace IndiaTango.Models
             var graphed = false;
             foreach (var series in Chart.Series)
             {
-                var dataPoints = series.DataSeries as DataSeries<DateTime,float>;
+                var dataPoints = series.DataSeries as DataSeries<DateTime, float>;
                 if (dataPoints == null) continue;
 
                 foreach (var dataPoint in dataPoints.Where(dataPoint => dataPoint.X == Time))
