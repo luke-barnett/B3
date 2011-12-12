@@ -133,7 +133,7 @@ namespace IndiaTango.ViewModels
             behaviourManager.Behaviours.Add(_selectionBehaviour);
             #endregion
 
-            _dateAnnotator = new DateAnnotationBehaviour {IsEnabled = true};
+            _dateAnnotator = new DateAnnotationBehaviour { IsEnabled = true };
             behaviourManager.Behaviours.Add(_dateAnnotator);
 
             Behaviour = behaviourManager;
@@ -247,7 +247,7 @@ namespace IndiaTango.ViewModels
                 }
                 UpdateGUI();
                 UpdateUndoRedo();
-                
+
             }
         }
 
@@ -751,13 +751,13 @@ namespace IndiaTango.ViewModels
             Debug.WriteLine("As a result start {0} and end {1}", StartTime, EndTime);
         }
 
-        private void ShowSiteInformation(Dataset dataSetToShow)
+        private bool ShowSiteInformation(Dataset dataSetToShow)
         {
             if (dataSetToShow == null)
             {
                 Common.ShowMessageBox("No Site Selected",
                                       "To view site information you must first select or create a site", false, false);
-                return;
+                return false;
             }
 
             var view = _container.GetInstance(typeof(EditSiteDataViewModel), "EditSiteDataViewModel") as EditSiteDataViewModel;
@@ -765,7 +765,7 @@ namespace IndiaTango.ViewModels
             if (view == null)
             {
                 EventLogger.LogError(null, "Loading Site Editor", "Critical! Failed to get a View!!");
-                return;
+                return false;
             }
 
             view.DataSet = dataSetToShow;
@@ -780,6 +780,7 @@ namespace IndiaTango.ViewModels
             };
 
             _windowManager.ShowDialog(view);
+            return view.WasCompleted;
         }
 
         private double MinimumY(IEnumerable<LineSeries> series)
@@ -2104,9 +2105,18 @@ namespace IndiaTango.ViewModels
                                          {
                                              ShowProgressArea = false;
                                              EnableFeatures();
-                                             var newDataset = new Dataset(new Site(Site.NextID, "New Site", "", null, null, null, null));
-                                             ShowSiteInformation(newDataset);
-                                             CurrentDataset = newDataset;
+                                             var newDataset =
+                                                 new Dataset(new Site(Site.NextID, "New Site", "", null, null, null,
+                                                                      null));
+                                             if (ShowSiteInformation(newDataset))
+                                             {
+                                                 CurrentDataset = newDataset;
+                                             }
+                                             else
+                                             {
+                                                 _graphableSensors = null;
+                                                 NotifyOfPropertyChange(() => GraphableSensors);
+                                             }
                                              NotifyOfPropertyChange(() => SiteNames);
                                          };
 
@@ -2367,7 +2377,7 @@ namespace IndiaTango.ViewModels
             {
                 graphableSensor.RefreshDataPoints();
             }
-            SampleValues(Common.MaximumGraphablePoints,_sensorsToGraph,"RevertSelectionToRaw");
+            SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "RevertSelectionToRaw");
         }
 
         #endregion

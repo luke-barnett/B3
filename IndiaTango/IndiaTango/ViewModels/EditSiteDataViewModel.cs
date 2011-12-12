@@ -88,6 +88,8 @@ namespace IndiaTango.ViewModels
 
         #region Public Parameters
 
+        public bool WasCompleted;
+
         #endregion
 
         #region Private Properties
@@ -610,8 +612,10 @@ namespace IndiaTango.ViewModels
                                                  SiteControlsEnabled = false;
                                                  ApplicationCursor = Cursors.Arrow;
 
-                                                 if(IsNewSite)
-                                                     TryClose();
+                                                 if (!IsNewSite) return;
+
+                                                 WasCompleted = true;
+                                                 TryClose();
                                              };
 
                 ApplicationCursor = Cursors.Wait;
