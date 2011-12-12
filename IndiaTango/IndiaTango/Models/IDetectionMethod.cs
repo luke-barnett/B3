@@ -75,6 +75,14 @@ namespace IndiaTango.Models
         /// </summary>
         ListBox ListBox { get; set; }
 
+        /// <summary>
+        /// The list of available sensors to use for graphing
+        /// </summary>
         Sensor[] SensorOptions { set; }
+
+        /// <summary>
+        /// A summary string about the detection method
+        /// </summary>
+        string About { get; }
     }
 }

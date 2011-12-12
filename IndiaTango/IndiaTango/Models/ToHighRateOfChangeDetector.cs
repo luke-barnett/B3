@@ -84,5 +84,10 @@ namespace IndiaTango.Models
         {
             set { return; }
         }
+
+        public string About
+        {
+            get { return "This detection method checks values against the maximum rate of change for it's sensor"; }
+        }
     }
 }

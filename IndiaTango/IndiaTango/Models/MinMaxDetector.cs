@@ -185,6 +185,11 @@ namespace IndiaTango.Models
                     GraphUpdateNeeded();
             }
         }
+
+        public string About
+        {
+            get { return "This detection method checks each value against the specified upper and lower limits for it's sensor"; }
+        }
     }
 
     public delegate void UpdateGraph();

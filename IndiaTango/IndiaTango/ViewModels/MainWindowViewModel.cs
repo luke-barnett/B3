@@ -826,6 +826,19 @@ namespace IndiaTango.ViewModels
 
             tabItemGrid.Children.Add(title);
 
+            var aboutButton = new Button
+                                  {
+                                      Content = "About",
+                                      Margin = new Thickness(3),
+                                      HorizontalAlignment = HorizontalAlignment.Right
+                                  };
+            aboutButton.Click +=
+                (o, e) => Common.ShowMessageBox(string.Format("  About {0}  ", method.Name), method.About, false, false);
+
+            Grid.SetRow(aboutButton, 0);
+
+            tabItemGrid.Children.Add(aboutButton);
+
             var detectionMethodOptions = new GroupBox { Header = new TextBlock { Text = "Options" }, BorderBrush = Brushes.OrangeRed };
 
             var optionsStackPanel = new StackPanel { Orientation = Orientation.Vertical };

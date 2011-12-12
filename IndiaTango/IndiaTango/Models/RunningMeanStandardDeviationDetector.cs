@@ -404,6 +404,11 @@ namespace IndiaTango.Models
                     GraphUpdateNeeded();
             }
         }
+
+        public string About
+        {
+            get { return "This detection method checks points against upper and lower limits defined by the number of standard deviations from a running average for a given smoothing period"; }
+        }
     }
 
     public delegate void Updated();

@@ -93,5 +93,10 @@ namespace IndiaTango.Models
         {
             set { return; }
         }
+
+        public string About
+        {
+            get { return "This detection method finds all the missing values for sensor given it's detected time period"; }
+        }
     }
 }

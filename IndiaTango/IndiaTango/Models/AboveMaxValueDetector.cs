@@ -75,7 +75,15 @@ namespace IndiaTango.Models
 
         public Sensor[] SensorOptions
         {
-            set { return; }
+            set
+            {
+                if (value == null) throw new ArgumentNullException("value");
+            }
+        }
+
+        public string About
+        {
+            get { return "I'm a fake detection method used to make things look pretty"; }
         }
     }
 }

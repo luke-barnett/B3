@@ -77,5 +77,10 @@ namespace IndiaTango.Models
         {
             set { return; }
         }
+
+        public string About
+        {
+            get { return "I'm a fake detection method used to make things look pretty"; }
+        }
     }
 }
