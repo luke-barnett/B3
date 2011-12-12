@@ -7,7 +7,7 @@
         xmlns:multiseries="clr-namespace:IndiaTango.MultiSeriesBinding"
         xmlns:models="clr-namespace:IndiaTango.Models"
         xmlns:toolkit="clr-namespace:Microsoft.Windows.Controls;assembly=WPFToolkit.Extended"
-        Title="{Binding Title}" Icon="{Binding Icon}" Height="775" Width="900" WindowStartupLocation="CenterScreen" Cursor="{Binding ApplicationCursor}">
+        Title="{Binding Title}" Icon="{Binding Icon}" Height="800" Width="1000" WindowStartupLocation="CenterScreen" Cursor="{Binding ApplicationCursor}">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closing">
             <cal:ActionMessage MethodName="ClosingRequested">
@@ -103,7 +103,7 @@
                             <DataGridTemplateColumn Header="Type" CanUserSort="True" SortMemberPath="Sensor.SensorType">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding Sensor.SensorType}" />
+                                        <TextBlock Text="{Binding Sensor.SensorType}" Margin="2,0" />
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                                 <DataGridTemplateColumn.CellEditingTemplate>
@@ -121,6 +121,21 @@
                             <DataGridTextColumn Header="Manufacturer" Binding="{Binding Sensor.Manufacturer}" />
                             <DataGridTextColumn Header="Serial Number" Binding="{Binding Sensor.SerialNumber}" />
                             <DataGridTextColumn Header="Description" Binding="{Binding Sensor.Description}" />
+                            <DataGridTemplateColumn Header="Summary Type">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Sensor.SummaryType}" Margin="2,0"  />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <ComboBox SelectedValue="{Binding Sensor.SummaryType}">
+                                            <models:SummaryType>Average</models:SummaryType>
+                                            <models:SummaryType>Sum</models:SummaryType>
+                                        </ComboBox>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
                             <DataGridTemplateColumn Header="Colour" CanUserResize="False">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
@@ -204,7 +219,7 @@
                 <Grid Grid.Row="1" x:Name="GraphSection" Margin="5">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
-                        <RowDefinition Height="130" />
+                        <RowDefinition Height="150" />
                     </Grid.RowDefinitions>
                     <charts:Chart x:Name="MainChart" Title="{Binding ChartTitle}" Grid.Row="0" Behaviour="{Binding Behaviour}" multiseries:MultiSeries.Source="{Binding ChartSeries}">
                         <charts:Chart.YAxis>
@@ -218,11 +233,13 @@
                         <Grid Margin="2">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
                             <StackPanel HorizontalAlignment="Right" Orientation="Vertical" Margin="5">
                                 <CheckBox Content="Graph Raw Data" IsChecked="{Binding GraphRawData,Mode=OneWayToSource}" VerticalAlignment="Center" />
-                                <CheckBox Content="Selection Mode" IsChecked="{Binding SelectionModeEnabled,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" />
+                                <CheckBox Content="Selection Mode" IsChecked="{Binding SelectionModeEnabled,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" Margin="0,2" />
+                                <Button Content="Revert to Raw" cal:Message.Attach="[Event Click] = [Action RevertGraphedToRaw]" Visibility="{Binding RevertGraphedToRawVisibility}" />
                             </StackPanel>
                             <StackPanel Grid.Row="0" Orientation="Horizontal" Height="25" VerticalAlignment="Top">
                                 <TextBlock Text="Range:" VerticalAlignment="Center" Margin="0,0,5,0" />
@@ -230,7 +247,7 @@
                                 <TextBlock Text=" - to - " VerticalAlignment="Center" Margin="5,0" />
                                 <toolkit:DateTimePicker Width="125" Value="{Binding EndTime, UpdateSourceTrigger=PropertyChanged}" Format="Custom" FormatString="dd/MM/yy HH:mm" IsEnabled="{Binding CanEditDates}" cal:Message.Attach="[Event ValueChanged] = [Action EndTimeChanged($eventArgs)]" />
                             </StackPanel>
-                            <Grid Grid.Row="1">
+                            <Grid Grid.Row="2">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="*" />
                                     <RowDefinition Height="*" />
@@ -250,7 +267,7 @@
                                     <TextBox IsEnabled="{Binding FeaturesEnabled}" Text="{Binding Maximum, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource floatStringConverter}}" Width="50" />
                                 </StackPanel>
                             </Grid>
-                            <Button IsEnabled="{Binding FeaturesEnabled}" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5">
+                            <Button IsEnabled="{Binding FeaturesEnabled}" Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5">
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="Click">
                                         <cal:ActionMessage MethodName="ExportChart">

@@ -210,6 +210,7 @@ namespace IndiaTango.ViewModels
         private bool _actionsEnabled;
         private bool _detectionMethodsEnabled;
         private IDetectionMethod _selectedMethod;
+        private bool _revertGraphedToRawIsVisible;
         #endregion
 
         #region Public Parameters
@@ -268,6 +269,16 @@ namespace IndiaTango.ViewModels
             {
                 _selection = value;
                 NotifyOfPropertyChange(() => Selection);
+            }
+        }
+
+        private bool RevertGraphedButtonIsVisible
+        {
+            get { return _revertGraphedToRawIsVisible; }
+            set
+            {
+                _revertGraphedToRawIsVisible = value;
+                NotifyOfPropertyChange(() => RevertGraphedToRawVisibility);
             }
         }
 
@@ -563,6 +574,7 @@ namespace IndiaTango.ViewModels
             {
                 _showRaw = value;
                 UpdateGraph(false);
+                RevertGraphedButtonIsVisible = _showRaw;
             }
         }
 
@@ -608,6 +620,11 @@ namespace IndiaTango.ViewModels
                 _canRedo = value;
                 NotifyOfPropertyChange(() => CanRedo);
             }
+        }
+
+        public Visibility RevertGraphedToRawVisibility
+        {
+            get { return _revertGraphedToRawIsVisible ? Visibility.Visible : Visibility.Collapsed; }
         }
 
         #endregion
@@ -2318,6 +2335,11 @@ namespace IndiaTango.ViewModels
             GraphableSensors.ForEach(x => x.RefreshDataPoints());
 
             SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "RevertedToRaw");
+        }
+
+        public void RevertGraphedToRaw()
+        {
+
         }
 
         #endregion
