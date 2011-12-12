@@ -2308,7 +2308,7 @@ namespace IndiaTango.ViewModels
                 specify.Message = _sensorsToGraph.Aggregate("You are currently graphing these sensors:\r\n\n",
                                           (current, sensor) => current + string.Format("\r\n{0}", sensor.Sensor.Name));
                 specify.Message +=
-                    "\r\n\n Would you like to only revert to raw the sensors currently graphed or all your sensors?";
+                    "\r\n\n Would you like to only revert to raw the sensors currently graphed or all your sensors?\r\n\nNOTE: THIS WILL REVERT ALL CHANGES AND CANNOT BE UNDONE";
                 specify.ShowCancel = true;
 
                 specify.ComboBoxItems = new List<string> { "Only the graphed sensors", "All sensors" };
@@ -2323,7 +2323,7 @@ namespace IndiaTango.ViewModels
             }
             else
             {
-                if (!Common.Confirm("Reverting to raw", "Are you sure you want to revert all sensors to their raw values?"))
+                if (!Common.Confirm("Reverting to raw", "Are you sure you want to revert all sensors to their raw values?\r\n\nNOTE: THIS WILL REVERT ALL CHANGES AND CANNOT BE UNDONE"))
                     return;
             }
 
@@ -2339,7 +2339,25 @@ namespace IndiaTango.ViewModels
 
         public void RevertGraphedToRaw()
         {
+            if (_sensorsToGraph.Count == 0)
+                return;
 
+            var useSelection = _selection != null &&
+                               Common.Confirm("Use selection?",
+                                              "Should we only revert what is currently selected on the graph?\r\n(Otherwise we will revert all that is visible on the graph)");
+
+            foreach (var sensor in _sensorsToCheckMethodsAgainst)
+            {
+                if (useSelection)
+                    sensor.RevertToRaw(Selection.LowerX, Selection.UpperX, (float)Selection.LowerY, (float)Selection.UpperY);
+                else
+                    sensor.RevertToRaw(StartTime, EndTime);
+            }
+            foreach (var graphableSensor in _sensorsToGraph)
+            {
+                graphableSensor.RefreshDataPoints();
+            }
+            SampleValues(Common.MaximumGraphablePoints,_sensorsToGraph,"RevertSelectionToRaw");
         }
 
         #endregion

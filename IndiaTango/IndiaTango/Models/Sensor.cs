@@ -570,6 +570,28 @@ namespace IndiaTango.Models
             _currentState = null;
         }
 
+        public void RevertToRaw(DateTime startDateTime, DateTime endDateTime, float lowerYLimit = float.NaN, float upperYLimit = float.NaN)
+        {
+            if(startDateTime > endDateTime)
+                throw new ArgumentException("startDateTime");
+
+            var newState = CurrentState.Clone();
+            var changesMadeInTimePeriod = newState.Changes.Keys.Where(x => x >= startDateTime && x <= endDateTime).ToArray();
+            if(!(float.IsNaN(lowerYLimit) || float.IsNaN(upperYLimit)))
+            {
+                changesMadeInTimePeriod =
+                    changesMadeInTimePeriod.Where(
+                        x => RawData.Values[x] >= lowerYLimit && RawData.Values[x] <= upperYLimit).ToArray();
+            }
+            foreach (var timeStamp in changesMadeInTimePeriod)
+            {
+                newState.Changes.Remove(timeStamp);
+                newState.Values[timeStamp] = RawData.Values[timeStamp];
+            }
+
+            AddState(newState);
+        }
+
         public override string ToString()
         {
             return Name;
