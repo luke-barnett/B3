@@ -65,7 +65,7 @@
                 </Grid.RowDefinitions>
 
                 <GroupBox Grid.Row="0" x:Name="TableSection" Header="Sensors" BorderBrush="OrangeRed">
-                    <DataGrid x:Name="DataGrid" IsEnabled="{Binding FeaturesEnabled}" ItemsSource="{Binding GraphableSensors}" AlternatingRowBackground="LightGray" AlternationCount="2" AutoGenerateColumns="False" CanUserReorderColumns="True" FrozenColumnCount="2" BorderThickness="0" Background="Transparent" SelectionMode="Single" EnableRowVirtualization="False" cal:Message.Attach="[Event BeginningEdit] = [Action DisableActions];[Event CellEditEnding] = [Action EnableActions]">
+                    <DataGrid x:Name="DataGrid" IsEnabled="{Binding FeaturesEnabled}" ItemsSource="{Binding GraphableSensors}" AlternatingRowBackground="LightGray" AlternationCount="2" AutoGenerateColumns="False" CanUserReorderColumns="True" FrozenColumnCount="2" BorderThickness="0" Background="Transparent" SelectionMode="Single" EnableRowVirtualization="False" CanUserAddRows="False" CanUserDeleteRows="False" cal:Message.Attach="[Event BeginningEdit] = [Action DisableActions];[Event CellEditEnding] = [Action EnableActions]">
                         <DataGrid.ContextMenu>
                             <ContextMenu x:Name="dataGridContextMenu" IsEnabled="{Binding FeaturesEnabled}">
                                 <MenuItem Header="Delete">
