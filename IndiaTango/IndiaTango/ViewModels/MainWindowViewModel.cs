@@ -202,6 +202,7 @@ namespace IndiaTango.ViewModels
         private bool _detectionMethodsEnabled;
         private IDetectionMethod _selectedMethod;
         private bool _revertGraphedToRawIsVisible;
+        private bool _previousActionsStatus;
         #endregion
 
         #region Public Parameters
@@ -2500,6 +2501,17 @@ namespace IndiaTango.ViewModels
         public void ShowGraphHelp()
         {
             Common.ShowMessageBox("About Graphing", "Select a sensor(s) using the check-boxes in the sensor metadata list, to display data on the graph.\r\n\nYou may choose to display all available data points on the graph or, to increase speed, limit the number of points displayed. If the number of points exceeds the display limit, the graph background will turn pink to alert you that there may be hidden data within the date range. You can click-drag on the graph to zoom in on a range of data. Hold down shift to select a range of data without zooming, in order to modify only the selected range using the tools to the left. Raw data may be superimposed at any time by selecting ‘Graph raw data’ and you can revert to the raw data at any time (this will revert only the range of data currently displayed on the graph). You can manually adjust the date range and y-axis, or select ‘Show annotations’ to display the data values for the timestamp on which the cursor is located.", false, false);
+        }
+
+        public void EnableActions()
+        {
+            ActionsEnabled = _previousActionsStatus;
+        }
+
+        public void DisableActions()
+        {
+            _previousActionsStatus = ActionsEnabled;
+            ActionsEnabled = false;
         }
 
         #endregion
