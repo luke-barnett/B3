@@ -79,6 +79,8 @@ namespace IndiaTango.Models
 
         public IEnumerable<DataPoint<DateTime, float>> RawDataPoints { get { if (_rawDataPoints == null) { RefreshDataPoints(); } return _rawDataPoints; } private set { _rawDataPoints = value; } }
 
+        public IEnumerable<DataPoint<DateTime, float>> PreviewDataPoints { get; private set; }
+
         /// <summary>
         /// Reflects back on itself
         /// </summary>
@@ -101,6 +103,7 @@ namespace IndiaTango.Models
         /// </summary>
         public void RefreshDataPoints()
         {
+            PreviewDataPoints = null;
             DataPoints = !BoundsSet ? (from dataValue in Sensor.CurrentState.Values select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value)).OrderBy(dataPoint => dataPoint.X) : (from dataValue in Sensor.CurrentState.Values where dataValue.Key >= LowerBound && dataValue.Key <= UpperBound select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value)).OrderBy(dataPoint => dataPoint.X);
 
             RawDataPoints = !BoundsSet ? (from dataValue in Sensor.RawData.Values select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value)).OrderBy(dataPoint => dataPoint.X) : (from dataValue in Sensor.RawData.Values where dataValue.Key >= LowerBound && dataValue.Key <= UpperBound select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value)).OrderBy(dataPoint => dataPoint.X);
@@ -163,6 +166,23 @@ namespace IndiaTango.Models
         /// The upper bound of the data values
         /// </summary>
         public DateTime UpperBound { get; private set; }
+
+        /// <summary>
+        /// Creates a preview of the state given
+        /// </summary>
+        /// <param name="stateToPreview">The state to preview</param>
+        public void GeneratePreview(SensorState stateToPreview)
+        {
+            PreviewDataPoints = !BoundsSet ? (from dataValue in stateToPreview.Values select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value)).OrderBy(dataPoint => dataPoint.X) : (from dataValue in stateToPreview.Values where dataValue.Key >= LowerBound && dataValue.Key <= UpperBound select new DataPoint<DateTime, float>(dataValue.Key, dataValue.Value)).OrderBy(dataPoint => dataPoint.X);
+        }
+
+        /// <summary>
+        /// Removes the preview data points
+        /// </summary>
+        public void RemovePreview()
+        {
+            PreviewDataPoints = null;
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
     }

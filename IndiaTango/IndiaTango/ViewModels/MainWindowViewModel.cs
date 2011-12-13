@@ -676,10 +676,14 @@ namespace IndiaTango.ViewModels
 
             foreach (var sensor in sensors)
             {
-                _sampleRate = sensor.DataPoints.Count() / (numberOfPoints / (sensors.Count + numberOfExtraLinesToTakeIntoConsiderationWhenSampling));
-                Debug.Print("[{3}] Number of points: {0} Max Number {1} Sampling rate {2}", sensor.DataPoints.Count(), numberOfPoints, _sampleRate, sensor.Sensor.Name);
+                var setToUse = sensor.PreviewDataPoints ?? sensor.DataPoints;
 
-                var series = (_sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints.Where((x, index) => index % _sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints);
+                setToUse = setToUse.ToArray();
+
+                _sampleRate = setToUse.Count() / (numberOfPoints / (sensors.Count + numberOfExtraLinesToTakeIntoConsiderationWhenSampling));
+                Debug.Print("[{3}] Number of points: {0} Max Number {1} Sampling rate {2}", setToUse.Count(), numberOfPoints, _sampleRate, sensor.Sensor.Name);
+
+                var series = (_sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name, setToUse.Where((x, index) => index % _sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name, setToUse);
                 generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour) });
                 if (_showRaw)
                 {
@@ -881,6 +885,7 @@ namespace IndiaTango.ViewModels
         private TabItem GenerateCalibrationTabItem()
         {
             var tabItem = new TabItem { Header = "Calibration", IsEnabled = FeaturesEnabled };
+
             //Build the Grid to base it all on and add it
             var tabItemGrid = new Grid();
             tabItem.Content = tabItemGrid;
@@ -1215,6 +1220,16 @@ namespace IndiaTango.ViewModels
                                           IsEnabled = false
                                       };
 
+            var autoPreviewButton = new Button
+                                        {
+                                            FontSize = 15,
+                                            HorizontalAlignment = HorizontalAlignment.Right,
+                                            Margin = new Thickness(5, 0, 5, 0),
+                                            VerticalAlignment = VerticalAlignment.Bottom,
+                                            VerticalContentAlignment = VerticalAlignment.Bottom,
+                                            IsEnabled = false
+                                        };
+
             var automaticTabItem = new TabItem
                                        {
                                            Header = "Automatic"
@@ -1313,6 +1328,7 @@ namespace IndiaTango.ViewModels
                                                 calibratedATextBox.Background = calibratedAValid ? new SolidColorBrush(Colors.White) : new SolidColorBrush(Color.FromArgb(126, 255, 69, 0));
                                                 // ReSharper disable AccessToModifiedClosure
                                                 autoApplyButton.IsEnabled = calibratedAValid && calibratedBValid && currentAValid && currentBValid;
+                                                autoPreviewButton.IsEnabled = autoApplyButton.IsEnabled;
                                                 // ReSharper restore AccessToModifiedClosure
                                             };
 
@@ -1332,6 +1348,7 @@ namespace IndiaTango.ViewModels
                                                 calibratedBTextBox.Background = calibratedBValid ? new SolidColorBrush(Colors.White) : new SolidColorBrush(Color.FromArgb(126, 255, 69, 0));
                                                 // ReSharper disable AccessToModifiedClosure
                                                 autoApplyButton.IsEnabled = calibratedAValid && calibratedBValid && currentAValid && currentBValid;
+                                                autoPreviewButton.IsEnabled = autoApplyButton.IsEnabled;
                                                 // ReSharper restore AccessToModifiedClosure
                                             };
             Grid.SetRow(calibratedBTextBox, 1);
@@ -1350,6 +1367,7 @@ namespace IndiaTango.ViewModels
                                              currentATextBox.Background = currentAValid ? new SolidColorBrush(Colors.White) : new SolidColorBrush(Color.FromArgb(126, 255, 69, 0));
                                              // ReSharper disable AccessToModifiedClosure
                                              autoApplyButton.IsEnabled = calibratedAValid && calibratedBValid && currentAValid && currentBValid;
+                                             autoPreviewButton.IsEnabled = autoApplyButton.IsEnabled;
                                              // ReSharper restore AccessToModifiedClosure
                                          };
             Grid.SetRow(currentATextBox, 2);
@@ -1365,9 +1383,10 @@ namespace IndiaTango.ViewModels
             currentBTextBox.KeyUp += (o, e) =>
                                          {
                                              currentBValid = double.TryParse(currentBTextBox.Text, out currentBValue);
-                                             currentBTextBox.Background = currentAValid ? new SolidColorBrush(Colors.White) : new SolidColorBrush(Color.FromArgb(126, 255, 69, 0));
+                                             currentBTextBox.Background = currentBValid ? new SolidColorBrush(Colors.White) : new SolidColorBrush(Color.FromArgb(126, 255, 69, 0));
                                              // ReSharper disable AccessToModifiedClosure
                                              autoApplyButton.IsEnabled = calibratedAValid && calibratedBValid && currentAValid && currentBValid;
+                                             autoPreviewButton.IsEnabled = autoApplyButton.IsEnabled;
                                              // ReSharper restore AccessToModifiedClosure
                                          };
             Grid.SetRow(currentBTextBox, 1);
@@ -1443,6 +1462,62 @@ namespace IndiaTango.ViewModels
                                                            Margin = new Thickness(5)
                                                        });
 
+            autoButtonsWrapPanel.Children.Add(autoPreviewButton);
+
+            var autoPreviewButtonStackPanel = new StackPanel
+                                                  {
+                                                      Orientation = Orientation.Horizontal
+                                                  };
+            autoPreviewButton.Content = autoPreviewButtonStackPanel;
+            autoPreviewButtonStackPanel.Children.Add(new Image
+                                                         {
+                                                             Width = 32,
+                                                             Height = 32,
+                                                             Source =
+                                                                 new BitmapImage(
+                                                                 new Uri("pack://application:,,,/Images/preview_32.png",
+                                                                         UriKind.Absolute))
+                                                         });
+            autoPreviewButtonStackPanel.Children.Add(new TextBlock
+                                                       {
+                                                           Text = "Preview",
+                                                           VerticalAlignment = VerticalAlignment.Center,
+                                                           Margin = new Thickness(5)
+                                                       });
+
+            autoPreviewButton.Click += (o, e) =>
+                                           {
+                                               var useSelected = false;
+                                               if (Selection != null)
+                                                   useSelected = Common.Confirm("Should we use your selection?",
+                                                                                "Should we use the date range of your selection for to apply the formula on?");
+                                               foreach (var sensor in _sensorsToCheckMethodsAgainst)
+                                               {
+                                                   var gSensor = _sensorsToGraph.FirstOrDefault(x => x.Sensor == sensor);
+                                                   if (gSensor == null)
+                                                       continue;
+                                                   try
+                                                   {
+                                                       gSensor.GeneratePreview(useSelected
+                                                                           ? sensor.CurrentState.Calibrate(
+                                                                               Selection.LowerX, Selection.UpperX,
+                                                                               calibratedAValue, calibratedBValue,
+                                                                               currentAValue, currentBValue, new ChangeReason(-1, "Preview"))
+                                                                           : sensor.CurrentState.Calibrate(StartTime,
+                                                                                                           EndTime,
+                                                                                                           calibratedAValue,
+                                                                                                           calibratedBValue,
+                                                                                                           currentAValue,
+                                                                                                           currentBValue, new ChangeReason(-1, "Preview")));
+                                                   }
+                                                   catch (Exception ex)
+                                                   {
+                                                       Common.ShowMessageBox("An Error Occured", ex.Message, false, true);
+                                                   }
+                                               }
+                                               SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "AutoCalibratePreview");
+                                           };
+
             var autoClearButton = new Button
                                   {
                                       FontSize = 15,
@@ -1458,6 +1533,13 @@ namespace IndiaTango.ViewModels
                                              currentATextBox.Text = "";
                                              currentBTextBox.Text = "";
                                              autoApplyButton.IsEnabled = false;
+                                             autoPreviewButton.IsEnabled = false;
+                                             var previewMade = GraphableSensors.FirstOrDefault(x => x.PreviewDataPoints != null) != null;
+                                             if (previewMade)
+                                             {
+                                                 GraphableSensors.ForEach(x => x.RemovePreview());
+                                                 SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "PreviewResetFromAutoClear");
+                                             }
                                          };
             autoButtonsWrapPanel.Children.Add(autoClearButton);
 
@@ -2458,7 +2540,7 @@ namespace IndiaTango.ViewModels
 
             if ((e.OldValue != null && (DateTime)e.OldValue == new DateTime()) || (DateTime)e.NewValue < EndTime)
                 StartTime = (DateTime)e.NewValue;
-            else if(e.OldValue != null)
+            else if (e.OldValue != null)
                 StartTime = (DateTime)e.OldValue;
 
             foreach (var sensor in _sensorsToGraph)
@@ -2481,7 +2563,7 @@ namespace IndiaTango.ViewModels
 
             if ((e.OldValue != null && (DateTime)e.OldValue == new DateTime()) || (DateTime)e.NewValue > StartTime)
                 EndTime = (DateTime)e.NewValue;
-            else if(e.OldValue != null)
+            else if (e.OldValue != null)
                 EndTime = (DateTime)e.OldValue;
 
             foreach (var sensor in _sensorsToGraph)
@@ -2596,6 +2678,8 @@ namespace IndiaTango.ViewModels
 
         public void DetectionMethodChanged(SelectionChangedEventArgs eventArgs)
         {
+            GraphableSensors.ForEach(x => x.RemovePreview());
+
             if (eventArgs.RemovedItems.Count > 0)
             {
                 var oldTabItem = eventArgs.RemovedItems[0] as TabItem;
@@ -2612,6 +2696,8 @@ namespace IndiaTango.ViewModels
                         oldDetectionMethod.ListBox.IsEnabled = false;
                         SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "DetectionMethodChanged");
                     }
+                    else
+                        SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "ForcePreviewReset");
                     _selectedMethod = null;
                 }
             }
