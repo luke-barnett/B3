@@ -138,6 +138,21 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellEditingTemplate>
                             </DataGridTemplateColumn>
+                            <DataGridTemplateColumn>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Content="Calibration Details">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="Click">
+                                                    <cal:ActionMessage MethodName="ShowCalibrationDetails">
+                                                        <cal:Parameter Value="{Binding Sensor}" />
+                                                    </cal:ActionMessage>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                             <DataGridTextColumn Header="Ideal Calibration Frequency (Days)" Binding="{Binding Sensor.IdealCalibrationFrequency, Converter={StaticResource timeSpanStringConverter}}" />
                             <DataGridTemplateColumn Header="Date of Installation">
                                 <DataGridTemplateColumn.CellTemplate>

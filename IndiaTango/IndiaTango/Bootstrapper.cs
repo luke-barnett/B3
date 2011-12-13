@@ -34,6 +34,7 @@ namespace IndiaTango
             _container.RegisterSingleton(typeof(MainWindowViewModel), "MainWindowViewModel", typeof(MainWindowViewModel));
             _container.RegisterPerRequest(typeof(EditSiteDataViewModel), "EditSiteDataViewModel", typeof(EditSiteDataViewModel));
             _container.RegisterPerRequest(typeof(MatchToExistingSensorsViewModel), "MatchToExistingSensorsViewModel", typeof(MatchToExistingSensorsViewModel));
+            _container.RegisterPerRequest(typeof(CalibrationDetailsViewModel), "CalibrationDetailsViewModel", typeof(CalibrationDetailsViewModel));
 
             _container.RegisterInstance(typeof(IWindowManager), null, new WindowManager());
             _container.RegisterInstance(typeof(SimpleContainer), null, _container);

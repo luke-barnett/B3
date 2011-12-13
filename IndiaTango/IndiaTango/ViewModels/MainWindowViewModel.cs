@@ -2464,6 +2464,16 @@ namespace IndiaTango.ViewModels
             SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "RevertSelectionToRaw");
         }
 
+        public void ShowCalibrationDetails(Sensor sensor)
+        {
+            var view = _container.GetInstance(typeof(CalibrationDetailsViewModel), "CalibrationDetailsViewModel") as CalibrationDetailsViewModel;
+
+            if (view == null) return;
+
+            view.Sensor = sensor;
+            _windowManager.ShowWindow(view);
+        }
+
         #endregion
 
         #region Event Handlers

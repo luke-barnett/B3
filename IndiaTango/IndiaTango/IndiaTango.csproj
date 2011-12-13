@@ -92,6 +92,7 @@
     </Compile>
     <Compile Include="Models\AboveMaxValueDetector.cs" />
     <Compile Include="Models\BelowMinValueDetector.cs" />
+    <Compile Include="Models\Calibration.cs" />
     <Compile Include="Models\ChangeReason.cs" />
     <Compile Include="Models\Colour.cs" />
     <Compile Include="Models\ColourConverter.cs" />
@@ -124,6 +125,7 @@
     <Compile Include="SimpleContainer.cs" />
     <Compile Include="ViewModels\BaseViewModel.cs" />
     <Compile Include="ViewModels\BuoyDetailsViewModel.cs" />
+    <Compile Include="ViewModels\CalibrationDetailsViewModel.cs" />
     <Compile Include="ViewModels\ContactEditorViewModel.cs" />
     <Compile Include="ViewModels\CalibrateSensorsViewModel.cs" />
     <Compile Include="ViewModels\EditSensorViewModel.cs" />
@@ -146,6 +148,9 @@
     <Compile Include="ViewModels\WizardViewModel.cs" />
     <Compile Include="Views\BuoyDetailsView.xaml.cs">
       <DependentUpon>BuoyDetailsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CalibrationDetailsView.xaml.cs">
+      <DependentUpon>CalibrationDetailsView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ContactEditorView.xaml.cs">
       <DependentUpon>ContactEditorView.xaml</DependentUpon>
@@ -250,6 +255,10 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="Views\BuoyDetailsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\CalibrationDetailsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -23,7 +23,7 @@ namespace IndiaTango.Tests
         private Stack<SensorState> _testUndoStates;
         private Stack<SensorState> _secondUndoStates;
         private Stack<SensorState> _blankStack = new Stack<SensorState>();
-        private List<DateTime> _blankCalibrationDates = new List<DateTime>();
+        private List<Calibration> _blankCalibrationDates = new List<Calibration>();
 
         private Dataset _ds = null;
         private Dataset _ds2 = null;
@@ -116,7 +116,7 @@ namespace IndiaTango.Tests
         public void SetCalibrationDatesListToNull()
         {
             var testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStates, _blankStack, _blankCalibrationDates, _ds);
-            testSensor.CalibrationDates = null;
+            testSensor.Calibrations = null;
         }
         #endregion
 
@@ -159,15 +159,15 @@ namespace IndiaTango.Tests
 
             Assert.IsNotNull(testSensor.UndoStates);
             Assert.IsNotNull(testSensor.RedoStates);
-            Assert.IsNotNull(testSensor.CalibrationDates);
-            Assert.IsTrue(testSensor.UndoStates.Count == 0 && testSensor.RedoStates.Count == 0 && testSensor.CalibrationDates.Count == 0);
+            Assert.IsNotNull(testSensor.Calibrations);
+            Assert.IsTrue(testSensor.UndoStates.Count == 0 && testSensor.RedoStates.Count == 0 && testSensor.Calibrations.Count == 0);
 
             testSensor = new Sensor(_testName, _testUnit);
 
             Assert.IsNotNull(testSensor.UndoStates);
             Assert.IsNotNull(testSensor.RedoStates);
-            Assert.IsNotNull(testSensor.CalibrationDates);
-            Assert.IsTrue(testSensor.UndoStates.Count == 0 && testSensor.RedoStates.Count == 0 && testSensor.CalibrationDates.Count == 0);
+            Assert.IsNotNull(testSensor.Calibrations);
+            Assert.IsTrue(testSensor.UndoStates.Count == 0 && testSensor.RedoStates.Count == 0 && testSensor.Calibrations.Count == 0);
         }
         #endregion
 
@@ -175,37 +175,43 @@ namespace IndiaTango.Tests
         [Test]
         public void GetCalibrationDates()
         {
-            List<DateTime> calibrationDatesTest = new List<DateTime>();
-            calibrationDatesTest.Add(new DateTime(2011, 7, 4, 21, 15, 0));
-            calibrationDatesTest.Add(new DateTime(2011, 7, 4, 21, 30, 0));
-            calibrationDatesTest.Add(new DateTime(2011, 7, 4, 21, 45, 0));
-            calibrationDatesTest.Add(new DateTime(2011, 7, 4, 22, 0, 0));
+            var calibrationDatesTest = new List<Calibration>
+                                           {
+                                               new Calibration(new DateTime(2011, 7, 4, 21, 15, 0), 10, 0, 15, 2),
+                                               new Calibration(new DateTime(2011, 7, 4, 21, 30, 0), 10, 0, 15, 2),
+                                               new Calibration(new DateTime(2011, 7, 4, 21, 45, 0), 10, 0, 15, 2),
+                                               new Calibration(new DateTime(2011, 7, 4, 22, 15, 0), 10, 0, 15, 2)
+                                           };
 
             Sensor testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStates, _secondUndoStates, calibrationDatesTest, _ds);
 
-            Assert.AreEqual(calibrationDatesTest, testSensor.CalibrationDates);
+            Assert.AreEqual(calibrationDatesTest, testSensor.Calibrations);
         }
 
         [Test]
         public void SetCalibrationDates()
         {
-            List<DateTime> calibrationDatesTest = new List<DateTime>();
-            calibrationDatesTest.Add(new DateTime(2011, 7, 4, 21, 15, 0));
-            calibrationDatesTest.Add(new DateTime(2011, 7, 4, 21, 30, 0));
-            calibrationDatesTest.Add(new DateTime(2011, 7, 4, 21, 45, 0));
-            calibrationDatesTest.Add(new DateTime(2011, 7, 4, 22, 0, 0));
+            var calibrationDatesTest = new List<Calibration>
+                                           {
+                                               new Calibration(new DateTime(2011, 7, 4, 21, 15, 0), 10, 0, 15, 2),
+                                               new Calibration(new DateTime(2011, 7, 4, 21, 30, 0), 10, 0, 15, 2),
+                                               new Calibration(new DateTime(2011, 7, 4, 21, 45, 0), 10, 0, 15, 2),
+                                               new Calibration(new DateTime(2011, 7, 4, 22, 15, 0), 10, 0, 15, 2)
+                                           };
 
             Sensor testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStates, _secondUndoStates, calibrationDatesTest, _ds);
 
-            List<DateTime> secondCalibrationTest = new List<DateTime>();
-            secondCalibrationTest.Add(new DateTime(2010, 7, 3, 21, 15, 0));
-            secondCalibrationTest.Add(new DateTime(2010, 7, 3, 21, 30, 0));
-            secondCalibrationTest.Add(new DateTime(2010, 7, 3, 21, 45, 0));
-            secondCalibrationTest.Add(new DateTime(2010, 7, 3, 22, 0, 0));
+            var secondCalibrationTest = new List<Calibration>
+                                           {
+                                               new Calibration(new DateTime(2011, 7, 3, 21, 15, 0), 10, 0, 15, 2),
+                                               new Calibration(new DateTime(2011, 7, 3, 21, 30, 0), 10, 0, 15, 2),
+                                               new Calibration(new DateTime(2011, 7, 3, 21, 45, 0), 10, 0, 15, 2),
+                                               new Calibration(new DateTime(2011, 7, 3, 22, 15, 0), 10, 0, 15, 2)
+                                           };
 
-            testSensor.CalibrationDates = secondCalibrationTest;
+            testSensor.Calibrations = secondCalibrationTest;
 
-            Assert.AreEqual(secondCalibrationTest, testSensor.CalibrationDates);
+            Assert.AreEqual(secondCalibrationTest, testSensor.Calibrations);
         }
         #endregion
 
@@ -699,12 +705,12 @@ namespace IndiaTango.Tests
         {
             var sensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit,
                                     _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStates, _testUndoStates,
-                                    new List<DateTime>(), 4, _ds);
+                                    new List<Calibration>(), 4, _ds);
             Assert.AreEqual(4, sensor.ErrorThreshold);
 
             var sensorTwo = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit,
                                     _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStates, _testUndoStates,
-                                    new List<DateTime>(), 6, _ds);
+                                    new List<Calibration>(), 6, _ds);
             Assert.AreEqual(6, sensorTwo.ErrorThreshold);
         }
 
@@ -724,7 +730,7 @@ namespace IndiaTango.Tests
         {
             var sensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit,
                                      _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStates, _testUndoStates,
-                                     new List<DateTime>(), 0, _ds);
+                                     new List<Calibration>(), 0, _ds);
         }
 
         [Test]
@@ -733,7 +739,7 @@ namespace IndiaTango.Tests
         {
             var sensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit,
                                     _testMaxRateOfChange, _testManufacturer, _testSerial, _testUndoStates, _testUndoStates,
-                                    new List<DateTime>(), -9, _ds);
+                                    new List<Calibration>(), -9, _ds);
         }
 
         [Test]
