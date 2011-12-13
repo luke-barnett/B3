@@ -96,7 +96,7 @@ namespace IndiaTango.Models
 
         public string About
         {
-            get { return "This method is used to detect timestamps where there are missing data for the parameters you have selected for display on the graph to the right. If you tick ‘Check detection methods for values’, timestamps with missing data will be displayed in the ‘Detected values’ list . Values will be detected only within the date range displayed on the graph to the right. You can select any combination of the detected values to modify using the ‘Delete’ (shortcut ‘Delete’ key), ‘Interpolate’, or ‘Specify value’ buttons below. Alternatively, you may select a range of data to modify by holding the shift key, and click-dragging the mouse over a range of data on the graph to the right, at any time."; }
+            get { return "This method is used to detect timestamps where there are missing data for the parameters you have selected for display on the graph to the right.\r\n\nIf you tick ‘Check detection methods for values’, timestamps with missing data will be displayed in the ‘Detected values’ list . Values will be detected only within the date range displayed on the graph to the right. You can select any combination of the detected values to modify using the ‘Delete’ (shortcut ‘Delete’ key), ‘Interpolate’, or ‘Specify value’ buttons below.\r\n\nAlternatively, you may select a range of data to modify by holding the shift key, and click-dragging the mouse over a range of data on the graph to the right, at any time."; }
         }
     }
 }
