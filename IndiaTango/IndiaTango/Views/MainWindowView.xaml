@@ -267,8 +267,9 @@
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
                             <StackPanel HorizontalAlignment="Right" Orientation="Vertical" Margin="5,0">
-                                <CheckBox Content="Graph Raw Data" IsChecked="{Binding GraphRawData,Mode=OneWayToSource}" VerticalAlignment="Center" />
-                                <Button Content="Revert to Raw" cal:Message.Attach="[Event Click] = [Action RevertGraphedToRaw]" Visibility="{Binding RevertGraphedToRawVisibility}" Margin="0,2" />
+                                <Button cal:Message.Attach="[Event Click] = [Action ShowGraphHelp]">
+                                    <Image Width="16" Height="16" Source="/B3;component/Images/help_32.png" />
+                                </Button>
                             </StackPanel>
                             <StackPanel Grid.Row="0">
                                 <StackPanel Orientation="Horizontal" Height="25" VerticalAlignment="Top">
@@ -280,6 +281,8 @@
                                 <StackPanel Orientation="Horizontal" Height="25" VerticalAlignment="Top">
                                     <!--<CheckBox Content="Selection Mode" IsChecked="{Binding SelectionModeEnabled,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" />-->
                                     <CheckBox Content="Show Annotations" IsChecked="{Binding AnnotationsModeEnabled,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" Margin="5,0" />
+                                    <CheckBox Content="Graph Raw Data" IsChecked="{Binding GraphRawData,Mode=OneWayToSource}" VerticalAlignment="Center" />
+                                    <Button Content="Revert to Raw" cal:Message.Attach="[Event Click] = [Action RevertGraphedToRaw]" Visibility="{Binding RevertGraphedToRawVisibility}" Margin="2" />
                                 </StackPanel>
                             </StackPanel>
                             <Grid Grid.Row="2">
