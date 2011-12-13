@@ -224,6 +224,7 @@ namespace IndiaTango.Models
                                 hasMonth = true;
                                 hasDay = true;
                                 hasHour = true;
+                                hasMinute = true;
                             }
                             else if (dateTimeComponent.Type == DateTimeComponentType.hh)
                             {
