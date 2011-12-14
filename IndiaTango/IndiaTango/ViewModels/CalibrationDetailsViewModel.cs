@@ -7,7 +7,7 @@ namespace IndiaTango.ViewModels
     class CalibrationDetailsViewModel : BaseViewModel
     {
         private Sensor _sensor;
-        private DateTime _timestamp;
+        private DateTime _timestamp = DateTime.Now;
         private string _preOffset;
         private string _preSpan;
         private string _postOffset;
@@ -24,6 +24,11 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        public List<Calibration> Calibrations
+        {
+            get { return _sensor.Calibrations; }
+        }
+
         public string Title
         {
             get { return Sensor != null ? string.Format("Calibrations for {0}", Sensor.Name) : ""; }
@@ -32,7 +37,8 @@ namespace IndiaTango.ViewModels
         public void AddCalibration(DateTime timestamp, float preOffset, float preSpan, float postOffset, float postSpan)
         {
             Sensor.Calibrations.Add(new Calibration(timestamp, preSpan, preOffset, postSpan, postOffset));
-            Sensor.Calibrations = new List<Calibration>(Sensor.Calibrations);
+            Sensor.Calibrations = new List<Calibration>(Calibrations);
+            NotifyOfPropertyChange(() => Calibrations);
         }
 
         public void RemoveCalibration(Calibration toRemove)
@@ -40,7 +46,8 @@ namespace IndiaTango.ViewModels
             if (Sensor.Calibrations.Contains(toRemove))
                 Sensor.Calibrations.Remove(toRemove);
 
-            Sensor.Calibrations = new List<Calibration>(Sensor.Calibrations);
+            Sensor.Calibrations = new List<Calibration>(Calibrations);
+            NotifyOfPropertyChange(() => Calibrations);
         }
 
         public DateTime Timestamp
