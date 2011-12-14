@@ -138,18 +138,18 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellEditingTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Calibration Details">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Content="Calibration Details">
+                                        <TextBlock Text="View" Margin="5,0" TextDecorations="Underline" HorizontalAlignment="Center">
                                             <i:Interaction.Triggers>
-                                                <i:EventTrigger EventName="Click">
+                                                <i:EventTrigger EventName="MouseDown">
                                                     <cal:ActionMessage MethodName="ShowCalibrationDetails">
                                                         <cal:Parameter Value="{Binding Sensor}" />
                                                     </cal:ActionMessage>
                                                 </i:EventTrigger>
                                             </i:Interaction.Triggers>
-                                        </Button>
+                                        </TextBlock>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
