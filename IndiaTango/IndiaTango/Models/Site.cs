@@ -102,8 +102,6 @@ namespace IndiaTango.Models
             get { return _owner; }
             set
             {
-                if (String.IsNullOrEmpty(value))
-                    throw new FormatException("Owner must not be empty");
                 _owner = value;
             }
         }
@@ -181,8 +179,6 @@ namespace IndiaTango.Models
             get { return _primaryContact; }
             set
             {
-                if (value == null)
-                    throw new FormatException("Primary contact must not be null");
                 _primaryContact = value;
             }
         }
