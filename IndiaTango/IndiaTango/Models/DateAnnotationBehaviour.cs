@@ -83,7 +83,11 @@ namespace IndiaTango.Models
             Value = string.Empty;
 
             if (Chart.XAxis.ActualRange == null)
+            {
+                _annotationCanvas.Visibility = Visibility.Hidden;
                 return;
+            }
+                
 
             Time = (DateTime)Chart.XAxis.GetRenderPositionAsDataValueWithoutZoom(position.X);
             Time = Time.Round(new TimeSpan(0, _dataInterval, 0));
