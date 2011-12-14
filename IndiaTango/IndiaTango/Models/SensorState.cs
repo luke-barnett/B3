@@ -37,6 +37,7 @@ namespace IndiaTango.Models
         public SensorState()
         {
             _changes = new Dictionary<DateTime, LinkedList<int>>();
+            _valueList = new Dictionary<DateTime, float>();
         }
 
         public SensorState(Sensor owner, Dictionary<DateTime, float> valueList, ChangeReason reason, Dictionary<DateTime, LinkedList<int>> changes) : this(owner, DateTime.Now, valueList, reason, false, changes) { }

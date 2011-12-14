@@ -3,6 +3,7 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -626,6 +627,58 @@ namespace IndiaTango.ViewModels
             set { _dateAnnotator.IsEnabled = value; }
         }
 
+        public DataTable DataTable
+        {
+            get
+            {
+                var sensors = _sensorsToCheckMethodsAgainst.Distinct(new SensorNameEqualityComparer()).OrderBy(x => x.Name).ToArray();
+
+                var table = new DataTable();
+
+                var timeStamps = sensors.SelectMany(x => x.CurrentState.Values.Keys).Where(x => x >= StartTime && x <= EndTime).Distinct();
+                table.Columns.Add(new DataColumn("Timestamp", typeof(DateTime)));
+
+                foreach (var sensor in sensors)
+                {
+                    table.Columns.Add(new DataColumn(sensor.Name.Replace(".",""), typeof(string)));
+                }
+
+                foreach (var timeStamp in timeStamps)
+                {
+                    var row = table.NewRow();
+                    row[0] = timeStamp;
+                    for (var i = 0; i < sensors.Length; i++)
+                    {
+                        row[i + 1] = "NO VALUE";
+                        if (sensors[i].CurrentState.Values.ContainsKey(timeStamp))
+                            row[i + 1] = sensors[i].CurrentState.Values[timeStamp].ToString();
+
+                        if (sensors[i].RawData.Values.ContainsKey(timeStamp))
+                            row[i + 1] += string.Format(" [{0}]",
+                                                        sensors[i].RawData.Values[timeStamp]);
+                    }
+                    table.Rows.Add(row);
+                }
+
+                return table;
+            }
+        }
+
+        public string TotalDataCount
+        {
+            get { return _sensorsToCheckMethodsAgainst.Sum(x => x.CurrentState.Values.Count).ToString(); }
+        }
+
+        public string MeanDataCount
+        {
+            get { return (_sensorsToCheckMethodsAgainst.Count > 0) ? _sensorsToCheckMethodsAgainst.Average(x => x.CurrentState.Values.Count).ToString() : "0"; }
+        }
+
+        public string Mean
+        {
+            get { return (_sensorsToCheckMethodsAgainst.Count > 0) ? _sensorsToCheckMethodsAgainst.SelectMany(x => x.CurrentState.Values).Average(x => x.Value).ToString() : "0"; }
+        }
+
         #endregion
 
         #region Private Methods
@@ -656,6 +709,14 @@ namespace IndiaTango.ViewModels
                 UpdateGraph(true);
 
             NotifyOfPropertyChange(() => GraphableSensors);
+        }
+
+        private void UpdateDataTable()
+        {
+            NotifyOfPropertyChange(() => DataTable);
+            NotifyOfPropertyChange(() => TotalDataCount);
+            NotifyOfPropertyChange(() => MeanDataCount);
+            NotifyOfPropertyChange(() => Mean);
         }
 
         private void SampleValues(int numberOfPoints, ICollection<GraphableSensor> sensors, string sender)
@@ -2691,6 +2752,7 @@ namespace IndiaTango.ViewModels
             UpdateDetectionMethodGraphableSensors();
             NotifyOfPropertyChange(() => SensorsForEditing);
             CheckTheseMethodsForThisSensor(_detectionMethods.Where(x => x.IsEnabled), graphableSensor.Sensor);
+            UpdateDataTable();
         }
 
         public void AddToEditingSensors(RoutedEventArgs eventArgs)
@@ -2709,6 +2771,7 @@ namespace IndiaTango.ViewModels
             graphableSensor.Sensor.PropertyChanged -= SensorPropertyChanged;
             NotifyOfPropertyChange(() => SensorsForEditing);
             UpdateDetectionMethodGraphableSensors();
+            UpdateDataTable();
 
             foreach (var detectionMethod in _detectionMethods.Where(x => x.IsEnabled))
             {
