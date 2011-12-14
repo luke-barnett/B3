@@ -50,6 +50,9 @@ namespace IndiaTango.Models
 
                 var headers = csvHeaderLine.Split(',');
 
+                if(headers.Distinct().Count() < headers.Count())
+                    throw new FileFormatException("There are duplicate headers!");
+
                 var dateTimeComponents = new List<DateTimeComponent>();
                 var sensorIndexers = new List<SensorIndexer>();
 
