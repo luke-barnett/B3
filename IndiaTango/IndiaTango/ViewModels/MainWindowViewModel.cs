@@ -238,7 +238,7 @@ namespace IndiaTango.ViewModels
                 }
                 UpdateGUI();
                 UpdateUndoRedo();
-
+                UpdateDataTable();
             }
         }
 
@@ -649,7 +649,6 @@ namespace IndiaTango.ViewModels
                     row[0] = timeStamp;
                     for (var i = 0; i < sensors.Length; i++)
                     {
-                        row[i + 1] = "NO VALUE";
                         if (sensors[i].CurrentState.Values.ContainsKey(timeStamp))
                             row[i + 1] = sensors[i].CurrentState.Values[timeStamp].ToString();
 
@@ -2661,6 +2660,7 @@ namespace IndiaTango.ViewModels
 
             if (e.OldValue != null && (DateTime)e.OldValue != DateTime.MinValue)
                 SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "StartTimeChanged");
+            UpdateDataTable();
         }
 
         /// <summary>
@@ -2684,6 +2684,7 @@ namespace IndiaTango.ViewModels
 
             if (e.OldValue != null && (DateTime)e.OldValue != DateTime.MaxValue)
                 SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "EndTimeChanged");
+            UpdateDataTable();
         }
 
         public void ColourChanged(RoutedPropertyChangedEventArgs<Color> args, GraphableSensor owner)
