@@ -14,6 +14,7 @@ namespace IndiaTango.Models
         private string _value;
         private TextBlock _textBlock;
         private int _dataInterval = 15;
+        private const int HeightInterval = 15;
 
         public DateAnnotationBehaviour()
             : base("DateAnnotator")
@@ -46,19 +47,29 @@ namespace IndiaTango.Models
                                   {
                                       Visibility = Visibility.Collapsed,
                                       Width = 100,
-                                      Height = 30,
+                                      Height = HeightInterval,
                                       Background = Brushes.Honeydew,
                                       Opacity = 0.7f
                                   };
             _textBlock = new TextBlock();
             _annotationCanvas.Children.Add(_textBlock);
             BehaviourContainer.Children.Add(_annotationCanvas);
+
+            PropertyChanged += DateAnnotationBehaviourPropertyChanged;
+        }
+
+        void DateAnnotationBehaviourPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "IsEnabled" && !IsEnabled)
+                _annotationCanvas.Visibility = Visibility.Hidden;
         }
 
         public override void DeInit()
         {
             if (BehaviourContainer.Children.Contains(_annotationCanvas))
                 BehaviourContainer.Children.Remove(_annotationCanvas);
+
+            PropertyChanged -= DateAnnotationBehaviourPropertyChanged;
         }
 
         public override void MouseMove(Point position)
@@ -67,8 +78,8 @@ namespace IndiaTango.Models
                 _annotationCanvas.SetValue(Canvas.LeftProperty, position.X - (_annotationCanvas.Width + 15));
             else
                 _annotationCanvas.SetValue(Canvas.LeftProperty, position.X + 15);
-            _annotationCanvas.SetValue(Canvas.TopProperty, position.Y);
-            _annotationCanvas.Height = 30;
+            
+            _annotationCanvas.Height = HeightInterval;
             Value = string.Empty;
 
             if (Chart.XAxis.ActualRange == null)
@@ -87,10 +98,16 @@ namespace IndiaTango.Models
                 {
                     graphed = true;
                     Value += string.Format("\r\n{0} [{1}]", dataPoint.Y, series.DataSeries.Title);
-                    _annotationCanvas.Height += 10;
+                    _annotationCanvas.Height += HeightInterval;
                     break;
                 }
             }
+
+            if(position.Y + _annotationCanvas.Height > BehaviourContainer.ActualHeight)
+                _annotationCanvas.SetValue(Canvas.TopProperty, position.Y - _annotationCanvas.Height);
+            else
+                _annotationCanvas.SetValue(Canvas.TopProperty, position.Y);
+
             _annotationCanvas.Visibility = graphed ? Visibility.Visible : Visibility.Hidden;
         }
 
