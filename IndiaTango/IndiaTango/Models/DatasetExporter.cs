@@ -283,7 +283,7 @@ namespace IndiaTango.Models
 
                 if (Data.Sensors != null && Data.Sensors.Count > 0)
                 {
-                    writer.WriteLine("Sensors:");
+                    writer.WriteLine("Series:");
                     foreach (var sensor in Data.Sensors)
                     {
                         writer.WriteLine("\t" + sensor.Name);
@@ -291,11 +291,21 @@ namespace IndiaTango.Models
                         writer.WriteLine("\t\tSensor Type: " + sensor.SensorType);
                         writer.WriteLine("\t\tUnit: " + sensor.Unit);
                         writer.WriteLine("\t\tDepth (m): " + sensor.Depth);
-                        writer.WriteLine("\t\tManufacturer: " + sensor.Manufacturer);
-                        writer.WriteLine("\t\tSerial Number: " + sensor.SerialNumber);
-                        writer.WriteLine("\t\tAccuracy (+/-): " + sensor.Accuracy);
-                        writer.WriteLine("\t\tDate of Installation: " + sensor.DateOfInstallation.ToString("yyyy/MM/dd"));
+                        writer.WriteLine("\t\tSensors:");
+                        foreach (var calibration in sensor.MetaData)
+                        {
+                            writer.WriteLine("\t\t\tSerial Number: " + calibration.SerialNumber);
+                            writer.WriteLine("\t\t\tManufacturer: " + calibration.Manufacturer);
+                            writer.WriteLine("\t\t\tAccuracy: " + calibration.Accuracy);
+                            writer.WriteLine("\t\t\tDate of Installation: " + calibration.DateOfInstallation);
+                        }
+                        writer.WriteLine("\t\tCalibrations:");
+                        foreach (var calibration in sensor.Calibrations)
+                        {
+                            writer.WriteLine("\t\t\t" + calibration);
+                        }
                         writer.WriteLine("\t\tIdeal Calibration Frequency (Days): " + sensor.IdealCalibrationFrequency.Days);
+                        
                     }
                 }
 

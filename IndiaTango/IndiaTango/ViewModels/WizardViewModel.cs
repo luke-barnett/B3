@@ -430,8 +430,6 @@ namespace IndiaTango.ViewModels
                 NotifyOfPropertyChange(() => UpperLimit);
                 NotifyOfPropertyChange(() => Unit);
                 NotifyOfPropertyChange(() => MaximumRateOfChange);
-                NotifyOfPropertyChange(() => Manufacturer);
-                NotifyOfPropertyChange(() => SerialNumber);
                 NotifyOfPropertyChange(() => ErrorThreshold);
                 NotifyOfPropertyChange(() => SelectedSensor);
                 NotifyOfPropertyChange(() => WizardTitle);
@@ -492,10 +490,6 @@ namespace IndiaTango.ViewModels
                     SelectedSensor.MaxRateOfChange = val;
             }
         }
-
-        public string Manufacturer { get { return (SelectedSensor == null) ? string.Empty : SelectedSensor.Manufacturer; } set { if (SelectedSensor != null) SelectedSensor.Manufacturer = value; } }
-
-        public string SerialNumber { get { return (SelectedSensor == null) ? string.Empty : SelectedSensor.SerialNumber; } set { if (SelectedSensor != null) SelectedSensor.SerialNumber = value; } }
 
         public string ErrorThreshold
         {

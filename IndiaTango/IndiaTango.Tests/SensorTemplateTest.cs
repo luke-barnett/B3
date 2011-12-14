@@ -90,7 +90,7 @@ namespace IndiaTango.Tests
         [Test]
         public void ProvidesDefaultValuesWhenMatches()
         {
-            var testSensor = new Sensor("Temperature", "C", 150, 50, "F", 8.3f, "Random Corporation", "ASA932832", null);
+            var testSensor = new Sensor("Temperature", "C", 150, 50, "F", 8.3f, null);
             var s = new SensorTemplate(UNIT, UPPER_LIMIT, LOWER_LIMIT, MAX_CHANGE, SensorTemplate.MatchStyle.Contains, "Temp");
 
             s.ProvideDefaultValues(testSensor);

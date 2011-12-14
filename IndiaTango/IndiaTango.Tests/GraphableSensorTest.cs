@@ -15,7 +15,7 @@ namespace IndiaTango.Tests
         [SetUp]
         public void SetUp()
         {
-            var rawSensor = new Sensor("Temperature", "Temperature at 30m", 40, 20, "C", 20, "Temperature Sensors Ltd.", "1102123", null);
+            var rawSensor = new Sensor("Temperature", "Temperature at 30m", 40, 20, "C", 20, null);
 
             rawSensor.AddState(new SensorState(rawSensor, DateTime.Now));
 

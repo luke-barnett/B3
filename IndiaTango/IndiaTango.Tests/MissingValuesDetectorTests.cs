@@ -35,7 +35,7 @@ namespace IndiaTango.Tests
             var contact = new Contact("Jim", "Does", "jim@email.com", "Lollipops", "837773");
             var dataSet = new Dataset(new Site(4, "New Site", "Tim Jones", contact, contact, contact, new GPSCoords(0, 0)));
 
-            var sensor = new Sensor("Dummy Sensor", "Does stuff", 10, 0, "C", 5, "Tim's Workshop", "AAAAA", dataSet);
+            var sensor = new Sensor("Dummy Sensor", "Does stuff", 10, 0, "C", 5, dataSet);
 
             sensor.AddState(new SensorState(sensor, DateTime.Now));
             sensor.CurrentState.Values.Add(new DateTime(1990, 5, 1, 4, 0, 0), 15);

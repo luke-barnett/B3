@@ -24,7 +24,7 @@ namespace IndiaTango.Tests
         [SetUp]
         public void Setup()
         {
-            _testSensor = new Sensor("Temperature1", "Temp at 100m", 100, 0, "C", 2, "Awesome", "AW3S0ME", null);
+            _testSensor = new Sensor("Temperature1", "Temp at 100m", 100, 0, "C", 2, null);
             testSensorState = new SensorState(_testSensor, testDate);
             valueList = new Dictionary<DateTime, float>();
             secondValueList = new Dictionary<DateTime, float>();

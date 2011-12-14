@@ -160,8 +160,6 @@ namespace IndiaTango.ViewModels
                     UpperLimit = _selectedItem.Sensor.UpperLimit.ToString();
                     Unit = _selectedItem.Sensor.Unit;
                     MaximumRateOfChange = _selectedItem.Sensor.MaxRateOfChange.ToString();
-                    Manufacturer = _selectedItem.Sensor.Manufacturer;
-                    SerialNumber = _selectedItem.Sensor.SerialNumber;
                     ErrorThreshold = _selectedItem.Sensor.ErrorThreshold.ToString();
                     SummaryType = (int)_selectedItem.Sensor.SummaryType;
                 }
@@ -174,8 +172,6 @@ namespace IndiaTango.ViewModels
                     UpperLimit = "0";
                     Unit = "";
                     MaximumRateOfChange = "0";
-                    Manufacturer = "";
-                    SerialNumber = "";
                     ErrorThreshold = IndiaTango.Properties.Settings.Default.DefaultErrorThreshold.ToString();
                     SummaryType = 0;
                 }
@@ -191,8 +187,6 @@ namespace IndiaTango.ViewModels
 				NotifyOfPropertyChange(() => UpperLimit);
 				NotifyOfPropertyChange(() => Unit);
 				NotifyOfPropertyChange(() => MaximumRateOfChange);
-				NotifyOfPropertyChange(() => Manufacturer);
-				NotifyOfPropertyChange(() => SerialNumber);
                 NotifyOfPropertyChange(() => ErrorThreshold);
                 NotifyOfPropertyChange(() => HasSelectedSensor);
             }
@@ -241,8 +235,6 @@ namespace IndiaTango.ViewModels
         public string UpperLimit { get; set; }
         public string Unit { get; set; }
         public string MaximumRateOfChange { get; set; }
-        public string Manufacturer { get; set; }
-        public string SerialNumber { get; set; }
         public string ErrorThreshold { get; set; }
         public string Depth { get; set; }
 
@@ -271,7 +263,7 @@ namespace IndiaTango.ViewModels
                 try
                 {
                     // TODO: more user-friendly conversion messages!
-                    var s = new Sensor(Name, Description, float.Parse(UpperLimit), float.Parse(LowerLimit), Unit, float.Parse(MaximumRateOfChange), Manufacturer, SerialNumber, new Stack<SensorState>(), new Stack<SensorState>(), new List<Calibration>(), int.Parse(ErrorThreshold), _ds, (SummaryType)SummaryType) { Depth = float.Parse(Depth)};
+                    var s = new Sensor(Name, Description, float.Parse(UpperLimit), float.Parse(LowerLimit), Unit, float.Parse(MaximumRateOfChange), new Stack<SensorState>(), new Stack<SensorState>(), new List<Calibration>(), int.Parse(ErrorThreshold), _ds, (SummaryType)SummaryType) { Depth = float.Parse(Depth)};
                     
                     if(Dataset.Sensors == null)
                         Dataset.Sensors = new List<Sensor>();
@@ -302,8 +294,6 @@ namespace IndiaTango.ViewModels
                     SelectedItem.Sensor.LowerLimit = float.Parse(LowerLimit);
                     SelectedItem.Sensor.Unit = Unit;
                     SelectedItem.Sensor.MaxRateOfChange = float.Parse(MaximumRateOfChange);
-                    SelectedItem.Sensor.Manufacturer = Manufacturer;
-                    SelectedItem.Sensor.SerialNumber = SerialNumber;
                     SelectedItem.Sensor.ErrorThreshold = int.Parse(ErrorThreshold);
                     SelectedItem.Sensor.SummaryType = (SummaryType)SummaryType;
                     EventLogger.LogInfo(_ds, GetType().ToString(), "Saved existing sensor. Sensor name: " + Name);

@@ -405,26 +405,6 @@ namespace IndiaTango.ViewModels
             }
         }
 
-        public string SensorManufacturer
-        {
-            get { return _selectedSensor != null ? _selectedSensor.Manufacturer : "!!!!"; }
-            set
-            {
-                if (_selectedSensor != null)
-                    _selectedSensor.Manufacturer = value;
-            }
-        }
-
-        public string SensorSerialNumber
-        {
-            get { return _selectedSensor != null ? _selectedSensor.SerialNumber : "!!!!"; }
-            set
-            {
-                if (_selectedSensor != null)
-                    _selectedSensor.SerialNumber = value;
-            }
-        }
-
         public string SensorErrorThreshold
         {
             get { return _selectedSensor != null ? _selectedSensor.ErrorThreshold.ToString() : "!!!!"; }
@@ -1221,8 +1201,6 @@ namespace IndiaTango.ViewModels
             NotifyOfPropertyChange(() => SensorUpperLimit);
             NotifyOfPropertyChange(() => SensorUnit);
             NotifyOfPropertyChange(() => SensorMaximumRateOfChange);
-            NotifyOfPropertyChange(() => SensorManufacturer);
-            NotifyOfPropertyChange(() => SensorSerialNumber);
             NotifyOfPropertyChange(() => SensorErrorThreshold);
             NotifyOfPropertyChange(() => SensorSummaryType);
         }

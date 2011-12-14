@@ -192,27 +192,6 @@ namespace IndiaTango.Tests
         }
 
         [Test]
-        [ExpectedException(typeof(FormatException))]
-        public void NullOwnerPropertyTest()
-        {
-            _testSite.Owner = null;
-        }
-
-        [Test]
-        [ExpectedException(typeof(FormatException))]
-        public void EmptyOwnerPropertyTest()
-        {
-            _testSite.Owner = "";
-        }
-
-        [Test]
-        [ExpectedException(typeof(FormatException))]
-        public void NullPrimaryContactPropertyTest()
-        {
-            _testSite.PrimaryContact = null;
-        }
-
-        [Test]
         public void NullSecondaryContactPropertyTest()
         {
             _testSite.SecondaryContact = null;

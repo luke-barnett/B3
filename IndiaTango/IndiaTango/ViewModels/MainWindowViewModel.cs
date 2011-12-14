@@ -19,6 +19,7 @@ using Visiblox.Charts;
 using Application = System.Windows.Application;
 using Button = System.Windows.Controls.Button;
 using CheckBox = System.Windows.Controls.CheckBox;
+using ComboBox = System.Windows.Controls.ComboBox;
 using GroupBox = System.Windows.Controls.GroupBox;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
 using ListBox = System.Windows.Controls.ListBox;
@@ -640,7 +641,7 @@ namespace IndiaTango.ViewModels
 
                 foreach (var sensor in sensors)
                 {
-                    table.Columns.Add(new DataColumn(sensor.Name.Replace(".",""), typeof(string)));
+                    table.Columns.Add(new DataColumn(sensor.Name.Replace(".", ""), typeof(string)));
                 }
 
                 foreach (var timeStamp in timeStamps)
@@ -2874,6 +2875,19 @@ namespace IndiaTango.ViewModels
                 else if (enabledDetector is ToHighRateOfChangeDetector && (e.PropertyName == "MaxRateOfChange"))
                     CheckTheseMethods(new[] { enabledDetector });
             }
+        }
+
+        public void AddNewMetaData(GraphableSensor sensor, KeyEventArgs keyPressEvent, ComboBox sender)
+        {
+            if (keyPressEvent.Key != Key.Enter)
+                return;
+
+            Debug.Print("Enter key pressed creating new meta data");
+            Debug.Print("Sender {0} Sensor {1}", sender, sensor);
+
+            var newMetaData = new SensorMetaData(sender.Text);
+            sensor.Sensor.MetaData.Add(newMetaData);
+            sensor.Sensor.CurrentMetaData = newMetaData;
         }
 
         #endregion

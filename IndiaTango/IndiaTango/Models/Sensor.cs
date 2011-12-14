@@ -26,9 +26,7 @@ namespace IndiaTango.Models
         private float _depth;
         private string _unit;
         private float _maxRateOfChange;
-        private string _manufacturer;
         private int _errorThreshold;
-        private string _serialNumber;
         private Colour _colour;
         private float _lowerLimit;
         private float _upperLimit;
@@ -40,9 +38,9 @@ namespace IndiaTango.Models
         [NonSerialized]
         private SensorVariable _sensorVariable;
         private string _sensorType;
-        private float _accuracy;
-        private DateTime _dateOfInstallation;
         private TimeSpan _idealCalibrationFrequency;
+        private ObservableCollection<SensorMetaData> _metaData;
+        private SensorMetaData _currentMetaData;
         #endregion
 
         #region Constructors
@@ -52,6 +50,8 @@ namespace IndiaTango.Models
             UndoStack = new Stack<SensorState>();
             RedoStack = new Stack<SensorState>();
             Calibrations = new List<Calibration>();
+            _metaData = new ObservableCollection<SensorMetaData>();
+            CurrentMetaData = new SensorMetaData("", "", DateTime.Now, 0);
         }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace IndiaTango.Models
         /// </summary>
         /// <param name="name">The name of the sensor.</param>
         /// <param name="unit">The unit used to report values given by this sensor.</param>
-        public Sensor(string name, string unit) : this(name, "", 100, 0, unit, 0, "", "", null) { }
+        public Sensor(string name, string unit) : this(name, "", 100, 0, unit, 0, null) { }
 
         /// <summary>
         /// Creates a new sensor, with the specified sensor name and measurement unit.
@@ -67,7 +67,7 @@ namespace IndiaTango.Models
         /// <param name="name">The name of the sensor.</param>
         /// <param name="unit">The unit used to report values given by this sensor.</param>
         /// <param name="owner">The owner of the sensor</param>
-        public Sensor(string name, string unit, Dataset owner) : this(name, "", 100, 0, unit, 0, "", "", owner) { }
+        public Sensor(string name, string unit, Dataset owner) : this(name, "", 100, 0, unit, 0, owner) { }
 
         /// <summary>
         /// Creates a new sensor, using default values for Undo/Redo stacks, calibration dates, error threshold and a failure-indicating value.
@@ -81,7 +81,7 @@ namespace IndiaTango.Models
         /// <param name="manufacturer">The manufacturer of this sensor.</param>
         /// <param name="serial">The serial number associated with this sensor.</param>
         /// <param name="owner">The dataset owner of the sensor</param>
-        public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, string manufacturer, string serial, Dataset owner) : this(name, description, upperLimit, lowerLimit, unit, maxRateOfChange, manufacturer, serial, new Stack<SensorState>(), new Stack<SensorState>(), new List<Calibration>(), owner) { }
+        public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, Dataset owner) : this(name, description, upperLimit, lowerLimit, unit, maxRateOfChange, new Stack<SensorState>(), new Stack<SensorState>(), new List<Calibration>(), owner) { }
 
         /// <summary>
         /// Creates a new sensor, using default values for error threshold and failure-indicating value. 
@@ -98,7 +98,7 @@ namespace IndiaTango.Models
         /// <param name="redoStack">A stack containing sensor states created after the modifications of the current state.</param>
         /// <param name="Calibrations">A list of dates, on which calibration was performed.</param>
         /// <param name="owner">The dataset owner of the sensor</param>
-        public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, string manufacturer, string serial, Stack<SensorState> undoStack, Stack<SensorState> redoStack, List<Calibration> Calibrations, Dataset owner) : this(name, description, upperLimit, lowerLimit, unit, maxRateOfChange, manufacturer, serial, undoStack, redoStack, Calibrations, Properties.Settings.Default.DefaultErrorThreshold, owner) { }
+        public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, Stack<SensorState> undoStack, Stack<SensorState> redoStack, List<Calibration> calibrations, Dataset owner) : this(name, description, upperLimit, lowerLimit, unit, maxRateOfChange, undoStack, redoStack, calibrations, Properties.Settings.Default.DefaultErrorThreshold, owner) { }
 
         /// <summary>
         /// Creates a new sensor.
@@ -113,10 +113,10 @@ namespace IndiaTango.Models
         /// <param name="serial">The serial number associated with this sensor.</param>
         /// <param name="undoStack">A stack containing previous sensor states.</param>
         /// <param name="redoStack">A stack containing sensor states created after the modifications of the current state.</param>
-        /// <param name="Calibrations">A list of dates, on which calibration was performed.</param>
+        /// <param name="calibrations">A list of dates, on which calibration was performed.</param>
         /// <param name="errorThreshold">The number of times a failure-indicating value can occur before this sensor is flagged as failing.</param>
         /// <param name="owner">The dataset that owns the sensor</param>
-        public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, string manufacturer, string serial, Stack<SensorState> undoStack, Stack<SensorState> redoStack, List<Calibration> Calibrations, int errorThreshold, Dataset owner) : this(name, description, upperLimit, lowerLimit, unit, maxRateOfChange, manufacturer, serial, undoStack, redoStack, Calibrations, errorThreshold, owner, SummaryType.Average) { }
+        public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, Stack<SensorState> undoStack, Stack<SensorState> redoStack, List<Calibration> calibrations, int errorThreshold, Dataset owner) : this(name, description, upperLimit, lowerLimit, unit, maxRateOfChange, undoStack, redoStack, calibrations, errorThreshold, owner, SummaryType.Average) { }
 
         /// <summary>
         /// Creates a new sensor.
@@ -135,16 +135,13 @@ namespace IndiaTango.Models
         /// <param name="errorThreshold">The number of times a failure-indicating value can occur before this sensor is flagged as failing.</param>
         /// <param name="owner">The dataset that owns the sensor</param>
         /// <param name="sType">Indicates whether the sensor's values should be averaged or summed when summarised</param>
-        public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, string manufacturer, string serial, Stack<SensorState> undoStack, Stack<SensorState> redoStack, List<Calibration> calibrations, int errorThreshold, Dataset owner, SummaryType sType)
+        public Sensor(string name, string description, float upperLimit, float lowerLimit, string unit, float maxRateOfChange, Stack<SensorState> undoStack, Stack<SensorState> redoStack, List<Calibration> calibrations, int errorThreshold, Dataset owner, SummaryType sType)
         {
             if (name == "")
                 throw new ArgumentNullException("Name");
 
             if (unit == "")
                 throw new ArgumentNullException("Unit");
-
-            if (serial == null)
-                throw new ArgumentNullException("Serial");
 
             if (calibrations == null)
                 throw new ArgumentNullException("Calibrations");
@@ -165,15 +162,16 @@ namespace IndiaTango.Models
             LowerLimit = lowerLimit;
             _unit = unit;
             MaxRateOfChange = maxRateOfChange;
-            Manufacturer = manufacturer;
             _undoStack = undoStack;
             _redoStack = redoStack;
             _calibrations = calibrations;
-            SerialNumber = serial;
 
             ErrorThreshold = errorThreshold;
             Owner = owner;
             _summaryType = sType;
+
+            _metaData = new ObservableCollection<SensorMetaData>();
+            CurrentMetaData = new SensorMetaData("", "", DateTime.Now, 0);
 
             Colour = Color.FromRgb((byte)(Common.Generator.Next()), (byte)(Common.Generator.Next()), (byte)(Common.Generator.Next()));
         }
@@ -372,38 +370,6 @@ namespace IndiaTango.Models
         }
 
         /// <summary>
-        /// Gets or sets the name of the manufacturer of this sensor.
-        /// </summary>
-        [ProtoMember(10)]
-        public string Manufacturer
-        {
-            get { return _manufacturer; }
-
-            set
-            {
-                _manufacturer = value;
-                FirePropertyChanged("Manufacturer");
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the serial number of this sensor
-        /// </summary>
-        [ProtoMember(11)]
-        public string SerialNumber
-        {
-            get { return _serialNumber; }
-            set
-            {
-                if (value == null)
-                    throw new ArgumentNullException(string.Format("{0} cannot be null", "Serial Number"));
-
-                _serialNumber = value;
-                FirePropertyChanged("SerialNumber");
-            }
-        }
-
-        /// <summary>
         /// The variable used for calibration or equations
         /// </summary>
         public SensorVariable Variable
@@ -520,28 +486,6 @@ namespace IndiaTango.Models
                 FirePropertyChanged("SensorType");
             }
         }
-        
-        [ProtoMember(19)]
-        public float Accuracy
-        {
-            get { return _accuracy; }
-            set
-            {
-                _accuracy = value;
-                FirePropertyChanged("Accuracy");
-            }
-        }
-        
-        [ProtoMember(20)]
-        public DateTime DateOfInstallation
-        {
-            get { return _dateOfInstallation; }
-            set
-            {
-                _dateOfInstallation = value;
-                FirePropertyChanged("DateOfInstallation");
-            }
-        }
 
         [ProtoMember(21)]
         public TimeSpan IdealCalibrationFrequency
@@ -553,6 +497,29 @@ namespace IndiaTango.Models
                 FirePropertyChanged("IdealCalibrationFrequency");
             }
         }
+
+        public SensorMetaData CurrentMetaData
+        {
+            get { return _currentMetaData; }
+            set
+            {
+                _currentMetaData = value;
+                FirePropertyChanged("CurrentMetaData");
+            }
+        }
+
+        [ProtoMember(22)]
+        public ObservableCollection<SensorMetaData> MetaData
+        {
+            get { return _metaData; }
+            set
+            {
+                _metaData = value;
+                FirePropertyChanged("MetaData");
+                CurrentMetaData = MetaData.OrderByDescending(x => x.DateOfInstallation).FirstOrDefault();
+            }
+        }
+
         #endregion
 
         #region Public Methods
@@ -670,9 +637,6 @@ namespace IndiaTango.Models
             if (sensorObj.UpperLimit != UpperLimit)
                 return false;
 
-            if (sensorObj.Manufacturer != Manufacturer)
-                return false;
-
             if (sensorObj.MaxRateOfChange != MaxRateOfChange)
                 return false;
 
@@ -680,9 +644,6 @@ namespace IndiaTango.Models
                 return false;
 
             if (sensorObj.RawName != RawName)
-                return false;
-
-            if (sensorObj.SerialNumber != SerialNumber)
                 return false;
 
             if (sensorObj.SummaryType != SummaryType)
