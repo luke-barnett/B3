@@ -2151,7 +2151,7 @@ namespace IndiaTango.ViewModels
                                                          var reason = ChangeReason.AddNewChangeReason("[Importer] Imported new values on " + DateTime.Now);
                                                          //And add values for any new dates we want
                                                          foreach (var value in sensor.CurrentState.Values.Where(value =>
-                                                                     !keepOldValues || !newState.Values.ContainsKey(value.Key)))
+                                                                     !keepOldValues || !(newState.Values.ContainsKey(value.Key) || matchingSensor.RawData.Values.ContainsKey(value.Key))))
                                                          {
                                                              newState.Values[value.Key] = value.Value;
                                                              newState.AddToChanges(value.Key, reason.ID);
