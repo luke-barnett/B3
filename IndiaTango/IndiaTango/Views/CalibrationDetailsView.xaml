@@ -3,7 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:cal="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
-        Title="{Binding Title}" Icon="{Binding Icon}" Height="300" Width="400" WindowStartupLocation="CenterOwner">
+        xmlns:toolkit="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit/extended"
+        Title="{Binding Title}" Icon="{Binding Icon}" Height="300" Width="450" WindowStartupLocation="CenterOwner">
     <Grid Margin="2">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -22,10 +23,15 @@
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="3*" />
                 </Grid.RowDefinitions>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="Date of Calibration:" Margin="10,0" VerticalAlignment="Center" />
-                    <DatePicker Margin="0,2" SelectedDate="{Binding Timestamp, UpdateSourceTrigger=PropertyChanged}" />
-                </StackPanel>
+                <Grid VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="Date of Calibration:" Margin="5,0,10,0" VerticalAlignment="Center" />
+                    <!--<DatePicker Margin="0,2" SelectedDate="{Binding Timestamp, UpdateSourceTrigger=PropertyChanged}" />-->
+                    <toolkit:DateTimePicker Grid.Column="1" Margin="0,2" Value="{Binding Timestamp, UpdateSourceTrigger=PropertyChanged}" Format="Custom" FormatString="yyyy-MM-dd HH:mm"  />
+                </Grid>
                 <Grid Grid.Row="1">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
