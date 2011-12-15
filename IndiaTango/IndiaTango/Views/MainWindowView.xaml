@@ -375,7 +375,7 @@
                             <RowDefinition Height="*" />
                             <RowDefinition Height="140" />
                         </Grid.RowDefinitions>
-                        <DataGrid Grid.Row="0" ItemsSource="{Binding DataTable}" IsReadOnly="False" Background="Transparent" BorderThickness="0" />
+                        <DataGrid Grid.Row="0" ItemsSource="{Binding DataTable}" IsReadOnly="True" Background="Transparent" BorderThickness="0" />
                         <GroupBox Grid.Row="1" Header="Summary Statistics" BorderBrush="OrangeRed">
                             <Grid Margin="5">
                                 <Grid.ColumnDefinitions>
