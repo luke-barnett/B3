@@ -524,6 +524,15 @@ namespace IndiaTango.Models
 
         #region Public Methods
         /// <summary>
+        /// Removes all undo states
+        /// </summary>
+        public void ClearUndoStates(bool alsoClearRedo = true)
+        {
+            UndoStack = new Stack<SensorState>();
+            if (alsoClearRedo)
+                RedoStack = new Stack<SensorState>();
+        }
+        /// <summary>
         /// Revert data values for this sensor to the previous state held.
         /// </summary>
         public void Undo()

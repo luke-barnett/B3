@@ -2165,6 +2165,7 @@ namespace IndiaTango.ViewModels
                                                              newState.Reason = reason;
                                                              //Insert new state
                                                              matchingSensor.AddState(newState);
+                                                             matchingSensor.ClearUndoStates();
                                                              EventLogger.LogSensorInfo(CurrentDataset,
                                                                                        matchingSensor.Name,
                                                                                        "Added values from new import");
