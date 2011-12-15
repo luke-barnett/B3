@@ -62,7 +62,12 @@ namespace IndiaTango.ViewModels
             _missingValuesDetector = new MissingValuesDetector { IsEnabled = true };
             _selectedMethod = _missingValuesDetector;
 
-            _detectionMethods = new List<IDetectionMethod> { _missingValuesDetector, _minMaxDetector, new ToHighRateOfChangeDetector(), _runningMeanStandardDeviationDetector };
+            var repeatedValuesDetector = new RepeatedValuesDetector();
+
+            repeatedValuesDetector.RefreshDetectedValues +=
+                () => CheckTheseMethods(new Collection<IDetectionMethod> { repeatedValuesDetector });
+
+            _detectionMethods = new List<IDetectionMethod> { _missingValuesDetector, _minMaxDetector, new ToHighRateOfChangeDetector(), _runningMeanStandardDeviationDetector, repeatedValuesDetector };
 
             #endregion
 
