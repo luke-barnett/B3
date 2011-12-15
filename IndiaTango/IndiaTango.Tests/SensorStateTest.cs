@@ -214,7 +214,7 @@ namespace IndiaTango.Tests
         {
             var ds =
                 new Dataset(new Site(10, "Lake Rotorua", "Steven McTainsh", _sampleContact, _sampleContact,
-                                     _sampleContact, new GPSCoords(50, 50)), new List<Sensor> { { _testSensor } });
+                                     new GPSCoords(50, 50)), new List<Sensor> { { _testSensor } });
 
             var a = new SensorState(_testSensor, baseDate,
                                        new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 200 }, { baseDate.AddMinutes(30), 200 }, { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 200 } }, null);
@@ -228,7 +228,7 @@ namespace IndiaTango.Tests
         {
             var ds =
                 new Dataset(new Site(10, "Lake Rotorua", "Steven McTainsh", _sampleContact, _sampleContact,
-                                     _sampleContact, new GPSCoords(50, 50)), new List<Sensor> { _testSensor });
+                                     new GPSCoords(50, 50)), new List<Sensor> { _testSensor });
 
             var a = new SensorState(_testSensor, baseDate,
                                        new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 200 }, { baseDate.AddMinutes(30), 200 }, { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 200 } }, null);
@@ -242,7 +242,7 @@ namespace IndiaTango.Tests
         {
             var ds =
                 new Dataset(new Site(10, "Lake Rotorua", "Steven McTainsh", _sampleContact, _sampleContact,
-                                     _sampleContact, new GPSCoords(50, 50)), new List<Sensor> { { _testSensor } });
+                                     new GPSCoords(50, 50)), new List<Sensor> { { _testSensor } });
 
             var A = new SensorState(_testSensor, baseDate,
                                        new Dictionary<DateTime, float> { { baseDate.AddMinutes(15), 200 }, { baseDate.AddMinutes(30), 200 }, { baseDate.AddMinutes(45), 200 }, { baseDate.AddMinutes(60), 200 } }, null);
@@ -255,7 +255,7 @@ namespace IndiaTango.Tests
         {
             var ds =
                 new Dataset(new Site(10, "Lake Rotorua", "Steven McTainsh", _sampleContact, _sampleContact,
-                                     _sampleContact, new GPSCoords(50, 50)), new List<Sensor> { _testSensor });
+                                     new GPSCoords(50, 50)), new List<Sensor> { _testSensor });
             ds.DataInterval = 15;
 
             var a = new SensorState(_testSensor, baseDate,
@@ -271,7 +271,7 @@ namespace IndiaTango.Tests
         {
             var ds =
                 new Dataset(new Site(10, "Lake Rotorua", "Steven McTainsh", _sampleContact, _sampleContact,
-                                     _sampleContact, new GPSCoords(50, 50)), new List<Sensor> { { _testSensor } });
+                                     new GPSCoords(50, 50)), new List<Sensor> { { _testSensor } });
             ds.DataInterval = 15;
 
             var A = new SensorState(_testSensor, baseDate,

@@ -15,7 +15,6 @@ namespace IndiaTango.Models
         private string _owner;
         private Contact _primaryContact;
         private Contact _secondaryContact;
-        private Contact _universityContact;
         private GPSCoords _gpsLocation;
         private List<NamedBitmap> _images;
 
@@ -37,9 +36,8 @@ namespace IndiaTango.Models
         /// <param name="owner">The name of the owner of the Site</param>
         /// <param name="primaryContact">The details of the primary contact</param>
         /// <param name="secondaryContact">The details of the secondary contact</param>
-        /// <param name="universityContact">The details of the optional university contact</param>
         /// <param name="gpsLocation">The GPS coordinates of the Site</param>
-        public Site(int iD, string name, string owner, Contact primaryContact, Contact secondaryContact, Contact universityContact, GPSCoords gpsLocation)
+        public Site(int iD, string name, string owner, Contact primaryContact, Contact secondaryContact, GPSCoords gpsLocation)
         {
             if (iD < 0)
                 throw new ArgumentException("ID number must a non-negative integer");
@@ -57,7 +55,6 @@ namespace IndiaTango.Models
             _owner = owner;
             _primaryContact = primaryContact;
             _secondaryContact = secondaryContact;
-            _universityContact = universityContact;
             _gpsLocation = gpsLocation;
             Events = new List<Event>();
         }
@@ -144,25 +141,6 @@ namespace IndiaTango.Models
             }
         }
 
-        [ProtoMember(6)]
-        public int UniversityContactID
-        {
-            get
-            {
-                if (_universityContact != null)
-                    return _universityContact.ID;
-
-                return 0;
-            }
-            private set
-            {
-                if (_universityContact == null)
-                    _universityContact = new Contact("", "", "user@domain.com", "", "", 0); // This is only used for serialisation generally, so should be suitable
-
-                _universityContact.ID = value;
-            }
-        }
-
         [ProtoMember(7)]
         public List<NamedBitmap> Images
         {
@@ -191,16 +169,6 @@ namespace IndiaTango.Models
         {
             get { return _secondaryContact; }
             set { _secondaryContact = value; }
-        }
-
-        /// <summary>
-        /// Sets and gets the details of the university contact for this Site
-        /// </summary>
-        [ProtoMember(10)]
-        public Contact UniversityContact
-        {
-            get { return _universityContact; }
-            set { _universityContact = value; }
         }
 
         /// <summary>
@@ -274,14 +242,9 @@ namespace IndiaTango.Models
             else
                 ctwo = SecondaryContact == null;
 
-            if (site.UniversityContact != null)
-                cthree = site.UniversityContact.Equals(UniversityContact);
-            else
-                cthree = UniversityContact == null;
-
             return (site.GpsLocation.Equals(GpsLocation) && site.Id == Id &&
                     site.Owner == Owner && site.PrimaryContact.Equals(PrimaryContact) &&
-                    ctwo && site.Name == Name && cthree);
+                    ctwo && site.Name == Name);
         }
 
         public override string ToString()

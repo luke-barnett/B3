@@ -23,7 +23,7 @@ namespace IndiaTango.Tests
             _temperatureSensor = new Sensor("Temperature", "C");
             _temperatureSensor.ErrorThreshold = 4;
             _contact = new Contact("Bob", "Smith", "bob@smith.com", "Bob's Bakery", "1232222");
-            _site = new Site(50, "Lake Rotorua", "Bob Smith", _contact, _contact, _contact, new GPSCoords(50, 50));
+            _site = new Site(50, "Lake Rotorua", "Bob Smith", _contact, _contact, new GPSCoords(50, 50));
             _dataset =
                 new Dataset(_site, new List<Sensor> { { _sensor1 } });
         }

@@ -21,7 +21,7 @@ namespace IndiaTango.Tests
             _tempFile = Path.GetTempFileName();
             _ms = new MemoryStream();
             _baseTime = DateTime.Now;
-            _ds = new Dataset(new Site(1, "Super Site", "Jimmy Jones", new Contact("Jimmy", "Jones", "jim@jones.com", "Jones Industries", "5551234"), null, null, new GPSCoords(1, 1)));
+            _ds = new Dataset(new Site(1, "Super Site", "Jimmy Jones", new Contact("Jimmy", "Jones", "jim@jones.com", "Jones Industries", "5551234"), null, new GPSCoords(1, 1)));
 
             var sensor = new Sensor("Super Sensor", null, _ds);
 

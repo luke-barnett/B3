@@ -47,10 +47,6 @@ namespace IndiaTango.ViewModels
                                                      {
                                                          SecondaryContact = e.NewItems[0] as Contact;
                                                      }
-                                                     else if (_contactTypeToUpdate == 2)
-                                                     {
-                                                         UniversityContact = e.NewItems[0] as Contact;
-                                                     }
                                                  };
         }
 
@@ -77,7 +73,6 @@ namespace IndiaTango.ViewModels
         private string _owner;
         private Contact _primaryContact;
         private Contact _secondaryContact;
-        private Contact _universityContact;
         private string _latitude;
         private string _longitude;
         private List<NamedBitmap> _siteImages;
@@ -122,7 +117,6 @@ namespace IndiaTango.ViewModels
                     Owner = DataSet.Site.Owner;
                     PrimaryContact = DataSet.Site.PrimaryContact;
                     SecondaryContact = DataSet.Site.SecondaryContact;
-                    UniversityContact = DataSet.Site.UniversityContact;
                     if (DataSet.Site.GpsLocation != null)
                     {
                         Latitude = DataSet.Site.GpsLocation.DecimalDegreesLatitude.ToString();
@@ -144,7 +138,6 @@ namespace IndiaTango.ViewModels
                     Longitude = "0";
                     PrimaryContact = null;
                     SecondaryContact = null;
-                    UniversityContact = null;
                     SiteImages = new List<NamedBitmap>();
                 }
             }
@@ -321,19 +314,6 @@ namespace IndiaTango.ViewModels
             }
         }
 
-        public Contact UniversityContact
-        {
-            get { return _universityContact; }
-            set
-            {
-                _universityContact = value;
-                NotifyOfPropertyChange(() => UniversityContact);
-
-                if (UniversityContact != null)
-                    HasSelectedUniversityContact = true;
-            }
-        }
-
         public string Latitude
         {
             get { return _latitude; }
@@ -507,27 +487,6 @@ namespace IndiaTango.ViewModels
 
         #endregion
 
-        #region University Contact
-
-        public void BtnNewUni()
-        {
-            _contactTypeToUpdate = 2;
-            NewContact();
-            _contactTypeToUpdate = -1;
-        }
-
-        public void BtnEditUni()
-        {
-            EditContact(UniversityContact);
-        }
-
-        public void BtnDelUni()
-        {
-            EditContact(UniversityContact);
-        }
-
-        #endregion
-
         #region Images
 
         public void BtnNewImage()
@@ -584,7 +543,6 @@ namespace IndiaTango.ViewModels
                 DataSet.Site.PrimaryContact = PrimaryContact;
                 DataSet.Site.SecondaryContact = SecondaryContact;
 
-                DataSet.Site.UniversityContact = UniversityContact;
                 DataSet.Site.Images = _siteImages.ToList();
 
                 var bw = new BackgroundWorker();

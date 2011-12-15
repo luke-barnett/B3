@@ -13,7 +13,7 @@ namespace IndiaTango.Tests
     {
         private CSVReader _reader;
         private Dataset _ds1, _ds2;
-        private Site _b = new Site(1, "dsf", "asdf", new Contact("asdf", "asdf", "adsf@sdfg.com", "uerh", "sadf"), new Contact("asdf", "asdf", "adsf@sdfg.com", "uerh", "sadf"), null, new GPSCoords(32, 5));
+        private Site _b = new Site(1, "dsf", "asdf", new Contact("asdf", "asdf", "adsf@sdfg.com", "uerh", "sadf"), new Contact("asdf", "asdf", "adsf@sdfg.com", "uerh", "sadf"), new GPSCoords(32, 5));
         private DateTime _startTime1, _startTime2, _endTime1,_endTime2 ;
         private List<Sensor> _sensors;
         private const string FifteenMinuteIntervalData = "../../Test Data/15MinuteIntervalData.csv";
@@ -37,7 +37,7 @@ namespace IndiaTango.Tests
         public void BuoyGetSetTest()
         {
             Assert.AreEqual(_b, _ds1.Site);
-            _b = new Site(2, "dsf", "asdf", new Contact("asdf", "asdf", "adsf@sdfg.com", "uerh", "sadf"), new Contact("asdf", "asdf", "adsf@sdfg.com", "uerh", "sadf"), null, new GPSCoords(32, 5));
+            _b = new Site(2, "dsf", "asdf", new Contact("asdf", "asdf", "adsf@sdfg.com", "uerh", "sadf"), new Contact("asdf", "asdf", "adsf@sdfg.com", "uerh", "sadf"), new GPSCoords(32, 5));
             _ds1.Site = _b;
             Assert.AreEqual(_b, _ds1.Site);
         }

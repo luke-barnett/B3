@@ -14,7 +14,6 @@ namespace IndiaTango.ViewModels
         private Site _site;
     	private Contact _primaryContact;
         private Contact _secondaryContact;
-        private Contact _universityContact;
         private ObservableCollection<Site> _allBuoys = new ObservableCollection<Site>();
 		private ObservableCollection<Contact> _allContacts = new ObservableCollection<Contact>();
 
@@ -29,7 +28,7 @@ namespace IndiaTango.ViewModels
 			//	and perhaps only store contact IDs when we serialize
 			foreach (Site b in _allBuoys)
 			{
-				foreach (Contact c in new[]{b.PrimaryContact,b.SecondaryContact,b.UniversityContact})
+				foreach (Contact c in new[]{b.PrimaryContact,b.SecondaryContact})
 				{
 					if(!_allContacts.Contains(c))
 						_allContacts.Add(c);
@@ -85,17 +84,6 @@ namespace IndiaTango.ViewModels
             }
         }
 
-        public Contact UniversityContact
-        {
-            get { return _universityContact; }
-            set
-            {
-                _universityContact = value;
-                NotifyOfPropertyChange(() => UniversityContact);
-                NotifyOfPropertyChange(() => CanEditUni);
-            }
-        }
-
         public Site SelectedSite
         {
             get { return _site; }
@@ -111,7 +99,6 @@ namespace IndiaTango.ViewModels
                     Longitude = _site.GpsLocation.DecimalDegreesLongitude.ToString();
                     PrimaryContact = _site.PrimaryContact;
                     SecondaryContact = _site.SecondaryContact;
-                    UniversityContact = _site.UniversityContact;
                 }
                 else
                 {
@@ -121,7 +108,6 @@ namespace IndiaTango.ViewModels
                     Longitude = "0";
                     PrimaryContact = null;
                     SecondaryContact = null;
-                    UniversityContact = null;
                 }
 
                 NotifyOfPropertyChange(() => SelectedSite);
@@ -131,7 +117,6 @@ namespace IndiaTango.ViewModels
                 NotifyOfPropertyChange(() => Longitude);
                 NotifyOfPropertyChange(() => PrimaryContact);
                 NotifyOfPropertyChange(() => SecondaryContact);
-                NotifyOfPropertyChange(() => UniversityContact);
                 NotifyOfPropertyChange(() => CanOverwrite);
             }
         }
@@ -144,11 +129,6 @@ namespace IndiaTango.ViewModels
         public bool CanEditSecondary
     	{
 			get { return SecondaryContact != null; }
-    	}
-        
-        public bool CanEditUni
-    	{
-			get { return UniversityContact != null; }
     	}
 
 		public bool CanOverwrite
@@ -181,7 +161,6 @@ namespace IndiaTango.ViewModels
                 SelectedSite.PrimaryContact = PrimaryContact;
                 SelectedSite.SecondaryContact = SecondaryContact;
                 SelectedSite.Name = SiteName;
-                SelectedSite.UniversityContact = UniversityContact;
 
                 //Site.ExportAll(_allBuoys);
                 this.TryClose();
@@ -199,7 +178,7 @@ namespace IndiaTango.ViewModels
 
             try
             {
-                b = new Site(Site.NextID, SiteName, Owner, PrimaryContact, SecondaryContact, UniversityContact, new GPSCoords(Latitude, Longitude));
+                b = new Site(Site.NextID, SiteName, Owner, PrimaryContact, SecondaryContact, new GPSCoords(Latitude, Longitude));
                 _allBuoys.Add(b);
                 //Site.ExportAll(_allBuoys);
                 this.TryClose();
@@ -266,18 +245,6 @@ namespace IndiaTango.ViewModels
                 ContactEditorViewModel;
 
             editor.Contact = SecondaryContact;
-            editor.AllContacts = AllContacts;
-
-            _windowManager.ShowDialog(editor);
-        }
-
-        public void btnEditUni()
-        {
-            var editor =
-                _container.GetInstance(typeof(ContactEditorViewModel), "ContactEditorViewModel") as
-                ContactEditorViewModel;
-
-            editor.Contact = UniversityContact;
             editor.AllContacts = AllContacts;
 
             _windowManager.ShowDialog(editor);

@@ -70,8 +70,8 @@ namespace IndiaTango.Tests
                                             new Dictionary<DateTime, float> { { new DateTime(2011, 8, 12), 66.77f } }, null));
 
             _sensorEmpty = new Sensor("Temperature", "C");
-            _ds = new Dataset(new Site(10, "Lake", "Bob Smith", contact, contact, contact, new GPSCoords(50, 50)));
-            _ds2 = new Dataset(new Site(10, "Lake Awesome", "Andy Smith", contact, contact, contact, new GPSCoords(70, 30)));
+            _ds = new Dataset(new Site(10, "Lake", "Bob Smith", contact, contact, new GPSCoords(50, 50)));
+            _ds2 = new Dataset(new Site(10, "Lake Awesome", "Andy Smith", contact, contact, new GPSCoords(70, 30)));
 
             _sensor1 = new Sensor("Temperature", "Temperature at 10m", 100, 20, "°C", 0.003f, _ds);
             _sensor2 = new Sensor("DO", "Dissolved Oxygen in the water", 50, 0, "%", 5.6f, _ds2);

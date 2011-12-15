@@ -271,16 +271,6 @@ namespace IndiaTango.Models
                     writer.WriteLine("\tEmail: " + Data.Site.SecondaryContact.Email);
                 }
 
-                if (Data.Site.UniversityContact != null)
-                {
-                    writer.WriteLine("University Contact:");
-                    writer.WriteLine("\tName: " + Data.Site.UniversityContact.FirstName + " " +
-                                     Data.Site.UniversityContact.LastName);
-                    writer.WriteLine("\tBusiness: " + Data.Site.UniversityContact.Business);
-                    writer.WriteLine("\tPhone: " + Data.Site.UniversityContact.Phone);
-                    writer.WriteLine("\tEmail: " + Data.Site.UniversityContact.Email);
-                }
-
                 if (Data.Sensors != null && Data.Sensors.Count > 0)
                 {
                     writer.WriteLine("Series:");

@@ -44,7 +44,6 @@ namespace IndiaTango.ViewModels
 
         private Contact _primaryContact;
         private Contact _secondaryContact;
-        private Contact _universityContact;
         private ObservableCollection<Site> _allSites = new ObservableCollection<Site>();
         private ObservableCollection<Contact> _allContacts = new ObservableCollection<Contact>();
         private List<NamedBitmap> _siteImages = new List<NamedBitmap>();
@@ -89,7 +88,6 @@ namespace IndiaTango.ViewModels
                 Longitude = _ds.Site.GpsLocation.DecimalDegreesLongitude.ToString();
                 PrimaryContact = _ds.Site.PrimaryContact;
                 SecondaryContact = _ds.Site.SecondaryContact;
-                UniversityContact = _ds.Site.UniversityContact;
 
                 
 
@@ -261,7 +259,7 @@ namespace IndiaTango.ViewModels
             get
             {
                 var dummyContact = new Contact("John", "Doe", "john@doe.org", "Unknown", "???");
-                return SelectedSite != null ? new List<Site> { SelectedSite } : new List<Site> { new Site(99, "Unidentified Site", "No one", dummyContact, dummyContact, dummyContact, new GPSCoords(0, 0)) };
+                return SelectedSite != null ? new List<Site> { SelectedSite } : new List<Site> { new Site(99, "Unidentified Site", "No one", dummyContact, dummyContact, new GPSCoords(0, 0)) };
             }
         }
 
@@ -485,11 +483,6 @@ namespace IndiaTango.ViewModels
             get { return SecondaryContact != null; }
         }
 
-        public bool HasSelectedUniContact
-        {
-            get { return UniversityContact != null; }
-        }
-
         public Visibility ShowImportCancel
         {
             get { return (ImportEnabled) ? Visibility.Collapsed : Visibility.Visible; }
@@ -539,17 +532,6 @@ namespace IndiaTango.ViewModels
             }
         }
 
-        public Contact UniversityContact
-        {
-            get { return _universityContact; }
-            set
-            {
-                _universityContact = value;
-                NotifyOfPropertyChange(() => UniversityContact);
-                NotifyOfPropertyChange(() => HasSelectedUniContact);
-            }
-        }
-
         public Site SelectedSite
         {
             get { return _ds.Site; }
@@ -564,7 +546,6 @@ namespace IndiaTango.ViewModels
                     Longitude = _ds.Site.GpsLocation.DecimalDegreesLongitude.ToString();
                     PrimaryContact = _ds.Site.PrimaryContact;
                     SecondaryContact = _ds.Site.SecondaryContact;
-                    UniversityContact = _ds.Site.UniversityContact;
 
                     if (_ds.Site.Images != null)
                         _siteImages = _ds.Site.Images.ToList();
@@ -579,7 +560,6 @@ namespace IndiaTango.ViewModels
                     Longitude = "0";
                     PrimaryContact = null;
                     SecondaryContact = null;
-                    UniversityContact = null;
                     _siteImages = new List<NamedBitmap>();
                 }
 
@@ -590,7 +570,6 @@ namespace IndiaTango.ViewModels
                 NotifyOfPropertyChange(() => Longitude);
                 NotifyOfPropertyChange(() => PrimaryContact);
                 NotifyOfPropertyChange(() => SecondaryContact);
-                NotifyOfPropertyChange(() => UniversityContact);
                 NotifyOfPropertyChange(() => EditDeleteEnabled);
                 NotifyOfPropertyChange(() => SiteImages);
                 NotifyOfPropertyChange(() => Title);
@@ -898,14 +877,13 @@ namespace IndiaTango.ViewModels
                     SelectedSite.PrimaryContact = PrimaryContact;
                     SelectedSite.SecondaryContact = SecondaryContact;
                     SelectedSite.Name = SiteName;
-                    SelectedSite.UniversityContact = UniversityContact;
                     SelectedSite.Images = _siteImages.ToList();
                     EventLogger.LogInfo(_ds, GetType().ToString(), "Site saved. Site name: " + SelectedSite.Name);
                 }
                 //else if creating a new one
                 else
                 {
-                    Site b = new Site(Site.NextID, SiteName, Owner, PrimaryContact, SecondaryContact, UniversityContact, GPSCoords.Parse(Latitude, Longitude));
+                    Site b = new Site(Site.NextID, SiteName, Owner, PrimaryContact, SecondaryContact, GPSCoords.Parse(Latitude, Longitude));
                     b.Images = _siteImages.ToList();
                     _allSites.Add(b);
                     //Site.ExportAll(_allSites);
@@ -1036,10 +1014,6 @@ namespace IndiaTango.ViewModels
             NewContact();
         }
 
-        public void btnNewUni()
-        {
-            NewContact();
-        }
 
         public void btnEditPrimary()
         {
@@ -1051,10 +1025,6 @@ namespace IndiaTango.ViewModels
             EditContact(SecondaryContact);
         }
 
-        public void btnEditUni()
-        {
-            EditContact(UniversityContact);
-        }
 
         public void btnDelPrimary()
         {
@@ -1066,10 +1036,6 @@ namespace IndiaTango.ViewModels
             DeleteContact(SecondaryContact);
         }
 
-        public void btnDelUni()
-        {
-            DeleteContact(UniversityContact);
-        }
 
         private void DeleteContact(Contact c)
         {

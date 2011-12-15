@@ -11,7 +11,6 @@ namespace IndiaTango.Tests
         private Site _testSite;
         private Contact _pc;
         private Contact _sc;
-        private Contact _uc;
         private GPSCoords _gps;
         private Site A;
         private Site B;
@@ -21,19 +20,16 @@ namespace IndiaTango.Tests
         {
             _pc = new Contact("Kerry", "Arts", "something@gmail.com", "Waikato Uni", "0800 stuff");
             _sc = new Contact("Steven", "McTainsh", "hello@gmail.com", "CMS", "0800 WAIKATO");
-            _uc = new Contact("Angela","Martin","angela@gmail.com","Waikato Uni","83745");
             _gps = new GPSCoords(37.5135426m,6.21684m);
-            _testSite = new Site(1,"Lake Rotorua","Chris McBride",_pc,_sc,_uc,_gps);
+            _testSite = new Site(1,"Lake Rotorua","Chris McBride",_pc,_sc,_gps);
 
             A = new Site(6, "A Site", "David Hamilton",
                              new Contact("David", "Hamilton", "david@hamilton.com", "UoW", "1234567"),
                              new Contact("Stan", "Smith", "stan@smith.com", "CIA", "1212127"),
-                             new Contact("Bob", "Bobson", "bob@bobson.com", "Bob's Bakery", "43499894"),
                              new GPSCoords(49, -2));
             B = new Site(6, "A Site", "David Hamilton",
                              new Contact("David", "Hamilton", "david@hamilton.com", "UoW", "1234567"),
                              new Contact("Stan", "Smith", "stan@smith.com", "CIA", "1212127"),
-                             new Contact("Bob", "Bobson", "bob@bobson.com", "Bob's Bakery", "43499894"),
                              new GPSCoords(49, -2));
         }
 
@@ -81,15 +77,6 @@ namespace IndiaTango.Tests
         }
 
         [Test]
-        public void UniContactGetSetTest()
-        {
-            Assert.AreEqual(_uc,_testSite.UniversityContact);
-            _uc = new Contact("Tim","Smith","asdufh@sdfuh.com","DSfgiuh","329874");
-            _testSite.UniversityContact = _uc;
-            Assert.AreEqual(_uc,_testSite.UniversityContact);
-        }
-
-        [Test]
         public void EventsListTest()
         {
             var testEvent1 = new Event(new DateTime(654, 5, 20, 20, 54, 0), "Site made");
@@ -113,14 +100,14 @@ namespace IndiaTango.Tests
         [ExpectedException(typeof(ArgumentException))]
         public void IdNegativeTest()
         {
-            new Site(-1, "sadf", "dsafa", _pc, _sc, _uc, _gps);
+            new Site(-1, "sadf", "dsafa", _pc, _sc, _gps);
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentException))]
         public void EmptySiteParamTest()
         {
-            new Site(1, "", "asdf", _pc, _sc, _uc, _gps);
+            new Site(1, "", "asdf", _pc, _sc, _gps);
         }
 
         /*[Test]
@@ -154,13 +141,13 @@ namespace IndiaTango.Tests
         [Test]
         public void NullSecondaryContactParamTest()
         {
-            new Site(1, "asdf", "asdf", _pc, null, _uc, _gps);
+            new Site(1, "asdf", "asdf", _pc, null, _gps);
         }
 
         [Test]
         public void NullUniContactParamAllowedTest()
         {
-            new Site(1, "asdf", "asdf", _pc, _sc, null, _gps);
+            new Site(1, "asdf", "asdf", _pc, _sc, _gps);
         }
 
         /*[Test]
@@ -195,12 +182,6 @@ namespace IndiaTango.Tests
         public void NullSecondaryContactPropertyTest()
         {
             _testSite.SecondaryContact = null;
-        }
-
-        [Test]
-        public void NullUniContactPropertyAllowedTest()
-        {
-            _testSite.UniversityContact = null;
         }
 
         [Test]
@@ -271,12 +252,6 @@ namespace IndiaTango.Tests
         }
 
         [Test]
-        public void UniContactEqualityTest()
-        {
-            Assert.AreEqual(A.UniversityContact, B.UniversityContact);
-        }
-
-        [Test]
         public void EqualityTestEventMismatch()
         {
             A.Events.Add(new Event(DateTime.Now, "Created the Site"));
@@ -297,18 +272,8 @@ namespace IndiaTango.Tests
             B.SecondaryContact = null;
             Assert.AreEqual(0, B.SecondaryContactID);
 
-            var C = new Site(Site.NextID, "Awesome Place", "Awesome", _pc, null, null, new GPSCoords(5, 10));
+            var C = new Site(Site.NextID, "Awesome Place", "Awesome", _pc, null, new GPSCoords(5, 10));
             Assert.AreEqual(0, C.SecondaryContactID);
-        }
-
-        [Test]
-        public void SiteNoUniversityContactReturnsZeroID()
-        {
-            B.UniversityContact = null;
-            Assert.AreEqual(0, B.UniversityContactID);
-
-            var C = new Site(Site.NextID, "Awesome Place", "Awesome", _pc, null, null, new GPSCoords(5, 10));
-            Assert.AreEqual(0, C.UniversityContactID);
         }
 
         [Test]
@@ -316,7 +281,6 @@ namespace IndiaTango.Tests
         {
             Assert.AreEqual(B.PrimaryContactID, B.PrimaryContact.ID);
             Assert.AreEqual(B.SecondaryContactID, B.SecondaryContact.ID);
-            Assert.AreEqual(B.UniversityContactID, B.UniversityContact.ID);
         }
     }
 }

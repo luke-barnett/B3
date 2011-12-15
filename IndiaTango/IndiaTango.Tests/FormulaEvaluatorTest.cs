@@ -15,7 +15,7 @@ namespace IndiaTango.Tests
         private FormulaEvaluator _eval;
         private Dataset _ds;
         private CSVReader _reader;
-        private Site _s = new Site(1, "dsf", "asdf", new Contact("asdf", "asdf", "adsf@sdfg.com", "uerh", "sadf"), new Contact("asdf", "asdf", "adsf@sdfg.com", "uerh", "sadf"), null, new GPSCoords(32, 5));
+        private Site _s = new Site(1, "dsf", "asdf", new Contact("asdf", "asdf", "adsf@sdfg.com", "uerh", "sadf"), new Contact("asdf", "asdf", "adsf@sdfg.com", "uerh", "sadf"), new GPSCoords(32, 5));
         private double delta = 0.0000001;
 
         [SetUp]

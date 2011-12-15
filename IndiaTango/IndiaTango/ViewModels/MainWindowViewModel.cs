@@ -2281,7 +2281,7 @@ namespace IndiaTango.ViewModels
                                              ShowProgressArea = false;
                                              EnableFeatures();
                                              var newDataset =
-                                                 new Dataset(new Site(Site.NextID, "New Site", "", null, null, null,
+                                                 new Dataset(new Site(Site.NextID, "New Site", "", null, null,
                                                                       null));
                                              if (ShowSiteInformation(newDataset))
                                              {
