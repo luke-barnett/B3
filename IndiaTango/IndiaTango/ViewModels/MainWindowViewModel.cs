@@ -1364,7 +1364,7 @@ namespace IndiaTango.ViewModels
 
             var calibratedTextBlock = new TextBlock
                                           {
-                                              Text = "At last calibration",
+                                              Text = "Start of Period",
                                               VerticalAlignment = VerticalAlignment.Center,
                                               HorizontalAlignment = HorizontalAlignment.Center
                                           };
@@ -1374,7 +1374,7 @@ namespace IndiaTango.ViewModels
 
             var currentTextBlock = new TextBlock
                                        {
-                                           Text = "At end of period for adjustment",
+                                           Text = "End of Period",
                                            VerticalAlignment = VerticalAlignment.Center,
                                            HorizontalAlignment = HorizontalAlignment.Center
                                        };
