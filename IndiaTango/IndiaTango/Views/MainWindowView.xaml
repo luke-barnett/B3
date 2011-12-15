@@ -60,6 +60,7 @@
             <Grid Grid.Column="0" x:Name="DataSection" Margin="5,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="2*" />
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="3*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
@@ -202,7 +203,8 @@
                         </DataGrid.Columns>
                     </DataGrid>
                 </GroupBox>
-                <GroupBox Grid.Row="1" x:Name="TabSection" Header="Detection Methods" BorderBrush="OrangeRed" >
+                <GridSplitter Grid.Row="1" ResizeBehavior="PreviousAndNext" ResizeDirection="Rows" Height="1" Margin="5,7" HorizontalAlignment="Stretch" Background="OrangeRed" />
+                <GroupBox Grid.Row="2" x:Name="TabSection" Header="Detection Methods" BorderBrush="OrangeRed" >
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -212,7 +214,7 @@
                         <TabControl Grid.Row="1" SelectedIndex="0" BorderThickness="0" Background="Transparent" IsEnabled="{Binding FeaturesEnabled}" ItemsSource="{Binding DetectionTabItems}" cal:Message.Attach="[Event SelectionChanged] = [Action DetectionMethodChanged($eventArgs)]" />
                     </Grid>
                 </GroupBox>
-                <GroupBox Grid.Row="2" x:Name="ActionsSection" Header="Actions" BorderBrush="OrangeRed" Margin="0,0,0,5">
+                <GroupBox Grid.Row="3" x:Name="ActionsSection" Header="Actions" BorderBrush="OrangeRed" Margin="0,0,0,5">
                     <StackPanel>
                         <WrapPanel HorizontalAlignment="Center">
                             <toolkit:SplitButton FontSize="15"  Width="155" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5" IsEnabled="{Binding CanUndo}" cal:Message.Attach="[Event Click] = [Action Undo]">
