@@ -739,23 +739,28 @@ namespace IndiaTango.ViewModels
             if (_showRaw)
                 numberOfExtraLinesToTakeIntoConsiderationWhenSampling += sensors.Count;
 
+            numberOfExtraLinesToTakeIntoConsiderationWhenSampling += sensors.Count(graphableSensor => graphableSensor.PreviewDataPoints != null);
+
             Debug.Print("There are {0} lines that have been counted as sensors for sampling", numberOfExtraLinesToTakeIntoConsiderationWhenSampling);
 
             foreach (var sensor in sensors)
             {
-                var setToUse = sensor.PreviewDataPoints ?? sensor.DataPoints;
+                _sampleRate = sensor.DataPoints.Count() / (numberOfPoints / (sensors.Count + numberOfExtraLinesToTakeIntoConsiderationWhenSampling));
+                Debug.Print("[{3}] Number of points: {0} Max Number {1} Sampling rate {2}", sensor.DataPoints.Count(), numberOfPoints, _sampleRate, sensor.Sensor.Name);
 
-                setToUse = setToUse.ToArray();
-
-                _sampleRate = setToUse.Count() / (numberOfPoints / (sensors.Count + numberOfExtraLinesToTakeIntoConsiderationWhenSampling));
-                Debug.Print("[{3}] Number of points: {0} Max Number {1} Sampling rate {2}", setToUse.Count(), numberOfPoints, _sampleRate, sensor.Sensor.Name);
-
-                var series = (_sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name, setToUse.Where((x, index) => index % _sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name, setToUse);
+                var series = (_sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints.Where((x, index) => index % _sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name, sensor.DataPoints);
                 generatedSeries.Add(new LineSeries { DataSeries = series, LineStroke = new SolidColorBrush(sensor.Colour) });
                 if (_showRaw)
                 {
                     var rawSeries = (_sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name + "[RAW]", sensor.RawDataPoints.Where((x, index) => index % _sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name + "[RAW]", sensor.RawDataPoints);
                     generatedSeries.Add(new LineSeries { DataSeries = rawSeries, LineStroke = new SolidColorBrush(sensor.RawDataColour) });
+                }
+                if(sensor.PreviewDataPoints != null)
+                {
+                    var previewSeries = (_sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name + "[PREVIEW]", sensor.PreviewDataPoints.Where((x, index) => index % _sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name + "[PREVIEW]", sensor.PreviewDataPoints);
+                    var colour = sensor.Colour;
+                    colour.A = 170;
+                    generatedSeries.Add(new LineSeries { DataSeries = previewSeries, LineStroke = new SolidColorBrush(colour) });
                 }
                 if (_sampleRate > 1) ShowBackground();
             }
@@ -1568,42 +1573,64 @@ namespace IndiaTango.ViewModels
                                                                  new Uri("pack://application:,,,/Images/preview_32.png",
                                                                          UriKind.Absolute))
                                                          });
-            autoPreviewButtonStackPanel.Children.Add(new TextBlock
-                                                       {
-                                                           Text = "Preview",
-                                                           VerticalAlignment = VerticalAlignment.Center,
-                                                           Margin = new Thickness(5)
-                                                       });
+            var previewTextBlock = new TextBlock
+                                       {
+                                           Text = "Preview",
+                                           VerticalAlignment = VerticalAlignment.Center,
+                                           Margin = new Thickness(5)
+                                       };
+            autoPreviewButtonStackPanel.Children.Add(previewTextBlock);
 
             autoPreviewButton.Click += (o, e) =>
                                            {
-                                               var useSelected = false;
-                                               if (Selection != null)
-                                                   useSelected = Common.Confirm("Should we use your selection?",
-                                                                                "Should we use the date range of your selection for to apply the formula on?");
-                                               foreach (var sensor in _sensorsToCheckMethodsAgainst)
+                                               if (previewTextBlock.Text.CompareTo("Preview") == 0)
                                                {
-                                                   var gSensor = _sensorsToGraph.FirstOrDefault(x => x.Sensor == sensor);
-                                                   if (gSensor == null)
-                                                       continue;
-                                                   try
+                                                   var useSelected = false;
+                                                   if (Selection != null)
+                                                       useSelected = Common.Confirm("Should we use your selection?",
+                                                                                    "Should we use the date range of your selection for to apply the formula on?");
+                                                   foreach (var sensor in _sensorsToCheckMethodsAgainst)
                                                    {
-                                                       gSensor.GeneratePreview(useSelected
-                                                                           ? sensor.CurrentState.Calibrate(
-                                                                               Selection.LowerX, Selection.UpperX,
-                                                                               calibratedAValue, calibratedBValue,
-                                                                               currentAValue, currentBValue, new ChangeReason(-1, "Preview"))
-                                                                           : sensor.CurrentState.Calibrate(StartTime,
-                                                                                                           EndTime,
-                                                                                                           calibratedAValue,
-                                                                                                           calibratedBValue,
-                                                                                                           currentAValue,
-                                                                                                           currentBValue, new ChangeReason(-1, "Preview")));
+                                                       var gSensor =
+                                                           _sensorsToGraph.FirstOrDefault(x => x.Sensor == sensor);
+                                                       if (gSensor == null)
+                                                           continue;
+                                                       try
+                                                       {
+                                                           gSensor.GeneratePreview(useSelected
+                                                                                       ? sensor.CurrentState.Calibrate(
+                                                                                           Selection.LowerX,
+                                                                                           Selection.UpperX,
+                                                                                           calibratedAValue,
+                                                                                           calibratedBValue,
+                                                                                           currentAValue, currentBValue,
+                                                                                           new ChangeReason(-1,
+                                                                                                            "Preview"))
+                                                                                       : sensor.CurrentState.Calibrate(
+                                                                                           StartTime,
+                                                                                           EndTime,
+                                                                                           calibratedAValue,
+                                                                                           calibratedBValue,
+                                                                                           currentAValue,
+                                                                                           currentBValue,
+                                                                                           new ChangeReason(-1,
+                                                                                                            "Preview")));
+                                                       }
+                                                       catch (Exception ex)
+                                                       {
+                                                           Common.ShowMessageBox("An Error Occured", ex.Message, false,
+                                                                                 true);
+                                                       }
                                                    }
-                                                   catch (Exception ex)
+                                                   previewTextBlock.Text = "Reject";
+                                               }
+                                               else
+                                               {
+                                                   foreach (var gSensor in _sensorsToGraph)
                                                    {
-                                                       Common.ShowMessageBox("An Error Occured", ex.Message, false, true);
+                                                       gSensor.RemovePreview();
                                                    }
+                                                   previewTextBlock.Text = "Preview";
                                                }
                                                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "AutoCalibratePreview");
                                            };
