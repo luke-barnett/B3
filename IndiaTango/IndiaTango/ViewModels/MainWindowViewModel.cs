@@ -13,6 +13,7 @@ using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using Caliburn.Micro;
 using IndiaTango.Models;
 using Visiblox.Charts;
@@ -40,8 +41,8 @@ namespace IndiaTango.ViewModels
             _windowManager = windowManager;
             _container = container;
 
-            _sensorsToGraph = new List<GraphableSensor>();
-            _sensorsToCheckMethodsAgainst = new List<Sensor>();
+            _sensorsToGraph = new ObservableCollection<GraphableSensor>();
+            _sensorsToCheckMethodsAgainst = new ObservableCollection<Sensor>();
 
             #region Set Up Detection Methods
 
@@ -176,8 +177,8 @@ namespace IndiaTango.ViewModels
         private string _chartTitle;
         private string _yAxisTitle;
         private DoubleRange _range;
-        private readonly List<GraphableSensor> _sensorsToGraph;
-        private readonly List<Sensor> _sensorsToCheckMethodsAgainst;
+        private readonly ObservableCollection<GraphableSensor> _sensorsToGraph;
+        private readonly ObservableCollection<Sensor> _sensorsToCheckMethodsAgainst;
         private int _sampleRate;
         private DateTime _startTime = DateTime.MinValue;
         private DateTime _endTime = DateTime.MaxValue;
@@ -255,7 +256,7 @@ namespace IndiaTango.ViewModels
 
         private List<Sensor> SensorsForEditing
         {
-            get { return _sensorsToCheckMethodsAgainst; }
+            get { return _sensorsToCheckMethodsAgainst.ToList(); }
         }
 
         private bool CurrentDataSetNotNull
@@ -755,7 +756,7 @@ namespace IndiaTango.ViewModels
                     var rawSeries = (_sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name + "[RAW]", sensor.RawDataPoints.Where((x, index) => index % _sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name + "[RAW]", sensor.RawDataPoints);
                     generatedSeries.Add(new LineSeries { DataSeries = rawSeries, LineStroke = new SolidColorBrush(sensor.RawDataColour) });
                 }
-                if(sensor.PreviewDataPoints != null)
+                if (sensor.PreviewDataPoints != null)
                 {
                     var previewSeries = (_sampleRate > 1) ? new DataSeries<DateTime, float>(sensor.Sensor.Name + "[PREVIEW]", sensor.PreviewDataPoints.Where((x, index) => index % _sampleRate == 0)) : new DataSeries<DateTime, float>(sensor.Sensor.Name + "[PREVIEW]", sensor.PreviewDataPoints);
                     var colour = sensor.Colour;
@@ -1336,22 +1337,56 @@ namespace IndiaTango.ViewModels
 
             automaticGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
             automaticGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
+            automaticGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
             automaticGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
             automaticGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
+
+            var applyToStackPanel = new StackPanel
+                                        {
+                                            Orientation = Orientation.Horizontal
+                                        };
+            Grid.SetRow(applyToStackPanel, 0);
+            automaticGrid.Children.Add(applyToStackPanel);
+
+            applyToStackPanel.Children.Add(new TextBlock
+                                               {
+                                                   Text = "Apply To:",
+                                                   Margin = new Thickness(0, 0, 15, 0),
+                                                   VerticalAlignment = VerticalAlignment.Center
+                                               });
+
+            var applyToCombo = new ComboBox
+                                   {
+                                       Width = 120
+                                   };
+            applyToStackPanel.Children.Add(applyToCombo);
+
+            applyToCombo.Items.Add("All");
+            _sensorsToCheckMethodsAgainst.CollectionChanged += (o, e) => applyToCombo.Dispatcher.BeginInvoke(
+                DispatcherPriority.Input,
+                new ThreadStart(() =>
+                                    {
+                                        applyToCombo.Items.Clear();
+                                        applyToCombo.Items.Add("All");
+                                        SensorsForEditing.ForEach(x =>
+                                                                  applyToCombo.Items.Add(x.Name));
+                                        applyToCombo.SelectedIndex = 0;
+                                    }));
+
 
             var automaticTextBlock = new TextBlock
                                          {
                                              Text = "Enter the calibration values below:",
                                              Margin = new Thickness(0, 5, 0, 5)
                                          };
-            Grid.SetRow(automaticTextBlock, 0);
+            Grid.SetRow(automaticTextBlock, 1);
             automaticGrid.Children.Add(automaticTextBlock);
 
             var automaticValuesGrid = new Grid
                                           {
                                               Margin = new Thickness(5)
                                           };
-            Grid.SetRow(automaticValuesGrid, 1);
+            Grid.SetRow(automaticValuesGrid, 2);
             automaticGrid.Children.Add(automaticValuesGrid);
 
             automaticValuesGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(24) });
@@ -1493,7 +1528,7 @@ namespace IndiaTango.ViewModels
                                                Orientation = Orientation.Horizontal,
                                                HorizontalAlignment = HorizontalAlignment.Right
                                            };
-            Grid.SetRow(autoButtonsWrapPanel, 3);
+            Grid.SetRow(autoButtonsWrapPanel, 4);
             automaticGrid.Children.Add(autoButtonsWrapPanel);
 
 
@@ -1505,7 +1540,7 @@ namespace IndiaTango.ViewModels
                                                                               "Should we use the date range of your selection for to apply the formula on?");
                                              var reason = Common.RequestReason(_container, _windowManager, "Calibration CalA='" + calibratedAValue + "', CalB='" + calibratedBValue + "', CurA='" + currentAValue + "', CurB='" + currentBValue + "' successfully applied to the sensor.");
                                              var successfulSensors = new List<Sensor>();
-                                             foreach (var sensor in _sensorsToCheckMethodsAgainst)
+                                             foreach (var sensor in _sensorsToCheckMethodsAgainst.Where(x => (string)applyToCombo.SelectedItem == "All" || (string)applyToCombo.SelectedItem == x.Name))
                                              {
                                                  try
                                                  {
@@ -1589,7 +1624,7 @@ namespace IndiaTango.ViewModels
                                                    if (Selection != null)
                                                        useSelected = Common.Confirm("Should we use your selection?",
                                                                                     "Should we use the date range of your selection for to apply the formula on?");
-                                                   foreach (var sensor in _sensorsToCheckMethodsAgainst)
+                                                   foreach (var sensor in _sensorsToCheckMethodsAgainst.Where(x => (string)applyToCombo.SelectedItem == "All" || (string)applyToCombo.SelectedItem == x.Name))
                                                    {
                                                        var gSensor =
                                                            _sensorsToGraph.FirstOrDefault(x => x.Sensor == sensor);
@@ -2550,7 +2585,7 @@ namespace IndiaTango.ViewModels
             }
 
             if (onlyGraphed)
-                _sensorsToCheckMethodsAgainst.ForEach(x => x.RevertToRaw());
+                SensorsForEditing.ForEach(x => x.RevertToRaw());
             else
                 Sensors.ForEach(x => x.RevertToRaw());
 
