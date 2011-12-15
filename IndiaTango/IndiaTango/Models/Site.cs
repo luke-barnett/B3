@@ -103,6 +103,10 @@ namespace IndiaTango.Models
             }
         }
 
+        [ProtoMember(13)]
+        public float Depth { get; set; }
+
+
         [ProtoMember(4)]
         public int PrimaryContactID
         {

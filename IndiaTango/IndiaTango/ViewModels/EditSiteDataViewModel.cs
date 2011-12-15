@@ -39,11 +39,11 @@ namespace IndiaTango.ViewModels
                                                      if (e.Action != NotifyCollectionChangedAction.Add || _contactTypeToUpdate <= -1)
                                                          return;
 
-                                                     if(_contactTypeToUpdate == 0)
+                                                     if (_contactTypeToUpdate == 0)
                                                      {
                                                          PrimaryContact = e.NewItems[0] as Contact;
                                                      }
-                                                     else if(_contactTypeToUpdate == 1)
+                                                     else if (_contactTypeToUpdate == 1)
                                                      {
                                                          SecondaryContact = e.NewItems[0] as Contact;
                                                      }
@@ -71,6 +71,7 @@ namespace IndiaTango.ViewModels
 
         private string _siteName;
         private string _owner;
+        private string _depth;
         private Contact _primaryContact;
         private Contact _secondaryContact;
         private string _latitude;
@@ -115,6 +116,7 @@ namespace IndiaTango.ViewModels
                 {
                     SiteName = DataSet.Site.Name;
                     Owner = DataSet.Site.Owner;
+                    Depth = DataSet.Site.Depth.ToString();
                     PrimaryContact = DataSet.Site.PrimaryContact;
                     SecondaryContact = DataSet.Site.SecondaryContact;
                     if (DataSet.Site.GpsLocation != null)
@@ -134,6 +136,7 @@ namespace IndiaTango.ViewModels
                 {
                     SiteName = "";
                     Owner = "";
+                    Depth = "";
                     Latitude = "0";
                     Longitude = "0";
                     PrimaryContact = null;
@@ -285,6 +288,16 @@ namespace IndiaTango.ViewModels
             {
                 _owner = value;
                 NotifyOfPropertyChange(() => Owner);
+            }
+        }
+
+        public string Depth
+        {
+            get { return _depth; }
+            set
+            {
+                _depth = value;
+                NotifyOfPropertyChange(() => Depth);
             }
         }
 
@@ -540,6 +553,7 @@ namespace IndiaTango.ViewModels
             {
                 DataSet.Site.GpsLocation = GPSCoords.Parse(Latitude, Longitude);
                 DataSet.Site.Owner = Owner;
+                DataSet.Site.Depth = float.Parse(Depth);
                 DataSet.Site.PrimaryContact = PrimaryContact;
                 DataSet.Site.SecondaryContact = SecondaryContact;
 
@@ -597,7 +611,7 @@ namespace IndiaTango.ViewModels
             DoneCancelVisible = Visibility.Collapsed;
             SiteControlsEnabled = false;
 
-            if(IsNewSite)
+            if (IsNewSite)
                 TryClose();
         }
 
