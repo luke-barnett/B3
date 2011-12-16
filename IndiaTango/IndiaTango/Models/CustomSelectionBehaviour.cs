@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using Visiblox.Charts;
 
 namespace IndiaTango.Models
@@ -22,7 +23,7 @@ namespace IndiaTango.Models
                                        if (args.PropertyName == "IsEnabled")
                                            _selectionRectangle.Visibility = Visibility.Visible;
                                    };
-            
+
         }
 
         protected override void Init()
@@ -65,8 +66,8 @@ namespace IndiaTango.Models
             _selectionRectangle.Height = 0;
             if (_selectionRectangle.Border != null)
             {
-                _selectionRectangle.Border.Background = _selectionRectangle.NotZoomableBackground;
-                _selectionRectangle.Border.BorderBrush = _selectionRectangle.NotZoomableForeground;
+                _selectionRectangle.Border.Background = new SolidColorBrush(new Color { A = 60, R = 255, B = 0, G = 0 });
+                _selectionRectangle.Border.BorderBrush = new SolidColorBrush(new Color { A = 255, R = 255, B = 0, G = 0 });
             }
 
             //Make it visible
