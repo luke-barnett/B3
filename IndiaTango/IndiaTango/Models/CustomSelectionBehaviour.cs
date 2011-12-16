@@ -108,9 +108,9 @@ namespace IndiaTango.Models
         {
             if (Keyboard.Modifiers != ModifierKeys.Shift)
             {
-                if (_leftMouseDown)
-                    ResetSelection();
+                ResetSelection();
                 _leftMouseDown = false;
+                return;
             }
 
             if (!_leftMouseDown)
@@ -124,8 +124,7 @@ namespace IndiaTango.Models
 
             if (Math.Abs(position.X - _firstPosition.X) < 2)
             {
-                _selectionRectangle.Width = 0;
-                _selectionRectangle.Height = 0;
+                ResetSelection();
             }
 
             MakeSelection(_firstPosition, position);
