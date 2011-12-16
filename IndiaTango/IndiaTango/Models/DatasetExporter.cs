@@ -282,19 +282,19 @@ namespace IndiaTango.Models
                         writer.WriteLine("\t\tUnit: " + sensor.Unit);
                         writer.WriteLine("\t\tDepth (m): " + sensor.Depth);
                         writer.WriteLine("\t\tSensors:");
-                        foreach (var calibration in sensor.MetaData)
+                        foreach (var metaData in sensor.MetaData)
                         {
-                            writer.WriteLine("\t\t\tSerial Number: " + calibration.SerialNumber);
-                            writer.WriteLine("\t\t\tManufacturer: " + calibration.Manufacturer);
-                            writer.WriteLine("\t\t\tAccuracy: " + calibration.Accuracy);
-                            writer.WriteLine("\t\t\tDate of Installation: " + calibration.DateOfInstallation);
+                            writer.WriteLine("\t\t\tSerial Number: " + metaData.SerialNumber);
+                            writer.WriteLine("\t\t\tManufacturer: " + metaData.Manufacturer);
+                            writer.WriteLine("\t\t\tAccuracy: " + metaData.Accuracy);
+                            writer.WriteLine("\t\t\tDate of Installation: " + metaData.DateOfInstallation);
+                            writer.WriteLine("\t\tIdeal Calibration Frequency (Days): " + metaData.IdealCalibrationFrequency.Days);
                         }
                         writer.WriteLine("\t\tCalibrations:");
                         foreach (var calibration in sensor.Calibrations)
                         {
                             writer.WriteLine("\t\t\t" + calibration);
                         }
-                        writer.WriteLine("\t\tIdeal Calibration Frequency (Days): " + sensor.IdealCalibrationFrequency.Days);
                         
                     }
                 }

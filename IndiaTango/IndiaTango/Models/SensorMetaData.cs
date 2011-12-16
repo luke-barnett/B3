@@ -20,19 +20,21 @@ namespace IndiaTango.Models
         /// <param name="manufacturer">The meta sensor's manufacturer</param>
         /// <param name="dateOfInstallation">The date the meta sensor was installed</param>
         /// <param name="accuracy">The accuracy of the meta sensor's readings</param>
-        public SensorMetaData(string serialNumber, string manufacturer, DateTime dateOfInstallation, float accuracy)
+        /// <param name="idealCalibrationFrequency">The ideal calibration frequency time span for the meta sensor</param>
+        public SensorMetaData(string serialNumber, string manufacturer, DateTime dateOfInstallation, float accuracy, TimeSpan idealCalibrationFrequency)
         {
             SerialNumber = serialNumber;
             Manufacturer = manufacturer;
             DateOfInstallation = dateOfInstallation;
             Accuracy = accuracy;
+            IdealCalibrationFrequency = idealCalibrationFrequency;
         }
 
         /// <summary>
         /// Creates a new sensor with the given serial number
         /// </summary>
         /// <param name="serialNumber">The serial number of the meta sensor</param>
-        public SensorMetaData(string serialNumber) : this(serialNumber, "", DateTime.Now, 0) { }
+        public SensorMetaData(string serialNumber) : this(serialNumber, "", DateTime.Now, 0, TimeSpan.FromDays(1)) { }
         #endregion
 
         #region Private Variables
@@ -44,6 +46,8 @@ namespace IndiaTango.Models
         private string _serialNumber;
         [ProtoMember(4)]
         private string _manufacturer;
+        [ProtoMember(5)]
+        private TimeSpan _idealCalibrationFrequency;
         #endregion
 
         #region Public Properties
@@ -84,6 +88,16 @@ namespace IndiaTango.Models
             {
                 _manufacturer = value;
                 FirePropertyChanged("Manufacturer");
+            }
+        }
+
+        public TimeSpan IdealCalibrationFrequency
+        {
+            get { return _idealCalibrationFrequency; }
+            set
+            {
+                _idealCalibrationFrequency = value;
+                FirePropertyChanged("IdealCalibrationFrequency");
             }
         }
         #endregion

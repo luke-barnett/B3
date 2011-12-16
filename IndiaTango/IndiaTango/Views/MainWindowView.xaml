@@ -191,7 +191,7 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="Ideal Calibration Frequency (Days)" Binding="{Binding Sensor.IdealCalibrationFrequency, Converter={StaticResource timeSpanStringConverter}}" />
+                            <DataGridTextColumn Header="Ideal Calibration Frequency (Days)" Binding="{Binding Sensor.CurrentMetaData.IdealCalibrationFrequency, Converter={StaticResource timeSpanStringConverter}}" />
                             <DataGridTemplateColumn Header="Date of Installation">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>

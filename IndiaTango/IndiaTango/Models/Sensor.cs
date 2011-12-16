@@ -38,7 +38,6 @@ namespace IndiaTango.Models
         [NonSerialized]
         private SensorVariable _sensorVariable;
         private string _sensorType;
-        private TimeSpan _idealCalibrationFrequency;
         private ObservableCollection<SensorMetaData> _metaData;
         private SensorMetaData _currentMetaData;
         #endregion
@@ -51,7 +50,7 @@ namespace IndiaTango.Models
             RedoStack = new Stack<SensorState>();
             Calibrations = new List<Calibration>();
             _metaData = new ObservableCollection<SensorMetaData>();
-            CurrentMetaData = new SensorMetaData("", "", DateTime.Now, 0);
+            CurrentMetaData = new SensorMetaData("");
         }
 
         /// <summary>
@@ -171,7 +170,7 @@ namespace IndiaTango.Models
             _summaryType = sType;
 
             _metaData = new ObservableCollection<SensorMetaData>();
-            CurrentMetaData = new SensorMetaData("", "", DateTime.Now, 0);
+            CurrentMetaData = new SensorMetaData("");
 
             Colour = Color.FromRgb((byte)(Common.Generator.Next()), (byte)(Common.Generator.Next()), (byte)(Common.Generator.Next()));
         }
@@ -484,17 +483,6 @@ namespace IndiaTango.Models
             {
                 _sensorType = value;
                 FirePropertyChanged("SensorType");
-            }
-        }
-
-        [ProtoMember(21)]
-        public TimeSpan IdealCalibrationFrequency
-        {
-            get { return _idealCalibrationFrequency; }
-            set
-            {
-                _idealCalibrationFrequency = value;
-                FirePropertyChanged("IdealCalibrationFrequency");
             }
         }
 
