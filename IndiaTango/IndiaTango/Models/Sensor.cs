@@ -744,5 +744,10 @@ namespace IndiaTango.Models
         {
             get { return Models.SensorVocabulary.Vocabulary; }
         }
+
+        public List<string> Units
+        {
+            get { return UnitsHelper.Units; }
+        }
     }
 }

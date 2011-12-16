@@ -115,7 +115,18 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellEditingTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="Unit" Binding="{Binding Sensor.Unit}"/>
+                            <DataGridTemplateColumn Header="Unit" CanUserSort="True" SortMemberPath="Sensor.Unit">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Sensor.Unit}" Margin="2,0" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <ComboBox ItemsSource="{Binding Sensor.Units}" SelectedItem="{Binding Sensor.Unit,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
                             <DataGridTextColumn Header="Depth (m)" Binding="{Binding Sensor.Depth, Converter={StaticResource floatStringConverter}}" />
                             <DataGridTextColumn Header="Accuracy (+/-)" Binding="{Binding Sensor.CurrentMetaData.Accuracy, Converter={StaticResource floatStringConverter}}" />
                             <DataGridTextColumn Header="Lower Limit" Binding="{Binding Sensor.LowerLimit, Converter={StaticResource floatStringConverter}}" />
