@@ -1190,10 +1190,10 @@ namespace IndiaTango.ViewModels
 
                                                 if (validFormula)
                                                 {
-                                                    var useSelected = false;
-                                                    if (Selection != null)
-                                                        useSelected = Common.Confirm("Should we use your selection?",
-                                                                                     "Should we use the date range of your selection for to apply the formula on?");
+                                                    var useSelected = Selection != null;
+                                                    //if (Selection != null)
+                                                    //    useSelected = Common.Confirm("Should we use your selection?",
+                                                    //                                 "Should we use the date range of your selection for to apply the formula on?");
                                                     var skipMissingValues = false;
                                                     var detector = new MissingValuesDetector();
 
@@ -1542,10 +1542,10 @@ namespace IndiaTango.ViewModels
 
             autoApplyButton.Click += (o, e) =>
                                          {
-                                             var useSelected = false;
-                                             if (Selection != null)
-                                                 useSelected = Common.Confirm("Should we use your selection?",
-                                                                              "Should we use the date range of your selection for to apply the formula on?");
+                                             var useSelected = Selection != null;
+                                             //if (Selection != null)
+                                             //    useSelected = Common.Confirm("Should we use your selection?",
+                                             //                                 "Should we use the date range of your selection for to apply the formula on?");
                                              var reason = Common.RequestReason(_container, _windowManager, "Calibration CalA='" + calibratedAValue + "', CalB='" + calibratedBValue + "', CurA='" + currentAValue + "', CurB='" + currentBValue + "' successfully applied to the sensor.");
                                              var successfulSensors = new List<Sensor>();
                                              foreach (var sensor in _sensorsToCheckMethodsAgainst.Where(x => (string)applyToCombo.SelectedItem == "All" || (string)applyToCombo.SelectedItem == x.Name))
@@ -1628,10 +1628,10 @@ namespace IndiaTango.ViewModels
                                            {
                                                if (previewTextBlock.Text.CompareTo("Preview") == 0)
                                                {
-                                                   var useSelected = false;
-                                                   if (Selection != null)
-                                                       useSelected = Common.Confirm("Should we use your selection?",
-                                                                                    "Should we use the date range of your selection for to apply the formula on?");
+                                                   var useSelected = Selection != null;
+                                                   //if (Selection != null)
+                                                   //    useSelected = Common.Confirm("Should we use your selection?",
+                                                   //                                 "Should we use the date range of your selection for to apply the formula on?");
                                                    foreach (var sensor in _sensorsToCheckMethodsAgainst.Where(x => (string)applyToCombo.SelectedItem == "All" || (string)applyToCombo.SelectedItem == x.Name))
                                                    {
                                                        var gSensor =
