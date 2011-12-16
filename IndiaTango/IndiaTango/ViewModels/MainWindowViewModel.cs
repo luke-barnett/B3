@@ -1086,7 +1086,7 @@ namespace IndiaTango.ViewModels
                                              Margin = new Thickness(5, 0, 5, 0),
                                              VerticalAlignment = VerticalAlignment.Bottom,
                                              VerticalContentAlignment = VerticalAlignment.Bottom,
-                                             IsEnabled = false
+                                             IsEnabled = !Properties.Settings.Default.EvaluateFormulaOnKeyUp
                                          };
             manualFormulaTextBox.KeyUp += (o, e) =>
                                               {
@@ -1288,7 +1288,7 @@ namespace IndiaTango.ViewModels
             clearButton.Click += (o, e) =>
                                      {
                                          manualFormulaTextBox.Text = "";
-                                         applyFormulaButton.IsEnabled = false;
+                                         applyFormulaButton.IsEnabled = !Properties.Settings.Default.EvaluateFormulaOnKeyUp;
                                      };
             buttonsWrapper.Children.Add(clearButton);
 
