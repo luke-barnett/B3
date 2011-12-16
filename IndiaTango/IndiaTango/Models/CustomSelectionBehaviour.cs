@@ -13,6 +13,7 @@ namespace IndiaTango.Models
         private readonly ZoomRectangle _selectionRectangle = new ZoomRectangle();
         private bool _leftMouseDown;
         private Point _firstPosition;
+        private bool _useFullYAxis;
 
         public CustomSelectionBehaviour()
             : base("Selection Behaviour")
@@ -23,6 +24,7 @@ namespace IndiaTango.Models
                                        if (args.PropertyName == "IsEnabled")
                                            _selectionRectangle.Visibility = Visibility.Visible;
                                    };
+            UseFullYAxis = false;
 
         }
 
@@ -51,6 +53,17 @@ namespace IndiaTango.Models
 
         #endregion
 
+        public bool UseFullYAxis
+        {
+            get { return _useFullYAxis; }
+            set
+            {
+                if(_useFullYAxis != value)
+                    ResetSelection();
+                _useFullYAxis = value;
+            }
+        }
+
         public override void MouseLeftButtonDown(Point position)
         {
             if (Chart.XAxis.ActualRange == null || Chart.YAxis.ActualRange == null || !BehaviourContainer.CaptureMouse())
@@ -61,9 +74,9 @@ namespace IndiaTango.Models
 
             //Set the up the zoom rectangle
             _selectionRectangle.SetValue(Canvas.LeftProperty, position.X);
-            _selectionRectangle.SetValue(Canvas.TopProperty, position.Y);
+            _selectionRectangle.SetValue(Canvas.TopProperty, UseFullYAxis ? 0 : position.Y);
             _selectionRectangle.Width = 0;
-            _selectionRectangle.Height = 0;
+            _selectionRectangle.Height = UseFullYAxis ? BehaviourContainer.ActualHeight : 0;
             if (_selectionRectangle.Border != null)
             {
                 _selectionRectangle.Border.Background = new SolidColorBrush(new Color { A = 60, R = 255, B = 0, G = 0 });
@@ -141,6 +154,9 @@ namespace IndiaTango.Models
                 _selectionRectangle.Width = _firstPosition.X - position.X;
                 _selectionRectangle.SetValue(Canvas.LeftProperty, position.X);
             }
+
+            if (UseFullYAxis)
+                return;
 
             if (position.Y > _firstPosition.Y)
             {

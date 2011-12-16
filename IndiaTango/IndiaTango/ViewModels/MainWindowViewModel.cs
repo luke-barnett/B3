@@ -2899,6 +2899,8 @@ namespace IndiaTango.ViewModels
                 if (newTabItem != null)
                 {
                     var newTabItemHeader = newTabItem.Header as TextBlock;
+                    _selectionBehaviour.UseFullYAxis = newTabItem.Header is string &&
+                                                       ((newTabItem.Header as string).CompareTo("Calibration") == 0 || (newTabItem.Header as string).CompareTo("Automatic") == 0 || (newTabItem.Header as string).CompareTo("Manual") == 0);
                     var newDetectionMethod = _detectionMethods.FirstOrDefault(x => newTabItemHeader != null && x.Abbreviation == newTabItemHeader.Text);
                     if (newDetectionMethod != null)
                     {
