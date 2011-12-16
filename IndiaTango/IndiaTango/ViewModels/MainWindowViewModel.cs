@@ -1692,6 +1692,7 @@ namespace IndiaTango.ViewModels
                                              calibratedBTextBox.Text = "";
                                              currentATextBox.Text = "";
                                              currentBTextBox.Text = "";
+                                             previewTextBlock.Text = "Preview";
                                              autoApplyButton.IsEnabled = false;
                                              autoPreviewButton.IsEnabled = false;
                                              var previewMade = GraphableSensors.FirstOrDefault(x => x.PreviewDataPoints != null) != null;
