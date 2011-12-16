@@ -685,6 +685,8 @@ namespace IndiaTango.ViewModels
             get { return (_sensorsToCheckMethodsAgainst.Count > 0) ? _sensorsToCheckMethodsAgainst.SelectMany(x => x.CurrentState.Values).Average(x => x.Value).ToString() : "0"; }
         }
 
+        public bool ApplyToAllSensors { get; set; }
+
         #endregion
 
         #region Private Methods
@@ -1859,7 +1861,10 @@ namespace IndiaTango.ViewModels
             if (Selection != null && (values.Count() == 0 || Common.Confirm("Should we use the values you've selected", "For this interpolation should we use the all the values in the range you've selected instead of those selected from the list of detected values")))
             {
                 var list = new List<ErroneousValue>();
-                foreach (var sensor in _sensorsToCheckMethodsAgainst)
+                if (ApplyToAllSensors && !Common.Confirm("Are you sure?",
+                                   "You've set to apply changes to all sensors.\r\nThis means you're editing values you can't see"))
+                    return;
+                foreach (var sensor in ApplyToAllSensors ? Sensors : _sensorsToCheckMethodsAgainst.ToList())
                 {
                     list.AddRange(sensor.CurrentState.Values.Where(
                         x =>
@@ -1917,7 +1922,10 @@ namespace IndiaTango.ViewModels
             if (Selection != null && (values.Count() == 0 || Common.Confirm("Should we use the values you've selected?", "To remove values should we use the all the values in the range you've selected instead of those selected from the list of detected values")))
             {
                 var list = new List<ErroneousValue>();
-                foreach (var sensor in _sensorsToCheckMethodsAgainst)
+                if (ApplyToAllSensors && !Common.Confirm("Are you sure?",
+                                   "You've set to apply changes to all sensors.\r\nThis means you're editing values you can't see"))
+                    return;
+                foreach (var sensor in ApplyToAllSensors ? Sensors : _sensorsToCheckMethodsAgainst.ToList())
                 {
                     list.AddRange(sensor.CurrentState.Values.Where(
                         x =>
@@ -1983,7 +1991,10 @@ namespace IndiaTango.ViewModels
             if (Selection != null && (values.Count() == 0 || Common.Confirm("Should we use the values you've selected?", "Should we use the all the values in the range you've selected instead of those selected from the list of detected values")))
             {
                 var list = new List<ErroneousValue>();
-                foreach (var sensor in _sensorsToCheckMethodsAgainst)
+                if (ApplyToAllSensors && !Common.Confirm("Are you sure?",
+                                   "You've set to apply changes to all sensors.\r\nThis means you're editing values you can't see"))
+                    return;
+                foreach (var sensor in ApplyToAllSensors ? Sensors : _sensorsToCheckMethodsAgainst.ToList())
                 {
                     list.AddRange(sensor.CurrentState.Values.Where(
                         x =>

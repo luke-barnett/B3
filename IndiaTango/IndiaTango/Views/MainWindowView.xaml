@@ -242,25 +242,28 @@
                             </toolkit:SplitButton>
                         </WrapPanel>
                         <Rectangle Height="3" Margin="0,2" Fill="OrangeRed" Stroke="White" SnapsToDevicePixels="True" />
-                        <WrapPanel Margin="5" IsEnabled="{Binding ActionsEnabled}" HorizontalAlignment="Center">
-                            <Button FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5" VerticalContentAlignment="Center" cal:Message.Attach="[Event Click] = [Action Interpolate]">
-                                <StackPanel>
-                                    <Image Width="64" Height="64" Source="/B3;component/Images/graph_interpolate.png" />
-                                    <TextBlock Text="Interpolate" HorizontalAlignment="Center" />
-                                </StackPanel>
-                            </Button>
-                            <Button FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5" VerticalContentAlignment="Center" cal:Message.Attach="[Event Click] = [Action RemoveValues]">
-                                <StackPanel>
-                                    <Image Width="64" Height="64" Source="/B3;component/Images/remove_point.png" />
-                                    <TextBlock Text="Delete" HorizontalAlignment="Center" />
-                                </StackPanel>
-                            </Button>
-                            <Button FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5" VerticalContentAlignment="Center" cal:Message.Attach="[Event Click] = [Action SpecifyValue]">
-                                <StackPanel>
-                                    <Image Width="64" Height="64" Source="/B3;component/Images/graph_specify.png" />
-                                    <TextBlock Text="Specify Value" HorizontalAlignment="Center" />
-                                </StackPanel>
-                            </Button>
+                        <WrapPanel  Margin="5"  HorizontalAlignment="Center"  IsEnabled="{Binding ActionsEnabled}">
+                            <CheckBox Content="Apply To All Sensors" IsChecked="{Binding ApplyToAllSensors,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                            <WrapPanel>
+                                <Button FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5" VerticalContentAlignment="Center" cal:Message.Attach="[Event Click] = [Action Interpolate]">
+                                    <StackPanel>
+                                        <Image Width="64" Height="64" Source="/B3;component/Images/graph_interpolate.png" />
+                                        <TextBlock Text="Interpolate" HorizontalAlignment="Center" />
+                                    </StackPanel>
+                                </Button>
+                                <Button FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5" VerticalContentAlignment="Center" cal:Message.Attach="[Event Click] = [Action RemoveValues]">
+                                    <StackPanel>
+                                        <Image Width="64" Height="64" Source="/B3;component/Images/remove_point.png" />
+                                        <TextBlock Text="Delete" HorizontalAlignment="Center" />
+                                    </StackPanel>
+                                </Button>
+                                <Button FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5" VerticalContentAlignment="Center" cal:Message.Attach="[Event Click] = [Action SpecifyValue]">
+                                    <StackPanel>
+                                        <Image Width="64" Height="64" Source="/B3;component/Images/graph_specify.png" />
+                                        <TextBlock Text="Specify Value" HorizontalAlignment="Center" />
+                                    </StackPanel>
+                                </Button>
+                            </WrapPanel>
                         </WrapPanel>
                     </StackPanel>
                 </GroupBox>
@@ -404,7 +407,7 @@
                                 <TextBlock Grid.Column="0" Grid.Row="1" Text="Total Data Count:" Margin="10,0" />
                                 <TextBlock Grid.Column="0" Grid.Row="2" Text="Mean Data Count Per Sensor:" Margin="10,0" />
                                 <TextBlock Grid.Column="0" Grid.Row="3" Text="Mean:" Margin="10,0" />
-                                
+
                                 <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding TotalDataCount}" />
                                 <TextBlock Grid.Column="1" Grid.Row="2" Text="{Binding MeanDataCount}" />
                                 <TextBlock Grid.Column="1" Grid.Row="3" Text="{Binding Mean}" />
