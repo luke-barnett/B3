@@ -944,6 +944,14 @@ namespace IndiaTango.ViewModels
 
             detectionMethodListBox.Content = listBox;
 
+            listBox.SelectionChanged += (o, e) =>
+                                            {
+                                                if (e.AddedItems.Count > 0)
+                                                    _selectionBehaviour.ResetSelection();
+                                            };
+
+            _selectionBehaviour.SelectionMade += (o, e) => listBox.UnselectAll();
+
             Grid.SetRow(detectionMethodListBox, 2);
 
             tabItemGrid.Children.Add(detectionMethodListBox);
