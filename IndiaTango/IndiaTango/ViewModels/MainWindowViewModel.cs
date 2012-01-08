@@ -2477,7 +2477,11 @@ namespace IndiaTango.ViewModels
             for (var i = 1; i < _sensorsToGraph.Count; i++)
                 ChartTitle += string.Format(" and {0} [{1}m]", _sensorsToGraph[i].Sensor.Name, _sensorsToGraph[i].Sensor.Depth);
 
-            YAxisTitle = ((from sensor in _sensorsToGraph select sensor.Sensor.Unit).Distinct().Count() == 1) ? _sensorsToGraph[0].Sensor.Unit : String.Empty;
+            var distinctUnits = (from sensor in _sensorsToGraph select sensor.Sensor.Unit).Distinct().ToArray();
+
+            YAxisTitle = distinctUnits.Any() ? distinctUnits[0] : String.Empty;
+            for (var i = 1; i < distinctUnits.Length; i++)
+                YAxisTitle += string.Format(" and {0}", distinctUnits[i]);
             SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "UpdateGraph");
             CalculateYAxis();
             if (recalculateDateRange)
