@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Windows;
@@ -657,7 +658,7 @@ namespace IndiaTango.ViewModels
                     for (var i = 0; i < sensors.Length; i++)
                     {
                         if (sensors[i].CurrentState.Values.ContainsKey(timeStamp))
-                            row[i + 1] = sensors[i].CurrentState.Values[timeStamp].ToString();
+                            row[i + 1] = sensors[i].CurrentState.Values[timeStamp].ToString(CultureInfo.InvariantCulture);
 
                         if (sensors[i].RawData.Values.ContainsKey(timeStamp))
                             row[i + 1] += string.Format(" [{0}]",
@@ -672,17 +673,17 @@ namespace IndiaTango.ViewModels
 
         public string TotalDataCount
         {
-            get { return _sensorsToCheckMethodsAgainst.Sum(x => x.CurrentState.Values.Count).ToString(); }
+            get { return _sensorsToCheckMethodsAgainst.Sum(x => x.CurrentState.Values.Count).ToString(CultureInfo.InvariantCulture); }
         }
 
         public string MeanDataCount
         {
-            get { return (_sensorsToCheckMethodsAgainst.Count > 0) ? _sensorsToCheckMethodsAgainst.Average(x => x.CurrentState.Values.Count).ToString() : "0"; }
+            get { return (_sensorsToCheckMethodsAgainst.Count > 0) ? _sensorsToCheckMethodsAgainst.Average(x => x.CurrentState.Values.Count).ToString(CultureInfo.InvariantCulture) : "0"; }
         }
 
         public string Mean
         {
-            get { return (_sensorsToCheckMethodsAgainst.Count > 0) ? _sensorsToCheckMethodsAgainst.SelectMany(x => x.CurrentState.Values).Average(x => x.Value).ToString() : "0"; }
+            get { return (_sensorsToCheckMethodsAgainst.Count > 0) ? _sensorsToCheckMethodsAgainst.SelectMany(x => x.CurrentState.Values).Average(x => x.Value).ToString(CultureInfo.InvariantCulture) : "0"; }
         }
 
         public bool ApplyToAllSensors { get; set; }
@@ -793,7 +794,7 @@ namespace IndiaTango.ViewModels
 
             foreach (var sensor in _sensorsToGraph)
             {
-                if (sensor.DataPoints.Count() <= 0) continue;
+                if (!sensor.DataPoints.Any()) continue;
 
                 var first = sensor.DataPoints.First().X;
                 var last = sensor.DataPoints.Last().X;
@@ -1628,7 +1629,7 @@ namespace IndiaTango.ViewModels
 
             autoPreviewButton.Click += (o, e) =>
                                            {
-                                               if (previewTextBlock.Text.CompareTo("Preview") == 0)
+                                               if (String.CompareOrdinal(previewTextBlock.Text, "Preview") == 0)
                                                {
                                                    var useSelected = Selection != null;
                                                    //if (Selection != null)
@@ -1858,7 +1859,7 @@ namespace IndiaTango.ViewModels
         {
             values = values.ToList();
 
-            if (Selection != null && (values.Count() == 0 || Common.Confirm("Should we use the values you've selected", "For this interpolation should we use the all the values in the range you've selected instead of those selected from the list of detected values")))
+            if (Selection != null && (!values.Any() || Common.Confirm("Should we use the values you've selected", "For this interpolation should we use the all the values in the range you've selected instead of those selected from the list of detected values")))
             {
                 var list = new List<ErroneousValue>();
                 if (ApplyToAllSensors && !Common.Confirm("Are you sure?",
@@ -1866,10 +1867,11 @@ namespace IndiaTango.ViewModels
                     return;
                 foreach (var sensor in ApplyToAllSensors ? Sensors : _sensorsToCheckMethodsAgainst.ToList())
                 {
+                    var sensorCopy = sensor;
                     list.AddRange(sensor.CurrentState.Values.Where(
                         x =>
                         x.Key >= Selection.LowerX && x.Key <= Selection.UpperX && x.Value >= Selection.LowerY &&
-                        x.Value <= Selection.UpperY).Select(x => new ErroneousValue(x.Key, sensor)));
+                        x.Value <= Selection.UpperY).Select(x => new ErroneousValue(x.Key, sensorCopy)));
                 }
                 values = list;
             }
@@ -1919,7 +1921,7 @@ namespace IndiaTango.ViewModels
         {
             values = values.ToList();
             var usingSelection = false;
-            if (Selection != null && (values.Count() == 0 || Common.Confirm("Should we use the values you've selected?", "To remove values should we use the all the values in the range you've selected instead of those selected from the list of detected values")))
+            if (Selection != null && (!values.Any() || Common.Confirm("Should we use the values you've selected?", "To remove values should we use the all the values in the range you've selected instead of those selected from the list of detected values")))
             {
                 var list = new List<ErroneousValue>();
                 if (ApplyToAllSensors && !Common.Confirm("Are you sure?",
@@ -1927,10 +1929,11 @@ namespace IndiaTango.ViewModels
                     return;
                 foreach (var sensor in ApplyToAllSensors ? Sensors : _sensorsToCheckMethodsAgainst.ToList())
                 {
+                    var sensorCopy = sensor;
                     list.AddRange(sensor.CurrentState.Values.Where(
                         x =>
                         x.Key >= Selection.LowerX && x.Key <= Selection.UpperX && x.Value >= Selection.LowerY &&
-                        x.Value <= Selection.UpperY).Select(x => new ErroneousValue(x.Key, sensor)));
+                        x.Value <= Selection.UpperY).Select(x => new ErroneousValue(x.Key, sensorCopy)));
                 }
                 values = list;
                 usingSelection = true;
@@ -1988,7 +1991,7 @@ namespace IndiaTango.ViewModels
         {
             values = values.ToList();
 
-            if (Selection != null && (values.Count() == 0 || Common.Confirm("Should we use the values you've selected?", "Should we use the all the values in the range you've selected instead of those selected from the list of detected values")))
+            if (Selection != null && (!values.Any() || Common.Confirm("Should we use the values you've selected?", "Should we use the all the values in the range you've selected instead of those selected from the list of detected values")))
             {
                 var list = new List<ErroneousValue>();
                 if (ApplyToAllSensors && !Common.Confirm("Are you sure?",
@@ -1996,10 +1999,11 @@ namespace IndiaTango.ViewModels
                     return;
                 foreach (var sensor in ApplyToAllSensors ? Sensors : _sensorsToCheckMethodsAgainst.ToList())
                 {
+                    var sensorCopy = sensor;
                     list.AddRange(sensor.CurrentState.Values.Where(
                         x =>
                         x.Key >= Selection.LowerX && x.Key <= Selection.UpperX && x.Value >= Selection.LowerY &&
-                        x.Value <= Selection.UpperY).Select(x => new ErroneousValue(x.Key, sensor)));
+                        x.Value <= Selection.UpperY).Select(x => new ErroneousValue(x.Key, sensorCopy)));
                 }
                 values = list;
             }
@@ -2400,7 +2404,7 @@ namespace IndiaTango.ViewModels
                 return;
             }
 
-            if (DataSetFiles.Count() == 0)
+            if (!DataSetFiles.Any())
                 CurrentDataset = null;
 
             if (CurrentDataset != null && DataSetFiles[_chosenSelectedIndex - 1] == CurrentDataset.SaveLocation)
@@ -2912,7 +2916,7 @@ namespace IndiaTango.ViewModels
                 {
                     var newTabItemHeader = newTabItem.Header as TextBlock;
                     _selectionBehaviour.UseFullYAxis = newTabItem.Header is string &&
-                                                       ((newTabItem.Header as string).CompareTo("Calibration") == 0 || (newTabItem.Header as string).CompareTo("Automatic") == 0 || (newTabItem.Header as string).CompareTo("Manual") == 0);
+                                                       (String.CompareOrdinal((newTabItem.Header as string), "Calibration") == 0 || String.CompareOrdinal((newTabItem.Header as string), "Automatic") == 0 || String.CompareOrdinal((newTabItem.Header as string), "Manual") == 0);
                     var newDetectionMethod = _detectionMethods.FirstOrDefault(x => newTabItemHeader != null && x.Abbreviation == newTabItemHeader.Text);
                     if (newDetectionMethod != null)
                     {
