@@ -733,7 +733,7 @@ namespace IndiaTango.Models
             get { return Models.SensorVocabulary.Vocabulary; }
         }
 
-        public List<string> Units
+        public ObservableCollection<string> Units
         {
             get { return UnitsHelper.Units; }
         }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -13,8 +14,8 @@ namespace IndiaTango.Models
             get { return Path.Combine(Common.AppDataPath, "Units.csv"); }
         }
 
-        private static List<string> _units;
-        public static List<string> Units
+        private static ObservableCollection<string> _units;
+        public static ObservableCollection<string> Units
         {
             get
             {
@@ -22,6 +23,13 @@ namespace IndiaTango.Models
                     LoadUnits();
                 return _units;
             }
+        }
+
+        public static void Add(string unit)
+        {
+            if (!_units.Contains(unit))
+                _units.Add(unit);
+            SaveUnits();
         }
 
         private static void LoadUnits()
@@ -36,7 +44,7 @@ namespace IndiaTango.Models
                 var units = new List<string>();
                 var file = File.ReadAllText(FileLocation, Encoding.UTF8);
                 units.AddRange(file.Split(','));
-                _units = units;
+                _units = new ObservableCollection<string>(units);
             }
         }
 
@@ -53,7 +61,7 @@ namespace IndiaTango.Models
             }
         }
 
-        private static List<string> GenerateUnits()
+        private static ObservableCollection<string> GenerateUnits()
         {
             var units = new List<string>();
 
@@ -66,7 +74,7 @@ namespace IndiaTango.Models
                 units.Sort();
             }
 
-            return units;
+            return new ObservableCollection<string>(units);
         }
     }
 }
