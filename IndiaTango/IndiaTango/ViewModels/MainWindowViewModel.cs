@@ -212,6 +212,7 @@ namespace IndiaTango.ViewModels
         private IDetectionMethod _selectedMethod;
         private bool _revertGraphedToRawIsVisible;
         private bool _previousActionsStatus;
+        private bool _useFullYAxis;
         #endregion
 
         #region Public Parameters
@@ -687,6 +688,16 @@ namespace IndiaTango.ViewModels
         }
 
         public bool ApplyToAllSensors { get; set; }
+
+        public bool FixYAxis
+        {
+            get { return _selectionBehaviour.UseFullYAxis; }
+            set
+            {
+                _selectionBehaviour.UseFullYAxis = value;
+                _useFullYAxis = value;
+            }
+        }
 
         #endregion
 
@@ -1870,8 +1881,8 @@ namespace IndiaTango.ViewModels
                     var sensorCopy = sensor;
                     list.AddRange(sensor.CurrentState.Values.Where(
                         x =>
-                        x.Key >= Selection.LowerX && x.Key <= Selection.UpperX && x.Value >= Selection.LowerY &&
-                        x.Value <= Selection.UpperY).Select(x => new ErroneousValue(x.Key, sensorCopy)));
+                        x.Key >= Selection.LowerX && x.Key <= Selection.UpperX && (_selectionBehaviour.UseFullYAxis || x.Value >= Selection.LowerY) &&
+                        (_selectionBehaviour.UseFullYAxis || x.Value <= Selection.UpperY)).Select(x => new ErroneousValue(x.Key, sensorCopy)));
                 }
                 values = list;
             }
@@ -1932,8 +1943,8 @@ namespace IndiaTango.ViewModels
                     var sensorCopy = sensor;
                     list.AddRange(sensor.CurrentState.Values.Where(
                         x =>
-                        x.Key >= Selection.LowerX && x.Key <= Selection.UpperX && x.Value >= Selection.LowerY &&
-                        x.Value <= Selection.UpperY).Select(x => new ErroneousValue(x.Key, sensorCopy)));
+                        x.Key >= Selection.LowerX && x.Key <= Selection.UpperX && (_selectionBehaviour.UseFullYAxis || x.Value >= Selection.LowerY) &&
+                        (_selectionBehaviour.UseFullYAxis || x.Value <= Selection.UpperY)).Select(x => new ErroneousValue(x.Key, sensorCopy)));
                 }
                 values = list;
                 usingSelection = true;
@@ -2002,8 +2013,8 @@ namespace IndiaTango.ViewModels
                     var sensorCopy = sensor;
                     list.AddRange(sensor.CurrentState.Values.Where(
                         x =>
-                        x.Key >= Selection.LowerX && x.Key <= Selection.UpperX && x.Value >= Selection.LowerY &&
-                        x.Value <= Selection.UpperY).Select(x => new ErroneousValue(x.Key, sensorCopy)));
+                        x.Key >= Selection.LowerX && x.Key <= Selection.UpperX && (_selectionBehaviour.UseFullYAxis || x.Value >= Selection.LowerY) &&
+                        (_selectionBehaviour.UseFullYAxis || x.Value <= Selection.UpperY)).Select(x => new ErroneousValue(x.Key, sensorCopy)));
                 }
                 values = list;
             }
@@ -2919,8 +2930,8 @@ namespace IndiaTango.ViewModels
                 if (newTabItem != null)
                 {
                     var newTabItemHeader = newTabItem.Header as TextBlock;
-                    _selectionBehaviour.UseFullYAxis = newTabItem.Header is string &&
-                                                       (String.CompareOrdinal((newTabItem.Header as string), "Calibration") == 0 || String.CompareOrdinal((newTabItem.Header as string), "Automatic") == 0 || String.CompareOrdinal((newTabItem.Header as string), "Manual") == 0);
+                    _selectionBehaviour.UseFullYAxis = _useFullYAxis || (newTabItem.Header is string &&
+                                                       (String.CompareOrdinal((newTabItem.Header as string), "Calibration") == 0 || String.CompareOrdinal((newTabItem.Header as string), "Automatic") == 0 || String.CompareOrdinal((newTabItem.Header as string), "Manual") == 0));
                     var newDetectionMethod = _detectionMethods.FirstOrDefault(x => newTabItemHeader != null && x.Abbreviation == newTabItemHeader.Text);
                     if (newDetectionMethod != null)
                     {
