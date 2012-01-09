@@ -26,7 +26,6 @@ namespace IndiaTango.Views
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            Common.SetFancyBackground(this, grdMain, false, true);
             txtTitle.Focus();
             Keyboard.Focus(txtTitle);
         }

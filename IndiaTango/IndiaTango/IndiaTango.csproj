@@ -73,10 +73,6 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <Reference Include="WindowsFormsAero, Version=1.5.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Externals\VistaControls\WindowsFormsAero.dll</HintPath>
-    </Reference>
     <Reference Include="WPFToolkit.Extended">
       <HintPath>..\..\Externals\Extended WPF Toolkit\WPFToolkit.Extended.dll</HintPath>
     </Reference>

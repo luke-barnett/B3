@@ -17,7 +17,7 @@ namespace IndiaTango.Views
 
 		private void OnLoaded(object sender, RoutedEventArgs e)
 		{
-			Common.SetFancyBackground(this,grdMain, false, true);
+			
 		}
     }
 }

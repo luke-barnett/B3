@@ -9,7 +9,6 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -18,14 +17,8 @@ using Caliburn.Micro;
 using IndiaTango.ViewModels;
 using Visiblox.Charts;
 using Visiblox.Charts.Primitives;
-using WindowsFormsAero.Dwm;
-using WindowsFormsAero.TaskDialog;
-using Brushes = System.Windows.Media.Brushes;
-using Color = System.Windows.Media.Color;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
 using Path = System.IO.Path;
-using Point = System.Windows.Point;
-using Rectangle = System.Windows.Shapes.Rectangle;
 using Size = System.Windows.Size;
 
 namespace IndiaTango.Models
@@ -84,116 +77,19 @@ namespace IndiaTango.Models
             }
         }
 
-        public static bool CanUseGlass = WindowsFormsAero.OsSupport.IsVistaOrBetter &&
-                                         WindowsFormsAero.OsSupport.IsCompositionEnabled;
-
         public static string AddIcon { get { return "/B3;component/Images/plus.png"; } }
         public static string EditIcon { get { return "/B3;component/Images/pencil.png"; } }
         public static string DeleteIcon { get { return "/B3;component/Images/cross-script.png"; } }
 
-        public static void SetFancyBackground(Window window, Grid mainGrid, bool useGlass, bool useGradient)
-        {
-            //Set the glass
-            if (useGlass && CanUseGlass)
-            {
-                //Get handle
-                IntPtr hwnd = new WindowInteropHelper(window).Handle;
-
-                //Set backgroung to black and transparent (At the same time!!!)
-                window.Background = Brushes.Transparent;
-                HwndSource source = HwndSource.FromHwnd(hwnd);
-                if (source != null && source.CompositionTarget != null) source.CompositionTarget.BackgroundColor = Color.FromArgb(0, 0, 0, 0);
-
-                //Set glass
-                DwmManager.EnableBlurBehind(hwnd);
-            }
-
-            //Create rectangle and set its position and span
-            var rectangle = new Rectangle();
-            Grid.SetColumn(rectangle, 0);
-            Grid.SetRow(rectangle, 0);
-            Grid.SetColumnSpan(rectangle, mainGrid.ColumnDefinitions.Count > 0 ? mainGrid.ColumnDefinitions.Count : 1);
-            Grid.SetRowSpan(rectangle, mainGrid.RowDefinitions.Count > 0 ? mainGrid.RowDefinitions.Count : 1);
-
-            if (useGradient)
-            {
-                //Create the gradient brush
-                var gradients = new GradientStopCollection();
-                if (useGlass && CanUseGlass)
-                {
-                    gradients.Add(new GradientStop(Colors.White, 0));
-                    gradients.Add(new GradientStop(Color.FromArgb(150, 255, 255, 255), 1));
-                }
-                else
-                {
-                    gradients.Add(new GradientStop(Colors.White, 0));
-                    gradients.Add(new GradientStop(Colors.White, 0.5));
-                    gradients.Add(new GradientStop(Color.FromRgb(220, 220, 220), 1));
-                }
-
-                rectangle.Fill = new LinearGradientBrush(gradients, new Point(1, 0), new Point(1, 1));
-            }
-            else
-            {
-                rectangle.Fill = new SolidColorBrush(Color.FromArgb(200, 255, 255, 255));
-            }
-
-            //Insert the rectangle
-            mainGrid.Children.Insert(0, rectangle);
-        }
-
         public static bool ShowMessageBox(string title, string text, bool showCancel, bool isError)
         {
-            if (CanUseGlass && !Debugger.IsAttached)
-            {
-                var dialog = new TaskDialog(title, title, text,
-                                                   (showCancel ? (TaskDialogButton.OK | TaskDialogButton.Cancel) : TaskDialogButton.OK));
-                try
-                {
-                    dialog.CustomIcon = isError ? Properties.Resources.error_32 : Properties.Resources.info_32;
-                    var result = dialog.Show();
-                    return result.CommonButton == Result.OK;
-                }
-                catch (Exception e)
-                {
-                    System.Windows.Forms.MessageBox.Show(e.Message);
-                }
-                return false;
-            }
-            else
-            {
-                return System.Windows.Forms.MessageBox.Show(text, title,
+            return System.Windows.Forms.MessageBox.Show(text, title,
                     showCancel ? MessageBoxButtons.OKCancel : MessageBoxButtons.OK, isError ? MessageBoxIcon.Error : MessageBoxIcon.Information) == DialogResult.OK;
-            }
         }
 
         public static bool ShowMessageBoxWithExpansion(string title, string text, bool showCancel, bool isError, string expansion)
         {
-            if (CanUseGlass && !Debugger.IsAttached)
-            {
-                var dialog = new TaskDialog(title, title, text,
-                                                   (showCancel ? (TaskDialogButton.OK | TaskDialogButton.Cancel) : TaskDialogButton.OK));
-                try
-                {
-                    dialog.CustomIcon = isError ? Properties.Resources.error_32 : Properties.Resources.info_32;
-
-                    dialog.ShowExpandedInfoInFooter = true;
-                    dialog.ExpandedInformation = expansion;
-
-                    var result = dialog.Show();
-                    return result.CommonButton == Result.OK;
-                }
-                catch (Exception e)
-                {
-                    System.Windows.Forms.MessageBox.Show(e.Message);
-                }
-
-                return false;
-            }
-            else
-            {
-                return ShowMessageBox(title, text + "\n\n" + expansion, showCancel, isError);
-            }
+            return ShowMessageBox(title, text + "\n\n" + expansion, showCancel, isError);
         }
 
         public static bool ShowMessageBoxWithException(string title, string text, bool showCancel, bool isError, Exception ex)
@@ -213,19 +109,8 @@ namespace IndiaTango.Models
 
         public static bool Confirm(string title, string message)
         {
-            if (CanUseGlass && !Debugger.IsAttached)
-            {
-                var dialog = new TaskDialog(title, title, message,
-                                                   TaskDialogButton.Yes | TaskDialogButton.No,
-                                                   TaskDialogIcon.Warning);
-                var result = dialog.Show();
-                return result.CommonButton == Result.Yes;
-            }
-            else
-            {
-                return System.Windows.Forms.MessageBox.Show(message, title, MessageBoxButtons.YesNo,
+            return System.Windows.Forms.MessageBox.Show(message, title, MessageBoxButtons.YesNo,
                                             MessageBoxIcon.Warning) == DialogResult.Yes;
-            }
         }
 
         public static void RenderChartToImage(Chart elementToRender, GraphableSensor[] sensors, int width, int height, bool renderFullDataSeries, string filename)
@@ -338,12 +223,12 @@ namespace IndiaTango.Models
             if (delegatedBackgroundWorker == null)
                 delegatedBackgroundWorker = new BackgroundWorker();
 
-            if (string.IsNullOrWhiteSpace(sessionToSave.SaveLocation))
+            /*if (string.IsNullOrWhiteSpace(sessionToSave.SaveLocation))
             {
                 var saveFileDialog = new SaveFileDialog { Filter = "Site Files|*.b3" };
-                /*if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                    sessionToSave.SaveLocation = saveFileDialog.FileName;*/
-            }
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                    sessionToSave.SaveLocation = saveFileDialog.FileName;
+            }*/
 
             if (!string.IsNullOrWhiteSpace(sessionToSave.SaveLocation))
             {

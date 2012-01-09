@@ -16,7 +16,7 @@ namespace IndiaTango.Views
 
 		private void OnLoaded(object sender, RoutedEventArgs e)
 		{
-			Common.SetFancyBackground(this, grdMain,false, true);
+			
 		}
 
         private void UpdateSensorName(object sender, TextChangedEventArgs e)
