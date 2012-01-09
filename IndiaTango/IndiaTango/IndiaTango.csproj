@@ -111,6 +111,7 @@
     <Compile Include="Models\InputBindingTrigger.cs" />
     <Compile Include="Models\FloatStringConverter.cs" />
     <Compile Include="Models\ListedSensor.cs" />
+    <Compile Include="Models\ManufacturerHelper.cs" />
     <Compile Include="Models\MinMaxDetector.cs" />
     <Compile Include="Models\MissingValuesDetector.cs" />
     <Compile Include="Models\NamedBitmap.cs" />

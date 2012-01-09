@@ -1,5 +1,7 @@
-﻿using System.Windows.Controls;
+﻿using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using System;
 
 namespace IndiaTango.Models
 {
@@ -11,8 +13,32 @@ namespace IndiaTango.Models
 
             if (e.Key != Key.Enter || Text.Length <= 0) return;
 
-            UnitsHelper.Add(Text);
+            AddToHelper();
             SelectedItem = Text;
+        }
+
+        public static readonly DependencyProperty HelperProperty =
+            DependencyProperty.Register("Helper", typeof (string), typeof (EditableComboBox), new PropertyMetadata(default(string)));
+
+        public string Helper
+        {
+            get { return (string) GetValue(HelperProperty); }
+            set { SetValue(HelperProperty, value); }
+        }
+
+        private void AddToHelper()
+        {
+            if(Helper == null)
+                return;
+
+            if(String.CompareOrdinal(Helper, "Units") == 0)
+            {
+                UnitsHelper.Add(Text);
+            }
+            else if (String.CompareOrdinal(Helper, "Manufacturers") == 0)
+            {
+                ManufacturerHelper.Add(Text);
+            }
         }
     }
 }

@@ -737,5 +737,10 @@ namespace IndiaTango.Models
         {
             get { return UnitsHelper.Units; }
         }
+
+        public ObservableCollection<string> Manufacturers
+        {
+            get { return ManufacturerHelper.Manufacturers; }
+        }
     }
 }
