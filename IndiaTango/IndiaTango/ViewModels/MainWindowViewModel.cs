@@ -134,7 +134,8 @@ namespace IndiaTango.ViewModels
             _dateAnnotator = new DateAnnotationBehaviour { IsEnabled = true };
             behaviourManager.Behaviours.Add(_dateAnnotator);
 
-            behaviourManager.Behaviours.Add(new CalibrationAnnotatorBehaviour(this) { IsEnabled = true });
+            _calibrationAnnotator = new CalibrationAnnotatorBehaviour(this) { IsEnabled = true };
+            behaviourManager.Behaviours.Add(_calibrationAnnotator);
 
             Behaviour = behaviourManager;
 
@@ -208,6 +209,7 @@ namespace IndiaTango.ViewModels
         private readonly CustomZoomBehaviour _zoomBehaviour;
         private readonly CustomSelectionBehaviour _selectionBehaviour;
         private readonly DateAnnotationBehaviour _dateAnnotator;
+        private readonly CalibrationAnnotatorBehaviour _calibrationAnnotator;
         private SelectionMadeArgs _selection;
         private bool _actionsEnabled;
         private bool _detectionMethodsEnabled;
@@ -215,6 +217,7 @@ namespace IndiaTango.ViewModels
         private bool _revertGraphedToRawIsVisible;
         private bool _previousActionsStatus;
         private bool _useFullYAxis;
+
         #endregion
 
         #region Public Parameters
@@ -635,7 +638,11 @@ namespace IndiaTango.ViewModels
         public bool AnnotationsModeEnabled
         {
             get { return _dateAnnotator.IsEnabled; }
-            set { _dateAnnotator.IsEnabled = value; }
+            set
+            {
+                _dateAnnotator.IsEnabled = value;
+                _calibrationAnnotator.IsEnabled = value;
+            }
         }
 
         public DataTable DataTable

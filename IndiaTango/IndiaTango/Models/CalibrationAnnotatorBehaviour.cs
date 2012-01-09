@@ -29,6 +29,18 @@ namespace IndiaTango.Models
             Chart.Series.CollectionChanged += SeriesCollectionChanged;
             Chart.SizeChanged += ChartOnSizeChanged;
             Chart.XAxis.ValueConversionChanged += XAxisOnValueConversionChanged;
+            PropertyChanged += OnPropertyChanged;
+        }
+
+        private void OnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
+        {
+            if(propertyChangedEventArgs.PropertyName == "IsEnabled")
+            {
+                if(IsEnabled)
+                    DrawAnnotations();
+                else
+                    RemoveAllAnnotations();
+            }
         }
 
         public override void DeInit()
