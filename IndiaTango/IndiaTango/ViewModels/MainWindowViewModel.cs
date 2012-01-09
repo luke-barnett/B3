@@ -647,53 +647,17 @@ namespace IndiaTango.ViewModels
 
         public DataTable DataTable
         {
-            get
-            {
-                var sensors = SensorsToCheckMethodsAgainst.Distinct(new SensorNameEqualityComparer()).OrderBy(x => x.Name).ToArray();
+            get { return DataGridHelper.GenerateDataTable(SensorsToCheckMethodsAgainst, StartTime, EndTime); }
+        }
 
-                var table = new DataTable();
-
-                var timeStamps = sensors.SelectMany(x => x.CurrentState.Values.Keys).Where(x => x >= StartTime && x <= EndTime).Distinct();
-                table.Columns.Add(new DataColumn("Timestamp", typeof(DateTime)));
-
-                foreach (var sensor in sensors)
-                {
-                    table.Columns.Add(new DataColumn(sensor.Name.Replace(".", ""), typeof(string)));
-                }
-
-                foreach (var timeStamp in timeStamps)
-                {
-                    var row = table.NewRow();
-                    row[0] = timeStamp;
-                    for (var i = 0; i < sensors.Length; i++)
-                    {
-                        if (sensors[i].CurrentState.Values.ContainsKey(timeStamp))
-                            row[i + 1] = sensors[i].CurrentState.Values[timeStamp].ToString(CultureInfo.InvariantCulture);
-
-                        if (sensors[i].RawData.Values.ContainsKey(timeStamp))
-                            row[i + 1] += string.Format(" [{0}]",
-                                                        sensors[i].RawData.Values[timeStamp]);
-                    }
-                    table.Rows.Add(row);
-                }
-
-                return table;
-            }
+        public DataTable SummaryStatistics
+        {
+            get { return DataGridHelper.GenerateSummaryStatistics(SensorsToCheckMethodsAgainst, StartTime, EndTime); }
         }
 
         public string TotalDataCount
         {
             get { return SensorsToCheckMethodsAgainst.Sum(x => x.CurrentState.Values.Count).ToString(CultureInfo.InvariantCulture); }
-        }
-
-        public string MeanDataCount
-        {
-            get { return (SensorsToCheckMethodsAgainst.Count > 0) ? SensorsToCheckMethodsAgainst.Average(x => x.CurrentState.Values.Count).ToString(CultureInfo.InvariantCulture) : "0"; }
-        }
-
-        public string Mean
-        {
-            get { return (SensorsToCheckMethodsAgainst.Count > 0) ? SensorsToCheckMethodsAgainst.SelectMany(x => x.CurrentState.Values).Average(x => x.Value).ToString(CultureInfo.InvariantCulture) : "0"; }
         }
 
         public bool ApplyToAllSensors { get; set; }
@@ -744,8 +708,7 @@ namespace IndiaTango.ViewModels
         {
             NotifyOfPropertyChange(() => DataTable);
             NotifyOfPropertyChange(() => TotalDataCount);
-            NotifyOfPropertyChange(() => MeanDataCount);
-            NotifyOfPropertyChange(() => Mean);
+            NotifyOfPropertyChange(() => SummaryStatistics);
         }
 
         private void SampleValues(int numberOfPoints, ICollection<GraphableSensor> sensors, string sender)

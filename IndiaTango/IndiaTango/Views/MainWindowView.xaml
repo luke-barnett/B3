@@ -412,31 +412,25 @@
                 <TabItem Header="Values">
                     <Grid>
                         <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
                             <RowDefinition Height="140" />
                         </Grid.RowDefinitions>
-                        <DataGrid Grid.Row="0" ItemsSource="{Binding DataTable}" IsReadOnly="True" Background="Transparent" BorderThickness="0" />
-                        <GroupBox Grid.Row="1" Header="Summary Statistics" BorderBrush="OrangeRed">
-                            <Grid Margin="5">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
+                        <WrapPanel HorizontalAlignment="Right">
+                            <CheckBox Content="View All Sensors" Margin="5" />
+                        </WrapPanel>
+                        <DataGrid Grid.Row="1" ItemsSource="{Binding DataTable}" IsReadOnly="True" Background="Transparent" BorderThickness="0" />
+                        <GroupBox Grid.Row="2" Header="Summary Statistics" BorderBrush="OrangeRed">
+                            <Grid>
                                 <Grid.RowDefinitions>
-                                    <RowDefinition Height="10" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
-                                <TextBlock Grid.Column="0" Grid.Row="1" Text="Total Data Count:" Margin="10,0" />
-                                <TextBlock Grid.Column="0" Grid.Row="2" Text="Mean Data Count Per Sensor:" Margin="10,0" />
-                                <TextBlock Grid.Column="0" Grid.Row="3" Text="Mean:" Margin="10,0" />
-
-                                <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding TotalDataCount}" />
-                                <TextBlock Grid.Column="1" Grid.Row="2" Text="{Binding MeanDataCount}" />
-                                <TextBlock Grid.Column="1" Grid.Row="3" Text="{Binding Mean}" />
+                                <DataGrid Grid.Row="0" ItemsSource="{Binding SummaryStatistics}" IsReadOnly="True" Background="Transparent" BorderThickness="0" />
+                                <WrapPanel Grid.Row="1" HorizontalAlignment="Right">
+                                    <TextBlock Text="Total Data Point Count:" Margin="5,0" />
+                                    <TextBlock Text="{Binding TotalDataCount}" />
+                                </WrapPanel>
                             </Grid>
                         </GroupBox>
                     </Grid>

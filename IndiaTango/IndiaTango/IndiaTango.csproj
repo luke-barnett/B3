@@ -93,6 +93,7 @@
     <Compile Include="Models\ChangeReason.cs" />
     <Compile Include="Models\Colour.cs" />
     <Compile Include="Models\ColourConverter.cs" />
+    <Compile Include="Models\DataGridHelper.cs" />
     <Compile Include="Models\DateAnnotationBehaviour.cs" />
     <Compile Include="Models\DescriptionHelper.cs" />
     <Compile Include="Models\EditableComboBox.cs" />
