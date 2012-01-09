@@ -28,17 +28,25 @@ namespace IndiaTango.Models
         {
             Chart.Series.CollectionChanged += SeriesCollectionChanged;
             Chart.SizeChanged += ChartOnSizeChanged;
-        }
-
-        private void ChartOnSizeChanged(object sender, SizeChangedEventArgs sizeChangedEventArgs)
-        {
-            DrawAnnotations();
+            Chart.XAxis.ValueConversionChanged += XAxisOnValueConversionChanged;
         }
 
         public override void DeInit()
         {
             Chart.Series.CollectionChanged -= SeriesCollectionChanged;
+            Chart.SizeChanged -= ChartOnSizeChanged;
+            Chart.XAxis.ValueConversionChanged -= XAxisOnValueConversionChanged;
             RemoveAllAnnotations();
+        }
+
+        private void XAxisOnValueConversionChanged(object sender, EventArgs eventArgs)
+        {
+            DrawAnnotations();
+        }
+
+        private void ChartOnSizeChanged(object sender, SizeChangedEventArgs sizeChangedEventArgs)
+        {
+            DrawAnnotations();
         }
 
         private void SeriesCollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)

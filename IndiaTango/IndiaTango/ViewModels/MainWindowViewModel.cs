@@ -2758,6 +2758,8 @@ namespace IndiaTango.ViewModels
             if (e == null)
                 return;
 
+            var oldValue = StartTime;
+
             if ((e.OldValue != null && (DateTime)e.OldValue == new DateTime()) || (DateTime)e.NewValue < EndTime)
                 StartTime = (DateTime)e.NewValue;
             else if (e.OldValue != null)
@@ -2768,7 +2770,7 @@ namespace IndiaTango.ViewModels
                 sensor.SetUpperAndLowerBounds(StartTime, EndTime);
             }
 
-            if (e.OldValue != null && (DateTime)e.OldValue != DateTime.MinValue)
+            if (oldValue != StartTime && e.OldValue != null && (DateTime)e.OldValue != DateTime.MinValue)
                 SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "StartTimeChanged");
             UpdateDataTable();
         }
@@ -2782,6 +2784,8 @@ namespace IndiaTango.ViewModels
             if (e == null)
                 return;
 
+            var oldValue = EndTime;
+
             if ((e.OldValue != null && (DateTime)e.OldValue == new DateTime()) || (DateTime)e.NewValue > StartTime)
                 EndTime = (DateTime)e.NewValue;
             else if (e.OldValue != null)
@@ -2792,7 +2796,7 @@ namespace IndiaTango.ViewModels
                 sensor.SetUpperAndLowerBounds(StartTime, EndTime);
             }
 
-            if (e.OldValue != null && (DateTime)e.OldValue != DateTime.MaxValue)
+            if (oldValue != EndTime && e.OldValue != null && (DateTime)e.OldValue != DateTime.MaxValue)
                 SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "EndTimeChanged");
             UpdateDataTable();
         }
