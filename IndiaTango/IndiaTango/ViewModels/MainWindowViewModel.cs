@@ -43,7 +43,7 @@ namespace IndiaTango.ViewModels
             _container = container;
 
             _sensorsToGraph = new ObservableCollection<GraphableSensor>();
-            _sensorsToCheckMethodsAgainst = new ObservableCollection<Sensor>();
+            SensorsToCheckMethodsAgainst = new ObservableCollection<Sensor>();
 
             #region Set Up Detection Methods
 
@@ -134,6 +134,8 @@ namespace IndiaTango.ViewModels
             _dateAnnotator = new DateAnnotationBehaviour { IsEnabled = true };
             behaviourManager.Behaviours.Add(_dateAnnotator);
 
+            behaviourManager.Behaviours.Add(new CalibrationAnnotatorBehaviour(this) { IsEnabled = true });
+
             Behaviour = behaviourManager;
 
             #endregion
@@ -179,7 +181,7 @@ namespace IndiaTango.ViewModels
         private string _yAxisTitle;
         private DoubleRange _range;
         private readonly ObservableCollection<GraphableSensor> _sensorsToGraph;
-        private readonly ObservableCollection<Sensor> _sensorsToCheckMethodsAgainst;
+        public readonly ObservableCollection<Sensor> SensorsToCheckMethodsAgainst;
         private int _sampleRate;
         private DateTime _startTime = DateTime.MinValue;
         private DateTime _endTime = DateTime.MaxValue;
@@ -258,7 +260,7 @@ namespace IndiaTango.ViewModels
 
         private List<Sensor> SensorsForEditing
         {
-            get { return _sensorsToCheckMethodsAgainst.ToList(); }
+            get { return SensorsToCheckMethodsAgainst.ToList(); }
         }
 
         private bool CurrentDataSetNotNull
@@ -640,7 +642,7 @@ namespace IndiaTango.ViewModels
         {
             get
             {
-                var sensors = _sensorsToCheckMethodsAgainst.Distinct(new SensorNameEqualityComparer()).OrderBy(x => x.Name).ToArray();
+                var sensors = SensorsToCheckMethodsAgainst.Distinct(new SensorNameEqualityComparer()).OrderBy(x => x.Name).ToArray();
 
                 var table = new DataTable();
 
@@ -674,17 +676,17 @@ namespace IndiaTango.ViewModels
 
         public string TotalDataCount
         {
-            get { return _sensorsToCheckMethodsAgainst.Sum(x => x.CurrentState.Values.Count).ToString(CultureInfo.InvariantCulture); }
+            get { return SensorsToCheckMethodsAgainst.Sum(x => x.CurrentState.Values.Count).ToString(CultureInfo.InvariantCulture); }
         }
 
         public string MeanDataCount
         {
-            get { return (_sensorsToCheckMethodsAgainst.Count > 0) ? _sensorsToCheckMethodsAgainst.Average(x => x.CurrentState.Values.Count).ToString(CultureInfo.InvariantCulture) : "0"; }
+            get { return (SensorsToCheckMethodsAgainst.Count > 0) ? SensorsToCheckMethodsAgainst.Average(x => x.CurrentState.Values.Count).ToString(CultureInfo.InvariantCulture) : "0"; }
         }
 
         public string Mean
         {
-            get { return (_sensorsToCheckMethodsAgainst.Count > 0) ? _sensorsToCheckMethodsAgainst.SelectMany(x => x.CurrentState.Values).Average(x => x.Value).ToString(CultureInfo.InvariantCulture) : "0"; }
+            get { return (SensorsToCheckMethodsAgainst.Count > 0) ? SensorsToCheckMethodsAgainst.SelectMany(x => x.CurrentState.Values).Average(x => x.Value).ToString(CultureInfo.InvariantCulture) : "0"; }
         }
 
         public bool ApplyToAllSensors { get; set; }
@@ -709,11 +711,11 @@ namespace IndiaTango.ViewModels
             var checkedSensors = GraphableSensors.Where(x => x.IsChecked).ToArray();
             _graphableSensors = null;
 
-            foreach (var sensor in _sensorsToCheckMethodsAgainst)
+            foreach (var sensor in SensorsToCheckMethodsAgainst)
             {
                 sensor.PropertyChanged -= SensorPropertyChanged;
             }
-            _sensorsToCheckMethodsAgainst.Clear();
+            SensorsToCheckMethodsAgainst.Clear();
             _sensorsToGraph.Clear();
 
             foreach (var gSensor in checkedSensors.Where(x => Sensors.Contains(x.Sensor)))
@@ -1384,7 +1386,7 @@ namespace IndiaTango.ViewModels
             applyToStackPanel.Children.Add(applyToCombo);
 
             applyToCombo.Items.Add("All");
-            _sensorsToCheckMethodsAgainst.CollectionChanged += (o, e) => applyToCombo.Dispatcher.BeginInvoke(
+            SensorsToCheckMethodsAgainst.CollectionChanged += (o, e) => applyToCombo.Dispatcher.BeginInvoke(
                 DispatcherPriority.Input,
                 new ThreadStart(() =>
                                     {
@@ -1562,7 +1564,7 @@ namespace IndiaTango.ViewModels
                                              //                                 "Should we use the date range of your selection for to apply the formula on?");
                                              var reason = Common.RequestReason(_container, _windowManager, "Calibration CalA='" + calibratedAValue + "', CalB='" + calibratedBValue + "', CurA='" + currentAValue + "', CurB='" + currentBValue + "' successfully applied to the sensor.");
                                              var successfulSensors = new List<Sensor>();
-                                             foreach (var sensor in _sensorsToCheckMethodsAgainst.Where(x => (string)applyToCombo.SelectedItem == "All" || (string)applyToCombo.SelectedItem == x.Name))
+                                             foreach (var sensor in SensorsToCheckMethodsAgainst.Where(x => (string)applyToCombo.SelectedItem == "All" || (string)applyToCombo.SelectedItem == x.Name))
                                              {
                                                  try
                                                  {
@@ -1646,7 +1648,7 @@ namespace IndiaTango.ViewModels
                                                    //if (Selection != null)
                                                    //    useSelected = Common.Confirm("Should we use your selection?",
                                                    //                                 "Should we use the date range of your selection for to apply the formula on?");
-                                                   foreach (var sensor in _sensorsToCheckMethodsAgainst.Where(x => (string)applyToCombo.SelectedItem == "All" || (string)applyToCombo.SelectedItem == x.Name))
+                                                   foreach (var sensor in SensorsToCheckMethodsAgainst.Where(x => (string)applyToCombo.SelectedItem == "All" || (string)applyToCombo.SelectedItem == x.Name))
                                                    {
                                                        var gSensor =
                                                            _sensorsToGraph.FirstOrDefault(x => x.Sensor == sensor);
@@ -1764,7 +1766,7 @@ namespace IndiaTango.ViewModels
                 var valuesDictionary = new Dictionary<IDetectionMethod, IEnumerable<ErroneousValue>>();
                 foreach (var detectionMethod in methodsToCheck)
                 {
-                    foreach (var sensor in _sensorsToCheckMethodsAgainst)
+                    foreach (var sensor in SensorsToCheckMethodsAgainst)
                     {
                         WaitEventString = string.Format("Checking {0} for {1}", sensor.Name, detectionMethod.Name);
                         Debug.Print("[CheckTheseMethods] Checking {0} for {1}", sensor.Name, detectionMethod.Name);
@@ -1859,7 +1861,7 @@ namespace IndiaTango.ViewModels
         private void UpdateDetectionMethodGraphableSensors()
         {
             var availableOptions =
-                _sensorsToGraph.Where(x => _sensorsToCheckMethodsAgainst.Contains(x.Sensor)).Select(x => x.Sensor).ToArray();
+                _sensorsToGraph.Where(x => SensorsToCheckMethodsAgainst.Contains(x.Sensor)).Select(x => x.Sensor).ToArray();
             foreach (var detectionMethod in _detectionMethods)
             {
                 detectionMethod.SensorOptions = availableOptions;
@@ -1876,7 +1878,7 @@ namespace IndiaTango.ViewModels
                 if (ApplyToAllSensors && !Common.Confirm("Are you sure?",
                                    "You've set to apply changes to all sensors.\r\nThis means you're editing values you can't see"))
                     return;
-                foreach (var sensor in ApplyToAllSensors ? Sensors : _sensorsToCheckMethodsAgainst.ToList())
+                foreach (var sensor in ApplyToAllSensors ? Sensors : SensorsToCheckMethodsAgainst.ToList())
                 {
                     var sensorCopy = sensor;
                     list.AddRange(sensor.CurrentState.Values.Where(
@@ -1938,7 +1940,7 @@ namespace IndiaTango.ViewModels
                 if (ApplyToAllSensors && !Common.Confirm("Are you sure?",
                                    "You've set to apply changes to all sensors.\r\nThis means you're editing values you can't see"))
                     return;
-                foreach (var sensor in ApplyToAllSensors ? Sensors : _sensorsToCheckMethodsAgainst.ToList())
+                foreach (var sensor in ApplyToAllSensors ? Sensors : SensorsToCheckMethodsAgainst.ToList())
                 {
                     var sensorCopy = sensor;
                     list.AddRange(sensor.CurrentState.Values.Where(
@@ -2008,7 +2010,7 @@ namespace IndiaTango.ViewModels
                 if (ApplyToAllSensors && !Common.Confirm("Are you sure?",
                                    "You've set to apply changes to all sensors.\r\nThis means you're editing values you can't see"))
                     return;
-                foreach (var sensor in ApplyToAllSensors ? Sensors : _sensorsToCheckMethodsAgainst.ToList())
+                foreach (var sensor in ApplyToAllSensors ? Sensors : SensorsToCheckMethodsAgainst.ToList())
                 {
                     var sensorCopy = sensor;
                     list.AddRange(sensor.CurrentState.Values.Where(
@@ -2349,7 +2351,7 @@ namespace IndiaTango.ViewModels
         public void CreateNewSite()
         {
             _sensorsToGraph.Clear();
-            _sensorsToCheckMethodsAgainst.Clear();
+            SensorsToCheckMethodsAgainst.Clear();
             UpdateGraph(true);
 
             var saveFirst = false;
@@ -2422,7 +2424,7 @@ namespace IndiaTango.ViewModels
                 return;
 
             _sensorsToGraph.Clear();
-            _sensorsToCheckMethodsAgainst.Clear();
+            SensorsToCheckMethodsAgainst.Clear();
             UpdateGraph(true);
 
             if (_chosenSelectedIndex < 0)
@@ -2642,7 +2644,7 @@ namespace IndiaTango.ViewModels
                                Common.Confirm("Use selection?",
                                               "Should we only revert what is currently selected on the graph?\r\n(Otherwise we will revert all that is visible on the graph)");
 
-            foreach (var sensor in _sensorsToCheckMethodsAgainst)
+            foreach (var sensor in SensorsToCheckMethodsAgainst)
             {
                 if (useSelection)
                     sensor.RevertToRaw(Selection.LowerX, Selection.UpperX, (float)Selection.LowerY, (float)Selection.UpperY);
@@ -2823,8 +2825,8 @@ namespace IndiaTango.ViewModels
             CurrentDataset.Sensors.Remove(gSensor.Sensor);
             if (_sensorsToGraph.Contains(gSensor))
                 _sensorsToGraph.Remove(gSensor);
-            if (_sensorsToCheckMethodsAgainst.Contains(gSensor.Sensor))
-                _sensorsToCheckMethodsAgainst.Remove(gSensor.Sensor);
+            if (SensorsToCheckMethodsAgainst.Contains(gSensor.Sensor))
+                SensorsToCheckMethodsAgainst.Remove(gSensor.Sensor);
             _graphableSensors = null;
             NotifyOfPropertyChange(() => GraphableSensors);
         }
@@ -2856,7 +2858,7 @@ namespace IndiaTango.ViewModels
 
         public void AddToEditingSensors(GraphableSensor graphableSensor)
         {
-            _sensorsToCheckMethodsAgainst.Add(graphableSensor.Sensor);
+            SensorsToCheckMethodsAgainst.Add(graphableSensor.Sensor);
             graphableSensor.Sensor.PropertyChanged += SensorPropertyChanged;
             UpdateDetectionMethodGraphableSensors();
             NotifyOfPropertyChange(() => SensorsForEditing);
@@ -2875,8 +2877,8 @@ namespace IndiaTango.ViewModels
         {
             var checkBox = (CheckBox)eventArgs.Source;
             var graphableSensor = (GraphableSensor)checkBox.Content;
-            if (_sensorsToCheckMethodsAgainst.Contains(graphableSensor.Sensor))
-                _sensorsToCheckMethodsAgainst.Remove(graphableSensor.Sensor);
+            if (SensorsToCheckMethodsAgainst.Contains(graphableSensor.Sensor))
+                SensorsToCheckMethodsAgainst.Remove(graphableSensor.Sensor);
             graphableSensor.Sensor.PropertyChanged -= SensorPropertyChanged;
             NotifyOfPropertyChange(() => SensorsForEditing);
             UpdateDetectionMethodGraphableSensors();
@@ -2888,7 +2890,7 @@ namespace IndiaTango.ViewModels
 
                 var itemsToRemove =
                     detectionMethod.ListBox.Items.Cast<ErroneousValue>().Where(
-                        value => !_sensorsToCheckMethodsAgainst.Contains(value.Owner)).ToList();
+                        value => !SensorsToCheckMethodsAgainst.Contains(value.Owner)).ToList();
 
                 foreach (var erroneousValue in itemsToRemove)
                 {
@@ -2997,6 +2999,11 @@ namespace IndiaTango.ViewModels
             var newMetaData = new SensorMetaData(sender.Text);
             sensor.Sensor.MetaData.Add(newMetaData);
             sensor.Sensor.CurrentMetaData = newMetaData;
+        }
+
+        public void WindowSizeChanged()
+        {
+            SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "WindowSizeChanged");
         }
 
         #endregion

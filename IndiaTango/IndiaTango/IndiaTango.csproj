@@ -93,6 +93,7 @@
     <Compile Include="Models\AboveMaxValueDetector.cs" />
     <Compile Include="Models\BelowMinValueDetector.cs" />
     <Compile Include="Models\Calibration.cs" />
+    <Compile Include="Models\CalibrationAnnotatorBehaviour.cs" />
     <Compile Include="Models\ChangeReason.cs" />
     <Compile Include="Models\Colour.cs" />
     <Compile Include="Models\ColourConverter.cs" />
