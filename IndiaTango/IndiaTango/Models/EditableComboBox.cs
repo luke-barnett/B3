@@ -39,6 +39,10 @@ namespace IndiaTango.Models
             {
                 ManufacturerHelper.Add(Text);
             }
+            else if (String.CompareOrdinal(Helper, "Descriptions") == 0)
+            {
+                DescriptionHelper.Add(Text);
+            }
         }
     }
 }
