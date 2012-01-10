@@ -148,6 +148,38 @@ namespace IndiaTango.Models
 
             #endregion
 
+            #region Median
+
+            var median = table.NewRow();
+
+            median[0] = "Median";
+
+            for (var i = 0; i < sensors.Length; i++)
+            {
+                median[i + 1] =
+                    sensors[i].CurrentState.Values.Select(x => x.Value).Median().ToString(CultureInfo.InvariantCulture);
+            }
+
+            table.Rows.Add(median);
+
+            #endregion
+
+            #region Standard Dev
+
+            var standardDev = table.NewRow();
+
+            standardDev[0] = "Standard Deviation";
+
+            for (var i = 0; i < sensors.Length; i++)
+            {
+                standardDev[i + 1] =
+                    sensors[i].CurrentState.Values.Select(x => x.Value).StandardDeviation().ToString(CultureInfo.InvariantCulture);
+            }
+
+            table.Rows.Add(standardDev);
+
+            #endregion
+
             return table;
         }
     }
