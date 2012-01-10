@@ -15,6 +15,12 @@ namespace IndiaTango.Models
             if (sensors.Length == 0)
                 return new DataTable();
 
+            if (startTime < sensors[0].Owner.StartTimeStamp)
+                startTime = sensors[0].Owner.StartTimeStamp;
+
+            if (endTime > sensors[0].Owner.EndTimeStamp)
+                endTime = sensors[0].Owner.EndTimeStamp;
+
             var table = new DataTable();
 
             table.Columns.Add(new DataColumn("Timestamp", typeof(DateTime)));

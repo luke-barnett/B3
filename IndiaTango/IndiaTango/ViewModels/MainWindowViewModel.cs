@@ -218,6 +218,9 @@ namespace IndiaTango.ViewModels
         private bool _previousActionsStatus;
         private bool _useFullYAxis;
         private bool _graphEnabled = true;
+        private bool _viewAllSensors;
+        private DataTable _dataTable;
+        private DataTable _summaryStatistics;
 
         #endregion
 
@@ -648,17 +651,17 @@ namespace IndiaTango.ViewModels
 
         public DataTable DataTable
         {
-            get { return DataGridHelper.GenerateDataTable(SensorsToCheckMethodsAgainst, StartTime, EndTime); }
+            get { return _dataTable ?? new DataTable(); }
         }
 
         public DataTable SummaryStatistics
         {
-            get { return DataGridHelper.GenerateSummaryStatistics(SensorsToCheckMethodsAgainst, StartTime, EndTime); }
+            get { return _summaryStatistics ?? new DataTable(); }
         }
 
         public string TotalDataCount
         {
-            get { return SensorsToCheckMethodsAgainst.Sum(x => x.CurrentState.Values.Count(y => y.Key >= StartTime && y.Key <= EndTime)).ToString(CultureInfo.InvariantCulture); }
+            get { return (ViewAllSensors) ? Sensors.Sum(x => x.CurrentState.Values.Count(y => y.Key >= StartTime && y.Key <= EndTime)).ToString(CultureInfo.InvariantCulture) : SensorsToCheckMethodsAgainst.Sum(x => x.CurrentState.Values.Count(y => y.Key >= StartTime && y.Key <= EndTime)).ToString(CultureInfo.InvariantCulture); }
         }
 
         public bool ApplyToAllSensors { get; set; }
@@ -670,6 +673,17 @@ namespace IndiaTango.ViewModels
             {
                 _selectionBehaviour.UseFullYAxis = value;
                 _useFullYAxis = value;
+            }
+        }
+
+        public bool ViewAllSensors
+        {
+            get { return _viewAllSensors; }
+            set
+            {
+                _viewAllSensors = value;
+                NotifyOfPropertyChange(() => ViewAllSensors);
+                UpdateDataTable(true);
             }
         }
 
@@ -705,12 +719,29 @@ namespace IndiaTango.ViewModels
             NotifyOfPropertyChange(() => GraphableSensors);
         }
 
-        private void UpdateDataTable()
+        private void UpdateDataTable(bool overrideViewAllSensorsCheck = false)
         {
-            if (_graphEnabled) return;
-            NotifyOfPropertyChange(() => DataTable);
-            NotifyOfPropertyChange(() => TotalDataCount);
-            NotifyOfPropertyChange(() => SummaryStatistics);
+            if (_graphEnabled || (ViewAllSensors && !overrideViewAllSensorsCheck)) return;
+
+            var bw = new BackgroundWorker();
+            bw.DoWork += (o, e) =>
+                             {
+                                 _dataTable = (ViewAllSensors) ? DataGridHelper.GenerateDataTable(Sensors, StartTime, EndTime) : DataGridHelper.GenerateDataTable(SensorsToCheckMethodsAgainst, StartTime, EndTime);
+                                 _summaryStatistics = (ViewAllSensors) ? new DataTable() : DataGridHelper.GenerateSummaryStatistics(SensorsToCheckMethodsAgainst, StartTime,EndTime);
+                             };
+            bw.RunWorkerCompleted += (o, e) =>
+                                         {
+                                             NotifyOfPropertyChange(() => DataTable);
+                                             NotifyOfPropertyChange(() => TotalDataCount);
+                                             NotifyOfPropertyChange(() => SummaryStatistics);
+                                             EnableFeatures();
+                                             ShowProgressArea = false;
+                                         };
+            DisableFeatures();
+            ShowProgressArea = true;
+            ProgressIndeterminate = true;
+            WaitEventString = "Generating Table";
+            bw.RunWorkerAsync();
         }
 
         private void SampleValues(int numberOfPoints, ICollection<GraphableSensor> sensors, string sender)
