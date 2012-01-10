@@ -429,14 +429,14 @@
                         <WrapPanel HorizontalAlignment="Right">
                             <CheckBox Content="View All Sensors" Margin="5" IsEnabled="{Binding FeaturesEnabled}" IsChecked="{Binding ViewAllSensors,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
                         </WrapPanel>
-                        <DataGrid Grid.Row="1" ItemsSource="{Binding DataTable}" IsReadOnly="True" Background="Transparent" BorderThickness="0" />
+                        <models:CustomDataGrid Grid.Row="1" ItemsSource="{Binding DataTable}" CanUserDeleteRows="True" Background="Transparent" BorderThickness="0" AlternatingRowBackground="LightGray" AlternationCount="2" cal:Message.Attach="[Event DeleteRequested] = [Action DeleteRequestedFromDataTable($eventArgs)]" />
                         <GroupBox Grid.Row="2" Header="Summary Statistics" BorderBrush="OrangeRed">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="*" />
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
-                                <DataGrid Grid.Row="0" ItemsSource="{Binding SummaryStatistics}" IsReadOnly="True" Background="Transparent" BorderThickness="0" />
+                                <DataGrid Grid.Row="0" ItemsSource="{Binding SummaryStatistics}" IsReadOnly="True" Background="Transparent" BorderThickness="0" AlternatingRowBackground="LightGray" AlternationCount="2" />
                                 <WrapPanel Grid.Row="1" HorizontalAlignment="Right">
                                     <TextBlock Text="Total Data Point Count:" Margin="5,0" />
                                     <TextBlock Text="{Binding TotalDataCount}" />

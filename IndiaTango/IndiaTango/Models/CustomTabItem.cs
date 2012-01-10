@@ -23,7 +23,7 @@ namespace IndiaTango.Models
             RaiseEvent(newEventArgs);
         }
 
-        protected override void OnSelected(System.Windows.RoutedEventArgs e)
+        protected override void OnSelected(RoutedEventArgs e)
         {
             base.OnSelected(e);
             RaiseWasSelectedEvent();

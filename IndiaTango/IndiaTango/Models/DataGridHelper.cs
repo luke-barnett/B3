@@ -139,52 +139,28 @@ namespace IndiaTango.Models
 
             #endregion
 
-            #region Mean
-
             var mean = table.NewRow();
-
             mean[0] = "Mean";
 
-            for (var i = 0; i < sensors.Length; i++)
-            {
-                mean[i + 1] = sensors[i].CurrentState.Values.Where(x => x.Key >= startTime && x.Key <= endTime).Average(x => x.Value).ToString(CultureInfo.InvariantCulture);
-            }
-
-            table.Rows.Add(mean);
-
-            #endregion
-
-            #region Median
-
             var median = table.NewRow();
-
             median[0] = "Median";
 
-            for (var i = 0; i < sensors.Length; i++)
-            {
-                median[i + 1] =
-                    sensors[i].CurrentState.Values.Where(x => x.Key >= startTime && x.Key <= endTime).Select(x => x.Value).Median().ToString(CultureInfo.InvariantCulture);
-            }
-
-            table.Rows.Add(median);
-
-            #endregion
-
-            #region Standard Dev
-
             var standardDev = table.NewRow();
-
             standardDev[0] = "Standard Deviation";
 
             for (var i = 0; i < sensors.Length; i++)
             {
-                standardDev[i + 1] =
-                    sensors[i].CurrentState.Values.Where(x => x.Key >= startTime && x.Key <= endTime).Select(x => x.Value).StandardDeviation().ToString(CultureInfo.InvariantCulture);
+                var validValues = sensors[i].CurrentState.Values.Where(x => x.Key >= startTime && x.Key <= endTime).ToList();
+                if (validValues.Count == 0) continue;
+
+                mean[i + 1] = validValues.Average(x => x.Value).ToString(CultureInfo.InvariantCulture);
+                median[i + 1] = validValues.Select(x => x.Value).Median().ToString(CultureInfo.InvariantCulture);
+                standardDev[i + 1] = validValues.Select(x => x.Value).StandardDeviation().ToString(CultureInfo.InvariantCulture);
             }
 
+            table.Rows.Add(mean);
+            table.Rows.Add(median);
             table.Rows.Add(standardDev);
-
-            #endregion
 
             return table;
         }

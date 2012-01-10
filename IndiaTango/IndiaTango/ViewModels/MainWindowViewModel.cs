@@ -727,7 +727,7 @@ namespace IndiaTango.ViewModels
             bw.DoWork += (o, e) =>
                              {
                                  _dataTable = (ViewAllSensors) ? DataGridHelper.GenerateDataTable(Sensors, StartTime, EndTime) : DataGridHelper.GenerateDataTable(SensorsToCheckMethodsAgainst, StartTime, EndTime);
-                                 _summaryStatistics = (ViewAllSensors) ? new DataTable() : DataGridHelper.GenerateSummaryStatistics(SensorsToCheckMethodsAgainst, StartTime,EndTime);
+                                 _summaryStatistics = (ViewAllSensors) ? new DataTable() : DataGridHelper.GenerateSummaryStatistics(SensorsToCheckMethodsAgainst, StartTime, EndTime);
                              };
             bw.RunWorkerCompleted += (o, e) =>
                                          {
@@ -3027,6 +3027,39 @@ namespace IndiaTango.ViewModels
             SampleValues(0, new Collection<GraphableSensor>(), "DisablingGraph");
             _graphEnabled = false;
             UpdateDataTable();
+        }
+
+        public void DeleteRequestedFromDataTable(DeleteRequestedEventArgs eventArgs)
+        {
+            var sensorList = (ViewAllSensors) ? Sensors : SensorsToCheckMethodsAgainst.ToList();
+
+            var bw = new BackgroundWorker();
+            var reason = Common.RequestReason(_container, _windowManager, "Values were removed");
+            bw.DoWork += (o, e) =>
+            {
+                foreach (var sensor in sensorList)
+                {
+                    sensor.AddState(sensor.CurrentState.RemoveValues(eventArgs.TimeStamps.ToList(), reason));
+                }
+            };
+
+            bw.RunWorkerCompleted += (o, e) =>
+            {
+                FeaturesEnabled = true;
+                ShowProgressArea = false;
+                //Update the needed graphed items
+                foreach (var graphableSensor in GraphableSensors.Where(x => sensorList.Contains(x.Sensor)))
+                    graphableSensor.RefreshDataPoints();
+                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "RemoveValues");
+                UpdateUndoRedo();
+                Common.ShowMessageBox("Values Updated", "The selected values were removed", false, false);
+            };
+
+            FeaturesEnabled = false;
+            ShowProgressArea = true;
+            ProgressIndeterminate = true;
+            WaitEventString = "Removing values";
+            bw.RunWorkerAsync();
         }
 
         #endregion
