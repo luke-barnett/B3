@@ -683,7 +683,7 @@ namespace IndiaTango.ViewModels
             {
                 _viewAllSensors = value;
                 NotifyOfPropertyChange(() => ViewAllSensors);
-                UpdateDataTable(true);
+                UpdateDataTable();
             }
         }
 
@@ -719,9 +719,9 @@ namespace IndiaTango.ViewModels
             NotifyOfPropertyChange(() => GraphableSensors);
         }
 
-        private void UpdateDataTable(bool overrideViewAllSensorsCheck = false)
+        private void UpdateDataTable()
         {
-            if (_graphEnabled || (ViewAllSensors && !overrideViewAllSensorsCheck)) return;
+            if (_graphEnabled) return;
 
             var bw = new BackgroundWorker();
             bw.DoWork += (o, e) =>
@@ -3053,6 +3053,59 @@ namespace IndiaTango.ViewModels
                 SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "RemoveValues");
                 UpdateUndoRedo();
                 Common.ShowMessageBox("Values Updated", "The selected values were removed", false, false);
+            };
+
+            FeaturesEnabled = false;
+            ShowProgressArea = true;
+            ProgressIndeterminate = true;
+            WaitEventString = "Removing values";
+            bw.RunWorkerAsync();
+        }
+
+        public void EditRequestedFromDataTable(EditRequestedEventArgs eventArgs)
+        {
+            var sensor = Sensors.FirstOrDefault(x => String.CompareOrdinal(x.Name.Replace(".", ""), eventArgs.SensorName) == 0);
+            if (sensor == null) return;
+
+
+            var specifyValueView = _container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel") as SpecifyValueViewModel;
+
+            if (specifyValueView == null)
+                return;
+
+            float value;
+
+            _windowManager.ShowDialog(specifyValueView);
+
+            if (specifyValueView.WasCanceled)
+                return;
+
+            try
+            {
+                value = float.Parse(specifyValueView.Text);
+            }
+            catch (Exception)
+            {
+                Common.ShowMessageBox("An Error Occured", "Please enter a valid number.", true, true);
+                return;
+            }
+
+            var reason = Common.RequestReason(_container, _windowManager, "Values were set to " + value);
+
+            var bw = new BackgroundWorker();
+
+            bw.DoWork += (o, e) => sensor.AddState(sensor.CurrentState.MakeValue(new List<DateTime> { eventArgs.TimeStamp }, value, reason));
+
+            bw.RunWorkerCompleted += (o, e) =>
+            {
+                FeaturesEnabled = true;
+                ShowProgressArea = false;
+                //Update the needed graphed items
+                foreach (var graphableSensor in GraphableSensors.Where(x => x.Sensor == sensor))
+                    graphableSensor.RefreshDataPoints();
+                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "SpecifyValues");
+                UpdateUndoRedo();
+                Common.ShowMessageBox("Values Updated", "The selected values set to " + value, false, false);
             };
 
             FeaturesEnabled = false;
