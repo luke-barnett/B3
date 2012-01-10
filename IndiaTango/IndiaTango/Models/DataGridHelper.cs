@@ -24,7 +24,7 @@ namespace IndiaTango.Models
                 table.Columns.Add(new DataColumn(sensor.Name.Replace(".", ""), typeof(string)));
             }
 
-            for (var j = startTime; j <= endTime; j = j.AddMinutes(sensors[0].Owner.DataInterval))
+            for (var j = startTime.Round(new TimeSpan(0, 0, sensors[0].Owner.DataInterval, 0)); j <= endTime; j = j.AddMinutes(sensors[0].Owner.DataInterval))
             {
                 var row = table.NewRow();
                 row[0] = j;
@@ -68,7 +68,7 @@ namespace IndiaTango.Models
 
             for (var i = 0; i < sensors.Length; i++)
             {
-                var startDate = sensors[i].CurrentState.Values.OrderBy(x => x.Key).FirstOrDefault().Key;
+                var startDate = sensors[i].CurrentState.Values.Select(x => x.Key).Where(x => x >= startTime && x >= endTime).OrderBy(x => x).FirstOrDefault();
                 startDateRow[i + 1] = startDate != DateTime.MinValue
                                           ? startDate.ToString(CultureInfo.InvariantCulture)
                                           : "No Data";
@@ -86,7 +86,7 @@ namespace IndiaTango.Models
 
             for (var i = 0; i < sensors.Length; i++)
             {
-                var startDate = sensors[i].CurrentState.Values.OrderBy(x => x.Key).LastOrDefault().Key;
+                var startDate = sensors[i].CurrentState.Values.Select(x => x.Key).Where(x => x >= startTime && x >= endTime).OrderBy(x => x).LastOrDefault();
                 endDateRow[i + 1] = startDate != DateTime.MinValue
                                           ? startDate.ToString(CultureInfo.InvariantCulture)
                                           : "No Data";
@@ -104,7 +104,7 @@ namespace IndiaTango.Models
 
             for (var i = 0; i < sensors.Length; i++)
             {
-                numOfMeasurements[i + 1] = sensors[i].CurrentState.Values.Count;
+                numOfMeasurements[i + 1] = sensors[i].CurrentState.Values.Count(x => x.Key >= startTime && x.Key <= endTime);
             }
 
             table.Rows.Add(numOfMeasurements);
@@ -119,7 +119,7 @@ namespace IndiaTango.Models
 
             for (var i = 0; i < sensors.Length; i++)
             {
-                
+
                 var count = 0;
                 for (var j = startTime; j <= endTime; j = j.AddMinutes(sensors[0].Owner.DataInterval))
                 {
@@ -141,7 +141,7 @@ namespace IndiaTango.Models
 
             for (var i = 0; i < sensors.Length; i++)
             {
-                mean[i + 1] = sensors[i].CurrentState.Values.Average(x => x.Value).ToString(CultureInfo.InvariantCulture);
+                mean[i + 1] = sensors[i].CurrentState.Values.Where(x => x.Key >= startTime && x.Key <= endTime).Average(x => x.Value).ToString(CultureInfo.InvariantCulture);
             }
 
             table.Rows.Add(mean);
@@ -157,7 +157,7 @@ namespace IndiaTango.Models
             for (var i = 0; i < sensors.Length; i++)
             {
                 median[i + 1] =
-                    sensors[i].CurrentState.Values.Select(x => x.Value).Median().ToString(CultureInfo.InvariantCulture);
+                    sensors[i].CurrentState.Values.Where(x => x.Key >= startTime && x.Key <= endTime).Select(x => x.Value).Median().ToString(CultureInfo.InvariantCulture);
             }
 
             table.Rows.Add(median);
@@ -173,7 +173,7 @@ namespace IndiaTango.Models
             for (var i = 0; i < sensors.Length; i++)
             {
                 standardDev[i + 1] =
-                    sensors[i].CurrentState.Values.Select(x => x.Value).StandardDeviation().ToString(CultureInfo.InvariantCulture);
+                    sensors[i].CurrentState.Values.Where(x => x.Key >= startTime && x.Key <= endTime).Select(x => x.Value).StandardDeviation().ToString(CultureInfo.InvariantCulture);
             }
 
             table.Rows.Add(standardDev);

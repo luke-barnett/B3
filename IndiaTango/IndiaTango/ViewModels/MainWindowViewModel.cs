@@ -217,6 +217,7 @@ namespace IndiaTango.ViewModels
         private bool _revertGraphedToRawIsVisible;
         private bool _previousActionsStatus;
         private bool _useFullYAxis;
+        private bool _graphEnabled = true;
 
         #endregion
 
@@ -657,7 +658,7 @@ namespace IndiaTango.ViewModels
 
         public string TotalDataCount
         {
-            get { return SensorsToCheckMethodsAgainst.Sum(x => x.CurrentState.Values.Count).ToString(CultureInfo.InvariantCulture); }
+            get { return SensorsToCheckMethodsAgainst.Sum(x => x.CurrentState.Values.Count(y => y.Key >= StartTime && y.Key <= EndTime)).ToString(CultureInfo.InvariantCulture); }
         }
 
         public bool ApplyToAllSensors { get; set; }
@@ -706,6 +707,7 @@ namespace IndiaTango.ViewModels
 
         private void UpdateDataTable()
         {
+            if (_graphEnabled) return;
             NotifyOfPropertyChange(() => DataTable);
             NotifyOfPropertyChange(() => TotalDataCount);
             NotifyOfPropertyChange(() => SummaryStatistics);
@@ -713,6 +715,13 @@ namespace IndiaTango.ViewModels
 
         private void SampleValues(int numberOfPoints, ICollection<GraphableSensor> sensors, string sender)
         {
+            if (!_graphEnabled)
+            {
+                Debug.Print("{0} tried to sample graph but graph is disabled instead going to update the grid", sender);
+                ChartSeries = new List<LineSeries>();
+                UpdateDataTable();
+                return;
+            }
             Debug.Print("[{0}]Sampling Values", sender);
             var generatedSeries = new List<LineSeries>();
 
@@ -2728,8 +2737,6 @@ namespace IndiaTango.ViewModels
             if (e == null)
                 return;
 
-            var oldValue = StartTime;
-
             if ((e.OldValue != null && (DateTime)e.OldValue == new DateTime()) || (DateTime)e.NewValue < EndTime)
                 StartTime = (DateTime)e.NewValue;
             else if (e.OldValue != null)
@@ -2740,7 +2747,7 @@ namespace IndiaTango.ViewModels
                 sensor.SetUpperAndLowerBounds(StartTime, EndTime);
             }
 
-            if (oldValue != StartTime && e.OldValue != null && (DateTime)e.OldValue != DateTime.MinValue)
+            if (e.OldValue != null && (DateTime)e.OldValue != DateTime.MinValue)
                 SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "StartTimeChanged");
             UpdateDataTable();
         }
@@ -2754,8 +2761,6 @@ namespace IndiaTango.ViewModels
             if (e == null)
                 return;
 
-            var oldValue = EndTime;
-
             if ((e.OldValue != null && (DateTime)e.OldValue == new DateTime()) || (DateTime)e.NewValue > StartTime)
                 EndTime = (DateTime)e.NewValue;
             else if (e.OldValue != null)
@@ -2766,7 +2771,7 @@ namespace IndiaTango.ViewModels
                 sensor.SetUpperAndLowerBounds(StartTime, EndTime);
             }
 
-            if (oldValue != EndTime && e.OldValue != null && (DateTime)e.OldValue != DateTime.MaxValue)
+            if (e.OldValue != null && (DateTime)e.OldValue != DateTime.MaxValue)
                 SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "EndTimeChanged");
             UpdateDataTable();
         }
@@ -2978,6 +2983,19 @@ namespace IndiaTango.ViewModels
         public void WindowSizeChanged()
         {
             SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "WindowSizeChanged");
+        }
+
+        public void EnableGraph()
+        {
+            _graphEnabled = true;
+            SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "EnablingGraph");
+        }
+
+        public void DisableGraph()
+        {
+            SampleValues(0, new Collection<GraphableSensor>(), "DisablingGraph");
+            _graphEnabled = false;
+            UpdateDataTable();
         }
 
         #endregion

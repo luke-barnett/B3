@@ -298,7 +298,7 @@
 
             <TabControl Grid.Column="2" TabStripPlacement="Left" BorderThickness="0">
                 <TabControl.Resources>
-                    <Style TargetType="{x:Type TabItem}">
+                    <Style TargetType="{x:Type models:CustomTabItem}">
                         <Setter Property="Padding" Value="4" />
                         <Setter Property="HeaderTemplate">
                             <Setter.Value>
@@ -313,7 +313,12 @@
                         </Setter>
                     </Style>
                 </TabControl.Resources>
-                <TabItem Header="Graph">
+                <models:CustomTabItem Header="Graph">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="WasSelected">
+                            <cal:ActionMessage MethodName="EnableGraph" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
                     <Grid x:Name="RightSection" Margin="5,5,10,0">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
@@ -408,8 +413,13 @@
                             </GroupBox>
                         </Grid>
                     </Grid>
-                </TabItem>
-                <TabItem Header="Values">
+                </models:CustomTabItem>
+                <models:CustomTabItem Header="Values">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="WasSelected">
+                            <cal:ActionMessage MethodName="DisableGraph" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
@@ -434,7 +444,7 @@
                             </Grid>
                         </GroupBox>
                     </Grid>
-                </TabItem>
+                </models:CustomTabItem>
             </TabControl>
         </Grid>
         <Grid Grid.Row="2" x:Name="BottomBar">
