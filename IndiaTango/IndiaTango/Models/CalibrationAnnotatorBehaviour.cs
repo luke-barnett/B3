@@ -88,7 +88,8 @@ namespace IndiaTango.Models
                                                   calibration.TimeStamp, calibration.PreLow, calibration.PreHigh,
                                                   calibration.PostLow, calibration.PostHigh, sensor.Name),
                                           Stroke = Brushes.Chartreuse,
-                                          Fill = new SolidColorBrush(sensor.Colour)
+                                          Fill = new SolidColorBrush(sensor.Colour),
+                                          Opacity = 0.85d
                                       };
                     ellipse.SetValue(Canvas.TopProperty, xAxis.GetValue(Canvas.TopProperty));
                     ellipse.SetValue(Canvas.LeftProperty, xAxis.GetDataValueAsRenderPositionWithoutZoom(calibration.TimeStamp) - ellipse.Width/2);
