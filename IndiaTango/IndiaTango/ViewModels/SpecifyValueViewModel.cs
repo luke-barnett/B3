@@ -1,49 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Windows;
-using System.Windows.Controls;
-using Caliburn.Micro;
-using IndiaTango.Models;
 
 namespace IndiaTango.ViewModels
 {
     class SpecifyValueViewModel : BaseViewModel
     {
-        private readonly SimpleContainer _container;
-        private readonly IWindowManager _windowManager;
         private string _title = "Specify value";
         private List<string> _comboBoxItems;
-        private bool _showComboBox = false;
-    	private bool _showCancel = false;
+        private bool _showComboBox;
+        private bool _showCancel;
     	private bool _canEditComboBox = true;
-        private bool _canceled = false;
+        private bool _canceled = true;
         private int _selectedIndex = -1;
-
-        public SpecifyValueViewModel(IWindowManager windowManager, SimpleContainer container)
-        {
-            _container = container;
-            _windowManager = windowManager;
-        }
 
         public string Title { get { return _title; } set { _title = value; } }
 
-        private string _text = null;
+        private string _text;
         public string Text { get { return _text; } set { _text = value; NotifyOfPropertyChange(()=>Text); } }
 
         private string _msg = "Please specify a value:";
         public string Message { get { return _msg; } set { _msg = value; NotifyOfPropertyChange(() => Message); } }
 
-        public void btnOK()
+        public void BtnOK()
         {
-            this.TryClose();
+            _canceled = false;
+            TryClose();
         }
 
-		public void btnCancel()
+		public void BtnCancel()
 		{
-		    _canceled = true;
-			this.TryClose();
+			TryClose();
 		}
 
         public bool ShowComboBox
