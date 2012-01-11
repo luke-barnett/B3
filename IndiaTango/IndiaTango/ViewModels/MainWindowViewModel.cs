@@ -45,6 +45,8 @@ namespace IndiaTango.ViewModels
             _sensorsToGraph = new ObservableCollection<GraphableSensor>();
             SensorsToCheckMethodsAgainst = new ObservableCollection<Sensor>();
 
+            _erroneousValuesFromDataTable = new List<ErroneousValue>();
+
             #region Set Up Detection Methods
 
             _minMaxDetector = new MinMaxDetector();
@@ -221,6 +223,7 @@ namespace IndiaTango.ViewModels
         private bool _viewAllSensors;
         private DataTable _dataTable;
         private DataTable _summaryStatistics;
+        private List<ErroneousValue> _erroneousValuesFromDataTable;
 
         #endregion
 
@@ -1882,7 +1885,7 @@ namespace IndiaTango.ViewModels
         {
             values = values.ToList();
 
-            if (Selection != null && (!values.Any() || Common.Confirm("Should we use the values you've selected", "For this interpolation should we use the all the values in the range you've selected instead of those selected from the list of detected values")))
+            if (_graphEnabled && Selection != null && (!values.Any() || Common.Confirm("Should we use the values you've selected", "For this interpolation should we use the all the values in the range you've selected instead of those selected from the list of detected values")))
             {
                 var list = new List<ErroneousValue>();
                 if (ApplyToAllSensors && !Common.Confirm("Are you sure?",
@@ -1899,7 +1902,10 @@ namespace IndiaTango.ViewModels
                 values = list;
             }
 
-
+            if(!_graphEnabled && _erroneousValuesFromDataTable.Count > 0 && (!values.Any() || Common.Confirm("Should we use the values you've selected?","For this interpolation should we use the values you've selected on the table instead of those selected from the list of detected values?")))
+            {
+                values = _erroneousValuesFromDataTable;
+            }
             if (values.Count() < 0)
             {
                 Common.ShowMessageBox("No values to interpolate", "You haven't given us any values to work with!", false, false);
@@ -1944,7 +1950,8 @@ namespace IndiaTango.ViewModels
         {
             values = values.ToList();
             var usingSelection = false;
-            if (Selection != null && (!values.Any() || Common.Confirm("Should we use the values you've selected?", "To remove values should we use the all the values in the range you've selected instead of those selected from the list of detected values")))
+
+            if (_graphEnabled && Selection != null && (!values.Any() || Common.Confirm("Should we use the values you've selected?", "To remove values should we use the all the values in the range you've selected instead of those selected from the list of detected values?")))
             {
                 var list = new List<ErroneousValue>();
                 if (ApplyToAllSensors && !Common.Confirm("Are you sure?",
@@ -1959,6 +1966,12 @@ namespace IndiaTango.ViewModels
                         (_selectionBehaviour.UseFullYAxis || x.Value <= Selection.UpperY)).Select(x => new ErroneousValue(x.Key, sensorCopy)));
                 }
                 values = list;
+                usingSelection = true;
+            }
+
+            if(!_graphEnabled && _erroneousValuesFromDataTable.Count > 0 && (!values.Any() || Common.Confirm("Should we use the values you've selected?","When removing values should we use the values you've selected from the grid or those selected from the list of detected values?")))
+            {
+                values = _erroneousValuesFromDataTable;
                 usingSelection = true;
             }
 
@@ -2014,7 +2027,7 @@ namespace IndiaTango.ViewModels
         {
             values = values.ToList();
 
-            if (Selection != null && (!values.Any() || Common.Confirm("Should we use the values you've selected?", "Should we use the all the values in the range you've selected instead of those selected from the list of detected values")))
+            if (_graphEnabled && Selection != null && (!values.Any() || Common.Confirm("Should we use the values you've selected?", "Should we use the all the values in the range you've selected instead of those selected from the list of detected values?")))
             {
                 var list = new List<ErroneousValue>();
                 if (ApplyToAllSensors && !Common.Confirm("Are you sure?",
@@ -2029,6 +2042,11 @@ namespace IndiaTango.ViewModels
                         (_selectionBehaviour.UseFullYAxis || x.Value <= Selection.UpperY)).Select(x => new ErroneousValue(x.Key, sensorCopy)));
                 }
                 values = list;
+            }
+
+            if(!_graphEnabled && _erroneousValuesFromDataTable.Count > 0 && (!values.Any() || Common.Confirm("Should we use the values you've selected?","Should we use the values that you've selceted from the table instead of those selected from the list of detected values?")))
+            {
+                values = _erroneousValuesFromDataTable;
             }
 
 
@@ -3029,90 +3047,40 @@ namespace IndiaTango.ViewModels
             UpdateDataTable();
         }
 
-        public void DeleteRequestedFromDataTable(DeleteRequestedEventArgs eventArgs)
+        public void DeleteRequestedFromDataTable(RoutedEventArgs eventArgs)
         {
-            var sensorList = (ViewAllSensors) ? Sensors : SensorsToCheckMethodsAgainst.ToList();
-
-            var bw = new BackgroundWorker();
-            var reason = Common.RequestReason(_container, _windowManager, "Values were removed");
-            bw.DoWork += (o, e) =>
-            {
-                foreach (var sensor in sensorList)
-                {
-                    sensor.AddState(sensor.CurrentState.RemoveValues(eventArgs.TimeStamps.ToList(), reason));
-                }
-            };
-
-            bw.RunWorkerCompleted += (o, e) =>
-            {
-                FeaturesEnabled = true;
-                ShowProgressArea = false;
-                //Update the needed graphed items
-                foreach (var graphableSensor in GraphableSensors.Where(x => sensorList.Contains(x.Sensor)))
-                    graphableSensor.RefreshDataPoints();
-                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "RemoveValues");
-                UpdateUndoRedo();
-                Common.ShowMessageBox("Values Updated", "The selected values were removed", false, false);
-            };
-
-            FeaturesEnabled = false;
-            ShowProgressArea = true;
-            ProgressIndeterminate = true;
-            WaitEventString = "Removing values";
-            bw.RunWorkerAsync();
+            RemoveValues();
         }
 
-        public void EditRequestedFromDataTable(EditRequestedEventArgs eventArgs)
+        public void SelectedCellsChanged(SelectedCellsChangedEventArgs eventArgs)
         {
-            var sensor = Sensors.FirstOrDefault(x => String.CompareOrdinal(x.Name.Replace(".", ""), eventArgs.SensorName) == 0);
-            if (sensor == null) return;
-
-
-            var specifyValueView = _container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel") as SpecifyValueViewModel;
-
-            if (specifyValueView == null)
-                return;
-
-            float value;
-
-            _windowManager.ShowDialog(specifyValueView);
-
-            if (specifyValueView.WasCanceled)
-                return;
-
-            try
+            foreach (var cell in eventArgs.AddedCells.Where(x => x.Column.DisplayIndex != 0))
             {
-                value = float.Parse(specifyValueView.Text);
-            }
-            catch (Exception)
-            {
-                Common.ShowMessageBox("An Error Occured", "Please enter a valid number.", true, true);
-                return;
+                var row = cell.Item as DataRowView;
+                if (row == null || Sensors.Count(x => String.CompareOrdinal(x.Name.Replace(".", ""), (string)cell.Column.Header) == 0) != 1) continue;
+
+                var timeStamp = (DateTime)row.Row[0];
+                var sensor = Sensors.FirstOrDefault(x => String.CompareOrdinal(x.Name.Replace(".", ""), (string)cell.Column.Header) == 0);
+
+                if (sensor == null) continue;
+
+                _erroneousValuesFromDataTable.Add(new ErroneousValue(timeStamp, sensor));
             }
 
-            var reason = Common.RequestReason(_container, _windowManager, "Values were set to " + value);
-
-            var bw = new BackgroundWorker();
-
-            bw.DoWork += (o, e) => sensor.AddState(sensor.CurrentState.MakeValue(new List<DateTime> { eventArgs.TimeStamp }, value, reason));
-
-            bw.RunWorkerCompleted += (o, e) =>
+            foreach (var cell in eventArgs.RemovedCells.Where(x => x.Column.DisplayIndex != 0))
             {
-                FeaturesEnabled = true;
-                ShowProgressArea = false;
-                //Update the needed graphed items
-                foreach (var graphableSensor in GraphableSensors.Where(x => x.Sensor == sensor))
-                    graphableSensor.RefreshDataPoints();
-                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "SpecifyValues");
-                UpdateUndoRedo();
-                Common.ShowMessageBox("Values Updated", "The selected values set to " + value, false, false);
-            };
+                var row = cell.Item as DataRowView;
+                if (row == null || Sensors.Count(x => String.CompareOrdinal(x.Name.Replace(".", ""), (string)cell.Column.Header) == 0) != 1) continue;
 
-            FeaturesEnabled = false;
-            ShowProgressArea = true;
-            ProgressIndeterminate = true;
-            WaitEventString = "Removing values";
-            bw.RunWorkerAsync();
+                var timeStamp = (DateTime)row.Row[0];
+                var sensor = Sensors.FirstOrDefault(x => String.CompareOrdinal(x.Name.Replace(".", ""), (string)cell.Column.Header) == 0);
+
+                if (sensor == null) continue;
+
+                _erroneousValuesFromDataTable.Remove(new ErroneousValue(timeStamp, sensor));
+            }
+
+            ActionsEnabled = _erroneousValuesFromDataTable.Count > 0;
         }
 
         #endregion
