@@ -84,9 +84,9 @@ namespace IndiaTango.Models
                                           Height = 10,
                                           ToolTip =
                                               string.Format(
-                                                  "Calibration: {0} Pre Low: {1} Pre High: {2} Post Low: {3} Post High: {4}",
+                                                  "[{5}] Calibration: {0} Pre Low: {1} Pre High: {2} Post Low: {3} Post High: {4}",
                                                   calibration.TimeStamp, calibration.PreLow, calibration.PreHigh,
-                                                  calibration.PostLow, calibration.PostHigh),
+                                                  calibration.PostLow, calibration.PostHigh, sensor.Name),
                                           Stroke = Brushes.Chartreuse,
                                           Fill = new SolidColorBrush(sensor.Colour)
                                       };
