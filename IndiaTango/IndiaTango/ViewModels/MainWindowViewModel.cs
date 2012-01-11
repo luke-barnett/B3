@@ -103,9 +103,9 @@ namespace IndiaTango.ViewModels
                                                          {
                                                              sensor.RemoveBounds();
                                                          }
-                                                         CalculateYAxis();
                                                          CalculateGraphedEndPoints();
                                                          SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "ZoomReset");
+                                                         CalculateYAxis();
                                                          CheckTheseMethods(_detectionMethods.Where(x => x.IsEnabled));
                                                      };
 
