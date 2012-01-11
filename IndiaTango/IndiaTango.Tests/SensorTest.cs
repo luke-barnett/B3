@@ -175,10 +175,10 @@ namespace IndiaTango.Tests
         {
             var calibrationDatesTest = new List<Calibration>
                                            {
-                                               new Calibration(new DateTime(2011, 7, 4, 21, 15, 0), 10, 0, 15, 2),
-                                               new Calibration(new DateTime(2011, 7, 4, 21, 30, 0), 10, 0, 15, 2),
-                                               new Calibration(new DateTime(2011, 7, 4, 21, 45, 0), 10, 0, 15, 2),
-                                               new Calibration(new DateTime(2011, 7, 4, 22, 15, 0), 10, 0, 15, 2)
+                                               new Calibration(new DateTime(2011, 7, 4, 21, 15, 0), 10, 0, 0, 15, 2, 0),
+                                               new Calibration(new DateTime(2011, 7, 4, 21, 30, 0), 10, 0, 0, 15, 2, 0),
+                                               new Calibration(new DateTime(2011, 7, 4, 21, 45, 0), 10, 0, 0, 15, 2, 0),
+                                               new Calibration(new DateTime(2011, 7, 4, 22, 15, 0), 10, 0, 0, 15, 2, 0)
                                            };
 
             Sensor testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testUndoStates, _secondUndoStates, calibrationDatesTest, _ds);
@@ -191,20 +191,20 @@ namespace IndiaTango.Tests
         {
             var calibrationDatesTest = new List<Calibration>
                                            {
-                                               new Calibration(new DateTime(2011, 7, 4, 21, 15, 0), 10, 0, 15, 2),
-                                               new Calibration(new DateTime(2011, 7, 4, 21, 30, 0), 10, 0, 15, 2),
-                                               new Calibration(new DateTime(2011, 7, 4, 21, 45, 0), 10, 0, 15, 2),
-                                               new Calibration(new DateTime(2011, 7, 4, 22, 15, 0), 10, 0, 15, 2)
+                                               new Calibration(new DateTime(2011, 7, 4, 21, 15, 0), 10, 0, 0, 15, 2, 0),
+                                               new Calibration(new DateTime(2011, 7, 4, 21, 30, 0), 10, 0, 0, 15, 2, 0),
+                                               new Calibration(new DateTime(2011, 7, 4, 21, 45, 0), 10, 0, 0, 15, 2, 0),
+                                               new Calibration(new DateTime(2011, 7, 4, 22, 15, 0), 10, 0, 0, 15, 2, 0)
                                            };
 
             Sensor testSensor = new Sensor(_testName, _testDescription, _testUpperLimit, _testLowerLimit, _testUnit, _testMaxRateOfChange, _testUndoStates, _secondUndoStates, calibrationDatesTest, _ds);
 
             var secondCalibrationTest = new List<Calibration>
                                            {
-                                               new Calibration(new DateTime(2011, 7, 3, 21, 15, 0), 10, 0, 15, 2),
-                                               new Calibration(new DateTime(2011, 7, 3, 21, 30, 0), 10, 0, 15, 2),
-                                               new Calibration(new DateTime(2011, 7, 3, 21, 45, 0), 10, 0, 15, 2),
-                                               new Calibration(new DateTime(2011, 7, 3, 22, 15, 0), 10, 0, 15, 2)
+                                               new Calibration(new DateTime(2011, 7, 3, 21, 15, 0), 10, 0, 0, 15, 2, 0),
+                                               new Calibration(new DateTime(2011, 7, 3, 21, 30, 0), 10, 0, 0, 15, 2, 0),
+                                               new Calibration(new DateTime(2011, 7, 3, 21, 45, 0), 10, 0, 0, 15, 2, 0),
+                                               new Calibration(new DateTime(2011, 7, 3, 22, 15, 0), 10, 0, 0, 15, 2, 0)
                                            };
 
             testSensor.Calibrations = secondCalibrationTest;

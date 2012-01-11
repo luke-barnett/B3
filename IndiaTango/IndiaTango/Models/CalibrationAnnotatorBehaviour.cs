@@ -28,7 +28,7 @@ namespace IndiaTango.Models
         protected override void Init()
         {
             var xAxis = (Chart.XAxis as DateTimeAxis);
-            if(xAxis == null)
+            if (xAxis == null)
                 throw new Exception();
 
             Chart.Series.CollectionChanged += SeriesCollectionChanged;
@@ -46,9 +46,9 @@ namespace IndiaTango.Models
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
         {
-            if(propertyChangedEventArgs.PropertyName == "IsEnabled")
+            if (propertyChangedEventArgs.PropertyName == "IsEnabled")
             {
-                if(IsEnabled)
+                if (IsEnabled)
                     DrawAnnotations();
                 else
                     RemoveAllAnnotations();
@@ -110,15 +110,14 @@ namespace IndiaTango.Models
                                           Height = 10,
                                           ToolTip =
                                               string.Format(
-                                                  "[{5}] Calibration: {0} Pre Low: {1} Pre High: {2} Post Low: {3} Post High: {4}",
-                                                  calibration.TimeStamp, calibration.PreLow, calibration.PreHigh,
-                                                  calibration.PostLow, calibration.PostHigh, sensor.Name),
+                                                  "[{0}] {1}",
+                                                  sensor.Name, calibration),
                                           Stroke = Brushes.Chartreuse,
                                           Fill = new SolidColorBrush(sensor.Colour),
                                           Opacity = 0.85d
                                       };
                     ellipse.SetValue(Canvas.TopProperty, xAxis.GetValue(Canvas.TopProperty));
-                    ellipse.SetValue(Canvas.LeftProperty, xAxis.GetDataValueAsRenderPositionWithoutZoom(calibration.TimeStamp) - ellipse.Width/2);
+                    ellipse.SetValue(Canvas.LeftProperty, xAxis.GetDataValueAsRenderPositionWithoutZoom(calibration.TimeStamp) - ellipse.Width / 2);
                     _annotations.Add(ellipse);
                 }
             }

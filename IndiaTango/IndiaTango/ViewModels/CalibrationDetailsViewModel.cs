@@ -8,10 +8,12 @@ namespace IndiaTango.ViewModels
     {
         private Sensor _sensor;
         private DateTime _timestamp = DateTime.Now;
-        private string _preOffset;
-        private string _preSpan;
-        private string _postOffset;
-        private string _postSpan;
+        private string _preCalibrationPoint1 = "0";
+        private string _preCalibrationPoint2 = "0";
+        private string _preCalibrationPoint3 = "0";
+        private string _postCalibrationPoint1 = "0";
+        private string _postCalibrationPoint2 = "0";
+        private string _postCalibrationPoint3 = "0";
 
         public Sensor Sensor
         {
@@ -34,9 +36,9 @@ namespace IndiaTango.ViewModels
             get { return Sensor != null ? string.Format("Calibrations for {0}", Sensor.Name) : ""; }
         }
 
-        public void AddCalibration(DateTime timestamp, float preOffset, float preSpan, float postOffset, float postSpan)
+        public void AddCalibration(DateTime timestamp, float prePoint1, float prePoint2, float prePoint3, float postPoint1, float postPoint2, float postPoint3)
         {
-            Sensor.Calibrations.Add(new Calibration(timestamp, preSpan, preOffset, postSpan, postOffset));
+            Sensor.Calibrations.Add(new Calibration(timestamp, prePoint1, prePoint2, prePoint3, postPoint1, postPoint2, postPoint3));
             Sensor.Calibrations = new List<Calibration>(Calibrations);
             NotifyOfPropertyChange(() => Calibrations);
         }
@@ -60,43 +62,63 @@ namespace IndiaTango.ViewModels
             }
         }
 
-        public string PreOffset
+        public string PreCalibrationPoint1
         {
-            get { return _preOffset; }
+            get { return _preCalibrationPoint1; }
             set
             {
-                _preOffset = value;
-                NotifyOfPropertyChange(() => PreOffset);
+                _preCalibrationPoint1 = value;
+                NotifyOfPropertyChange(() => PreCalibrationPoint1);
             }
         }
 
-        public string PreSpan
+        public string PreCalibrationPoint2
         {
-            get { return _preSpan; }
+            get { return _preCalibrationPoint2; }
             set
             {
-                _preSpan = value;
-                NotifyOfPropertyChange(() => PreSpan);
+                _preCalibrationPoint2 = value;
+                NotifyOfPropertyChange(() => PreCalibrationPoint2);
             }
         }
 
-        public string PostOffset
+        public string PreCalibrationPoint3
         {
-            get { return _postOffset; }
+            get { return _preCalibrationPoint3; }
             set
             {
-                _postOffset = value;
-                NotifyOfPropertyChange(() => PostOffset);
+                _preCalibrationPoint3 = value;
+                NotifyOfPropertyChange(() => PreCalibrationPoint3);
             }
         }
 
-        public string PostSpan
+        public string PostCalibrationPoint1
         {
-            get { return _postSpan; }
+            get { return _postCalibrationPoint1; }
             set
             {
-                _postSpan = value;
-                NotifyOfPropertyChange(() => PostSpan);
+                _postCalibrationPoint1 = value;
+                NotifyOfPropertyChange(() => PostCalibrationPoint1);
+            }
+        }
+
+        public string PostCalibrationPoint2
+        {
+            get { return _postCalibrationPoint2; }
+            set
+            {
+                _postCalibrationPoint2 = value;
+                NotifyOfPropertyChange(() => PostCalibrationPoint2);
+            }
+        }
+
+        public string PostCalibrationPoint3
+        {
+            get { return _postCalibrationPoint3; }
+            set
+            {
+                _postCalibrationPoint3 = value;
+                NotifyOfPropertyChange(() => PostCalibrationPoint3);
             }
         }
 
@@ -104,7 +126,7 @@ namespace IndiaTango.ViewModels
         {
             try
             {
-                AddCalibration(Timestamp, float.Parse(PreOffset), float.Parse(PreSpan), float.Parse(PostOffset), float.Parse(PostSpan));
+                AddCalibration(Timestamp, float.Parse(PreCalibrationPoint1), float.Parse(PreCalibrationPoint2), float.Parse(PreCalibrationPoint3), float.Parse(PostCalibrationPoint1), float.Parse(PostCalibrationPoint2), float.Parse(PostCalibrationPoint3));
             }
             catch (Exception e)
             {
