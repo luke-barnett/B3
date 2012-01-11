@@ -831,7 +831,7 @@ namespace IndiaTango.ViewModels
 
             UpdateGraph();
 
-            Common.RequestReason(_container, _windowManager, taskPerformed);
+            Common.RequestReason(_container, _windowManager, -1);
         }
 
         #region Graphing Methods

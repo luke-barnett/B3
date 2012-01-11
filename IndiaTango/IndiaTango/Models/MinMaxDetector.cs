@@ -190,6 +190,11 @@ namespace IndiaTango.Models
         {
             get { return "This method is used to detect timestamps where data are outside the bounds of what might be reasonably expected for the parameters you have selected for display on the graph to the right.\r\n\nExpected minimum and maximum values can be specified in the above metadata for each sensor. Select ‘Graph Upper and Lower Limits’ and select which sensor you wish to edit, in order to display the Minimum and Maximum boundary on the graph to the right. If you tick ‘Check detection methods for values’, timestamps for which data lie outside these bounds will be displayed in the ‘Detected values’ list . Values will be detected only within the date range displayed on the graph to the right. You can select any combination of the timestamps from the detected values list, andmodify them using the ‘Delete’ (shortcut ‘Delete’ key), ‘Interpolate’, or ‘Specify value’ buttons below.\r\n\nAlternatively, you may select a range of data to modify by holding the shift key, and click-dragging the mouse over a range of data on the graph to the right, at any time."; }
         }
+
+        public int DefaultReasonNumber
+        {
+            get { return 2; }
+        }
     }
 
     public delegate void UpdateGraph();

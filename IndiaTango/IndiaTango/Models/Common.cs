@@ -182,13 +182,18 @@ namespace IndiaTango.Models
             EventLogger.LogInfo(null, "Image Exporter", "Saved graph as image to: " + filename);
         }
 
-        public static ChangeReason RequestReason(SimpleContainer container, IWindowManager windowManager, string taskPerformed)
+        public static ChangeReason RequestReason(SimpleContainer container, IWindowManager windowManager, int defaultReasonNumber)
         {
             var specify = (SpecifyValueViewModel)container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel");
             specify.Title = "Log Reason";
             specify.Message = "Please specify a reason for this change:";
             specify.ShowComboBox = true;
             specify.ComboBoxItems = ChangeReason.ChangeReasons.Where(x => !x.Reason.StartsWith("[Importer]")).Select(x => x.Reason).ToList();
+
+            var defaultReason = ChangeReason.ChangeReasons.FirstOrDefault(x => x.ID == defaultReasonNumber);
+
+            if (defaultReason != null)
+                specify.ComboBoxSelectedIndex = specify.ComboBoxItems.IndexOf(defaultReason.Reason);
 
             windowManager.ShowDialog(specify);
 

@@ -5,7 +5,7 @@ using Visiblox.Charts;
 
 namespace IndiaTango.Models
 {
-    class BelowMinValueDetector : IDetectionMethod
+    public class BelowMinValueDetector : IDetectionMethod
     {
         private readonly MinMaxDetector _owner;
 
@@ -81,6 +81,11 @@ namespace IndiaTango.Models
         public string About
         {
             get { return "I'm a fake detection method used to make things look pretty"; }
+        }
+
+        public int DefaultReasonNumber
+        {
+            get { return 2; }
         }
     }
 }

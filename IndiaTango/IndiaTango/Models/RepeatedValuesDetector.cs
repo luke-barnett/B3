@@ -9,7 +9,7 @@ using Visiblox.Charts;
 
 namespace IndiaTango.Models
 {
-    class RepeatedValuesDetector : IDetectionMethod
+    public class RepeatedValuesDetector : IDetectionMethod
     {
         private int _requiredNumberInSequence = 100;
         private int _requestedNumberInSequence = 100;
@@ -170,6 +170,11 @@ namespace IndiaTango.Models
         public string About
         {
             get { return "Checks for repeating sequential values"; }
+        }
+
+        public int DefaultReasonNumber
+        {
+            get { return 1; }
         }
 
         public void OnRefreshDetectedValues()

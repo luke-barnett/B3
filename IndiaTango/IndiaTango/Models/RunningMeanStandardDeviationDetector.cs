@@ -409,6 +409,11 @@ namespace IndiaTango.Models
         {
             get { return "This method is used to detect data that are extreme, relative to the rest of the time series for a given parameter.\r\n\nYou may specify a sensor to edit, a period over which to average, and the number of standard devations for which to set upper and lower limits. Select ‘Show on graph’ to display the standard deviation boundaries on the graph to the right. If you tick ‘Check detection methods for values’, timestamps for which data lie outside these bounds will be displayed in the ‘Detected values’ list . Values will be detected only within the date range displayed on the graph to the right. You can select any combination of the timestamps from the detected values list, and modify them using the ‘Delete’ (shortcut ‘Delete’ key), ‘Interpolate’, or ‘Specify value’ buttons below.\r\n\nAlternatively, you may select a range of data to modify by holding the shift key, and click-dragging the mouse over a range of data on the graph to the right, at any time."; }
         }
+
+        public int DefaultReasonNumber
+        {
+            get { return 9; }
+        }
     }
 
     public delegate void Updated();

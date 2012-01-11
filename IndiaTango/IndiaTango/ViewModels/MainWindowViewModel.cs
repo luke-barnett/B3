@@ -1260,7 +1260,7 @@ namespace IndiaTango.ViewModels
                                                         skipMissingValues = specify.ComboBoxSelectedIndex == 1;
                                                     }
 
-                                                    var reason = Common.RequestReason(_container, _windowManager, "Please give a reason to apply the formula\r\n\n'" + manualFormulaTextBox.Text + "'");
+                                                    var reason = Common.RequestReason(_container, _windowManager, 12);
 
                                                     ApplicationCursor = Cursors.Wait;
                                                     if (useSelected)
@@ -1586,7 +1586,7 @@ namespace IndiaTango.ViewModels
                                              //if (Selection != null)
                                              //    useSelected = Common.Confirm("Should we use your selection?",
                                              //                                 "Should we use the date range of your selection for to apply the formula on?");
-                                             var reason = Common.RequestReason(_container, _windowManager, "Calibration CalA='" + calibratedAValue + "', CalB='" + calibratedBValue + "', CurA='" + currentAValue + "', CurB='" + currentBValue + "' successfully applied to the sensor.");
+                                             var reason = Common.RequestReason(_container, _windowManager, 4);
                                              var successfulSensors = new List<Sensor>();
                                              foreach (var sensor in SensorsToCheckMethodsAgainst.Where(x => (string)applyToCombo.SelectedItem == "All" || (string)applyToCombo.SelectedItem == x.Name))
                                              {
@@ -1895,7 +1895,7 @@ namespace IndiaTango.ViewModels
         private void Interpolate(IEnumerable<ErroneousValue> values, IDetectionMethod methodCheckedAgainst)
         {
             values = values.ToList();
-
+            var usingSelection = false;
             if (_graphEnabled && Selection != null && (!values.Any() || Common.Confirm("Should we use the values you've selected", "For this interpolation should we use the all the values in the range you've selected instead of those selected from the list of detected values")))
             {
                 var list = new List<ErroneousValue>();
@@ -1911,11 +1911,13 @@ namespace IndiaTango.ViewModels
                         (_selectionBehaviour.UseFullYAxis || x.Value <= Selection.UpperY)).Select(x => new ErroneousValue(x.Key, sensorCopy)));
                 }
                 values = list;
+                usingSelection = true;
             }
 
             if (!_graphEnabled && _erroneousValuesFromDataTable.Count > 0 && (!values.Any() || Common.Confirm("Should we use the values you've selected?", "For this interpolation should we use the values you've selected on the table instead of those selected from the list of detected values?")))
             {
                 values = _erroneousValuesFromDataTable;
+                usingSelection = true;
             }
             if (values.Count() < 0)
             {
@@ -1927,7 +1929,7 @@ namespace IndiaTango.ViewModels
 
             var bw = new BackgroundWorker();
 
-            var reason = Common.RequestReason(_container, _windowManager, "Values were interpolated");
+            var reason = Common.RequestReason(_container, _windowManager, (!usingSelection && methodCheckedAgainst != null) ? methodCheckedAgainst.DefaultReasonNumber : 7);
 
             bw.DoWork += (o, e) =>
                              {
@@ -2005,7 +2007,7 @@ namespace IndiaTango.ViewModels
             var sensorList = values.Select(x => x.Owner).Distinct().ToList();
 
             var bw = new BackgroundWorker();
-            var reason = Common.RequestReason(_container, _windowManager, "Values were removed");
+            var reason = Common.RequestReason(_container, _windowManager, (!usingSelection && methodCheckedAgainst != null) ? methodCheckedAgainst.DefaultReasonNumber : 7);
             bw.DoWork += (o, e) =>
             {
                 foreach (var sensor in sensorList)
@@ -2037,7 +2039,7 @@ namespace IndiaTango.ViewModels
         private void SpecifyValue(IEnumerable<ErroneousValue> values, IDetectionMethod methodCheckedAgainst)
         {
             values = values.ToList();
-
+            var usingSelection = false;
             if (_graphEnabled && Selection != null && (!values.Any() || Common.Confirm("Should we use the values you've selected?", "Should we use the all the values in the range you've selected instead of those selected from the list of detected values?")))
             {
                 var list = new List<ErroneousValue>();
@@ -2053,11 +2055,13 @@ namespace IndiaTango.ViewModels
                         (_selectionBehaviour.UseFullYAxis || x.Value <= Selection.UpperY)).Select(x => new ErroneousValue(x.Key, sensorCopy)));
                 }
                 values = list;
+                usingSelection = true;
             }
 
             if (!_graphEnabled && _erroneousValuesFromDataTable.Count > 0 && (!values.Any() || Common.Confirm("Should we use the values you've selected?", "Should we use the values that you've selceted from the table instead of those selected from the list of detected values?")))
             {
                 values = _erroneousValuesFromDataTable;
+                usingSelection = true;
             }
 
 
@@ -2092,7 +2096,7 @@ namespace IndiaTango.ViewModels
                 return;
             }
 
-            var reason = Common.RequestReason(_container, _windowManager, "Values were set to " + value);
+            var reason = Common.RequestReason(_container, _windowManager, (!usingSelection && methodCheckedAgainst != null) ? methodCheckedAgainst.DefaultReasonNumber : 7);
 
             var bw = new BackgroundWorker();
 

@@ -84,5 +84,10 @@ namespace IndiaTango.Models
         /// A summary string about the detection method
         /// </summary>
         string About { get; }
+
+        /// <summary>
+        /// The default reason number this detection method relates to
+        /// </summary>
+        int DefaultReasonNumber { get; }
     }
 }
