@@ -27,11 +27,21 @@ namespace IndiaTango.Models
 
         protected override void Init()
         {
+            var xAxis = (Chart.XAxis as DateTimeAxis);
+            if(xAxis == null)
+                throw new Exception();
+
             Chart.Series.CollectionChanged += SeriesCollectionChanged;
             Chart.SizeChanged += ChartOnSizeChanged;
             Chart.XAxis.ValueConversionChanged += XAxisOnValueConversionChanged;
+            xAxis.ValueConversionChanged += XAxisOnValueConversionChanged;
+            xAxis.SizeChanged += OnSizeChanged;
             PropertyChanged += OnPropertyChanged;
-            ((Chart.XAxis as DateTimeAxis).Parent as Grid).Children.Add(_canvas);
+
+            var grid = xAxis.Parent as Grid;
+
+            if (grid != null)
+                grid.Children.Add(_canvas);
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
@@ -47,11 +57,27 @@ namespace IndiaTango.Models
 
         public override void DeInit()
         {
+            var xAxis = (Chart.XAxis as DateTimeAxis);
+            if (xAxis == null)
+                throw new Exception();
+
             Chart.Series.CollectionChanged -= SeriesCollectionChanged;
             Chart.SizeChanged -= ChartOnSizeChanged;
             Chart.XAxis.ValueConversionChanged -= XAxisOnValueConversionChanged;
+            xAxis.ValueConversionChanged -= XAxisOnValueConversionChanged;
+            xAxis.SizeChanged -= OnSizeChanged;
+            PropertyChanged -= OnPropertyChanged;
+
             RemoveAllAnnotations();
-            ((Chart.XAxis as DateTimeAxis).Parent as Grid).Children.Remove(_canvas);
+            var grid = xAxis.Parent as Grid;
+
+            if (grid != null)
+                grid.Children.Remove(_canvas);
+        }
+
+        private void OnSizeChanged(object sender, SizeChangedEventArgs sizeChangedEventArgs)
+        {
+            DrawAnnotations();
         }
 
         private void XAxisOnValueConversionChanged(object sender, EventArgs eventArgs)
@@ -99,7 +125,6 @@ namespace IndiaTango.Models
             foreach (var annotation in _annotations)
             {
                 _canvas.Children.Add(annotation);
-                //BehaviourContainer.Children.Add(annotation);
             }
         }
 
@@ -108,7 +133,6 @@ namespace IndiaTango.Models
             foreach (var annotation in _annotations)
             {
                 _canvas.Children.Remove(annotation);
-                //BehaviourContainer.Children.Remove(annotation);
             }
             _annotations = new List<UIElement>();
         }

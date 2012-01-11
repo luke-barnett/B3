@@ -3044,11 +3044,6 @@ namespace IndiaTango.ViewModels
             sensor.Sensor.CurrentMetaData = newMetaData;
         }
 
-        public void WindowSizeChanged()
-        {
-            SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "WindowSizeChanged");
-        }
-
         public void EnableGraph()
         {
             _graphEnabled = true;

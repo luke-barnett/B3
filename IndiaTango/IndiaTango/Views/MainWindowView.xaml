@@ -19,9 +19,6 @@
                 <cal:Parameter Value="$eventArgs" />
             </cal:ActionMessage>
         </i:EventTrigger>
-        <i:EventTrigger EventName="SizeChanged">
-            <cal:ActionMessage MethodName="WindowSizeChanged" />
-        </i:EventTrigger>
     </i:Interaction.Triggers>
 
     <Window.Resources>
