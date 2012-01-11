@@ -223,7 +223,8 @@ namespace IndiaTango.ViewModels
         private bool _viewAllSensors;
         private DataTable _dataTable;
         private DataTable _summaryStatistics;
-        private List<ErroneousValue> _erroneousValuesFromDataTable;
+        private readonly List<ErroneousValue> _erroneousValuesFromDataTable;
+        private bool _notInCalibrationMode = true;
 
         #endregion
 
@@ -687,6 +688,16 @@ namespace IndiaTango.ViewModels
                 _viewAllSensors = value;
                 NotifyOfPropertyChange(() => ViewAllSensors);
                 UpdateDataTable();
+            }
+        }
+
+        public bool NotInCalibrationMode
+        {
+            get { return _notInCalibrationMode; }
+            set
+            {
+                _notInCalibrationMode = value;
+                NotifyOfPropertyChange(() => NotInCalibrationMode);
             }
         }
 
@@ -1902,7 +1913,7 @@ namespace IndiaTango.ViewModels
                 values = list;
             }
 
-            if(!_graphEnabled && _erroneousValuesFromDataTable.Count > 0 && (!values.Any() || Common.Confirm("Should we use the values you've selected?","For this interpolation should we use the values you've selected on the table instead of those selected from the list of detected values?")))
+            if (!_graphEnabled && _erroneousValuesFromDataTable.Count > 0 && (!values.Any() || Common.Confirm("Should we use the values you've selected?", "For this interpolation should we use the values you've selected on the table instead of those selected from the list of detected values?")))
             {
                 values = _erroneousValuesFromDataTable;
             }
@@ -1969,7 +1980,7 @@ namespace IndiaTango.ViewModels
                 usingSelection = true;
             }
 
-            if(!_graphEnabled && _erroneousValuesFromDataTable.Count > 0 && (!values.Any() || Common.Confirm("Should we use the values you've selected?","When removing values should we use the values you've selected from the grid or those selected from the list of detected values?")))
+            if (!_graphEnabled && _erroneousValuesFromDataTable.Count > 0 && (!values.Any() || Common.Confirm("Should we use the values you've selected?", "When removing values should we use the values you've selected from the grid or those selected from the list of detected values?")))
             {
                 values = _erroneousValuesFromDataTable;
                 usingSelection = true;
@@ -2044,7 +2055,7 @@ namespace IndiaTango.ViewModels
                 values = list;
             }
 
-            if(!_graphEnabled && _erroneousValuesFromDataTable.Count > 0 && (!values.Any() || Common.Confirm("Should we use the values you've selected?","Should we use the values that you've selceted from the table instead of those selected from the list of detected values?")))
+            if (!_graphEnabled && _erroneousValuesFromDataTable.Count > 0 && (!values.Any() || Common.Confirm("Should we use the values you've selected?", "Should we use the values that you've selceted from the table instead of those selected from the list of detected values?")))
             {
                 values = _erroneousValuesFromDataTable;
             }
@@ -2962,6 +2973,10 @@ namespace IndiaTango.ViewModels
                     var newTabItemHeader = newTabItem.Header as TextBlock;
                     _selectionBehaviour.UseFullYAxis = _useFullYAxis || (newTabItem.Header is string &&
                                                        (String.CompareOrdinal((newTabItem.Header as string), "Calibration") == 0 || String.CompareOrdinal((newTabItem.Header as string), "Automatic") == 0 || String.CompareOrdinal((newTabItem.Header as string), "Manual") == 0));
+                    NotInCalibrationMode = !(newTabItem.Header is string &&
+                                             (String.CompareOrdinal((newTabItem.Header as string), "Calibration") == 0 ||
+                                              String.CompareOrdinal((newTabItem.Header as string), "Automatic") == 0 ||
+                                              String.CompareOrdinal((newTabItem.Header as string), "Manual") == 0));
                     var newDetectionMethod = _detectionMethods.FirstOrDefault(x => newTabItemHeader != null && x.Abbreviation == newTabItemHeader.Text);
                     if (newDetectionMethod != null)
                     {
