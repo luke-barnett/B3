@@ -397,7 +397,7 @@ namespace IndiaTango.Models
                 DateTime startValue;
                 try
                 {
-                    startValue = FindPrevValue(time);
+                    startValue = newState.FindPrevValue(time);
                 }
                 catch (Exception)
                 {
@@ -408,7 +408,7 @@ namespace IndiaTango.Models
                 DateTime endValue;
                 try
                 {
-                    endValue = FindNextValue(time);
+                    endValue = newState.FindNextValue(time);
                 }
                 catch (Exception)
                 {
@@ -417,9 +417,9 @@ namespace IndiaTango.Models
                 }
 
                 var timeDiff = endValue.Subtract(startValue).TotalMinutes;
-                var valDiff = Values[endValue] - Values[startValue];
+                var valDiff = newState.Values[endValue] - newState.Values[startValue];
                 var step = valDiff / (timeDiff / ds.DataInterval);
-                var value = Values[startValue] + step;
+                var value = newState.Values[startValue] + step;
 
                 for (var i = ds.DataInterval; i < timeDiff; i += ds.DataInterval)
                 {
