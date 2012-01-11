@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -16,12 +15,14 @@ namespace IndiaTango.Models
     {
         private readonly MainWindowViewModel _viewModel;
         private List<UIElement> _annotations;
+        private readonly Canvas _canvas;
 
         public CalibrationAnnotatorBehaviour(MainWindowViewModel viewModel)
             : base("CalibrationAnnotator")
         {
             _viewModel = viewModel;
             _annotations = new List<UIElement>();
+            _canvas = new Canvas();
         }
 
         protected override void Init()
@@ -30,6 +31,7 @@ namespace IndiaTango.Models
             Chart.SizeChanged += ChartOnSizeChanged;
             Chart.XAxis.ValueConversionChanged += XAxisOnValueConversionChanged;
             PropertyChanged += OnPropertyChanged;
+            ((Chart.XAxis as DateTimeAxis).Parent as Grid).Children.Add(_canvas);
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
@@ -49,6 +51,7 @@ namespace IndiaTango.Models
             Chart.SizeChanged -= ChartOnSizeChanged;
             Chart.XAxis.ValueConversionChanged -= XAxisOnValueConversionChanged;
             RemoveAllAnnotations();
+            ((Chart.XAxis as DateTimeAxis).Parent as Grid).Children.Remove(_canvas);
         }
 
         private void XAxisOnValueConversionChanged(object sender, EventArgs eventArgs)
@@ -85,16 +88,17 @@ namespace IndiaTango.Models
                                                   calibration.TimeStamp, calibration.PreLow, calibration.PreHigh,
                                                   calibration.PostLow, calibration.PostHigh),
                                           Stroke = Brushes.Chartreuse,
-                                          Fill = Brushes.LightPink
+                                          Fill = new SolidColorBrush(sensor.Colour)
                                       };
-                    ellipse.SetValue(Canvas.TopProperty, 15d);
+                    ellipse.SetValue(Canvas.TopProperty, xAxis.GetValue(Canvas.TopProperty));
                     ellipse.SetValue(Canvas.LeftProperty, xAxis.GetDataValueAsRenderPositionWithoutZoom(calibration.TimeStamp) - ellipse.Width/2);
                     _annotations.Add(ellipse);
                 }
             }
             foreach (var annotation in _annotations)
             {
-                BehaviourContainer.Children.Add(annotation);
+                _canvas.Children.Add(annotation);
+                //BehaviourContainer.Children.Add(annotation);
             }
         }
 
@@ -102,7 +106,8 @@ namespace IndiaTango.Models
         {
             foreach (var annotation in _annotations)
             {
-                BehaviourContainer.Children.Remove(annotation);
+                _canvas.Children.Remove(annotation);
+                //BehaviourContainer.Children.Remove(annotation);
             }
             _annotations = new List<UIElement>();
         }
