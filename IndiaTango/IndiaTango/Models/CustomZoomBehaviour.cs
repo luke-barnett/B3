@@ -95,8 +95,8 @@ namespace IndiaTango.Models
             //If we haven't really gone far enough to bother stop now
             if (Math.Abs(position.X - _firstPosition.X) < 2)
                 return;
-
-            RequestZoom(_firstPosition, position);
+            if (Keyboard.Modifiers != ModifierKeys.Shift)
+                RequestZoom(_firstPosition, position);
         }
 
         public override void MouseLeftButtonDoubleClick(Point position)
