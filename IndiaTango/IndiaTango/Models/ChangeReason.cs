@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Runtime.Serialization;
 using ProtoBuf;
 
@@ -41,10 +42,13 @@ namespace IndiaTango.Models
 
         public static string FileLocation = Path.Combine(Common.AppDataPath, "ChangeReasons.xml");
 
+        public static string DefaultReasonsFileLocation = Path.Combine(Assembly.GetExecutingAssembly().Location.Replace("B3.exe", ""), "Resources", "defaultreasons.xml");
+
         private static List<ChangeReason> GetChangeReasons()
         {
             if (!File.Exists(FileLocation))
-                return new List<ChangeReason>();
+                return GenerateDefaultReasons();
+
 
             using (var fileStream = File.OpenRead(FileLocation))
                 return
@@ -80,6 +84,17 @@ namespace IndiaTango.Models
                 return new ChangeReason(-1, "Reason not specified");
 
             return changeReason;
+        }
+
+        private static List<ChangeReason> GenerateDefaultReasons()
+        {
+            if (!File.Exists(DefaultReasonsFileLocation))
+                return new List<ChangeReason>();
+
+            using (var fileStream = File.OpenRead(DefaultReasonsFileLocation))
+                return
+                    new DataContractSerializer(typeof(List<ChangeReason>)).ReadObject(fileStream) as
+                    List<ChangeReason>;
         }
     }
 }
