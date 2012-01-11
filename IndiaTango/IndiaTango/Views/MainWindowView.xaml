@@ -243,7 +243,9 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
-                        <CheckBox Content="Check detection methods for values" Margin="2" cal:Message.Attach="[Event Checked] = [Action EnableDetectionMethods];[Event Unchecked] = [Action DisableDetectionMethods]" />
+                        <CheckBox Margin="2" cal:Message.Attach="[Event Checked] = [Action EnableDetectionMethods];[Event Unchecked] = [Action DisableDetectionMethods]">
+                            <TextBlock Text="Check detection methods for values" FontWeight="Bold" />
+                        </CheckBox>
                         <TabControl Grid.Row="1" SelectedIndex="0" BorderThickness="0" Background="Transparent" IsEnabled="{Binding FeaturesEnabled}" ItemsSource="{Binding DetectionTabItems}" cal:Message.Attach="[Event SelectionChanged] = [Action DetectionMethodChanged($eventArgs)]" />
                     </Grid>
                 </GroupBox>
