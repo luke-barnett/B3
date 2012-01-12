@@ -83,8 +83,7 @@ namespace IndiaTango.ViewModels
             _zoomBehaviour = new CustomZoomBehaviour { IsEnabled = true };
             _zoomBehaviour.ZoomRequested += (o, e) =>
                                                 {
-                                                    _startTime = e.LowerX;
-                                                    NotifyOfPropertyChange(() => StartTime);
+                                                    StartTime = e.LowerX;
                                                     EndTime = e.UpperX;
                                                     Range = new DoubleRange(e.LowerY, e.UpperY);
                                                     foreach (var detectionMethod in _detectionMethods.Where(x => x.IsEnabled))
@@ -96,6 +95,11 @@ namespace IndiaTango.ViewModels
                                                         detectionMethod.ListBox.Items.Clear();
                                                         itemsToKeep.ForEach(x => detectionMethod.ListBox.Items.Add(x));
                                                     }
+                                                    foreach (var sensor in _sensorsToGraph)
+                                                    {
+                                                        sensor.SetUpperAndLowerBounds(StartTime, EndTime);
+                                                    }
+                                                    SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "Zoom");
                                                 };
             _zoomBehaviour.ZoomResetRequested += o =>
                                                      {
@@ -853,8 +857,7 @@ namespace IndiaTango.ViewModels
             }
 
             Debug.WriteLine("Calculated the first point {0} and the last point {1}", minimum, maximum);
-            _startTime = minimum;
-            NotifyOfPropertyChange(() => StartTime);
+            StartTime = minimum;
             EndTime = maximum;
             Debug.WriteLine("As a result start {0} and end {1}", StartTime, EndTime);
         }
@@ -2800,7 +2803,7 @@ namespace IndiaTango.ViewModels
         /// <param name="e">The event arguments about the new date</param>
         public void StartTimeChanged(RoutedPropertyChangedEventArgs<object> e)
         {
-            if (e == null)
+            if (e == null || (DateTime)e.NewValue == StartTime)
                 return;
 
             if ((e.OldValue != null && (DateTime)e.OldValue == new DateTime()) || (DateTime)e.NewValue < EndTime)
@@ -2815,7 +2818,6 @@ namespace IndiaTango.ViewModels
 
             if (e.OldValue != null && (DateTime)e.OldValue != DateTime.MinValue)
                 SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "StartTimeChanged");
-            UpdateDataTable();
         }
 
         /// <summary>
@@ -2824,7 +2826,7 @@ namespace IndiaTango.ViewModels
         /// <param name="e">The event arguments about the new date</param>
         public void EndTimeChanged(RoutedPropertyChangedEventArgs<object> e)
         {
-            if (e == null)
+            if (e == null || (DateTime)e.NewValue == EndTime)
                 return;
 
             if ((e.OldValue != null && (DateTime)e.OldValue == new DateTime()) || (DateTime)e.NewValue > StartTime)
@@ -2839,7 +2841,6 @@ namespace IndiaTango.ViewModels
 
             if (e.OldValue != null && (DateTime)e.OldValue != DateTime.MaxValue)
                 SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "EndTimeChanged");
-            UpdateDataTable();
         }
 
         public void ColourChanged(RoutedPropertyChangedEventArgs<Color> args, GraphableSensor owner)

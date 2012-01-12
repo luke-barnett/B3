@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -34,7 +35,7 @@ namespace IndiaTango.Models
                 throw new Exception("Designed to work with DateTimeAxis");
 
             Chart.Series.CollectionChanged += SeriesOnCollectionChanged;
-            xAxis.ValueConversionChanged += XAxisOnValueConversionChanged;
+            xAxis.SizeChanged += XAxisOnSizeChanged;
             PropertyChanged += OnPropertyChanged;
 
             var grid = xAxis.Parent as Grid;
@@ -50,7 +51,8 @@ namespace IndiaTango.Models
                 throw new Exception("Designed to work with DateTimeAxis");
 
             Chart.Series.CollectionChanged -= SeriesOnCollectionChanged;
-            xAxis.ValueConversionChanged -= XAxisOnValueConversionChanged;
+            xAxis.SizeChanged -= XAxisOnSizeChanged;
+            PropertyChanged -= OnPropertyChanged;
 
             RemoveAllAnnotations();
             var grid = xAxis.Parent as Grid;
@@ -69,16 +71,15 @@ namespace IndiaTango.Models
                 RemoveAllAnnotations();
         }
 
-        private void XAxisOnValueConversionChanged(object sender, EventArgs eventArgs)
+        private void SeriesOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs)
         {
             if (IsEnabled)
                 DrawAnnotations();
         }
 
-        private void SeriesOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs)
+        private void XAxisOnSizeChanged(object sender, SizeChangedEventArgs sizeChangedEventArgs)
         {
-            if (IsEnabled)
-                DrawAnnotations();
+            DrawAnnotations();
         }
 
         public void DrawAnnotations()
@@ -88,7 +89,8 @@ namespace IndiaTango.Models
             if (xAxis == null || xAxis.ActualRange == null) return;
             foreach (var sensor in _viewModel.SensorsToCheckMethodsAgainst)
             {
-                foreach (var source in sensor.CurrentState.Changes.Where(change => change.Key >= xAxis.ActualRange.EffectiveMinimum && change.Key <= xAxis.ActualRange.EffectiveMaximum))
+                var lastLeft = -1d;
+                foreach (var source in sensor.CurrentState.Changes.Where(change => change.Key >= xAxis.ActualRange.EffectiveMinimum && change.Key <= xAxis.ActualRange.EffectiveMaximum).OrderBy(x => x.Key))
                 {
                     var changes = source.Value.Aggregate("",
                                                      (current, next) =>
@@ -100,16 +102,22 @@ namespace IndiaTango.Models
                                        Width = 5,
                                        Height = 5,
                                        ToolTip =
-                                       string.Format("[{0}] {1}{2}", sensor.Name, source.Key , changes),
+                                       string.Format("[{0}] {1}{2}", sensor.Name, source.Key, changes),
                                        StrokeThickness = 0d,
                                        Fill = new SolidColorBrush(sensor.Colour),
                                        Opacity = 0.7d
                                    };
                     rect.SetValue(Canvas.TopProperty, 20d);
                     rect.SetValue(Canvas.LeftProperty, xAxis.GetDataValueAsRenderPositionWithoutZoom(source.Key) - rect.Width / 2);
-                    _annotations.Add(rect);
+                    if ((double)rect.GetValue(Canvas.LeftProperty) - lastLeft > 2d)
+                    {
+                        _annotations.Add(rect);
+                        lastLeft = (double)rect.GetValue(Canvas.LeftProperty);
+                    }
+
                 }
             }
+            Debug.Print("There are {0} annotations to draw", _annotations.Count);
             foreach (var annotation in _annotations)
             {
                 _canvas.Children.Add(annotation);

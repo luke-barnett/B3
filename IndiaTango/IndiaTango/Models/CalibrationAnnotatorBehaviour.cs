@@ -32,9 +32,6 @@ namespace IndiaTango.Models
                 throw new Exception();
 
             Chart.Series.CollectionChanged += SeriesCollectionChanged;
-            Chart.SizeChanged += ChartOnSizeChanged;
-            Chart.XAxis.ValueConversionChanged += XAxisOnValueConversionChanged;
-            xAxis.ValueConversionChanged += XAxisOnValueConversionChanged;
             xAxis.SizeChanged += OnSizeChanged;
             PropertyChanged += OnPropertyChanged;
 
@@ -42,6 +39,23 @@ namespace IndiaTango.Models
 
             if (grid != null)
                 grid.Children.Add(_canvas);
+        }
+
+        public override void DeInit()
+        {
+            var xAxis = (Chart.XAxis as DateTimeAxis);
+            if (xAxis == null)
+                throw new Exception();
+
+            Chart.Series.CollectionChanged -= SeriesCollectionChanged;
+            xAxis.SizeChanged -= OnSizeChanged;
+            PropertyChanged -= OnPropertyChanged;
+
+            RemoveAllAnnotations();
+            var grid = xAxis.Parent as Grid;
+
+            if (grid != null)
+                grid.Children.Remove(_canvas);
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
@@ -55,39 +69,7 @@ namespace IndiaTango.Models
             }
         }
 
-        public override void DeInit()
-        {
-            var xAxis = (Chart.XAxis as DateTimeAxis);
-            if (xAxis == null)
-                throw new Exception();
-
-            Chart.Series.CollectionChanged -= SeriesCollectionChanged;
-            Chart.SizeChanged -= ChartOnSizeChanged;
-            Chart.XAxis.ValueConversionChanged -= XAxisOnValueConversionChanged;
-            xAxis.ValueConversionChanged -= XAxisOnValueConversionChanged;
-            xAxis.SizeChanged -= OnSizeChanged;
-            PropertyChanged -= OnPropertyChanged;
-
-            RemoveAllAnnotations();
-            var grid = xAxis.Parent as Grid;
-
-            if (grid != null)
-                grid.Children.Remove(_canvas);
-        }
-
         private void OnSizeChanged(object sender, SizeChangedEventArgs sizeChangedEventArgs)
-        {
-            if (IsEnabled)
-                DrawAnnotations();
-        }
-
-        private void XAxisOnValueConversionChanged(object sender, EventArgs eventArgs)
-        {
-            if (IsEnabled)
-                DrawAnnotations();
-        }
-
-        private void ChartOnSizeChanged(object sender, SizeChangedEventArgs sizeChangedEventArgs)
         {
             if (IsEnabled)
                 DrawAnnotations();
