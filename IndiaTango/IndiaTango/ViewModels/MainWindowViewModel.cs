@@ -139,6 +139,8 @@ namespace IndiaTango.ViewModels
             _calibrationAnnotator = new CalibrationAnnotatorBehaviour(this) { IsEnabled = true };
             behaviourManager.Behaviours.Add(_calibrationAnnotator);
 
+            behaviourManager.Behaviours.Add(new ChangesAnnotatorBehaviour(this) { IsEnabled = true });
+
             Behaviour = behaviourManager;
 
             #endregion

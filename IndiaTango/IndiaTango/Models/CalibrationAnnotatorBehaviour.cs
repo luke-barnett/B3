@@ -77,22 +77,26 @@ namespace IndiaTango.Models
 
         private void OnSizeChanged(object sender, SizeChangedEventArgs sizeChangedEventArgs)
         {
-            DrawAnnotations();
+            if (IsEnabled)
+                DrawAnnotations();
         }
 
         private void XAxisOnValueConversionChanged(object sender, EventArgs eventArgs)
         {
-            DrawAnnotations();
+            if (IsEnabled)
+                DrawAnnotations();
         }
 
         private void ChartOnSizeChanged(object sender, SizeChangedEventArgs sizeChangedEventArgs)
         {
-            DrawAnnotations();
+            if (IsEnabled)
+                DrawAnnotations();
         }
 
         private void SeriesCollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            DrawAnnotations();
+            if (IsEnabled)
+                DrawAnnotations();
         }
 
         public void DrawAnnotations()
@@ -113,10 +117,9 @@ namespace IndiaTango.Models
                                                   "[{0}] {1}",
                                                   sensor.Name, calibration),
                                           Stroke = Brushes.Chartreuse,
-                                          Fill = new SolidColorBrush(sensor.Colour),
-                                          Opacity = 0.85d
+                                          Fill = new SolidColorBrush(sensor.Colour)
                                       };
-                    ellipse.SetValue(Canvas.TopProperty, xAxis.GetValue(Canvas.TopProperty));
+                    ellipse.SetValue(Canvas.TopProperty, 0d);
                     ellipse.SetValue(Canvas.LeftProperty, xAxis.GetDataValueAsRenderPositionWithoutZoom(calibration.TimeStamp) - ellipse.Width / 2);
                     _annotations.Add(ellipse);
                 }
