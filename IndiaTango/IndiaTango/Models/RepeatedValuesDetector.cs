@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -14,6 +15,7 @@ namespace IndiaTango.Models
         private int _requiredNumberInSequence = 100;
         private int _requestedNumberInSequence = 100;
         private Grid _settingsGrid;
+        private bool _skipFirstValue;
 
         public event Updated RefreshDetectedValues;
 
@@ -34,39 +36,30 @@ namespace IndiaTango.Models
 
         public List<ErroneousValue> GetDetectedValues(Sensor sensorToCheck)
         {
-            var detectedValues = new Dictionary<DateTime, ErroneousValue>();
+            var detectedValues = new List<ErroneousValue>();
 
             var queue = new Queue<KeyValuePair<DateTime, float>>();
 
-            foreach (var keyValuePair in sensorToCheck.CurrentState.Values.OrderBy(x => x.Key))
-            {
-                //First add to the queue
-                queue.Enqueue(keyValuePair);
-                //If it is too big make it smaller
-                while (queue.Count > _requiredNumberInSequence)
-                    queue.Dequeue();
-                if (queue.Count == _requiredNumberInSequence)
-                {
-                    var queueArray = queue.ToArray();
-                    var allTheSame = true;
-                    for (var i = 1; i < queue.Count; i++)
-                    {
-                        var same = queueArray[i].Value.ToString().CompareTo(queueArray[0].Value.ToString()) == 0;
+            var orderedValuesArray = sensorToCheck.CurrentState.Values.OrderBy(x => x.Key).ToArray();
 
-                        if (!same)
-                            allTheSame = false;
-                    }
-                    if (allTheSame)
-                    {
-                        foreach (var valuePair in queue)
-                        {
-                            detectedValues[valuePair.Key] = new ErroneousValue(valuePair.Key, valuePair.Value, sensorToCheck);
-                        }
-                    }
+            foreach (var value in orderedValuesArray)
+            {
+                queue.Enqueue(value);
+                var allTheSame = String.CompareOrdinal(queue.Peek().Value.ToString(CultureInfo.InvariantCulture), value.Value.ToString(CultureInfo.InvariantCulture)) == 0;
+
+                if (allTheSame) continue;
+
+                var numberOfAllTheSame = queue.Count - 1;
+                if (numberOfAllTheSame >= _requiredNumberInSequence)
+                {
+                    var listOfRepeatedValues = queue.DropLast();
+                    detectedValues.AddRange(from valuePair in (_skipFirstValue) ? listOfRepeatedValues.Skip(1) : listOfRepeatedValues select new ErroneousValue(valuePair.Key, valuePair.Value, sensorToCheck));
                 }
+                queue.Clear();
+                queue.Enqueue(value);
             }
 
-            return detectedValues.Select(x => x.Value).OrderBy(x => x.TimeStamp).ToList();
+            return detectedValues;
         }
 
         public bool HasSettings
@@ -83,13 +76,37 @@ namespace IndiaTango.Models
                     var grid = new Grid();
                     grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
                     grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
+                    grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
+
+                    var checkBox = new CheckBox
+                                       {
+                                           Content = "Skip first value",
+                                           ToolTip =
+                                               "When checked it will consider the first value in a repeated series to be a legitimate value and so won't add it to the list of erroneous values",
+                                           Margin = new Thickness(0, 0, 0, 5)
+                                       };
+
+                    Grid.SetRow(checkBox, 0);
+                    grid.Children.Add(checkBox);
+
+                    checkBox.Checked += (o, e) =>
+                                            {
+                                                _skipFirstValue = true;
+                                                OnRefreshDetectedValues();
+                                            };
+
+                    checkBox.Unchecked += (o, e) =>
+                                              {
+                                                  _skipFirstValue = false;
+                                                  OnRefreshDetectedValues();
+                                              };
 
                     var label = new TextBlock { Text = "Number of sequential data values to look for:" };
-                    Grid.SetRow(label, 0);
+                    Grid.SetRow(label, 1);
 
                     grid.Children.Add(label);
 
-                    var slider = new Slider { Minimum = 2, Maximum = 100, Value = 100, TickFrequency = 98 };
+                    var slider = new Slider { Minimum = 2, Maximum = 200, Value = 100, TickFrequency = 98 };
 
                     var valueLabel = new TextBlock { Text = ((int)slider.Value).ToString() };
 
@@ -117,7 +134,7 @@ namespace IndiaTango.Models
                     Grid.SetColumn(valueLabel, 1);
                     sliderGrid.Children.Add(valueLabel);
 
-                    Grid.SetRow(sliderGrid, 1);
+                    Grid.SetRow(sliderGrid, 2);
                     grid.Children.Add(sliderGrid);
                     _settingsGrid = grid;
                 }

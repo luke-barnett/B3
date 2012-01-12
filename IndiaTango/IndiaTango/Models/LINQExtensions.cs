@@ -34,5 +34,23 @@ namespace IndiaTango.Models
             // Odd number of items. 
             return sortedList.ElementAt(itemIndex);
         }
+
+        public static IEnumerable<T> DropLast<T>(this IEnumerable<T> xs)
+        {
+            var lastX = default(T);
+            var first = true;
+            foreach (var x in xs)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    yield return lastX;
+                }
+                lastX = x;
+            }
+        }
     }
 }
