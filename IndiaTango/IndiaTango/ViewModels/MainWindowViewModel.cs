@@ -3071,7 +3071,7 @@ namespace IndiaTango.ViewModels
 
         public void SelectedCellsChanged(SelectedCellsChangedEventArgs eventArgs)
         {
-            foreach (var cell in eventArgs.AddedCells.Where(x => x.Column.DisplayIndex != 0))
+            foreach (var cell in eventArgs.AddedCells.Where(x => x.Column != null && x.Column.DisplayIndex != 0))
             {
                 var row = cell.Item as DataRowView;
                 if (row == null || Sensors.Count(x => String.CompareOrdinal(x.Name.Replace(".", ""), (string)cell.Column.Header) == 0) != 1) continue;
@@ -3084,7 +3084,7 @@ namespace IndiaTango.ViewModels
                 _erroneousValuesFromDataTable.Add(new ErroneousValue(timeStamp, sensor));
             }
 
-            foreach (var cell in eventArgs.RemovedCells.Where(x => x.Column.DisplayIndex != 0))
+            foreach (var cell in eventArgs.RemovedCells.Where(x => x.Column != null && x.Column.DisplayIndex != 0))
             {
                 var row = cell.Item as DataRowView;
                 if (row == null || Sensors.Count(x => String.CompareOrdinal(x.Name.Replace(".", ""), (string)cell.Column.Header) == 0) != 1) continue;
