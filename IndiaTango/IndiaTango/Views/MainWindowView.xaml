@@ -25,6 +25,7 @@
         <models:FloatStringConverter x:Key="floatStringConverter" />
         <models:TimeSpanStringConverter x:Key="timeSpanStringConverter" />
         <models:ColourConverter x:Key="colourConverter" />
+        <models:CellForegroundConverter x:Key="cellForegroundConverter" />
     </Window.Resources>
 
     <Grid x:Name="LayoutRoot">
@@ -428,7 +429,13 @@
                         <WrapPanel HorizontalAlignment="Right">
                             <CheckBox Content="View All Sensors" Margin="5" IsEnabled="{Binding FeaturesEnabled}" IsChecked="{Binding ViewAllSensors,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
                         </WrapPanel>
-                        <models:CustomDataGrid Grid.Row="1" ItemsSource="{Binding DataTable}" CanUserDeleteRows="True" Background="Transparent" BorderThickness="0" AlternatingRowBackground="LightGray" SelectionUnit="Cell" AlternationCount="2" cal:Message.Attach="[Event DeleteRequested] = [Action DeleteRequestedFromDataTable($eventArgs)];[Event SelectedCellsChanged] = [Action SelectedCellsChanged($eventArgs)]" />
+                        <models:CustomDataGrid Grid.Row="1" ItemsSource="{Binding DataTable}" CanUserDeleteRows="True" Background="Transparent" BorderThickness="0" AlternatingRowBackground="LightGray" SelectionUnit="Cell" AlternationCount="2" cal:Message.Attach="[Event DeleteRequested] = [Action DeleteRequestedFromDataTable($eventArgs)];[Event SelectedCellsChanged] = [Action SelectedCellsChanged($eventArgs)]">
+                            <models:CustomDataGrid.CellStyle>
+                                <Style TargetType="{x:Type DataGridCell}">
+                                    <Setter Property="Foreground" Value="{Binding Converter={StaticResource cellForegroundConverter}}" />
+                                </Style>
+                            </models:CustomDataGrid.CellStyle>
+                        </models:CustomDataGrid>
                         <GroupBox Grid.Row="2" Header="Summary Statistics" BorderBrush="OrangeRed">
                             <Grid>
                                 <Grid.RowDefinitions>
