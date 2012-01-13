@@ -38,10 +38,10 @@ namespace IndiaTango.Models
                 {
                     row[i + 1] = "";
                     if (sensors[i].CurrentState.Values.ContainsKey(j))
-                        row[i + 1] = sensors[i].CurrentState.Values[j].ToString(CultureInfo.InvariantCulture);
+                        row[i + 1] = sensors[i].CurrentState.Values[j].ToString(CultureInfo.InvariantCulture) + " ";
 
                     if (sensors[i].RawData.Values.ContainsKey(j))
-                        row[i + 1] += string.Format(" [{0}]",
+                        row[i + 1] += string.Format("[{0}]",
                                                     sensors[i].RawData.Values[j]);
                 }
                 table.Rows.Add(row);

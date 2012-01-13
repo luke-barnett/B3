@@ -22,6 +22,9 @@ namespace IndiaTango.Models
                 if (item == "")
                     return Brushes.Black;
 
+                if (item.IndexOf('[') == -1)
+                    return Brushes.Red;
+
                 if (item.StartsWith("["))
                     return Brushes.Red;
 
