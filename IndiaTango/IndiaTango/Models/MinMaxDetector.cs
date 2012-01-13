@@ -112,7 +112,8 @@ namespace IndiaTango.Models
                                                                   _selectedSensor.PropertyChanged +=
                                                                       PropertyChangedInSelectedSensor;
 
-                                                              GraphUpdateNeeded();
+                                                              if (_showMaxMinLines)
+                                                                  GraphUpdateNeeded();
                                                           };
 
                     graphOptions.Children.Add(_sensorsCombo);
