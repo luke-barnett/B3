@@ -2275,15 +2275,15 @@ namespace IndiaTango.ViewModels
 
                                                  _windowManager.ShowDialog(sensorMatchView);
 
-                                                 foreach (var sensor in sensors)
+                                                 foreach (var newSensor in sensors)
                                                  {
                                                      var match =
                                                          sensorMatchView.SensorLinks.FirstOrDefault(
-                                                             x => x.MatchingSensor == sensor);
+                                                             x => x.MatchingSensor == newSensor);
                                                      if (match == null)
                                                      {
                                                          Debug.WriteLine("Adding new sensor");
-                                                         CurrentDataset.Sensors.Add(sensor);
+                                                         CurrentDataset.Sensors.Add(newSensor);
                                                      }
                                                      else
                                                      {
@@ -2305,11 +2305,12 @@ namespace IndiaTango.ViewModels
                                                          var insertedValues = false;
                                                          var reason = ChangeReason.AddNewChangeReason("[Importer] Imported new values on " + DateTime.Now);
                                                          //And add values for any new dates we want
-                                                         foreach (var value in sensor.CurrentState.Values.Where(value =>
-                                                                     !keepOldValues || !(newState.Values.ContainsKey(value.Key) || matchingSensor.RawData.Values.ContainsKey(value.Key))))
+                                                         foreach (var value in newSensor.CurrentState.Values.Where(value =>
+                                                                     !keepOldValues || !(matchingSensor.CurrentState.Values.ContainsKey(value.Key) || matchingSensor.RawData.Values.ContainsKey(value.Key))))
                                                          {
                                                              newState.Values[value.Key] = value.Value;
-                                                             newState.AddToChanges(value.Key, reason.ID);
+                                                             if (matchingSensor.CurrentState.Values.ContainsKey(value.Key) || matchingSensor.RawData.Values.ContainsKey(value.Key))
+                                                                 newState.AddToChanges(value.Key, reason.ID);
                                                              matchingSensor.RawData.Values[value.Key] = value.Value;
                                                              insertedValues = true;
                                                          }
