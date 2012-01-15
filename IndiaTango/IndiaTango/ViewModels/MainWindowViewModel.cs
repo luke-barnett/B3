@@ -71,7 +71,7 @@ namespace IndiaTango.ViewModels
             repeatedValuesDetector.RefreshDetectedValues +=
                 () => CheckTheseMethods(new Collection<IDetectionMethod> { repeatedValuesDetector });
 
-            _detectionMethods = new List<IDetectionMethod> { _missingValuesDetector, _minMaxDetector, new ToHighRateOfChangeDetector(), _runningMeanStandardDeviationDetector, repeatedValuesDetector };
+            _detectionMethods = new List<IDetectionMethod> { _missingValuesDetector, repeatedValuesDetector, _minMaxDetector, new ToHighRateOfChangeDetector(), _runningMeanStandardDeviationDetector };
 
             #endregion
 
