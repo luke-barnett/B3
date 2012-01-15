@@ -678,9 +678,11 @@ namespace IndiaTango.ViewModels
 
         public bool FixYAxis
         {
-            get { return _selectionBehaviour.UseFullYAxis; }
+            get { return !NotInCalibrationMode || _selectionBehaviour.UseFullYAxis; }
             set
             {
+                if (!NotInCalibrationMode) return;
+
                 _selectionBehaviour.UseFullYAxis = value;
                 _useFullYAxis = value;
             }
@@ -704,6 +706,7 @@ namespace IndiaTango.ViewModels
             {
                 _notInCalibrationMode = value;
                 NotifyOfPropertyChange(() => NotInCalibrationMode);
+                NotifyOfPropertyChange(() => FixYAxis);
             }
         }
 
