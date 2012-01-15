@@ -17,23 +17,9 @@ namespace IndiaTango.Models
 
             var rowView = (DataRowView) value;
 
-            foreach (var item in rowView.Row.ItemArray.Where(item => item is string).Cast<string>())
-            {
-                if (item == "")
-                    return Brushes.Black;
-
-                if (item.IndexOf('[') == -1)
-                    return Brushes.Red;
-
-                if (item.StartsWith("["))
-                    return Brushes.Red;
-
-                var parts = item.Split(' ');
-                if (parts[0] != parts[1].Replace("[", "").Replace("]", ""))
-                    return Brushes.Red;
-            }
+            var hasEditedValues = rowView.Row.ItemArray.Where(item => item is string).Cast<string>().Any(x => x.IndexOf('[') != -1);
             
-            return Brushes.Black;
+            return hasEditedValues ? Brushes.Red : Brushes.Black;;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

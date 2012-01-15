@@ -37,12 +37,19 @@ namespace IndiaTango.Models
                 for (var i = 0; i < sensors.Length; i++)
                 {
                     row[i + 1] = "";
-                    if (sensors[i].CurrentState.Values.ContainsKey(j))
-                        row[i + 1] = sensors[i].CurrentState.Values[j].ToString(CultureInfo.InvariantCulture) + " ";
 
+                    var raw = string.Empty;
                     if (sensors[i].RawData.Values.ContainsKey(j))
-                        row[i + 1] += string.Format("[{0}]",
-                                                    sensors[i].RawData.Values[j]);
+                        raw = string.Format("{0}", sensors[i].RawData.Values[j]);
+
+                    var current = string.Empty;
+                    if (sensors[i].CurrentState.Values.ContainsKey(j))
+                        current = string.Format("{0}", sensors[i].CurrentState.Values[j]);
+
+                    if (String.CompareOrdinal(raw, current) == 0)
+                        row[i + 1] = current;
+                    else
+                        row[i + 1] = current == string.Empty ? string.Format("[{0}]", raw) : string.Format("{0} [{1}]", current, raw);
                 }
                 table.Rows.Add(row);
             }
