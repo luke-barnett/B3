@@ -339,7 +339,7 @@
                         <Grid Grid.Row="1" x:Name="GraphSection" Margin="5">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*" />
-                                <RowDefinition Height="140" />
+                                <RowDefinition Height="160" />
                             </Grid.RowDefinitions>
                             <charts:Chart x:Name="MainChart" Title="{Binding ChartTitle}" Grid.Row="0" Behaviour="{Binding Behaviour}" multiseries:MultiSeries.Source="{Binding ChartSeries}">
                                 <charts:Chart.YAxis>
@@ -378,12 +378,14 @@
                                     </StackPanel>
                                     <Grid Grid.Row="2">
                                         <Grid.RowDefinitions>
-                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="35" />
+                                            <RowDefinition Height="15" />
                                             <RowDefinition Height="*" />
                                         </Grid.RowDefinitions>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition  Width="80" />
                                             <ColumnDefinition  Width="Auto" />
+                                            <ColumnDefinition  Width="*" />
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Grid.Row="0" Grid.Column="0" Text="Y Minium: " VerticalAlignment="Center" HorizontalAlignment="Right" />
                                         <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="0,5">
@@ -395,20 +397,30 @@
                                             <Slider IsEnabled="{Binding FeaturesEnabled}" Width="200" Minimum="{Binding MinMaximum}" Maximum="{Binding MaxMaximum}" Value="{Binding Maximum,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
                                             <TextBox IsEnabled="{Binding FeaturesEnabled}" Text="{Binding Maximum, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource floatStringConverter}}" Width="50" />
                                         </StackPanel>
-                                    </Grid>
-                                    <Button IsEnabled="{Binding FeaturesEnabled}" Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5">
-                                        <i:Interaction.Triggers>
-                                            <i:EventTrigger EventName="Click">
-                                                <cal:ActionMessage MethodName="ExportChart">
-                                                    <cal:Parameter Value="{Binding ElementName=MainChart}" />
-                                                </cal:ActionMessage>
-                                            </i:EventTrigger>
-                                        </i:Interaction.Triggers>
-                                        <StackPanel Orientation="Horizontal">
-                                            <Image Source="/B3;component/Images/export_graph.png" Width="32" Height="32" VerticalAlignment="Center" />
-                                            <TextBlock Text="Export Graph" VerticalAlignment="Center" Margin="5" />
+                                        <StackPanel Grid.Row="0" Grid.Column="2" Margin="10,0">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Rectangle Stroke="OrangeRed" Width="10" Height="10" />
+                                                <TextBlock Text=" Change Marker" />
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Ellipse Stroke="OrangeRed" Width="10" Height="10" />
+                                                <TextBlock Text=" Calibration Marker" />
+                                            </StackPanel>
                                         </StackPanel>
-                                    </Button>
+                                        <Button IsEnabled="{Binding FeaturesEnabled}" Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="Click">
+                                                    <cal:ActionMessage MethodName="ExportChart">
+                                                        <cal:Parameter Value="{Binding ElementName=MainChart}" />
+                                                    </cal:ActionMessage>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Image Source="/B3;component/Images/export_graph.png" Width="32" Height="32" VerticalAlignment="Center" />
+                                                <TextBlock Text="Export Graph" VerticalAlignment="Center" Margin="5" />
+                                            </StackPanel>
+                                        </Button>
+                                    </Grid>
                                 </Grid>
                             </GroupBox>
                         </Grid>
