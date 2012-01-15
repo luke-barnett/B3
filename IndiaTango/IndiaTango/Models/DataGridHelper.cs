@@ -49,7 +49,7 @@ namespace IndiaTango.Models
                     if (String.CompareOrdinal(raw, current) == 0)
                         row[i + 1] = current;
                     else
-                        row[i + 1] = current == string.Empty ? string.Format("[{0}]", raw) : string.Format("{0} [{1}]", current, raw);
+                        row[i + 1] = current == string.Empty ? string.Format("[{0}]", raw) : string.Format("[{0}] {1}", raw, current);
                 }
                 table.Rows.Add(row);
             }
