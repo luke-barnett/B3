@@ -2699,7 +2699,12 @@ namespace IndiaTango.ViewModels
             foreach (var sensor in SensorsToCheckMethodsAgainst)
             {
                 if (useSelection)
-                    sensor.RevertToRaw(Selection.LowerX, Selection.UpperX, (float)Selection.LowerY, (float)Selection.UpperY);
+                {
+                    if (_selectionBehaviour.UseFullYAxis)
+                        sensor.RevertToRaw(Selection.LowerX, Selection.UpperX);
+                    else
+                        sensor.RevertToRaw(Selection.LowerX, Selection.UpperX, (float)Selection.LowerY, (float)Selection.UpperY);
+                }
                 else
                     sensor.RevertToRaw(StartTime, EndTime);
             }

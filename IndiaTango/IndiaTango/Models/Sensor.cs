@@ -581,12 +581,15 @@ namespace IndiaTango.Models
             {
                 changesMadeInTimePeriod =
                     changesMadeInTimePeriod.Where(
-                        x => RawData.Values[x] >= lowerYLimit && RawData.Values[x] <= upperYLimit).ToArray();
+                        x => !CurrentState.Values.ContainsKey(x) ||  CurrentState.Values[x] >= lowerYLimit && CurrentState.Values[x] <= upperYLimit).ToArray();
             }
             foreach (var timeStamp in changesMadeInTimePeriod)
             {
                 newState.Changes.Remove(timeStamp);
-                newState.Values[timeStamp] = RawData.Values[timeStamp];
+                if (RawData.Values.ContainsKey(timeStamp))
+                    newState.Values[timeStamp] = RawData.Values[timeStamp];
+                else
+                    newState.Values.Remove(timeStamp);
             }
 
             AddState(newState);
