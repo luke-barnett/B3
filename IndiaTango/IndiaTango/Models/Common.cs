@@ -49,6 +49,14 @@ namespace IndiaTango.Models
                 return Path.Combine(AppDataPath, "Sites");
             }
         }
+
+        public static string DatasetExportLocation(Dataset dataset)
+        {
+            var directory = Path.Combine(AppDataPath, "Backups", "Exports", dataset.Site.Name);
+            if (!Directory.Exists(directory))
+                Directory.CreateDirectory(directory);
+            return Path.Combine(directory, DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss"));
+        }
         public static string AppDataPath
         {
             get

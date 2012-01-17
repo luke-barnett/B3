@@ -2328,6 +2328,7 @@ namespace IndiaTango.ViewModels
                                                          }
                                                      }
                                                  }
+                                                 CurrentDataset.CalculateDataSetValues();
                                              }
 
                                              UpdateGUI();

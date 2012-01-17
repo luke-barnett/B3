@@ -23,7 +23,7 @@ namespace IndiaTango.Models
 
             var table = new DataTable();
 
-            table.Columns.Add(new DataColumn("Timestamp", typeof(DateTime)));
+            table.Columns.Add(new DataColumn("Timestamp", typeof(string)));
 
             foreach (var sensor in sensors)
             {
@@ -33,7 +33,7 @@ namespace IndiaTango.Models
             for (var j = startTime.Round(new TimeSpan(0, 0, sensors[0].Owner.DataInterval, 0)); j <= endTime; j = j.AddMinutes(sensors[0].Owner.DataInterval))
             {
                 var row = table.NewRow();
-                row[0] = j;
+                row[0] = j.ToString("yyyy/MM/dd hh:mm");
                 for (var i = 0; i < sensors.Length; i++)
                 {
                     row[i + 1] = "";
@@ -73,25 +73,13 @@ namespace IndiaTango.Models
                 table.Columns.Add(new DataColumn(sensor.Name.Replace(".", ""), typeof(string)));
             }
 
-            #region Start Date
+            
+
+            #region Start and End Dates
 
             var startDateRow = table.NewRow();
 
             startDateRow[0] = "Start Date";
-
-            for (var i = 0; i < sensors.Length; i++)
-            {
-                var startDate = sensors[i].CurrentState.Values.Select(x => x.Key).Where(x => x >= startTime && x >= endTime).OrderBy(x => x).FirstOrDefault();
-                startDateRow[i + 1] = startDate != DateTime.MinValue
-                                          ? startDate.ToString(CultureInfo.InvariantCulture)
-                                          : "No Data";
-            }
-
-            table.Rows.Add(startDateRow);
-
-            #endregion
-
-            #region End Date
 
             var endDateRow = table.NewRow();
 
@@ -99,12 +87,23 @@ namespace IndiaTango.Models
 
             for (var i = 0; i < sensors.Length; i++)
             {
-                var startDate = sensors[i].CurrentState.Values.Select(x => x.Key).Where(x => x >= startTime && x >= endTime).OrderBy(x => x).LastOrDefault();
-                endDateRow[i + 1] = startDate != DateTime.MinValue
+                var orderedTimeStamps =
+                sensors[i].CurrentState.Values.Select(x => x.Key).Where(x => x >= startTime && x <= endTime).OrderBy(
+                    x => x).ToArray();
+
+
+                var startDate = orderedTimeStamps.FirstOrDefault();
+                startDateRow[i + 1] = startDate != DateTime.MinValue
                                           ? startDate.ToString(CultureInfo.InvariantCulture)
+                                          : "No Data";
+
+                var endDate = orderedTimeStamps.LastOrDefault();
+                endDateRow[i + 1] = endDate != DateTime.MinValue
+                                          ? endDate.ToString(CultureInfo.InvariantCulture)
                                           : "No Data";
             }
 
+            table.Rows.Add(startDateRow);
             table.Rows.Add(endDateRow);
 
             #endregion

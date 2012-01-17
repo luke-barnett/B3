@@ -22,7 +22,7 @@ namespace IndiaTango.Models
         private int _actualDataPointCount;
         private int _dataInterval;
 
-        public Dataset() {} //For Protobuf-net
+        public Dataset() { } //For Protobuf-net
 
         /// <summary>
         /// Creates a new dataset with a specified start and end timestamp
@@ -95,58 +95,7 @@ namespace IndiaTango.Models
                     throw new ArgumentException("Sensors cannot be null");
 
                 _sensors = value;
-
-
-                if (Sensors.Count > 0 && Sensors[0] != null && Sensors[0].CurrentState != null)
-                {
-                    var intervalMap = new Dictionary<int, int>();
-                    var prevDate = DateTime.MinValue;
-                    var currentHighest = new KeyValuePair<int, int>();
-
-
-                    foreach (var date in Sensors[0].CurrentState.Values.Keys)
-                    {
-                        var interval = (int)(date - prevDate).TotalMinutes;
-
-                        if (intervalMap.ContainsKey(interval))
-                            intervalMap[interval]++;
-                        else
-                            intervalMap.Add(interval, 1);
-
-                        prevDate = date;
-                    }
-
-                    foreach (var pair in intervalMap)
-                        if (pair.Value > currentHighest.Value)
-                            currentHighest = pair;
-
-
-                    _dataInterval = currentHighest.Key;
-                }
-
-                foreach (Sensor sensor in _sensors)
-                {
-                    //Update the actual data point count.
-                    if (sensor.CurrentState != null)
-                        _actualDataPointCount = Math.Max(sensor.CurrentState.Values.Count, _actualDataPointCount);
-
-                    //Set the start and end time dynamically
-                    if (sensor.CurrentState != null && sensor.CurrentState.Values.Count > 0)
-                    {
-                        var timesArray = new DateTime[sensor.CurrentState.Values.Count];
-                        sensor.CurrentState.Values.Keys.CopyTo(timesArray, 0);
-                        var timesList = new List<DateTime>(timesArray);
-                        timesList.Sort();
-
-                        if (_startTimeStamp == DateTime.MinValue || timesList[0] < _startTimeStamp)
-                            _startTimeStamp = timesList[0];
-
-                        if (_startTimeStamp == DateTime.MinValue || timesList[timesList.Count - 1] > _endTimeStamp)
-                            _endTimeStamp = timesList[timesList.Count - 1];
-                    }
-                }
-
-                _expectedDataPointCount = (int)Math.Floor(EndTimeStamp.Subtract(StartTimeStamp).TotalMinutes / DataInterval) + 1;
+                CalculateDataSetValues();
             }
         }
 
@@ -225,6 +174,60 @@ namespace IndiaTango.Models
                 Sensors.Add(a);
         }
 
+        public void CalculateDataSetValues()
+        {
+            if (Sensors.Count > 0 && Sensors[0] != null && Sensors[0].CurrentState != null)
+            {
+                var intervalMap = new Dictionary<int, int>();
+                var prevDate = DateTime.MinValue;
+                var currentHighest = new KeyValuePair<int, int>();
+
+
+                foreach (var date in Sensors[0].CurrentState.Values.Keys)
+                {
+                    var interval = (int)(date - prevDate).TotalMinutes;
+
+                    if (intervalMap.ContainsKey(interval))
+                        intervalMap[interval]++;
+                    else
+                        intervalMap.Add(interval, 1);
+
+                    prevDate = date;
+                }
+
+                foreach (var pair in intervalMap)
+                    if (pair.Value > currentHighest.Value)
+                        currentHighest = pair;
+
+
+                _dataInterval = currentHighest.Key;
+            }
+
+            foreach (Sensor sensor in _sensors)
+            {
+                //Update the actual data point count.
+                if (sensor.CurrentState != null)
+                    _actualDataPointCount = Math.Max(sensor.CurrentState.Values.Count, _actualDataPointCount);
+
+                //Set the start and end time dynamically
+                if (sensor.CurrentState != null && sensor.CurrentState.Values.Count > 0)
+                {
+                    var timesArray = new DateTime[sensor.CurrentState.Values.Count];
+                    sensor.CurrentState.Values.Keys.CopyTo(timesArray, 0);
+                    var timesList = new List<DateTime>(timesArray);
+                    timesList.Sort();
+
+                    if (_startTimeStamp == DateTime.MinValue || timesList[0] < _startTimeStamp)
+                        _startTimeStamp = timesList[0];
+
+                    if (_startTimeStamp == DateTime.MinValue || timesList[timesList.Count - 1] > _endTimeStamp)
+                        _endTimeStamp = timesList[timesList.Count - 1];
+                }
+            }
+
+            _expectedDataPointCount = (int)Math.Floor(EndTimeStamp.Subtract(StartTimeStamp).TotalMinutes / DataInterval) + 1;
+        }
+
         public string IdentifiableName
         {
             get { return (Site != null && !string.IsNullOrWhiteSpace(Site.Name)) ? Site.Name : Common.UnknownSite; }
@@ -250,8 +253,37 @@ namespace IndiaTango.Models
             using (var stream = new FileStream(fileName, FileMode.Open))
                 return (Dataset)new BinaryFormatter().Deserialize(stream);
              * */
-            using (var file = File.OpenRead(fileName))
-                return Serializer.Deserialize<Dataset>(file);
+            try
+            {
+                using (var file = File.OpenRead(fileName))
+                    return Serializer.Deserialize<Dataset>(file);
+            }
+            catch (Exception e)
+            {
+                if (File.Exists(fileName + ".backup"))
+                {
+                    try
+                    {
+                        Common.ShowMessageBox("Failed to load site",
+                                              "We were unable to read the site file. However a backup was found, now trying to load from backup",
+                                              false, false);
+                        using (var file = File.OpenRead(fileName + ".backup"))
+                            return Serializer.Deserialize<Dataset>(file);
+                    }
+                    catch (Exception e2)
+                    {
+                        Common.ShowMessageBoxWithException("Failed to load site",
+                                                           "We were unable to read the backup site file as it was corrupted.",
+                                                           false, true, e2);
+                    }
+
+                }
+
+                Common.ShowMessageBoxWithException("Failed to load site",
+                                                   "We were unable to read the site file as it was corrupted", false,
+                                                   true, e);
+            }
+            return null;
         }
 
         public void SaveToFile()
@@ -263,6 +295,11 @@ namespace IndiaTango.Models
             using (var stream = new FileStream(SaveLocation, FileMode.Create))
                 new BinaryFormatter().Serialize(stream, this);
              * */
+
+            if (File.Exists(SaveLocation))
+                File.Copy(SaveLocation, SaveLocation + ".backup", true);
+
+            new DatasetExporter(this).Export(Common.DatasetExportLocation(this), ExportFormat.CSV, true);
 
             using (var file = File.Create(SaveLocation))
                 Serializer.Serialize(file, this);
