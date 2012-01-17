@@ -34,7 +34,9 @@ namespace IndiaTango.Models
 
         public int CompareTo(SensorVariable other)
         {
-            return VariableName.CompareTo(other.VariableName);
+            if(VariableName.Length == other.VariableName.Length)
+                return VariableName.CompareTo(other.VariableName);
+            return VariableName.Length - other.VariableName.Length;
         }
 
         public override string ToString()

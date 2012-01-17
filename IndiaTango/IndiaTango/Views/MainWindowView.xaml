@@ -68,8 +68,8 @@
                 </Grid.RowDefinitions>
 
                 <GroupBox Grid.Row="0" x:Name="TableSection" Header="Sensors" BorderBrush="OrangeRed">
-                    <DataGrid x:Name="DataGrid" IsEnabled="{Binding FeaturesEnabled}" ItemsSource="{Binding GraphableSensors}" AlternatingRowBackground="LightGray" AlternationCount="2" AutoGenerateColumns="False" CanUserReorderColumns="True" FrozenColumnCount="2" BorderThickness="0" Background="Transparent" SelectionMode="Single" EnableRowVirtualization="False" CanUserAddRows="False" CanUserDeleteRows="False" cal:Message.Attach="[Event BeginningEdit] = [Action DisableActions];[Event CellEditEnding] = [Action EnableActions]">
-                        <DataGrid.ContextMenu>
+                    <models:CustomSortDataGrid x:Name="DataGrid" IsEnabled="{Binding FeaturesEnabled}" ItemsSource="{Binding GraphableSensors}" AlternatingRowBackground="LightGray" AlternationCount="2" AutoGenerateColumns="False" CanUserReorderColumns="True" FrozenColumnCount="2" BorderThickness="0" Background="Transparent" SelectionMode="Single" EnableRowVirtualization="False" CanUserAddRows="False" CanUserDeleteRows="False" cal:Message.Attach="[Event BeginningEdit] = [Action DisableActions];[Event CellEditEnding] = [Action EnableActions]">
+                        <models:CustomSortDataGrid.ContextMenu>
                             <ContextMenu x:Name="dataGridContextMenu" IsEnabled="{Binding FeaturesEnabled}">
                                 <MenuItem Header="Delete">
                                     <i:Interaction.Triggers>
@@ -81,8 +81,8 @@
                                     </i:Interaction.Triggers>
                                 </MenuItem>
                             </ContextMenu>
-                        </DataGrid.ContextMenu>
-                        <DataGrid.Columns>
+                        </models:CustomSortDataGrid.ContextMenu>
+                        <models:CustomSortDataGrid.Columns>
                             <DataGridTemplateColumn>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
@@ -109,7 +109,7 @@
                                 </DataGridTemplateColumn.HeaderTemplate>
                             </DataGridTemplateColumn>
                             <DataGridTextColumn Header="Name" Binding="{Binding Sensor.Name}" />
-                            <DataGridTextColumn Header="Variable" Binding="{Binding Sensor.Variable}" IsReadOnly="True" SortMemberPath="Sensor.Variable.VariableName" />
+                            <DataGridTextColumn Header="Variable" Binding="{Binding Sensor.Variable}" IsReadOnly="True" SortMemberPath="Sensor.Variable" />
                             <DataGridTemplateColumn Header="Parameter" CanUserSort="True" SortMemberPath="Sensor.SensorType">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
@@ -139,7 +139,7 @@
                             <DataGridTextColumn Header="Lower Limit" Binding="{Binding Sensor.LowerLimit, Converter={StaticResource floatStringConverter}}" />
                             <DataGridTextColumn Header="Upper Limit" Binding="{Binding Sensor.UpperLimit, Converter={StaticResource floatStringConverter}}" />
                             <DataGridTextColumn Header="Max Rate of Change" Binding="{Binding Sensor.MaxRateOfChange, Converter={StaticResource floatStringConverter}}" />
-                            <DataGridTemplateColumn Header="Serial Number">
+                            <DataGridTemplateColumn Header="Serial Number" CanUserSort="True" SortMemberPath="Sensor.CurrentMetaData.SerialNumber">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding Sensor.CurrentMetaData.SerialNumber}" Margin="2,0"  />
@@ -190,7 +190,7 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellEditingTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="Summary Type">
+                            <DataGridTemplateColumn Header="Summary Type" CanUserSort="True" SortMemberPath="Sensor.SummaryType">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding Sensor.SummaryType}" Margin="2,0"  />
@@ -221,7 +221,7 @@
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                             <DataGridTextColumn Header="Ideal Calibration Frequency (Days)" Binding="{Binding Sensor.CurrentMetaData.IdealCalibrationFrequency, Converter={StaticResource timeSpanStringConverter}}" />
-                            <DataGridTemplateColumn Header="Date of Installation">
+                            <DataGridTemplateColumn Header="Date of Installation" CanUserSort="True" SortMemberPath="Sensor.CurrentMetaData.DateOfInstallation">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding Sensor.CurrentMetaData.DateOfInstallation, StringFormat=yyyy/MM/dd}" />
@@ -240,8 +240,8 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                        </DataGrid.Columns>
-                    </DataGrid>
+                        </models:CustomSortDataGrid.Columns>
+                    </models:CustomSortDataGrid>
                 </GroupBox>
                 <GridSplitter Grid.Row="1" ResizeBehavior="PreviousAndNext" ResizeDirection="Rows" Height="1" Margin="5,7" HorizontalAlignment="Stretch" Background="OrangeRed" />
                 <GroupBox Grid.Row="2" x:Name="TabSection" Header="Detection Methods" BorderBrush="OrangeRed" >

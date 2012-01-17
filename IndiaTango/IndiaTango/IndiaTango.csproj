@@ -96,6 +96,7 @@
     <Compile Include="Models\Colour.cs" />
     <Compile Include="Models\ColourConverter.cs" />
     <Compile Include="Models\CustomDataGrid.cs" />
+    <Compile Include="Models\CustomSortDataGrid.cs" />
     <Compile Include="Models\CustomTabItem.cs" />
     <Compile Include="Models\DataGridHelper.cs" />
     <Compile Include="Models\DateAnnotationBehaviour.cs" />
