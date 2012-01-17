@@ -717,6 +717,8 @@ namespace IndiaTango.ViewModels
             {
                 if(!value)
                 {
+                    _sensorsToGraph.Clear();
+                    SensorsToCheckMethodsAgainst.Clear();
                     foreach(var gSensor in GraphableSensors.Where(x => x.IsChecked).ToArray())
                     {
                         gSensor.IsChecked = false;

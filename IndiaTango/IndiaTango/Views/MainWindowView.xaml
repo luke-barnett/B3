@@ -104,7 +104,7 @@
                                 </DataGridTemplateColumn.CellTemplate>
                                 <DataGridTemplateColumn.HeaderTemplate>
                                     <DataTemplate>
-                                        <CheckBox IsChecked="{Binding DataContext.UncheckAllSensors, ElementName=LayoutRoot, UpdateSourceTrigger=PropertyChanged}" />
+                                        <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center" Margin="2" IsChecked="{Binding DataContext.UncheckAllSensors, ElementName=LayoutRoot, UpdateSourceTrigger=PropertyChanged}" />
                                     </DataTemplate>
                                 </DataGridTemplateColumn.HeaderTemplate>
                             </DataGridTemplateColumn>
