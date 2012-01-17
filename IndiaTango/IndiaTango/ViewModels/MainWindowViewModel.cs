@@ -710,6 +710,23 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        public bool UncheckAllSensors
+        {
+            get { return _sensorsToGraph.Count > 0; }
+            set
+            {
+                if(!value)
+                {
+                    foreach(var gSensor in GraphableSensors.Where(x => x.IsChecked).ToArray())
+                    {
+                        gSensor.IsChecked = false;
+                    }
+                }
+                else
+                    NotifyOfPropertyChange(() => UncheckAllSensors);
+            }
+        }
+
         #endregion
 
         #region Private Methods
@@ -2784,6 +2801,7 @@ namespace IndiaTango.ViewModels
             EnableFeatures();
             AddToEditingSensors(graphableSensor);
             UpdateUndoRedo();
+            NotifyOfPropertyChange(() => UncheckAllSensors);
         }
 
         public void AddToGraph(RoutedEventArgs eventArgs)
@@ -2807,6 +2825,7 @@ namespace IndiaTango.ViewModels
             EnableFeatures();
             RemoveFromEditingSensors(eventArgs);
             UpdateUndoRedo();
+            NotifyOfPropertyChange(() => UncheckAllSensors);
         }
 
         public void ShowCurrentSiteInformation()

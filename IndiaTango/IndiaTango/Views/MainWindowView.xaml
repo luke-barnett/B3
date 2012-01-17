@@ -83,7 +83,7 @@
                             </ContextMenu>
                         </DataGrid.ContextMenu>
                         <DataGrid.Columns>
-                            <DataGridTemplateColumn Header="">
+                            <DataGridTemplateColumn>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <CheckBox Content="{Binding This}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="2" IsChecked="{Binding IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
@@ -102,6 +102,11 @@
                                         </CheckBox>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <CheckBox IsChecked="{Binding DataContext.UncheckAllSensors, ElementName=LayoutRoot, UpdateSourceTrigger=PropertyChanged}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.HeaderTemplate>
                             </DataGridTemplateColumn>
                             <DataGridTextColumn Header="Name" Binding="{Binding Sensor.Name}" />
                             <DataGridTextColumn Header="Variable" Binding="{Binding Sensor.Variable}" IsReadOnly="True" SortMemberPath="Sensor.Variable.VariableName" />
