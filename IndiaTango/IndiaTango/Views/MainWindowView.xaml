@@ -48,6 +48,7 @@
             </MenuItem>
             <MenuItem Header="_View">
                 <MenuItem Header="_Log" cal:Message.Attach="[Event Click] = [Action ShowLog]" />
+                <!--<MenuItem Header="_Heat Map" cal:Message.Attach="[Event Click] = [Action ShowHeatMap]" />-->
             </MenuItem>
         </Menu>
 

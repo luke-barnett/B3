@@ -1,0 +1,18 @@
+﻿<Window x:Class="IndiaTango.Views.HeatMapView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+        xmlns:cal="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro"
+        Title="HeatMapView" Height="300" Width="300">
+    <Grid>
+        <Canvas Name="heatMapCanvas" />
+    </Grid>
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <cal:ActionMessage MethodName="WindowLoaded">
+                <cal:Parameter Value="{Binding ElementName=heatMapCanvas}" />
+            </cal:ActionMessage>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+</Window>

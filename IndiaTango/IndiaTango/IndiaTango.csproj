@@ -144,6 +144,7 @@
     <Compile Include="ViewModels\ExportToImageViewModel.cs" />
     <Compile Include="ViewModels\ExportViewModel.cs" />
     <Compile Include="ViewModels\GraphViewModel.cs" />
+    <Compile Include="ViewModels\HeatMapViewModel.cs" />
     <Compile Include="ViewModels\LogWindowViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
@@ -185,6 +186,9 @@
     </Compile>
     <Compile Include="Views\GraphView.xaml.cs">
       <DependentUpon>GraphView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\HeatMapView.xaml.cs">
+      <DependentUpon>HeatMapView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\LogWindowView.xaml.cs">
       <DependentUpon>LogWindowView.xaml</DependentUpon>
@@ -301,6 +305,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\GraphView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\HeatMapView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

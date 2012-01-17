@@ -2741,6 +2741,13 @@ namespace IndiaTango.ViewModels
             ActionsEnabled = false;
         }
 
+        public void ShowHeatMap()
+        {
+            var view = _container.GetInstance(typeof(HeatMapViewModel), "HeatMapViewModel") as HeatMapViewModel;
+            view.AvailableSensors = Sensors;
+            _windowManager.ShowWindow(view);
+        }
+
         #endregion
 
         #region Event Handlers
