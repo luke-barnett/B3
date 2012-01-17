@@ -715,11 +715,11 @@ namespace IndiaTango.ViewModels
             get { return _sensorsToGraph.Count > 0; }
             set
             {
-                if(!value)
+                if (!value)
                 {
                     _sensorsToGraph.Clear();
                     SensorsToCheckMethodsAgainst.Clear();
-                    foreach(var gSensor in GraphableSensors.Where(x => x.IsChecked).ToArray())
+                    foreach (var gSensor in GraphableSensors.Where(x => x.IsChecked).ToArray())
                     {
                         gSensor.IsChecked = false;
                     }
@@ -1303,6 +1303,8 @@ namespace IndiaTango.ViewModels
                                                     foreach (var sensor in sensorsUsed)
                                                     {
                                                         Debug.Print("The sensor {0} was used", sensor.Name);
+                                                        sensor.CurrentState.LogChange(sensor.Name, string.Format(
+                                                                                  "Applied formula: {0} \n\r Between date range {1} - {2}", manualFormulaTextBox.Text, (useSelected) ? Selection.LowerX.Round(TimeSpan.FromMinutes(CurrentDataset.DataInterval)) : StartTime.Round(TimeSpan.FromMinutes(CurrentDataset.DataInterval)), (useSelected) ? Selection.UpperX : EndTime));
                                                     }
                                                     foreach (var graphableSensor in GraphableSensors.Where(x => sensorsUsed.Contains(x.Sensor)))
                                                     {
@@ -1631,6 +1633,7 @@ namespace IndiaTango.ViewModels
                                                                                                          currentAValue,
                                                                                                          currentBValue, reason));
                                                      sensor.CurrentState.Reason = reason;
+                                                     sensor.CurrentState.LogChange(sensor.Name, "Automatic Calibration");
                                                      successfulSensors.Add(sensor);
                                                  }
                                                  catch (Exception ex)
@@ -1963,6 +1966,7 @@ namespace IndiaTango.ViewModels
                                  foreach (var sensor in sensorList)
                                  {
                                      sensor.AddState(sensor.CurrentState.Interpolate(values.Where(x => x.Owner == sensor).Select(x => x.TimeStamp).ToList(), sensor.Owner, reason));
+                                     sensor.CurrentState.LogChange(sensor.Name, "Interpolated Values");
                                  }
                              };
 
@@ -2040,6 +2044,7 @@ namespace IndiaTango.ViewModels
                 foreach (var sensor in sensorList)
                 {
                     sensor.AddState(sensor.CurrentState.RemoveValues(values.Where(x => x.Owner == sensor).Select(x => x.TimeStamp).ToList(), reason));
+                    sensor.CurrentState.LogChange(sensor.Name, "Removed Values");
                 }
             };
 
@@ -2132,6 +2137,7 @@ namespace IndiaTango.ViewModels
                 foreach (var sensor in sensorList)
                 {
                     sensor.AddState(sensor.CurrentState.MakeValue(values.Where(x => x.Owner == sensor).Select(x => x.TimeStamp).ToList(), value, reason));
+                    sensor.CurrentState.LogChange(sensor.Name, "Specified Values");
                 }
             };
 
