@@ -3120,7 +3120,7 @@ namespace IndiaTango.ViewModels
                 var row = cell.Item as DataRowView;
                 if (row == null || Sensors.Count(x => String.CompareOrdinal(x.Name.Replace(".", ""), (string)cell.Column.Header) == 0) != 1) continue;
 
-                var timeStamp = (DateTime)row.Row[0];
+                var timeStamp = ((FormattedDateTime)row.Row[0]).Time;
                 var sensor = Sensors.FirstOrDefault(x => String.CompareOrdinal(x.Name.Replace(".", ""), (string)cell.Column.Header) == 0);
 
                 if (sensor == null) continue;
@@ -3133,7 +3133,7 @@ namespace IndiaTango.ViewModels
                 var row = cell.Item as DataRowView;
                 if (row == null || Sensors.Count(x => String.CompareOrdinal(x.Name.Replace(".", ""), (string)cell.Column.Header) == 0) != 1) continue;
 
-                var timeStamp = (DateTime)row.Row[0];
+                var timeStamp = ((FormattedDateTime)row.Row[0]).Time;
                 var sensor = Sensors.FirstOrDefault(x => String.CompareOrdinal(x.Name.Replace(".", ""), (string)cell.Column.Header) == 0);
 
                 if (sensor == null) continue;

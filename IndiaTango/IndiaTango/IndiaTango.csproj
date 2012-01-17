@@ -103,6 +103,7 @@
     <Compile Include="Models\DescriptionHelper.cs" />
     <Compile Include="Models\EditableComboBox.cs" />
     <Compile Include="Models\ErroneousValue.cs" />
+    <Compile Include="Models\FormattedDateTime.cs" />
     <Compile Include="Models\IDetectionMethod.cs" />
     <Compile Include="Models\FormulaEvaluator.cs" />
     <Compile Include="Models\CustomSelectionBehaviour.cs" />

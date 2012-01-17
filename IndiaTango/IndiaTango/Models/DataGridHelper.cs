@@ -23,7 +23,7 @@ namespace IndiaTango.Models
 
             var table = new DataTable();
 
-            table.Columns.Add(new DataColumn("Timestamp", typeof(string)));
+            table.Columns.Add(new DataColumn("Timestamp", typeof(FormattedDateTime)));
 
             foreach (var sensor in sensors)
             {
@@ -33,7 +33,7 @@ namespace IndiaTango.Models
             for (var j = startTime.Round(new TimeSpan(0, 0, sensors[0].Owner.DataInterval, 0)); j <= endTime; j = j.AddMinutes(sensors[0].Owner.DataInterval))
             {
                 var row = table.NewRow();
-                row[0] = j.ToString("yyyy/MM/dd hh:mm");
+                row[0] = new FormattedDateTime(j);
                 for (var i = 0; i < sensors.Length; i++)
                 {
                     row[i + 1] = "";
