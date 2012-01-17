@@ -224,7 +224,7 @@
                             <DataGridTemplateColumn Header="Date of Installation" CanUserSort="True" SortMemberPath="Sensor.CurrentMetaData.DateOfInstallation">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding Sensor.CurrentMetaData.DateOfInstallation, StringFormat=yyyy/MM/dd}" />
+                                        <TextBlock Text="{Binding Sensor.CurrentMetaData.DateOfInstallationString}" />
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                                 <DataGridTemplateColumn.CellEditingTemplate>

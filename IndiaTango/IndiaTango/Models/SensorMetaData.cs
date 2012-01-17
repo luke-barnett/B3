@@ -34,7 +34,7 @@ namespace IndiaTango.Models
         /// Creates a new sensor with the given serial number
         /// </summary>
         /// <param name="serialNumber">The serial number of the meta sensor</param>
-        public SensorMetaData(string serialNumber) : this(serialNumber, "", DateTime.Now, 0, TimeSpan.FromDays(1)) { }
+        public SensorMetaData(string serialNumber) : this(serialNumber, "", DateTime.MinValue, 0, TimeSpan.FromDays(0)) { }
         #endregion
 
         #region Private Variables
@@ -69,6 +69,11 @@ namespace IndiaTango.Models
                 _dateOfInstallation = value;
                 FirePropertyChanged("DateOfInstallation");
             }
+        }
+
+        public String DateOfInstallationString
+        {
+            get { return (_dateOfInstallation == DateTime.MinValue) ? "" : _dateOfInstallation.ToString("yyy/MM/dd"); }
         }
 
         public string SerialNumber
