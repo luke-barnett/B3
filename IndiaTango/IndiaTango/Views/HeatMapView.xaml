@@ -1,18 +1,42 @@
 ﻿<Window x:Class="IndiaTango.Views.HeatMapView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
-        xmlns:cal="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro"
+        xmlns:effects="clr-namespace:IndiaTango.Effects"
         Title="HeatMapView" Height="300" Width="300">
+    <Window.Resources>
+        <LinearGradientBrush x:Key="HeatGradient">
+            <GradientStop Color="#00003F" Offset="1.00000" />
+            <GradientStop Color="#00007F" Offset="0.88888" />
+            <GradientStop Color="#1F007F" Offset="0.77777" />
+            <GradientStop Color="#1F006F" Offset="0.66666" />
+            <GradientStop Color="#4F008F" Offset="0.55555" />
+            <GradientStop Color="#4F005F" Offset="0.44444" />
+            <GradientStop Color="#5F00FF" Offset="0.33333" />
+            <GradientStop Color="#5F005F" Offset="0.22222" />
+            <GradientStop Color="#8F003F" Offset="0.11111" />
+            <GradientStop Color="#8F003A" Offset="0.10000" />
+            <GradientStop Color="#8F0028" Offset="0.09000" />
+            <GradientStop Color="#9F003F" Offset="0.08000" />
+            <GradientStop Color="#AF003F" Offset="0.07000" />
+            <GradientStop Color="#BF003F" Offset="0.06000" />
+            <GradientStop Color="#AF003F" Offset="0.05000" />
+            <GradientStop Color="#BF003F" Offset="0.04000" />
+            <GradientStop Color="#CF003F" Offset="0.03000" />
+            <GradientStop Color="#DF003F" Offset="0.02000" />
+            <GradientStop Color="#EF003F" Offset="0.01000" />
+            <GradientStop Color="#FF0000" Offset="0.00000" />
+        </LinearGradientBrush>
+        <VisualBrush x:Key="PaletteBrush">
+            <VisualBrush.Visual>
+                <Rectangle Width="256" Height="1" Fill="{StaticResource HeatGradient}" />
+            </VisualBrush.Visual>
+        </VisualBrush>
+    </Window.Resources>
     <Grid>
-        <Canvas Name="heatMapCanvas" />
+        <Image Source="{Binding HeatMap}" >
+            <Image.Effect>
+                <effects:HeatColorizer Palette="{StaticResource PaletteBrush}" />
+            </Image.Effect>
+        </Image>
     </Grid>
-
-    <i:Interaction.Triggers>
-        <i:EventTrigger EventName="Loaded">
-            <cal:ActionMessage MethodName="WindowLoaded">
-                <cal:Parameter Value="{Binding ElementName=heatMapCanvas}" />
-            </cal:ActionMessage>
-        </i:EventTrigger>
-    </i:Interaction.Triggers>
 </Window>

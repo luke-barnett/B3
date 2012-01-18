@@ -86,6 +86,11 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Effects\HeatColorizer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>HeatColorizer.fx</DependentUpon>
+    </Compile>
     <Compile Include="Models\AboveMaxValueDetector.cs" />
     <Compile Include="Models\BelowMinValueDetector.cs" />
     <Compile Include="Models\Calibration.cs" />
@@ -259,6 +264,13 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="app.config" />
+    <None Include="Effects\HeatColorizer.fx">
+      <Generator>ShaderEffectGenerator</Generator>
+      <LastGenOutput>HeatColorizer.cs</LastGenOutput>
+    </None>
+    <Resource Include="Effects\HeatColorizer.ps">
+      <DependentUpon>HeatColorizer.fx</DependentUpon>
+    </Resource>
     <None Include="Resources\GLEON_VOCABULARY.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -482,6 +494,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

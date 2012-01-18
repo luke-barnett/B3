@@ -1,18 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Shapes;
+using System.Windows.Media.Imaging;
 using IndiaTango.Models;
 
 namespace IndiaTango.ViewModels
 {
     public class HeatMapViewModel : BaseViewModel
     {
-        private Canvas _heatMapCanvas;
+        private RenderTargetBitmap _heatMap;
         private readonly List<Sensor> _sensorsToUse;
         private List<Sensor> _availableSensors;
 
@@ -20,16 +18,17 @@ namespace IndiaTango.ViewModels
         {
             _sensorsToUse = new List<Sensor>();
             _availableSensors = new List<Sensor>();
-            PropertyChanged += OnPropertyChanged;
+            _heatMap = new RenderTargetBitmap(2000, 2000, 96, 96, PixelFormats.Pbgra32);
+            ClearMap();
         }
 
-        public Canvas HeatMapCanvas
+        public RenderTargetBitmap HeatMap
         {
-            get { return _heatMapCanvas; }
+            get { return _heatMap; }
             set
             {
-                _heatMapCanvas = value;
-                NotifyOfPropertyChange(() => HeatMapCanvas);
+                _heatMap = value;
+                NotifyOfPropertyChange(() => _heatMap);
             }
         }
 
@@ -40,28 +39,26 @@ namespace IndiaTango.ViewModels
             {
                 _availableSensors = value;
                 NotifyOfPropertyChange(() => AvailableSensors);
-                _sensorsToUse.AddRange(AvailableSensors.Take(7));
+                _sensorsToUse.AddRange(AvailableSensors.Take(10));
+                DrawHeatMap();
             }
-        }
-
-        private bool CanDrawHeatMap
-        {
-            get { return HeatMapCanvas != null; }
         }
 
         #region Private Methods
         private void DrawHeatMap()
         {
-            if (!CanDrawHeatMap) return;
 
-            var width = HeatMapCanvas.ActualWidth;
-            var height = HeatMapCanvas.ActualHeight;
+            var width = _heatMap.Width;
+            var height = _heatMap.Height;
 
             var depths = _sensorsToUse.Select(x => x.Depth).ToArray();
 
             var minDepth = depths.Min();
             var maxDepth = depths.Max();
 
+
+            var radius = height / depths.Distinct().Count();
+            Debug.Print("Radius: {0}", radius);
             //No longer need depths
             depths = null;
 
@@ -69,6 +66,7 @@ namespace IndiaTango.ViewModels
 
             var heightMultiplier = height / depthRange;
 
+            Debug.Print("Depth Min {0} Max {1} Range {2} Multiplier {3}", minDepth, maxDepth, depthRange, heightMultiplier);
 
             var timeStamps = _sensorsToUse.SelectMany(x => x.CurrentState.Values).Select(x => x.Key).ToArray();
 
@@ -82,6 +80,8 @@ namespace IndiaTango.ViewModels
 
             var widthMultiplier = width / timeRange.TotalMinutes;
 
+            Debug.Print("Time Min {0} Max {1} Range {2} Multiplier {3}", minTimeStamp, maxTimeStamp, timeRange, widthMultiplier);
+
             var values = _sensorsToUse.SelectMany(x => x.CurrentState.Values).Select(x => x.Value).ToArray();
 
             var minValue = values.Min();
@@ -91,52 +91,43 @@ namespace IndiaTango.ViewModels
 
             var valuesRange = maxValue - minValue;
 
-            var valuesMultiplier = 255 / valuesRange;
+            var valuesMultiplier = 120 / valuesRange;
 
-            const double ellipseRadius = 200d;
+            Debug.Print("Values Min {0} Max {1} Range {2} Multiplier {3}", minValue, maxValue, valuesRange, valuesMultiplier);
 
-            HeatMapCanvas.Background = Brushes.Black;
-            //Drawing Ellipses
             foreach (var sensor in _sensorsToUse)
             {
-                foreach (var timeStamp in sensor.CurrentState.Values)
+                foreach (var timeStamp in sensor.CurrentState.Values.OrderBy(x => x.Key).Where((x, index) => index % 5 == 0))
                 {
-                    var radialGradientBrush = new RadialGradientBrush(Color.FromArgb(((byte)((timeStamp.Value - minValue) * valuesMultiplier)), 0, 0, 0),
-                                                                      Color.FromArgb(0, 0, 0, 0))
-                                                  {
-                                                      GradientOrigin = new Point(ellipseRadius, ellipseRadius),
-                                                      Center = new Point(ellipseRadius, ellipseRadius),
-                                                      RadiusX = ellipseRadius,
-                                                      RadiusY = ellipseRadius
-                                                  };
-
+                    var intensity = (byte)((timeStamp.Value - minValue) * valuesMultiplier);
+                    var radialGradientBrush = new RadialGradientBrush();
+                    radialGradientBrush.GradientStops.Add(new GradientStop(Color.FromArgb(intensity, 0, 0, 0), 0.0));
+                    radialGradientBrush.GradientStops.Add(new GradientStop(Color.FromArgb(0, 0, 0, 0), 1));
                     radialGradientBrush.Freeze();
 
+                    var x = ((timeStamp.Key - minTimeStamp).TotalMinutes * widthMultiplier) - radius;
+                    var y = ((sensor.Depth - minDepth) * heightMultiplier) - radius;
 
-                    var ellipse = new Ellipse
-                                      {
-                                          Width = ellipseRadius * 2,
-                                          Height = ellipseRadius * 2,
-                                          Fill = radialGradientBrush
-                                      };
-                    ellipse.SetValue(Canvas.TopProperty, height - ((sensor.Depth - minDepth) * heightMultiplier));
-                    ellipse.SetValue(Canvas.LeftProperty, ((timeStamp.Key - minTimeStamp).TotalMinutes * widthMultiplier));
-                    HeatMapCanvas.Children.Add(ellipse);
+                    Debug.Print("Point Timestamp {0} Value {1} Depth {2} Intensity {3} x {4} y {5}", timeStamp.Key, timeStamp.Value, sensor.Depth, intensity, x, y);
+
+                    var drawingVisual = new DrawingVisual();
+                    using (var context = drawingVisual.RenderOpen())
+                    {
+                        context.DrawRectangle(radialGradientBrush, null, new Rect(x, y, radius * 2, radius * 2));
+                    }
+                    HeatMap.Render(drawingVisual);
                 }
             }
         }
-        #endregion
 
-        #region Event Handlers
-        public void WindowLoaded(Canvas heatMapCanvas)
+        private void ClearMap()
         {
-            HeatMapCanvas = heatMapCanvas;
-            DrawHeatMap();
-        }
-
-        private void OnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
-        {
-
+            var dv = new DrawingVisual();
+            using (var ctx = dv.RenderOpen())
+            {
+                ctx.DrawRectangle(Brushes.White, null, new Rect(0, 0, HeatMap.PixelWidth, HeatMap.PixelHeight));
+            }
+            HeatMap.Render(dv);
         }
         #endregion
     }
