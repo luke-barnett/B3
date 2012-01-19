@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,12 +25,19 @@ namespace IndiaTango.ViewModels
         private readonly HeatColorizer _heatMapColourEffect;
         private bool _specifyRadiusEnabled;
         private float _radius;
+        private float _minDepth;
+        private float _maxDepth;
+        private DateTime _minTimestamp;
+        private DateTime _maxTimestamp;
+        private float _minValue;
+        private float _maxValue;
+        private List<DepthYValue> _depths;
 
         public HeatMapViewModel()
         {
             _sensorsToUse = new List<Sensor>();
             _availableSensors = new List<Sensor>();
-            _heatMap = new RenderTargetBitmap(2750, 2750, 96, 96, PixelFormats.Pbgra32);
+            _heatMap = new RenderTargetBitmap(5000, 5000, 96, 96, PixelFormats.Pbgra32);
             _heatMapGraph = new RenderTargetBitmap(3000, 3000, 96, 96, PixelFormats.Pbgra32);
 
             _heatMapColourEffect = new HeatColorizer
@@ -88,6 +96,66 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        public float MinDepth
+        {
+            get { return _minDepth; }
+            set
+            {
+                _minDepth = value;
+                NotifyOfPropertyChange(() => MinDepth);
+            }
+        }
+
+        public float MaxDepth
+        {
+            get { return _maxDepth; }
+            set
+            {
+                _maxDepth = value;
+                NotifyOfPropertyChange(() => MaxDepth);
+            }
+        }
+
+        public DateTime MinTimestamp
+        {
+            get { return _minTimestamp; }
+            set
+            {
+                _minTimestamp = value;
+                NotifyOfPropertyChange(() => MinTimestamp);
+            }
+        }
+
+        public DateTime MaxTimestamp
+        {
+            get { return _maxTimestamp; }
+            set
+            {
+                _maxTimestamp = value;
+                NotifyOfPropertyChange(() => MaxTimestamp);
+            }
+        }
+
+        public float MinValue
+        {
+            get { return _minValue; }
+            set
+            {
+                _minValue = value;
+                NotifyOfPropertyChange(() => MinValue);
+            }
+        }
+
+        public float MaxValue
+        {
+            get { return _maxValue; }
+            set
+            {
+                _maxValue = value;
+                NotifyOfPropertyChange(() => MaxValue);
+            }
+        }
+
         #region Public Methods
 
         public void DrawGraph()
@@ -95,33 +163,73 @@ namespace IndiaTango.ViewModels
             ClearRenderTargetBitmap(_heatMapGraph);
 
 
-            const double xAxisOffset = 100;
-            const double yAxisOffset = 250;
+            const double xAxisOffset = 250;
+            const double yAxisOffset = 500;
             const double topOffset = 100;
 
-            var axisLength = _heatMapGraph.PixelWidth - 250;
+            var axisLength = _heatMapGraph.PixelWidth - (int)yAxisOffset;
             const double axisThickness = 10;
             var axisPen = new Pen(Brushes.Black, axisThickness);
 
             DrawHeatMap();
-            var rect = new Rectangle
+            var heatMapRect = new Rectangle
                            {
-                               Fill = new ImageBrush(_heatMap),
+                               Fill = new ImageBrush(_heatMap) { Stretch = Stretch.Uniform },
                                Effect = _heatMapColourEffect
                            };
 
-            var rectSize = new Size(_heatMap.PixelWidth, _heatMap.PixelHeight);
+            var heatMapRectSize = new Size(axisLength, axisLength);
 
-            rect.Measure(rectSize);
-            rect.Arrange(new Rect(new Point(xAxisOffset + 5, topOffset), rectSize));
+            heatMapRect.Measure(heatMapRectSize);
+            heatMapRect.Arrange(new Rect(new Point(xAxisOffset + 5, topOffset), heatMapRectSize));
 
-            _heatMapGraph.Render(rect);
+            _heatMapGraph.Render(heatMapRect);
+
+            var heatMapKeyWidth = axisLength;
+            const int heatMapKeyHeight = 100;
+
+            var heatMapKeyRect = new Rectangle
+                                     {
+                                         Fill = new ImageBrush(DrawHeatKey(heatMapKeyWidth, heatMapKeyHeight)),
+                                         Effect = _heatMapColourEffect
+                                     };
+
+            var heatMapKeySize = new Size(heatMapKeyWidth, heatMapKeyHeight);
+
+            heatMapKeyRect.Measure(heatMapKeySize);
+            heatMapKeyRect.Arrange(new Rect(new Point(xAxisOffset + 5, _heatMapGraph.PixelHeight - yAxisOffset + topOffset + 150), heatMapKeySize));
+
+            _heatMapGraph.Render(heatMapKeyRect);
 
             var drawingVisual = new DrawingVisual();
+            var textTypeFace = new Typeface(new FontFamily("Arial"), FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
+            const double headerFontSize = 80d;
+            const double fontSize = 40d;
+            const int numberOfTicks = 10;
+            var fontBrush = Brushes.Black;
             using (var context = drawingVisual.RenderOpen())
             {
                 context.DrawLine(axisPen, new Point(xAxisOffset, _heatMapGraph.PixelHeight - yAxisOffset - axisLength + topOffset), new Point(xAxisOffset, _heatMapGraph.PixelHeight - yAxisOffset + topOffset));
                 context.DrawLine(axisPen, new Point(xAxisOffset - 5, _heatMapGraph.PixelHeight - yAxisOffset + topOffset), new Point(xAxisOffset + axisLength + 5, _heatMapGraph.PixelHeight - yAxisOffset + topOffset));
+
+                context.DrawText(new FormattedText(MinValue.ToString(CultureInfo.InvariantCulture), CultureInfo.InvariantCulture, FlowDirection.LeftToRight, textTypeFace, headerFontSize, fontBrush), new Point(xAxisOffset + 5, _heatMapGraph.PixelHeight - yAxisOffset + topOffset + 250));
+                context.DrawText(new FormattedText(MaxValue.ToString(CultureInfo.InvariantCulture), CultureInfo.InvariantCulture, FlowDirection.LeftToRight, textTypeFace, headerFontSize, fontBrush), new Point(xAxisOffset + 5 + axisLength, _heatMapGraph.PixelHeight - yAxisOffset + topOffset + 250));
+
+                context.DrawText(new FormattedText("Time", CultureInfo.InvariantCulture, FlowDirection.LeftToRight, textTypeFace, headerFontSize, fontBrush), new Point(xAxisOffset + (axisLength / 2), topOffset + axisLength + 10));
+
+                context.DrawText(new FormattedText(MinTimestamp.ToString("yyyy/MM/dd HH:mm"), CultureInfo.InvariantCulture, FlowDirection.LeftToRight, textTypeFace, fontSize, fontBrush), new Point(xAxisOffset + 5, _heatMapGraph.PixelHeight - yAxisOffset + topOffset));
+                context.DrawText(new FormattedText(MaxTimestamp.ToString("yyyy/MM/dd HH:mm"), CultureInfo.InvariantCulture, FlowDirection.LeftToRight, textTypeFace, fontSize, fontBrush), new Point(xAxisOffset + 5 + axisLength, _heatMapGraph.PixelHeight - yAxisOffset + topOffset));
+
+                context.PushTransform(new RotateTransform(90));
+
+                context.DrawText(new FormattedText("Depth", CultureInfo.InvariantCulture, FlowDirection.LeftToRight, textTypeFace, headerFontSize, fontBrush), new Point((topOffset + (axisLength / 2)), -headerFontSize));
+
+                context.Pop();
+
+                foreach (var depthYValue in _depths)
+                {
+                    context.DrawText(new FormattedText(depthYValue.Depth.ToString(CultureInfo.InvariantCulture), CultureInfo.InvariantCulture, FlowDirection.LeftToRight, textTypeFace, fontSize, fontBrush), new Point(xAxisOffset - 100, topOffset + (depthYValue.YValue / _heatMap.PixelHeight) * axisLength));
+                }
             }
 
             _heatMapGraph.Render(drawingVisual);
@@ -167,65 +275,65 @@ namespace IndiaTango.ViewModels
             var width = _heatMap.Width;
             var height = _heatMap.Height;
 
-            var depths = _sensorsToUse.Select(x => x.Depth).ToArray();
+            var depths = _sensorsToUse.Select(x => x.Depth).Distinct().OrderBy(x => x).ToArray();
 
-            var minDepth = depths.Min();
-            var maxDepth = depths.Max();
+            MinDepth = depths.Min();
+            MaxDepth = depths.Max();
 
 
             if (!SpecifyRadiusEnabled)
-                Radius = (float)height / depths.Distinct().Count();
+                Radius = (float)height / (depths.Count() - 1);
             Debug.Print("Radius: {0}", Radius);
-            //No longer need depths
-            depths = null;
 
-            var depthRange = maxDepth - minDepth;
+            var depthRange = MaxDepth - MinDepth;
 
-            var heightMultiplier = height / depthRange;
+            var heightMultiplier = height / (depths.Count() - 1);
 
-            Debug.Print("Depth Min {0} Max {1} Range {2} Multiplier {3}", minDepth, maxDepth, depthRange, heightMultiplier);
+            Debug.Print("Depth Min {0} Max {1} Range {2} Multiplier {3}", MinDepth, MaxDepth, depthRange, heightMultiplier);
 
             var timeStamps = _sensorsToUse.SelectMany(x => x.CurrentState.Values).Select(x => x.Key).ToArray();
 
-            var minTimeStamp = timeStamps.Min();
-            var maxTimeStamp = timeStamps.Max();
+            MinTimestamp = timeStamps.Min();
+            MaxTimestamp = timeStamps.Max();
 
             //No longer need timestamps
             timeStamps = null;
 
-            var timeRange = maxTimeStamp - minTimeStamp;
+            var timeRange = MaxTimestamp - MinTimestamp;
 
             var widthMultiplier = width / timeRange.TotalMinutes;
 
-            Debug.Print("Time Min {0} Max {1} Range {2} Multiplier {3}", minTimeStamp, maxTimeStamp, timeRange, widthMultiplier);
+            Debug.Print("Time Min {0} Max {1} Range {2} Multiplier {3}", MinTimestamp, MaxTimestamp, timeRange, widthMultiplier);
 
             var values = _sensorsToUse.SelectMany(x => x.CurrentState.Values).Select(x => x.Value).ToArray();
 
-            var minValue = values.Min();
-            var maxValue = values.Max();
+            MinValue = values.Min();
+            MaxValue = values.Max();
 
             values = null;
 
-            var valuesRange = maxValue - minValue;
+            var valuesRange = MaxValue - MinValue;
 
-            var valuesMultiplier = 120 / valuesRange;
+            var valuesMultiplier = 255 / valuesRange;
 
-            Debug.Print("Values Min {0} Max {1} Range {2} Multiplier {3}", minValue, maxValue, valuesRange, valuesMultiplier);
-
+            Debug.Print("Values Min {0} Max {1} Range {2} Multiplier {3}", MinValue, MaxValue, valuesRange, valuesMultiplier);
+            _depths = new List<DepthYValue>();
             foreach (var sensor in _sensorsToUse)
             {
+                var y = (Array.IndexOf(depths, sensor.Depth) * heightMultiplier);
+                _depths.Add(new DepthYValue(sensor.Depth, y));
                 foreach (var timeStamp in sensor.CurrentState.Values.OrderBy(x => x.Key).Where((x, index) => index % 5 == 0))
                 {
-                    var intensity = (byte)((timeStamp.Value - minValue) * valuesMultiplier);
+                    var intensity = (byte)((timeStamp.Value - MinValue) * valuesMultiplier);
                     var radialGradientBrush = new RadialGradientBrush();
                     radialGradientBrush.GradientStops.Add(new GradientStop(Color.FromArgb(intensity, 0, 0, 0), 0.0));
                     radialGradientBrush.GradientStops.Add(new GradientStop(Color.FromArgb(0, 0, 0, 0), 1));
                     radialGradientBrush.Freeze();
 
-                    var x = ((timeStamp.Key - minTimeStamp).TotalMinutes * widthMultiplier) - Radius;
-                    var y = ((sensor.Depth - minDepth) * heightMultiplier) - Radius;
+                    var x = ((timeStamp.Key - MinTimestamp).TotalMinutes * widthMultiplier) - Radius;
 
-                    Debug.Print("Point Timestamp {0} Value {1} Depth {2} Intensity {3} x {4} y {5}", timeStamp.Key, timeStamp.Value, sensor.Depth, intensity, x, y);
+
+                    Debug.Print("Point Timestamp {0} Value {1} Depth {2} Intensity {3} x {4} y {5}", timeStamp.Key, timeStamp.Value, sensor.Depth, intensity, x, y - Radius);
 
                     var drawingVisual = new DrawingVisual();
                     using (var context = drawingVisual.RenderOpen())
@@ -235,6 +343,23 @@ namespace IndiaTango.ViewModels
                     _heatMap.Render(drawingVisual);
                 }
             }
+        }
+
+        private RenderTargetBitmap DrawHeatKey(int width, int height)
+        {
+            var heatKeyBitmap = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32);
+            ClearRenderTargetBitmap(heatKeyBitmap);
+            var brush = new LinearGradientBrush();
+            brush.GradientStops.Add(new GradientStop(Color.FromArgb(0, 0, 0, 0), 0.0));
+            brush.GradientStops.Add(new GradientStop(Color.FromArgb(255, 0, 0, 0), 1));
+            brush.Freeze();
+            var visual = new DrawingVisual();
+            using (var context = visual.RenderOpen())
+            {
+                context.DrawRectangle(brush, null, new Rect(0, 0, heatKeyBitmap.PixelWidth, heatKeyBitmap.PixelHeight));
+            }
+            heatKeyBitmap.Render(visual);
+            return heatKeyBitmap;
         }
 
         private static void ClearRenderTargetBitmap(RenderTargetBitmap renderTargetBitmap)
@@ -321,5 +446,17 @@ namespace IndiaTango.ViewModels
         }
 
         #endregion
+    }
+
+    internal class DepthYValue
+    {
+        public readonly double Depth;
+        public readonly double YValue;
+
+        public DepthYValue(double depth, double yValue)
+        {
+            Depth = depth;
+            YValue = yValue;
+        }
     }
 }
