@@ -350,8 +350,8 @@ namespace IndiaTango.ViewModels
             var heatKeyBitmap = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32);
             ClearRenderTargetBitmap(heatKeyBitmap);
             var brush = new LinearGradientBrush();
-            brush.GradientStops.Add(new GradientStop(Color.FromArgb(0, 0, 0, 0), 0.0));
-            brush.GradientStops.Add(new GradientStop(Color.FromArgb(255, 0, 0, 0), 1));
+            brush.GradientStops.Add(new GradientStop(Color.FromArgb(255, 0, 0, 0), 0.0));
+            brush.GradientStops.Add(new GradientStop(Color.FromArgb(0, 0, 0, 0), 1));
             brush.Freeze();
             var visual = new DrawingVisual();
             using (var context = visual.RenderOpen())
@@ -375,11 +375,52 @@ namespace IndiaTango.ViewModels
         private static LinearGradientBrush GenerateHeatGradient()
         {
             var brush = new LinearGradientBrush();
-            for (double i = 0; i < 1; i += 0.01)
+            /*for (double i = 0; i < 1; i += 0.01)
             {
                 brush.GradientStops.Add(new GradientStop(HSL2RGB(i, 0.5, 0.5), i));
                 Debug.Print("Colour[{0}] {1}", i, HSL2RGB(i, 0.5, 0.5));
-            }
+            }*/
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(255, 0, 0), 1d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.975d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.95d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.925d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.9d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.875d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.85d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.825d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.8d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.775d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.75d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.725d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.7d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.675d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.65d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.625d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.5d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.575d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.55d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.525d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.4d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.475d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.45d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.425d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.4d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.375d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.35d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.325d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.3d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.275d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.25d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 255), 0.225d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 240), 0.2d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 200), 0.175d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 180), 0.15d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 170), 0.125d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 120), 0.1d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 100), 0.075d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 80), 0.05d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 60), 0.025d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 40), 0.0d));
             brush.Freeze();
             return brush;
         }
