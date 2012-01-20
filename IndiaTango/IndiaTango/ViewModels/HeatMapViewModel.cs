@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using IndiaTango.Effects;
@@ -23,7 +25,15 @@ namespace IndiaTango.ViewModels
         private readonly List<Sensor> _sensorsToUse;
         private List<Sensor> _availableSensors;
         private readonly HeatColorizer _heatMapColourEffect;
+        private bool _featuresEnabled = true;
+
         private bool _specifyRadiusEnabled;
+        private bool _specifyMinTimestampEnabled;
+        private bool _specifyMaxTimestampEnabled;
+        private bool _specifyMinValueEnabled;
+        private bool _specifyMaxValueEnabled;
+        private bool _specifySamplingRate;
+
         private float _radius;
         private float _minDepth;
         private float _maxDepth;
@@ -31,7 +41,9 @@ namespace IndiaTango.ViewModels
         private DateTime _maxTimestamp;
         private float _minValue;
         private float _maxValue;
+
         private List<DepthYValue> _depths;
+        private int _samplingRate = 1;
 
         public HeatMapViewModel()
         {
@@ -76,6 +88,18 @@ namespace IndiaTango.ViewModels
 
         public List<Sensor> SelectedSensors { get; set; }
 
+        public bool FeaturesEnabled
+        {
+            get { return _featuresEnabled; }
+            set
+            {
+                _featuresEnabled = value;
+                NotifyOfPropertyChange(() => FeaturesEnabled);
+            }
+        }
+
+        #region Checkbox Values
+
         public bool SpecifyRadiusEnabled
         {
             get { return _specifyRadiusEnabled; }
@@ -85,6 +109,58 @@ namespace IndiaTango.ViewModels
                 NotifyOfPropertyChange(() => SpecifyRadiusEnabled);
             }
         }
+
+        public bool SpecifyMinTimestampEnabled
+        {
+            get { return _specifyMinTimestampEnabled; }
+            set
+            {
+                _specifyMinTimestampEnabled = value;
+                NotifyOfPropertyChange(() => SpecifyMinTimestampEnabled);
+            }
+        }
+
+        public bool SpecifyMaxTimestampEnabled
+        {
+            get { return _specifyMaxTimestampEnabled; }
+            set
+            {
+                _specifyMaxTimestampEnabled = value;
+                NotifyOfPropertyChange(() => SpecifyMaxTimestampEnabled);
+            }
+        }
+
+        public bool SpecifyMinValueEnabled
+        {
+            get { return _specifyMinValueEnabled; }
+            set
+            {
+                _specifyMinValueEnabled = value;
+                NotifyOfPropertyChange(() => SpecifyMinValueEnabled);
+            }
+        }
+
+        public bool SpecifyMaxValueEnabled
+        {
+            get { return _specifyMaxValueEnabled; }
+            set
+            {
+                _specifyMaxValueEnabled = value;
+                NotifyOfPropertyChange(() => SpecifyMaxValueEnabled);
+            }
+        }
+
+        public bool SpecifySamplingRateEnabled
+        {
+            get { return _specifySamplingRate; }
+            set
+            {
+                _specifySamplingRate = value;
+                NotifyOfPropertyChange(() => SpecifySamplingRateEnabled);
+            }
+        }
+
+        #endregion
 
         public float Radius
         {
@@ -156,11 +232,55 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        public int SamplingRate
+        {
+            get { return _samplingRate; }
+            set
+            {
+                _samplingRate = value <= 0 ? 1 : value;
+                NotifyOfPropertyChange(() => SamplingRate);
+            }
+        }
+
         #region Public Methods
 
         public void DrawGraph()
         {
-            ClearRenderTargetBitmap(_heatMapGraph);
+            DisableFeatures();
+            RenderGraph();
+            EnableFeatures();
+        }
+
+        public void AddToSelected(ListBox listBox)
+        {
+            if (listBox.SelectedItem != null && listBox.SelectedItem is Sensor)
+            {
+                var sensor = (Sensor)listBox.SelectedItem;
+                if (!_sensorsToUse.Contains(sensor))
+                    _sensorsToUse.Add(sensor);
+            }
+            SelectedSensors = new List<Sensor>(_sensorsToUse);
+            NotifyOfPropertyChange(() => SelectedSensors);
+        }
+
+        public void RemoveFromSelected(ListBox listBox)
+        {
+            if (listBox.SelectedItem != null && listBox.SelectedItem is Sensor)
+            {
+                var sensor = (Sensor)listBox.SelectedItem;
+                _sensorsToUse.Remove(sensor);
+            }
+            SelectedSensors = new List<Sensor>(_sensorsToUse);
+            NotifyOfPropertyChange(() => SelectedSensors);
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private void RenderGraph()
+        {
+            ClearRenderTargetBitmap(_heatMapGraph, Brushes.White);
 
 
             const double xAxisOffset = 250;
@@ -173,10 +293,10 @@ namespace IndiaTango.ViewModels
 
             DrawHeatMap();
             var heatMapRect = new Rectangle
-                           {
-                               Fill = new ImageBrush(_heatMap) { Stretch = Stretch.Uniform },
-                               Effect = _heatMapColourEffect
-                           };
+            {
+                Fill = new ImageBrush(_heatMap) { Stretch = Stretch.Uniform },
+                Effect = _heatMapColourEffect
+            };
 
             var heatMapRectSize = new Size(axisLength, axisLength);
 
@@ -189,10 +309,10 @@ namespace IndiaTango.ViewModels
             const int heatMapKeyHeight = 100;
 
             var heatMapKeyRect = new Rectangle
-                                     {
-                                         Fill = new ImageBrush(DrawHeatKey(heatMapKeyWidth, heatMapKeyHeight)),
-                                         Effect = _heatMapColourEffect
-                                     };
+            {
+                Fill = new ImageBrush(DrawHeatKey(heatMapKeyWidth, heatMapKeyHeight)),
+                Effect = _heatMapColourEffect
+            };
 
             var heatMapKeySize = new Size(heatMapKeyWidth, heatMapKeyHeight);
 
@@ -226,45 +346,19 @@ namespace IndiaTango.ViewModels
 
                 context.Pop();
 
-                foreach (var depthYValue in _depths)
-                {
-                    context.DrawText(new FormattedText(depthYValue.Depth.ToString(CultureInfo.InvariantCulture), CultureInfo.InvariantCulture, FlowDirection.LeftToRight, textTypeFace, fontSize, fontBrush), new Point(xAxisOffset - 100, topOffset + (depthYValue.YValue / _heatMap.PixelHeight) * axisLength));
-                }
+                if (_depths != null)
+                    foreach (var depthYValue in _depths)
+                    {
+                        context.DrawText(new FormattedText(depthYValue.Depth.ToString(CultureInfo.InvariantCulture), CultureInfo.InvariantCulture, FlowDirection.LeftToRight, textTypeFace, fontSize, fontBrush), new Point(xAxisOffset - 100, topOffset + (depthYValue.YValue / _heatMap.PixelHeight) * axisLength));
+                    }
             }
 
             _heatMapGraph.Render(drawingVisual);
         }
 
-        public void AddToSelected(ListBox listBox)
-        {
-            if (listBox.SelectedItem != null && listBox.SelectedItem is Sensor)
-            {
-                var sensor = (Sensor)listBox.SelectedItem;
-                if (!_sensorsToUse.Contains(sensor))
-                    _sensorsToUse.Add(sensor);
-            }
-            SelectedSensors = new List<Sensor>(_sensorsToUse);
-            NotifyOfPropertyChange(() => SelectedSensors);
-        }
-
-        public void RemoveFromSelected(ListBox listBox)
-        {
-            if (listBox.SelectedItem != null && listBox.SelectedItem is Sensor)
-            {
-                var sensor = (Sensor)listBox.SelectedItem;
-                _sensorsToUse.Remove(sensor);
-            }
-            SelectedSensors = new List<Sensor>(_sensorsToUse);
-            NotifyOfPropertyChange(() => SelectedSensors);
-        }
-
-        #endregion
-
-        #region Private Methods
-
         private void DrawHeatMap()
         {
-            ClearRenderTargetBitmap(_heatMap);
+            ClearRenderTargetBitmap(_heatMap, Brushes.Black);
             if (_sensorsToUse.Count == 0)
             {
                 Common.ShowMessageBox("Can't render", "You haven't selected any sensors to render the heatmap from",
@@ -293,8 +387,10 @@ namespace IndiaTango.ViewModels
 
             var timeStamps = _sensorsToUse.SelectMany(x => x.CurrentState.Values).Select(x => x.Key).ToArray();
 
-            MinTimestamp = timeStamps.Min();
-            MaxTimestamp = timeStamps.Max();
+            if (!SpecifyMinTimestampEnabled)
+                MinTimestamp = timeStamps.Min();
+            if (!SpecifyMaxTimestampEnabled)
+                MaxTimestamp = timeStamps.Max();
 
             //No longer need timestamps
             timeStamps = null;
@@ -305,10 +401,15 @@ namespace IndiaTango.ViewModels
 
             Debug.Print("Time Min {0} Max {1} Range {2} Multiplier {3}", MinTimestamp, MaxTimestamp, timeRange, widthMultiplier);
 
+            if (!SpecifySamplingRateEnabled)
+                SamplingRate = (int)(1 / widthMultiplier) * 2;
+
             var values = _sensorsToUse.SelectMany(x => x.CurrentState.Values).Select(x => x.Value).ToArray();
 
-            MinValue = values.Min();
-            MaxValue = values.Max();
+            if (!SpecifyMinValueEnabled)
+                MinValue = values.Min();
+            if (!SpecifyMaxValueEnabled)
+                MaxValue = values.Max();
 
             values = null;
 
@@ -322,12 +423,12 @@ namespace IndiaTango.ViewModels
             {
                 var y = (Array.IndexOf(depths, sensor.Depth) * heightMultiplier);
                 _depths.Add(new DepthYValue(sensor.Depth, y));
-                foreach (var timeStamp in sensor.CurrentState.Values.OrderBy(x => x.Key).Where((x, index) => index % 5 == 0))
+                foreach (var timeStamp in sensor.CurrentState.Values.OrderBy(x => x.Key).Where((x, index) => index % SamplingRate == 0))
                 {
                     var intensity = (byte)((timeStamp.Value - MinValue) * valuesMultiplier);
                     var radialGradientBrush = new RadialGradientBrush();
-                    radialGradientBrush.GradientStops.Add(new GradientStop(Color.FromArgb(intensity, 0, 0, 0), 0.0));
-                    radialGradientBrush.GradientStops.Add(new GradientStop(Color.FromArgb(0, 0, 0, 0), 1));
+                    radialGradientBrush.GradientStops.Add(new GradientStop(Color.FromArgb(intensity, 255, 255, 255), 0.0));
+                    radialGradientBrush.GradientStops.Add(new GradientStop(Color.FromArgb(0, 255, 255, 255), 1));
                     radialGradientBrush.Freeze();
 
                     var x = ((timeStamp.Key - MinTimestamp).TotalMinutes * widthMultiplier) - Radius;
@@ -338,7 +439,7 @@ namespace IndiaTango.ViewModels
                     var drawingVisual = new DrawingVisual();
                     using (var context = drawingVisual.RenderOpen())
                     {
-                        context.DrawRectangle(radialGradientBrush, null, new Rect(x, y, Radius * 2, Radius * 2));
+                        context.DrawRectangle(radialGradientBrush, null, new Rect(x, y - Radius, Radius * 2, Radius * 2));
                     }
                     _heatMap.Render(drawingVisual);
                 }
@@ -348,10 +449,10 @@ namespace IndiaTango.ViewModels
         private RenderTargetBitmap DrawHeatKey(int width, int height)
         {
             var heatKeyBitmap = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32);
-            ClearRenderTargetBitmap(heatKeyBitmap);
+            ClearRenderTargetBitmap(heatKeyBitmap, Brushes.Black);
             var brush = new LinearGradientBrush();
-            brush.GradientStops.Add(new GradientStop(Color.FromArgb(255, 0, 0, 0), 0.0));
-            brush.GradientStops.Add(new GradientStop(Color.FromArgb(0, 0, 0, 0), 1));
+            brush.GradientStops.Add(new GradientStop(Color.FromArgb(0, 255, 255, 255), 0.0));
+            brush.GradientStops.Add(new GradientStop(Color.FromArgb(255, 255, 255, 255), 1));
             brush.Freeze();
             var visual = new DrawingVisual();
             using (var context = visual.RenderOpen())
@@ -362,12 +463,12 @@ namespace IndiaTango.ViewModels
             return heatKeyBitmap;
         }
 
-        private static void ClearRenderTargetBitmap(RenderTargetBitmap renderTargetBitmap)
+        private static void ClearRenderTargetBitmap(RenderTargetBitmap renderTargetBitmap, Brush clearingBrush)
         {
             var dv = new DrawingVisual();
             using (var ctx = dv.RenderOpen())
             {
-                ctx.DrawRectangle(Brushes.White, null, new Rect(0, 0, renderTargetBitmap.PixelWidth, renderTargetBitmap.PixelHeight));
+                ctx.DrawRectangle(clearingBrush, null, new Rect(0, 0, renderTargetBitmap.PixelWidth, renderTargetBitmap.PixelHeight));
             }
             renderTargetBitmap.Render(dv);
         }
@@ -381,109 +482,120 @@ namespace IndiaTango.ViewModels
                 Debug.Print("Colour[{0}] {1}", i, HSL2RGB(i, 0.5, 0.5));
             }*/
             brush.GradientStops.Add(new GradientStop(Color.FromRgb(255, 0, 0), 1d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.975d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.95d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.925d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.9d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.875d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.85d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.825d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.8d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.775d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.75d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.725d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.7d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.675d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.65d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.625d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.5d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.575d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.55d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.525d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.4d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.475d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.45d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.425d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.4d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.375d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.35d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.325d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.3d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.275d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.25d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 255), 0.225d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 240), 0.2d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 200), 0.175d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 180), 0.15d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 170), 0.125d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 120), 0.1d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 100), 0.075d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 80), 0.05d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 60), 0.025d));
-            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 40), 0.0d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(255, 5, 0), 0.99d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(255, 10, 0), 0.98d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(255, 15, 0), 0.97d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(255, 25, 0), 0.96d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(255, 30, 0), 0.95d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(255, 35, 0), 0.94d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(255, 45, 0), 0.93d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(255, 50, 0), 0.92d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(255, 60, 0), 0.91d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(255, 65, 0), 0.90d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(255, 70, 0), 0.89d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(255, 75, 0), 0.88d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(255, 80, 0), 0.87d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(255, 90, 0), 0.86d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(255, 95, 0), 0.85d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(255, 100, 0), 0.84d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(255, 105, 0), 0.83d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(255, 120, 0), 0.82d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(255, 135, 0), 0.81d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(255, 145, 0), 0.80d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(255, 160, 0), 0.79d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(255, 180, 0), 0.78d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(255, 200, 0), 0.77d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(255, 225, 0), 0.76d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(255, 245, 0), 0.75d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(255, 255, 0), 0.74d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(240, 255, 0), 0.73d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(230, 255, 0), 0.72d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(220, 255, 0), 0.71d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(205, 255, 0), 0.70d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(195, 255, 0), 0.69d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(180, 255, 0), 0.68d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(175, 255, 0), 0.67d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(165, 255, 0), 0.66d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(155, 255, 0), 0.65d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(140, 255, 0), 0.64d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(130, 255, 0), 0.63d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(115, 255, 0), 0.62d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(105, 255, 0), 0.61d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(90, 255, 0), 0.60d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(80, 255, 0), 0.59d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(70, 255, 0), 0.58d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(55, 255, 0), 0.57d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(35, 255, 0), 0.56d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(20, 255, 0), 0.55d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(10, 255, 0), 0.54d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 255, 0), 0.53d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 255, 10), 0.52d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 255, 25), 0.51d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 255, 45), 0.50d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 255, 60), 0.49d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 255, 70), 0.48d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 255, 85), 0.47d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 255, 100), 0.46d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 255, 110), 0.45d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 255, 125), 0.44d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 255, 135), 0.43d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 255, 150), 0.42d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 255, 165), 0.41d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 255, 175), 0.40d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 255, 190), 0.39d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 255, 200), 0.38d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 255, 210), 0.37d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 255, 220), 0.36d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 255, 235), 0.35d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 255, 240), 0.34d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 255, 250), 0.33d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 255, 255), 0.32d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 230, 255), 0.31d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 220, 255), 0.30d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 205, 255), 0.29d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 190, 255), 0.28d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 180, 255), 0.27d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 170, 255), 0.26d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 150, 255), 0.25d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 130, 255), 0.24d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 105, 255), 0.23d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 95, 255), 0.22d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 80, 255), 0.21d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 70, 255), 0.20d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 55, 255), 0.19d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 45, 255), 0.18d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 30, 255), 0.17d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 20, 255), 0.16d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 255), 0.15d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 240), 0.14d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 230), 0.13d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 220), 0.12d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 200), 0.11d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 180), 0.10d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 160), 0.09d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 150), 0.08d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 140), 0.07d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 120), 0.06d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 100), 0.05d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 80), 0.04d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 60), 0.03d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 40), 0.02d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 20), 0.01d));
+            brush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 0.0d));
             brush.Freeze();
             return brush;
         }
 
-        private static Color HSL2RGB(double h, double sl, double l)
+        private void DisableFeatures()
         {
-            double v;
-            double r, g, b;
+            ApplicationCursor = Cursors.Wait;
+            FeaturesEnabled = false;
+        }
 
-            r = l;   // default to gray
-            g = l;
-            b = l;
-            v = (l <= 0.5) ? (l * (1.0 + sl)) : (l + sl - l * sl);
-            if (v > 0)
-            {
-                double m;
-                double sv;
-                int sextant;
-                double fract, vsf, mid1, mid2;
-
-                m = l + l - v;
-                sv = (v - m) / v;
-                h *= 6.0;
-                sextant = (int)h;
-                fract = h - sextant;
-                vsf = v * sv * fract;
-                mid1 = m + vsf;
-                mid2 = v - vsf;
-                switch (sextant)
-                {
-                    case 0:
-                        r = v;
-                        g = mid1;
-                        b = m;
-                        break;
-                    case 1:
-                        r = mid2;
-                        g = v;
-                        b = m;
-                        break;
-                    case 2:
-                        r = m;
-                        g = v;
-                        b = mid1;
-                        break;
-                    case 3:
-                        r = m;
-                        g = mid2;
-                        b = v;
-                        break;
-                    case 4:
-                        r = mid1;
-                        g = m;
-                        b = v;
-                        break;
-                    case 5:
-                        r = v;
-                        g = m;
-                        b = mid2;
-                        break;
-                }
-            }
-            return Color.FromRgb(Convert.ToByte(r * 255.0f), Convert.ToByte(g * 255.0f), Convert.ToByte(b * 255.0f));
+        private void EnableFeatures()
+        {
+            ApplicationCursor = Cursors.Arrow;
+            FeaturesEnabled = true;
         }
 
         #endregion

@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:cal="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro"
         xmlns:models="clr-namespace:IndiaTango.Models"
-        Title="{Binding ApplicationTitle}" Icon="{Binding Icon}" Height="400" Width="650">
+        Title="{Binding ApplicationTitle}" Icon="{Binding Icon}" Height="600" Width="850">
     <Window.Resources>
         <models:FloatStringConverter x:Key="floatStringConverter" />
     </Window.Resources>
@@ -15,8 +15,9 @@
 
         <Grid Name="Controls" Grid.Column="0">
             <Grid.RowDefinitions>
-                <RowDefinition Height="3*" />
-                <RowDefinition Height="1*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Grid Grid.Row="0" Name="SensorLists">
                 <Grid.RowDefinitions>
@@ -32,25 +33,65 @@
                 <ListBox Grid.Row="1" Grid.Column="0" ItemsSource="{Binding AvailableSensors}" cal:Message.Attach="[Event MouseDoubleClick] = [Action AddToSelected($source)]" />
                 <ListBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding SelectedSensors}" cal:Message.Attach="[Event MouseDoubleClick] = [Action RemoveFromSelected($source)]" />
             </Grid>
-            <Grid Grid.Row="1">
+            <Grid Grid.Row="1" Margin="0,5">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <Grid Margin="5">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <CheckBox Name="specifyCheckBox" Grid.Column="0" VerticalAlignment="Center" Margin="5,0" IsChecked="{Binding SpecifyRadiusEnabled,UpdateSourceTrigger=PropertyChanged}">
-                        <CheckBox.Content>
-                            <TextBlock Text="Specify Radius" FontWeight="Bold" />
-                        </CheckBox.Content>
-                    </CheckBox>
-                    <TextBox Grid.Column="1" Text="{Binding Radius, Converter={StaticResource floatStringConverter}}" TextAlignment="Right" IsEnabled="{Binding IsChecked, ElementName=specifyCheckBox}" />
-                </Grid>
-                <Button Grid.Row="1" Content="Render" cal:Message.Attach="[Event Click] = [Action DrawGraph]" />
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Radius:" VerticalAlignment="Center" HorizontalAlignment="Right" />
+                <CheckBox Name="specifyRadiusCheckBox" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="5,0" IsChecked="{Binding SpecifyRadiusEnabled,UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding FeaturesEnabled,UpdateSourceTrigger=PropertyChanged}">
+                    <CheckBox.Content>
+                        <TextBox Width="95" Text="{Binding Radius, Converter={StaticResource floatStringConverter}}" TextAlignment="Right" IsEnabled="{Binding IsChecked, ElementName=specifyRadiusCheckBox}" />
+                    </CheckBox.Content>
+                </CheckBox>
+
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Min Timestamp:" VerticalAlignment="Center" HorizontalAlignment="Right" />
+                <CheckBox Name="specifyMinTimestampCheckBox" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Margin="5,0" IsChecked="{Binding SpecifyMinTimestampEnabled,UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding FeaturesEnabled,UpdateSourceTrigger=PropertyChanged}">
+                    <CheckBox.Content>
+                        <TextBox Width="95" Text="{Binding MinTimestamp, Converter={StaticResource floatStringConverter}}" TextAlignment="Right" IsEnabled="{Binding IsChecked, ElementName=specifyMinTimestampCheckBox}" />
+                    </CheckBox.Content>
+                </CheckBox>
+
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="Max Timestamp:" VerticalAlignment="Center" HorizontalAlignment="Right" />
+                <CheckBox Name="specifyMaxTimestampCheckBox" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Margin="5,0" IsChecked="{Binding SpecifyMaxTimestampEnabled,UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding FeaturesEnabled,UpdateSourceTrigger=PropertyChanged}">
+                    <CheckBox.Content>
+                        <TextBox Width="95" Text="{Binding MaxTimestamp, Converter={StaticResource floatStringConverter}}" TextAlignment="Right" IsEnabled="{Binding IsChecked, ElementName=specifyMaxTimestampCheckBox}" />
+                    </CheckBox.Content>
+                </CheckBox>
+
+                <TextBlock Grid.Row="3" Grid.Column="0" Text="Min Value:" VerticalAlignment="Center" HorizontalAlignment="Right" />
+                <CheckBox Name="specifyMinValueCheckBox" Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" Margin="5,0" IsChecked="{Binding SpecifyMinValueEnabled,UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding FeaturesEnabled,UpdateSourceTrigger=PropertyChanged}">
+                    <CheckBox.Content>
+                        <TextBox Width="95" Text="{Binding MinValue, Converter={StaticResource floatStringConverter}}" TextAlignment="Right" IsEnabled="{Binding IsChecked, ElementName=specifyMinValueCheckBox}" />
+                    </CheckBox.Content>
+                </CheckBox>
+
+                <TextBlock Grid.Row="4" Grid.Column="0" Text="Max Value:" VerticalAlignment="Center" HorizontalAlignment="Right" />
+                <CheckBox Name="specifyMaxValueCheckBox" Grid.Row="4" Grid.Column="1" VerticalAlignment="Center" Margin="5,0" IsChecked="{Binding SpecifyMaxValueEnabled,UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding FeaturesEnabled,UpdateSourceTrigger=PropertyChanged}">
+                    <CheckBox.Content>
+                        <TextBox Width="95" Text="{Binding MaxValue, Converter={StaticResource floatStringConverter}}" TextAlignment="Right" IsEnabled="{Binding IsChecked, ElementName=specifyMaxValueCheckBox}" />
+                    </CheckBox.Content>
+                </CheckBox>
+
+                <TextBlock Grid.Row="5" Grid.Column="0" Text="Sampling Rate:" VerticalAlignment="Center" HorizontalAlignment="Right" />
+                <CheckBox Name="specifySamplingRateCheckBox" Grid.Row="5" Grid.Column="1" VerticalAlignment="Center" Margin="5,0" IsChecked="{Binding SpecifySamplingRateEnabled,UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding FeaturesEnabled,UpdateSourceTrigger=PropertyChanged}">
+                    <CheckBox.Content>
+                        <TextBox Width="95" Text="{Binding SamplingRate, Converter={StaticResource floatStringConverter}}" TextAlignment="Right" IsEnabled="{Binding IsChecked, ElementName=specifySamplingRateCheckBox}" />
+                    </CheckBox.Content>
+                </CheckBox>
             </Grid>
+            <Button Grid.Row="2" Content="Render" cal:Message.Attach="[Event Click] = [Action DrawGraph]" />
         </Grid>
 
         <!--GraphImage-->
