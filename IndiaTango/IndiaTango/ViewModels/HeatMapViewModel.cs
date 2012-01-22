@@ -290,6 +290,7 @@ namespace IndiaTango.ViewModels
             var axisLength = _heatMapGraph.PixelWidth - (int)yAxisOffset;
             const double axisThickness = 10;
             var axisPen = new Pen(Brushes.Black, axisThickness);
+            var axisTickPen = new Pen(Brushes.Black, axisThickness / 2);
 
             DrawHeatMap();
             var heatMapRect = new Rectangle
@@ -350,6 +351,7 @@ namespace IndiaTango.ViewModels
                     foreach (var depthYValue in _depths)
                     {
                         context.DrawText(new FormattedText(depthYValue.Depth.ToString(CultureInfo.InvariantCulture), CultureInfo.InvariantCulture, FlowDirection.LeftToRight, textTypeFace, fontSize, fontBrush), new Point(xAxisOffset - 100, topOffset + (depthYValue.YValue / _heatMap.PixelHeight) * axisLength));
+                        context.DrawLine(axisTickPen, new Point(xAxisOffset - 25, topOffset + (depthYValue.YValue / _heatMap.PixelHeight) * axisLength + (axisTickPen.Thickness / 2)), new Point(xAxisOffset, topOffset + (depthYValue.YValue / _heatMap.PixelHeight) * axisLength + (axisTickPen.Thickness / 2)));
                     }
             }
 
@@ -433,8 +435,7 @@ namespace IndiaTango.ViewModels
 
                     var x = ((timeStamp.Key - MinTimestamp).TotalMinutes * widthMultiplier) - Radius;
 
-
-                    Debug.Print("Point Timestamp {0} Value {1} Depth {2} Intensity {3} x {4} y {5}", timeStamp.Key, timeStamp.Value, sensor.Depth, intensity, x, y - Radius);
+                    //Debug.Print("Point Timestamp {0} Value {1} Depth {2} Intensity {3} x {4} y {5}", timeStamp.Key, timeStamp.Value, sensor.Depth, intensity, x, y - Radius);
 
                     var drawingVisual = new DrawingVisual();
                     using (var context = drawingVisual.RenderOpen())
