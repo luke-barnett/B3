@@ -49,8 +49,8 @@ namespace IndiaTango.ViewModels
         {
             _sensorsToUse = new List<Sensor>();
             _availableSensors = new List<Sensor>();
-            _heatMap = new RenderTargetBitmap(5000, 5000, 96, 96, PixelFormats.Pbgra32);
-            _heatMapGraph = new RenderTargetBitmap(3000, 3000, 96, 96, PixelFormats.Pbgra32);
+            _heatMap = new RenderTargetBitmap(10000, 5000, 96, 96, PixelFormats.Pbgra32);
+            _heatMapGraph = new RenderTargetBitmap(5000, 2800, 96, 96, PixelFormats.Pbgra32);
 
             _heatMapColourEffect = new HeatColorizer
                                        {
@@ -285,9 +285,11 @@ namespace IndiaTango.ViewModels
 
             const double xAxisOffset = 250;
             const double yAxisOffset = 500;
-            const double topOffset = 100;
+            const double topOffset = 50;
+            const double rightOffset = 250;
 
-            var axisLength = _heatMapGraph.PixelWidth - (int)yAxisOffset;
+            var xAxisLength = _heatMapGraph.PixelWidth - (int)xAxisOffset - (int)rightOffset;
+            var yAxisLength = _heatMapGraph.PixelHeight - (int)yAxisOffset - (int)topOffset;
             const double axisThickness = 10;
             var axisPen = new Pen(Brushes.Black, axisThickness);
             var axisTickPen = new Pen(Brushes.Black, axisThickness / 2);
@@ -299,14 +301,14 @@ namespace IndiaTango.ViewModels
                 Effect = _heatMapColourEffect
             };
 
-            var heatMapRectSize = new Size(axisLength, axisLength);
+            var heatMapRectSize = new Size(xAxisLength, yAxisLength);
 
             heatMapRect.Measure(heatMapRectSize);
             heatMapRect.Arrange(new Rect(new Point(xAxisOffset + 5, topOffset), heatMapRectSize));
 
             _heatMapGraph.Render(heatMapRect);
 
-            var heatMapKeyWidth = axisLength;
+            var heatMapKeyWidth = xAxisLength;
             const int heatMapKeyHeight = 100;
 
             var heatMapKeyRect = new Rectangle
@@ -330,28 +332,36 @@ namespace IndiaTango.ViewModels
             var fontBrush = Brushes.Black;
             using (var context = drawingVisual.RenderOpen())
             {
-                context.DrawLine(axisPen, new Point(xAxisOffset, _heatMapGraph.PixelHeight - yAxisOffset - axisLength + topOffset), new Point(xAxisOffset, _heatMapGraph.PixelHeight - yAxisOffset + topOffset));
-                context.DrawLine(axisPen, new Point(xAxisOffset - 5, _heatMapGraph.PixelHeight - yAxisOffset + topOffset), new Point(xAxisOffset + axisLength + 5, _heatMapGraph.PixelHeight - yAxisOffset + topOffset));
+                //Y Axis
+                context.DrawLine(axisPen, new Point(xAxisOffset, topOffset), new Point(xAxisOffset, topOffset + yAxisLength));
+                //X Axis
+                context.DrawLine(axisPen, new Point(xAxisOffset - 5, topOffset + yAxisLength), new Point(xAxisOffset + xAxisLength + 5, topOffset + yAxisLength));
 
                 context.DrawText(new FormattedText(MinValue.ToString(CultureInfo.InvariantCulture), CultureInfo.InvariantCulture, FlowDirection.LeftToRight, textTypeFace, headerFontSize, fontBrush), new Point(xAxisOffset + 5, _heatMapGraph.PixelHeight - yAxisOffset + topOffset + 250));
-                context.DrawText(new FormattedText(MaxValue.ToString(CultureInfo.InvariantCulture), CultureInfo.InvariantCulture, FlowDirection.LeftToRight, textTypeFace, headerFontSize, fontBrush), new Point(xAxisOffset + 5 + axisLength, _heatMapGraph.PixelHeight - yAxisOffset + topOffset + 250));
+                context.DrawText(new FormattedText(MaxValue.ToString(CultureInfo.InvariantCulture), CultureInfo.InvariantCulture, FlowDirection.LeftToRight, textTypeFace, headerFontSize, fontBrush), new Point(xAxisOffset + 5 + xAxisLength, _heatMapGraph.PixelHeight - yAxisOffset + topOffset + 250));
 
-                context.DrawText(new FormattedText("Time", CultureInfo.InvariantCulture, FlowDirection.LeftToRight, textTypeFace, headerFontSize, fontBrush), new Point(xAxisOffset + (axisLength / 2), topOffset + axisLength + 10));
+                context.DrawText(new FormattedText("Time", CultureInfo.InvariantCulture, FlowDirection.LeftToRight, textTypeFace, headerFontSize, fontBrush), new Point(xAxisOffset + (xAxisLength / 2), topOffset + yAxisLength + 60));
 
-                context.DrawText(new FormattedText(MinTimestamp.ToString("yyyy/MM/dd HH:mm"), CultureInfo.InvariantCulture, FlowDirection.LeftToRight, textTypeFace, fontSize, fontBrush), new Point(xAxisOffset + 5, _heatMapGraph.PixelHeight - yAxisOffset + topOffset));
-                context.DrawText(new FormattedText(MaxTimestamp.ToString("yyyy/MM/dd HH:mm"), CultureInfo.InvariantCulture, FlowDirection.LeftToRight, textTypeFace, fontSize, fontBrush), new Point(xAxisOffset + 5 + axisLength, _heatMapGraph.PixelHeight - yAxisOffset + topOffset));
+                var dateDistance = (MaxTimestamp - MinTimestamp).Ticks / numberOfTicks;
+                for (var i = 0; i < numberOfTicks; i++)
+                {
+                    var date = MinTimestamp + new TimeSpan(i * dateDistance);
+                    var xValue = (1 - ((MaxTimestamp - date).TotalSeconds / (MaxTimestamp - MinTimestamp).TotalSeconds)) * xAxisLength + xAxisOffset;
+                    context.DrawLine(axisTickPen, new Point(xValue, topOffset + yAxisLength), new Point(xValue, topOffset + yAxisLength + 20));
+                    context.DrawText(new FormattedText(date.ToString("yyyy/MM/dd HH:mm"), CultureInfo.InvariantCulture, FlowDirection.LeftToRight, textTypeFace, fontSize, fontBrush), new Point(xValue, topOffset + yAxisLength + 10));
+                }
 
                 context.PushTransform(new RotateTransform(90));
 
-                context.DrawText(new FormattedText("Depth", CultureInfo.InvariantCulture, FlowDirection.LeftToRight, textTypeFace, headerFontSize, fontBrush), new Point((topOffset + (axisLength / 2)), -headerFontSize));
+                context.DrawText(new FormattedText("Depth", CultureInfo.InvariantCulture, FlowDirection.LeftToRight, textTypeFace, headerFontSize, fontBrush), new Point((topOffset + (yAxisLength / 2)), -headerFontSize * 2));
 
                 context.Pop();
 
                 if (_depths != null)
                     foreach (var depthYValue in _depths)
                     {
-                        context.DrawText(new FormattedText(depthYValue.Depth.ToString(CultureInfo.InvariantCulture), CultureInfo.InvariantCulture, FlowDirection.LeftToRight, textTypeFace, fontSize, fontBrush), new Point(xAxisOffset - 100, topOffset + (depthYValue.YValue / _heatMap.PixelHeight) * axisLength));
-                        context.DrawLine(axisTickPen, new Point(xAxisOffset - 25, topOffset + (depthYValue.YValue / _heatMap.PixelHeight) * axisLength + (axisTickPen.Thickness / 2)), new Point(xAxisOffset, topOffset + (depthYValue.YValue / _heatMap.PixelHeight) * axisLength + (axisTickPen.Thickness / 2)));
+                        context.DrawText(new FormattedText(depthYValue.Depth.ToString(CultureInfo.InvariantCulture), CultureInfo.InvariantCulture, FlowDirection.LeftToRight, textTypeFace, fontSize, fontBrush), new Point(xAxisOffset - 100, topOffset + (depthYValue.YValue / _heatMap.PixelHeight) * yAxisLength));
+                        context.DrawLine(axisTickPen, new Point(xAxisOffset - 25, topOffset + (depthYValue.YValue / _heatMap.PixelHeight) * yAxisLength + (axisTickPen.Thickness / 2)), new Point(xAxisOffset, topOffset + (depthYValue.YValue / _heatMap.PixelHeight) * yAxisLength + (axisTickPen.Thickness / 2)));
                     }
             }
 
