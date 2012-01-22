@@ -3,13 +3,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:cal="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro"
         xmlns:models="clr-namespace:IndiaTango.Models"
-        Title="{Binding ApplicationTitle}" Icon="{Binding Icon}" Height="600" Width="850">
+        xmlns:toolkit="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit/extended"
+        Title="{Binding ApplicationTitle}" Icon="{Binding Icon}" Height="600" Width="1000">
     <Window.Resources>
         <models:FloatStringConverter x:Key="floatStringConverter" />
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="250" />
+            <ColumnDefinition Width="300" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
@@ -52,42 +53,42 @@
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Radius:" VerticalAlignment="Center" HorizontalAlignment="Right" />
                 <CheckBox Name="specifyRadiusCheckBox" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="5,0" IsChecked="{Binding SpecifyRadiusEnabled,UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding FeaturesEnabled,UpdateSourceTrigger=PropertyChanged}">
                     <CheckBox.Content>
-                        <TextBox Width="95" Text="{Binding Radius, Converter={StaticResource floatStringConverter}}" TextAlignment="Right" IsEnabled="{Binding IsChecked, ElementName=specifyRadiusCheckBox}" />
+                        <TextBox Width="120" Text="{Binding Radius, Converter={StaticResource floatStringConverter}}" TextAlignment="Right" IsEnabled="{Binding IsChecked, ElementName=specifyRadiusCheckBox}" />
                     </CheckBox.Content>
                 </CheckBox>
 
                 <TextBlock Grid.Row="1" Grid.Column="0" Text="Min Timestamp:" VerticalAlignment="Center" HorizontalAlignment="Right" />
                 <CheckBox Name="specifyMinTimestampCheckBox" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Margin="5,0" IsChecked="{Binding SpecifyMinTimestampEnabled,UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding FeaturesEnabled,UpdateSourceTrigger=PropertyChanged}">
                     <CheckBox.Content>
-                        <TextBox Width="95" Text="{Binding MinTimestamp, Converter={StaticResource floatStringConverter}}" TextAlignment="Right" IsEnabled="{Binding IsChecked, ElementName=specifyMinTimestampCheckBox}" />
+                        <toolkit:DateTimePicker Width="120" Format="Custom" FormatString="yyyy/MM/dd HH:mm" Value="{Binding MinTimestamp, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsChecked, ElementName=specifyMinTimestampCheckBox}" />
                     </CheckBox.Content>
                 </CheckBox>
 
                 <TextBlock Grid.Row="2" Grid.Column="0" Text="Max Timestamp:" VerticalAlignment="Center" HorizontalAlignment="Right" />
                 <CheckBox Name="specifyMaxTimestampCheckBox" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Margin="5,0" IsChecked="{Binding SpecifyMaxTimestampEnabled,UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding FeaturesEnabled,UpdateSourceTrigger=PropertyChanged}">
                     <CheckBox.Content>
-                        <TextBox Width="95" Text="{Binding MaxTimestamp, Converter={StaticResource floatStringConverter}}" TextAlignment="Right" IsEnabled="{Binding IsChecked, ElementName=specifyMaxTimestampCheckBox}" />
+                        <toolkit:DateTimePicker Width="120" Format="Custom" FormatString="yyyy/MM/dd HH:mm" Value="{Binding MaxTimestamp, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsChecked, ElementName=specifyMaxTimestampCheckBox}" />
                     </CheckBox.Content>
                 </CheckBox>
 
                 <TextBlock Grid.Row="3" Grid.Column="0" Text="Min Value:" VerticalAlignment="Center" HorizontalAlignment="Right" />
                 <CheckBox Name="specifyMinValueCheckBox" Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" Margin="5,0" IsChecked="{Binding SpecifyMinValueEnabled,UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding FeaturesEnabled,UpdateSourceTrigger=PropertyChanged}">
                     <CheckBox.Content>
-                        <TextBox Width="95" Text="{Binding MinValue, Converter={StaticResource floatStringConverter}}" TextAlignment="Right" IsEnabled="{Binding IsChecked, ElementName=specifyMinValueCheckBox}" />
+                        <TextBox Width="120" Text="{Binding MinValue, Converter={StaticResource floatStringConverter}}" TextAlignment="Right" IsEnabled="{Binding IsChecked, ElementName=specifyMinValueCheckBox}" />
                     </CheckBox.Content>
                 </CheckBox>
 
                 <TextBlock Grid.Row="4" Grid.Column="0" Text="Max Value:" VerticalAlignment="Center" HorizontalAlignment="Right" />
                 <CheckBox Name="specifyMaxValueCheckBox" Grid.Row="4" Grid.Column="1" VerticalAlignment="Center" Margin="5,0" IsChecked="{Binding SpecifyMaxValueEnabled,UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding FeaturesEnabled,UpdateSourceTrigger=PropertyChanged}">
                     <CheckBox.Content>
-                        <TextBox Width="95" Text="{Binding MaxValue, Converter={StaticResource floatStringConverter}}" TextAlignment="Right" IsEnabled="{Binding IsChecked, ElementName=specifyMaxValueCheckBox}" />
+                        <TextBox Width="120" Text="{Binding MaxValue, Converter={StaticResource floatStringConverter}}" TextAlignment="Right" IsEnabled="{Binding IsChecked, ElementName=specifyMaxValueCheckBox}" />
                     </CheckBox.Content>
                 </CheckBox>
 
                 <TextBlock Grid.Row="5" Grid.Column="0" Text="Sampling Rate:" VerticalAlignment="Center" HorizontalAlignment="Right" />
                 <CheckBox Name="specifySamplingRateCheckBox" Grid.Row="5" Grid.Column="1" VerticalAlignment="Center" Margin="5,0" IsChecked="{Binding SpecifySamplingRateEnabled,UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding FeaturesEnabled,UpdateSourceTrigger=PropertyChanged}">
                     <CheckBox.Content>
-                        <TextBox Width="95" Text="{Binding SamplingRate, Converter={StaticResource floatStringConverter}}" TextAlignment="Right" IsEnabled="{Binding IsChecked, ElementName=specifySamplingRateCheckBox}" />
+                        <TextBox Width="120" Text="{Binding SamplingRate, Converter={StaticResource floatStringConverter}}" TextAlignment="Right" IsEnabled="{Binding IsChecked, ElementName=specifySamplingRateCheckBox}" />
                     </CheckBox.Content>
                 </CheckBox>
             </Grid>

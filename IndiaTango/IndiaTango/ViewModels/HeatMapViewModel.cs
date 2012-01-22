@@ -376,7 +376,7 @@ namespace IndiaTango.ViewModels
 
 
             if (!SpecifyRadiusEnabled)
-                Radius = (float)height / (depths.Count() - 1);
+                Radius = (float)height / (depths.Count() - 1) / 2;
             Debug.Print("Radius: {0}", Radius);
 
             var depthRange = MaxDepth - MinDepth;
