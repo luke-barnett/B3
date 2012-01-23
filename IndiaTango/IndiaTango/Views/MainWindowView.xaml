@@ -251,7 +251,7 @@
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
                             <TextBlock Grid.Row="0" Text="Notes:" VerticalAlignment="Center" FontWeight="Bold" />
-                            <TextBox Grid.Row="1" Text="{Binding SiteNotes,UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBox Grid.Row="1" Text="{Binding SiteNotes,UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" />
                         </Grid>
                     </TabItem>
                     <TabItem Header="QA\QC Tools">
