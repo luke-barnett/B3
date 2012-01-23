@@ -362,6 +362,11 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        public ObservableCollection<string> Owners
+        {
+            get { return OwnerHelper.Owners; }
+        }
+
         #endregion
 
         #endregion
@@ -553,6 +558,7 @@ namespace IndiaTango.ViewModels
             {
                 DataSet.Site.GpsLocation = GPSCoords.Parse(Latitude, Longitude);
                 DataSet.Site.Owner = Owner;
+                OwnerHelper.Add(Owner);
                 DataSet.Site.Notes = Notes;
                 DataSet.Site.PrimaryContact = PrimaryContact;
                 DataSet.Site.SecondaryContact = SecondaryContact;
