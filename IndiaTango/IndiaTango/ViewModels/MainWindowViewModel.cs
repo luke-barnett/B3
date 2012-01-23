@@ -2769,6 +2769,7 @@ namespace IndiaTango.ViewModels
 
         public void ShowHeatMap()
         {
+            if(CurrentDataset == null) return;
             var view = _container.GetInstance(typeof(HeatMapViewModel), "HeatMapViewModel") as HeatMapViewModel;
             view.AvailableSensors = Sensors;
             _windowManager.ShowWindow(view);
