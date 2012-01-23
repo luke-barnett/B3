@@ -71,7 +71,7 @@ namespace IndiaTango.ViewModels
 
         private string _siteName;
         private string _owner;
-        private string _depth;
+        private string _notes;
         private Contact _primaryContact;
         private Contact _secondaryContact;
         private string _latitude;
@@ -116,7 +116,7 @@ namespace IndiaTango.ViewModels
                 {
                     SiteName = DataSet.Site.Name;
                     Owner = DataSet.Site.Owner;
-                    Depth = DataSet.Site.Depth.ToString();
+                    Notes = DataSet.Site.Notes;
                     PrimaryContact = DataSet.Site.PrimaryContact;
                     SecondaryContact = DataSet.Site.SecondaryContact;
                     if (DataSet.Site.GpsLocation != null)
@@ -136,7 +136,7 @@ namespace IndiaTango.ViewModels
                 {
                     SiteName = "";
                     Owner = "";
-                    Depth = "";
+                    Notes = "";
                     Latitude = "0";
                     Longitude = "0";
                     PrimaryContact = null;
@@ -291,13 +291,13 @@ namespace IndiaTango.ViewModels
             }
         }
 
-        public string Depth
+        public string Notes
         {
-            get { return _depth; }
+            get { return _notes; }
             set
             {
-                _depth = value;
-                NotifyOfPropertyChange(() => Depth);
+                _notes = value;
+                NotifyOfPropertyChange(() => Notes);
             }
         }
 
@@ -553,7 +553,7 @@ namespace IndiaTango.ViewModels
             {
                 DataSet.Site.GpsLocation = GPSCoords.Parse(Latitude, Longitude);
                 DataSet.Site.Owner = Owner;
-                DataSet.Site.Depth = float.Parse(Depth);
+                DataSet.Site.Notes = Notes;
                 DataSet.Site.PrimaryContact = PrimaryContact;
                 DataSet.Site.SecondaryContact = SecondaryContact;
 

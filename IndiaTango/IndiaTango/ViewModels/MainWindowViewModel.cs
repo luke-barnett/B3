@@ -924,6 +924,7 @@ namespace IndiaTango.ViewModels
             };
 
             _windowManager.ShowDialog(view);
+            NotifyOfPropertyChange(() => SiteNotes);
             return view.WasCompleted;
         }
 
