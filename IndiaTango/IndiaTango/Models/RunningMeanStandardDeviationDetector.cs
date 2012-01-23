@@ -20,6 +20,7 @@ namespace IndiaTango.Models
         private Dictionary<DateTime, float> _lowerLine = new Dictionary<DateTime, float>();
         private bool _showGraph;
         private Grid _settings;
+        private bool _isEnabled;
 
         /// <summary>
         /// Fired if the graph needs to be updated
@@ -329,7 +330,16 @@ namespace IndiaTango.Models
             get { return new List<IDetectionMethod>(); }
         }
 
-        public bool IsEnabled { get; set; }
+        public bool IsEnabled
+        {
+            get { return _isEnabled; }
+            set
+            {
+                _isEnabled = value;
+                if (IsEnabled && _showGraph)
+                    GraphUpdateNeeded();
+            }
+        }
 
         /// <summary>
         /// The number of minutes to smooth over

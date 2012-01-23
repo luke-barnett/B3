@@ -13,6 +13,7 @@ namespace IndiaTango.Models
         private readonly BelowMinValueDetector _belowMinValue;
         private bool _showMaxMinLines;
         private Sensor _selectedSensor;
+        private bool _isEnabled;
 
         private ComboBox _sensorsCombo;
 
@@ -166,7 +167,16 @@ namespace IndiaTango.Models
             return string.Empty;
         }
 
-        public bool IsEnabled { get; set; }
+        public bool IsEnabled
+        {
+            get { return _isEnabled; }
+            set
+            {
+                _isEnabled = value;
+                if (IsEnabled && _showMaxMinLines)
+                    GraphUpdateNeeded();
+            }
+        }
 
         public ListBox ListBox { get; set; }
 
