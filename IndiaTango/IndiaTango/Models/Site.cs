@@ -195,6 +195,12 @@ namespace IndiaTango.Models
                 _gpsLocation = value;
             }
         }
+
+        /// <summary>
+        /// Notes to be made about the site
+        /// </summary>
+        [ProtoMember(14)]
+        public string Notes { get; set; }
         #endregion
 
         #region Public methods

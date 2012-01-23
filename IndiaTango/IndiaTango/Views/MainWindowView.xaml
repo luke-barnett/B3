@@ -48,7 +48,6 @@
             </MenuItem>
             <MenuItem Header="_View">
                 <MenuItem Header="_Log" cal:Message.Attach="[Event Click] = [Action ShowLog]" />
-                <MenuItem Header="_Heat Map" cal:Message.Attach="[Event Click] = [Action ShowHeatMap]" />
             </MenuItem>
         </Menu>
 
@@ -244,18 +243,33 @@
                     </models:CustomSortDataGrid>
                 </GroupBox>
                 <GridSplitter Grid.Row="1" ResizeBehavior="PreviousAndNext" ResizeDirection="Rows" Height="1" Margin="5,7" HorizontalAlignment="Stretch" Background="OrangeRed" />
-                <GroupBox Grid.Row="2" x:Name="TabSection" Header="Detection Methods" BorderBrush="OrangeRed" >
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-                        <CheckBox Margin="2" cal:Message.Attach="[Event Checked] = [Action EnableDetectionMethods];[Event Unchecked] = [Action DisableDetectionMethods]">
-                            <TextBlock Text="Check detection methods for values" FontWeight="Bold" />
-                        </CheckBox>
-                        <TabControl Grid.Row="1" SelectedIndex="0" BorderThickness="0" Background="Transparent" IsEnabled="{Binding FeaturesEnabled}" ItemsSource="{Binding DetectionTabItems}" cal:Message.Attach="[Event SelectionChanged] = [Action DetectionMethodChanged($eventArgs)]" />
-                    </Grid>
-                </GroupBox>
+                <TabControl Grid.Row="2" Name="TabSection">
+                    <TabItem Header="Home">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="30" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Text="Notes:" VerticalAlignment="Center" FontWeight="Bold" />
+                            <TextBox Grid.Row="1" Text="{Binding SiteNotes,UpdateSourceTrigger=PropertyChanged}" />
+                        </Grid>
+                    </TabItem>
+                    <TabItem Header="QA\QC Tools">
+                        <GroupBox Header="Detection Methods" BorderBrush="OrangeRed" >
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <CheckBox Margin="2" cal:Message.Attach="[Event Checked] = [Action EnableDetectionMethods];[Event Unchecked] = [Action DisableDetectionMethods]">
+                                    <TextBlock Text="Check detection methods for values" FontWeight="Bold" />
+                                </CheckBox>
+                                <TabControl Grid.Row="1" SelectedIndex="0" BorderThickness="0" Background="Transparent" IsEnabled="{Binding FeaturesEnabled}" ItemsSource="{Binding DetectionTabItems}" cal:Message.Attach="[Event SelectionChanged] = [Action DetectionMethodChanged($eventArgs)]" />
+                            </Grid>
+                        </GroupBox>
+                    </TabItem>
+                </TabControl>
+                
                 <GroupBox Grid.Row="3" x:Name="ActionsSection" Header="Actions" BorderBrush="OrangeRed" Margin="0,0,0,5">
                     <StackPanel>
                         <WrapPanel HorizontalAlignment="Center">

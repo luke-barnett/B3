@@ -729,6 +729,16 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        public string SiteNotes
+        {
+            get { return CurrentDataset != null ? CurrentDataset.Site.Notes : string.Empty; }
+            set
+            {
+                if (CurrentDataset != null)
+                    CurrentDataset.Site.Notes = value;
+            }
+        }
+
         #endregion
 
         #region Private Methods
@@ -759,6 +769,7 @@ namespace IndiaTango.ViewModels
                 UpdateGraph(true);
 
             NotifyOfPropertyChange(() => GraphableSensors);
+            NotifyOfPropertyChange(() => SiteNotes);
         }
 
         private void UpdateDataTable()
