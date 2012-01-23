@@ -1926,11 +1926,9 @@ namespace IndiaTango.ViewModels
 
         private void UpdateDetectionMethodGraphableSensors()
         {
-            var availableOptions =
-                _sensorsToGraph.Where(x => SensorsToCheckMethodsAgainst.Contains(x.Sensor)).Select(x => x.Sensor).ToArray();
             foreach (var detectionMethod in _detectionMethods)
             {
-                detectionMethod.SensorOptions = availableOptions;
+                detectionMethod.SensorOptions = SensorsToCheckMethodsAgainst.ToArray();
             }
         }
 
@@ -2781,10 +2779,10 @@ namespace IndiaTango.ViewModels
 
         public void ShowHeatMap()
         {
-            if(CurrentDataset == null) return;
+            /*if(CurrentDataset == null) return;
             var view = _container.GetInstance(typeof(HeatMapViewModel), "HeatMapViewModel") as HeatMapViewModel;
             view.AvailableSensors = Sensors;
-            _windowManager.ShowWindow(view);
+            _windowManager.ShowWindow(view);*/
         }
 
         #endregion
