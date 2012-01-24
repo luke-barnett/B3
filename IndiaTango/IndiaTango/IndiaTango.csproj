@@ -105,6 +105,7 @@
     <Compile Include="Models\CustomTabItem.cs" />
     <Compile Include="Models\DataGridHelper.cs" />
     <Compile Include="Models\DateAnnotationBehaviour.cs" />
+    <Compile Include="Models\DensitySeries.cs" />
     <Compile Include="Models\DescriptionHelper.cs" />
     <Compile Include="Models\EditableComboBox.cs" />
     <Compile Include="Models\ErroneousValue.cs" />

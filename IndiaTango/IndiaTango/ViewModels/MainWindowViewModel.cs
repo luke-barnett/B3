@@ -2205,6 +2205,75 @@ namespace IndiaTango.ViewModels
             CanRedo = SensorsForEditing.FirstOrDefault(x => x.RedoStates.Count > 0) != null;
         }
 
+        private IEnumerable<DensitySeries> CalculateDensity()
+        {
+            var densitySeries = new List<DensitySeries>();
+
+            foreach (var sensor in Sensors.Where(x => x.SensorType == "Water_Temperature"))
+            {
+                var series = new DensitySeries(sensor.Depth);
+                foreach (var value in sensor.CurrentState.Values)
+                {
+                    var density = (1 -
+                                   (((value.Value + 288.9414) / (508929.2 * (value.Value + 68.12963))) *
+                                    Math.Pow((value.Value - 3.9863), 2))) * 1000;
+                    series.AddValue(value.Key, density);
+                }
+                densitySeries.Add(series);
+            }
+
+            return densitySeries.ToArray();
+        }
+
+        private Dictionary<DateTime, float> CalculateThermocline(IEnumerable<DensitySeries> preCalculatedDensities = null)
+        {
+            var thermocline = new Dictionary<DateTime, float>();
+            var densities = (preCalculatedDensities == null) ? CalculateDensity().OrderBy(x => x.Depth).ToArray() : preCalculatedDensities.OrderBy(x => x.Depth).ToArray();
+
+            var densityColumns = GenerateDensityColumns(densities);
+
+            var timeStamps = densityColumns.Keys.ToArray();
+
+            
+            foreach (var t in timeStamps)
+            {
+                var depths = densityColumns[t].Keys.OrderBy(x => x).ToArray();
+                if (depths.Length < 3) //We need at least 3 depths to calculate
+                    continue;
+                var maximum = (densityColumns[t][depths[1]] - densityColumns[t][depths[0]])/
+                              (depths[1] - depths[0]);
+                for(var j = 1; j < depths.Length - 1; j++)
+                {
+                    var value = (densityColumns[t][depths[j + 1]] - densityColumns[t][depths[j]])/
+                                (depths[j + 1] - depths[j]);
+                    if (value > maximum)
+                        maximum = value;
+                }
+                thermocline[t] = (float) maximum;
+            }
+
+            return thermocline;
+        }
+
+        private Dictionary<DateTime, Dictionary<float, double>> GenerateDensityColumns(DensitySeries[] densities)
+        {
+            var densityColumns = new Dictionary<DateTime, Dictionary<float, double>>();
+
+            var timestamps = densities.SelectMany(x => x.Density.Keys).Distinct().OrderBy(x => x).ToArray();
+
+            foreach (var timestamp in timestamps)
+            {
+                var column = new Dictionary<float, double>();
+                foreach (var series in densities.Where(x => x.Density.ContainsKey(timestamp)))
+                {
+                    column[series.Depth] = series.Density[timestamp];
+                }
+                densityColumns[timestamp] = column;
+            }
+
+            return densityColumns;
+        }
+
         #endregion
 
         #region Public Methods
@@ -2783,6 +2852,28 @@ namespace IndiaTango.ViewModels
             var view = _container.GetInstance(typeof(HeatMapViewModel), "HeatMapViewModel") as HeatMapViewModel;
             view.AvailableSensors = Sensors;
             _windowManager.ShowWindow(view);*/
+        }
+
+        public void PlotDensity()
+        {
+            _sensorsToGraph.Clear();
+
+            foreach (var densitySeries in CalculateDensity())
+            {
+                var densitySensor = new Sensor(densitySeries.Depth.ToString(CultureInfo.InvariantCulture), "mass/volume")
+                                        {
+                                            CurrentState =
+                                                {
+                                                    Values =
+                                                        densitySeries.Density.ToDictionary(v => v.Key,
+                                                                                           v => (float)v.Value)
+                                                }
+                                        };
+                _sensorsToGraph.Add(new GraphableSensor(densitySensor));
+            }
+            SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "[DensityPlot]");
+            CalculateYAxis();
+            CalculateGraphedEndPoints();
         }
 
         #endregion
