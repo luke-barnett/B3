@@ -231,6 +231,7 @@ namespace IndiaTango.ViewModels
         private DataTable _summaryStatistics;
         private readonly List<ErroneousValue> _erroneousValuesFromDataTable;
         private bool _notInCalibrationMode = true;
+        private float _mixedTempDifferential;
 
         #endregion
 
@@ -736,6 +737,15 @@ namespace IndiaTango.ViewModels
             {
                 if (CurrentDataset != null)
                     CurrentDataset.Site.Notes = value;
+            }
+        }
+
+        public float MixedTempDifferential
+        {
+            get { return _mixedTempDifferential; }
+            set
+            {
+                _mixedTempDifferential = value < 0 ? 0 : value;
             }
         }
 
@@ -2241,6 +2251,22 @@ namespace IndiaTango.ViewModels
                 if (depths.Length < 3) //We need at least 3 depths to calculate
                     continue;
 
+                if (MixedTempDifferential > 0)
+                {
+                    var orderedSensors = Sensors.Where(x => x.SensorType == "Water_Temperature").OrderBy(x => x.Depth).ToArray();
+                    if (orderedSensors.Any())
+                    {
+                        var first = orderedSensors.First(x => x.CurrentState.Values.ContainsKey(t));
+                        var last = orderedSensors.Last(x => x.CurrentState.Values.ContainsKey(t));
+
+                        if(first != null && last != null)
+                        {
+                            if(first.CurrentState.Values[t] - last.CurrentState.Values[t] <= MixedTempDifferential)
+                                continue;
+                        }
+                    }
+                }
+
                 var slopes = new double[depths.Length];
 
                 for (var i = 1; i < depths.Length - 1; i++)
@@ -2263,7 +2289,7 @@ namespace IndiaTango.ViewModels
 
                     if (!(double.IsInfinity(sdn) || double.IsInfinity(sup) || double.IsNaN(sdn) || double.IsNaN(sup)))
                     {
-                        thermocline[t] = (float) (dnD * (sdn / (sdn + sup)) + upD * (sup / (sdn + sup)));
+                        thermocline[t] = (float)(dnD * (sdn / (sdn + sup)) + upD * (sup / (sdn + sup)));
                     }
                 }
             }
