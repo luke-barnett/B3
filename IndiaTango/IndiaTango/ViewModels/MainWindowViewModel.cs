@@ -2235,9 +2235,9 @@ namespace IndiaTango.ViewModels
             return densitySeries.ToArray();
         }
 
-        private Dictionary<DateTime, float> CalculateThermoclineDepth(IEnumerable<DensitySeries> preCalculatedDensities = null)
+        private Dictionary<DateTime, ThermoclineDepthDetails> CalculateThermoclineDepth(IEnumerable<DensitySeries> preCalculatedDensities = null, bool seasonal = false, float minimumMetalimionSlope = 0.1f)
         {
-            var thermocline = new Dictionary<DateTime, float>();
+            var thermocline = new Dictionary<DateTime, ThermoclineDepthDetails>();
             var densities = (preCalculatedDensities == null) ? CalculateDensity().OrderBy(x => x.Depth).ToArray() : preCalculatedDensities.OrderBy(x => x.Depth).ToArray();
 
             var densityColumns = GenerateDensityColumns(densities);
@@ -2247,6 +2247,7 @@ namespace IndiaTango.ViewModels
 
             foreach (var t in timeStamps)
             {
+                var thermoclineDetails = new ThermoclineDepthDetails();
                 var depths = densityColumns[t].Keys.OrderBy(x => x).ToArray();
                 if (depths.Length < 3) //We need at least 3 depths to calculate
                     continue;
@@ -2259,9 +2260,9 @@ namespace IndiaTango.ViewModels
                         var first = orderedSensors.First(x => x.CurrentState.Values.ContainsKey(t));
                         var last = orderedSensors.Last(x => x.CurrentState.Values.ContainsKey(t));
 
-                        if(first != null && last != null)
+                        if (first != null && last != null)
                         {
-                            if(first.CurrentState.Values[t] - last.CurrentState.Values[t] <= MixedTempDifferential)
+                            if (first.CurrentState.Values[t] - last.CurrentState.Values[t] <= MixedTempDifferential)
                                 continue;
                         }
                     }
@@ -2278,7 +2279,8 @@ namespace IndiaTango.ViewModels
                 var maxSlope = slopes.Max();
                 var indexOfMaxium = Array.IndexOf(slopes, maxSlope);
 
-                thermocline[t] = (depths[indexOfMaxium] + depths[indexOfMaxium + 1]) / 2;
+                thermoclineDetails.ThermoclineIndex = indexOfMaxium;
+                thermoclineDetails.ThermoclineDepth = (depths[indexOfMaxium] + depths[indexOfMaxium + 1]) / 2;
 
                 if (indexOfMaxium > 1 && indexOfMaxium < depths.Length - 1)
                 {
@@ -2289,9 +2291,52 @@ namespace IndiaTango.ViewModels
 
                     if (!(double.IsInfinity(sdn) || double.IsInfinity(sup) || double.IsNaN(sdn) || double.IsNaN(sup)))
                     {
-                        thermocline[t] = (float)(dnD * (sdn / (sdn + sup)) + upD * (sup / (sdn + sup)));
+                        thermoclineDetails.ThermoclineDepth = (float)(dnD * (sdn / (sdn + sup)) + upD * (sup / (sdn + sup)));
                     }
                 }
+
+                if (seasonal)
+                {
+                    const float minPercentageForUniqueTheroclineStep = 0.15f;
+
+                    var minCutPoint = Math.Max(minPercentageForUniqueTheroclineStep * maxSlope, minimumMetalimionSlope);
+
+                    var localPeaks = LocalPeaks(slopes, minCutPoint);
+
+                    if(localPeaks.Any())
+                    {
+                        var indexOfSeasonallyAdjustedMaximum = Array.IndexOf(slopes, localPeaks.Last());
+
+                        if(indexOfSeasonallyAdjustedMaximum > indexOfMaxium + 1)
+                        {
+                            thermoclineDetails.SeasonallyAdjustedThermoclineIndex = indexOfSeasonallyAdjustedMaximum;
+                            thermoclineDetails.SeasonallyAdjustedThermoclineDepth = (depths[indexOfSeasonallyAdjustedMaximum] + depths[indexOfSeasonallyAdjustedMaximum + 1]) / 2;
+
+                            if (indexOfSeasonallyAdjustedMaximum > 1 && indexOfSeasonallyAdjustedMaximum < depths.Length - 1)
+                            {
+                                var sdn = -(depths[indexOfSeasonallyAdjustedMaximum + 1] - depths[indexOfSeasonallyAdjustedMaximum]) / (slopes[indexOfSeasonallyAdjustedMaximum + 1] - slopes[indexOfSeasonallyAdjustedMaximum]);
+                                var sup = (depths[indexOfSeasonallyAdjustedMaximum] - depths[indexOfSeasonallyAdjustedMaximum - 1]) / (slopes[indexOfSeasonallyAdjustedMaximum] - slopes[indexOfSeasonallyAdjustedMaximum - 1]);
+                                var upD = depths[indexOfSeasonallyAdjustedMaximum];
+                                var dnD = depths[indexOfSeasonallyAdjustedMaximum + 1];
+
+                                if (!(double.IsInfinity(sdn) || double.IsInfinity(sup) || double.IsNaN(sdn) || double.IsNaN(sup)))
+                                {
+                                    thermoclineDetails.SeasonallyAdjustedThermoclineDepth = (float)(dnD * (sdn / (sdn + sup)) + upD * (sup / (sdn + sup)));
+                                }
+                            }
+                        }
+                        else
+                        {
+                            thermoclineDetails.NoSeasonalFound();
+                        }
+                    }
+                    else
+                    {
+                        thermoclineDetails.NoSeasonalFound();
+                    }
+                }
+
+                thermocline[t] = thermoclineDetails;
             }
 
             return thermocline;
@@ -2314,6 +2359,19 @@ namespace IndiaTango.ViewModels
             }
 
             return densityColumns;
+        }
+
+        private static double[] LocalPeaks(double[] data, double dataMinimum)
+        {
+            var peaks = new List<double>();
+
+            for (var i = 1; i < data.Length - 1; i++)
+            {
+                if (data[i - 1] < data[i] && data[i + 1] < data[i])
+                    peaks.Add(data[i]);
+            }
+
+            return peaks.Where(x => x > dataMinimum).ToArray();
         }
 
         #endregion
@@ -2922,18 +2980,28 @@ namespace IndiaTango.ViewModels
         {
             _sensorsToGraph.Clear();
 
-            var thermocline = CalculateThermoclineDepth();
+            var thermocline = CalculateThermoclineDepth(seasonal:true);
 
-            var densitySensor = new Sensor("Thermocline Depth", "m")
+            var thermoclineDepthSensor = new Sensor("Thermocline Depth", "m")
             {
                 CurrentState =
                 {
                     Values =
-                        thermocline.ToDictionary(v => v.Key, v => v.Value)
+                        thermocline.ToDictionary(v => v.Key, v => v.Value.ThermoclineDepth)
                 }
             };
 
-            _sensorsToGraph.Add(new GraphableSensor(densitySensor));
+            var seasonallyAdjustedThermoclineDepthSensor = new Sensor("Parent Thermocline Depth", "m")
+            {
+                CurrentState =
+                {
+                    Values =
+                        thermocline.ToDictionary(v => v.Key, v => v.Value.SeasonallyAdjustedThermoclineDepth)
+                }
+            };
+
+            _sensorsToGraph.Add(new GraphableSensor(thermoclineDepthSensor));
+            _sensorsToGraph.Add(new GraphableSensor(seasonallyAdjustedThermoclineDepthSensor));
             SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "[ThermoclineDepthPlot]");
             CalculateYAxis();
             CalculateGraphedEndPoints();

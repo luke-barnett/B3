@@ -136,6 +136,7 @@
     <Compile Include="Models\SensorTemplate.cs" />
     <Compile Include="Models\SensorVariable.cs" />
     <Compile Include="Models\SensorVocabulary.cs" />
+    <Compile Include="Models\ThermoclineDepthDetails.cs" />
     <Compile Include="Models\TimeSpanStringConverter.cs" />
     <Compile Include="Models\ToHighRateOfChangeDetector.cs" />
     <Compile Include="Models\Tools.cs" />
