@@ -2225,7 +2225,7 @@ namespace IndiaTango.ViewModels
             return densitySeries.ToArray();
         }
 
-        private Dictionary<DateTime, float> CalculateThermocline(IEnumerable<DensitySeries> preCalculatedDensities = null)
+        private Dictionary<DateTime, float> CalculateThermoclineDepth(IEnumerable<DensitySeries> preCalculatedDensities = null)
         {
             var thermocline = new Dictionary<DateTime, float>();
             var densities = (preCalculatedDensities == null) ? CalculateDensity().OrderBy(x => x.Depth).ToArray() : preCalculatedDensities.OrderBy(x => x.Depth).ToArray();
@@ -2234,22 +2234,38 @@ namespace IndiaTango.ViewModels
 
             var timeStamps = densityColumns.Keys.ToArray();
 
-            
+
             foreach (var t in timeStamps)
             {
                 var depths = densityColumns[t].Keys.OrderBy(x => x).ToArray();
                 if (depths.Length < 3) //We need at least 3 depths to calculate
                     continue;
-                var maximum = (densityColumns[t][depths[1]] - densityColumns[t][depths[0]])/
-                              (depths[1] - depths[0]);
-                for(var j = 1; j < depths.Length - 1; j++)
+
+                var slopes = new double[depths.Length];
+
+                for (var i = 1; i < depths.Length - 1; i++)
                 {
-                    var value = (densityColumns[t][depths[j + 1]] - densityColumns[t][depths[j]])/
-                                (depths[j + 1] - depths[j]);
-                    if (value > maximum)
-                        maximum = value;
+                    slopes[i] = (densityColumns[t][depths[i + 1]] - densityColumns[t][depths[i]]) /
+                                (depths[i + 1] - depths[i]);
                 }
-                thermocline[t] = (float) maximum;
+
+                var maxSlope = slopes.Max();
+                var indexOfMaxium = Array.IndexOf(slopes, maxSlope);
+
+                thermocline[t] = (depths[indexOfMaxium] + depths[indexOfMaxium + 1]) / 2;
+
+                if (indexOfMaxium > 1 && indexOfMaxium < depths.Length - 1)
+                {
+                    var sdn = -(depths[indexOfMaxium + 1] - depths[indexOfMaxium]) / (slopes[indexOfMaxium + 1] - slopes[indexOfMaxium]);
+                    var sup = (depths[indexOfMaxium] - depths[indexOfMaxium - 1]) / (slopes[indexOfMaxium] - slopes[indexOfMaxium - 1]);
+                    var upD = depths[indexOfMaxium];
+                    var dnD = depths[indexOfMaxium + 1];
+
+                    if (!(double.IsInfinity(sdn) || double.IsInfinity(sup) || double.IsNaN(sdn) || double.IsNaN(sup)))
+                    {
+                        thermocline[t] = (float) (dnD * (sdn / (sdn + sup)) + upD * (sup / (sdn + sup)));
+                    }
+                }
             }
 
             return thermocline;
@@ -2874,6 +2890,28 @@ namespace IndiaTango.ViewModels
             SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "[DensityPlot]");
             CalculateYAxis();
             CalculateGraphedEndPoints();
+        }
+
+        public void PlotThermoclineDepth()
+        {
+            _sensorsToGraph.Clear();
+
+            var thermocline = CalculateThermoclineDepth();
+
+            var densitySensor = new Sensor("Thermocline Depth", "m")
+            {
+                CurrentState =
+                {
+                    Values =
+                        thermocline.ToDictionary(v => v.Key, v => v.Value)
+                }
+            };
+
+            _sensorsToGraph.Add(new GraphableSensor(densitySensor));
+            SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "[ThermoclineDepthPlot]");
+            CalculateYAxis();
+            CalculateGraphedEndPoints();
+
         }
 
         #endregion
