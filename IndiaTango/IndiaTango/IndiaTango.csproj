@@ -121,6 +121,7 @@
     <Compile Include="Models\GraphBackgroundBehaviour.cs" />
     <Compile Include="Models\InputBindingTrigger.cs" />
     <Compile Include="Models\FloatStringConverter.cs" />
+    <Compile Include="Models\LakeAnalysis.cs" />
     <Compile Include="Models\LINQExtensions.cs" />
     <Compile Include="Models\ListedSensor.cs" />
     <Compile Include="Models\ManufacturerHelper.cs" />
