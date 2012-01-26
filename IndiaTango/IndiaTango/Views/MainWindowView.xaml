@@ -274,6 +274,7 @@
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="*" />
                                 <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
                             <Grid Grid.Row="0" Margin="0,10">
                                 <Grid.ColumnDefinitions>
@@ -288,6 +289,7 @@
                             </Grid>
                             <Button Grid.Row="1" Content="Calculate and plot Density" cal:Message.Attach="[Event Click] = [PlotDensity]" />
                             <Button Grid.Row="2" Content="Calculate and plot Thermocline Depth" cal:Message.Attach="[Event Click] = [PlotThermoclineDepth]" />
+                            <Button Grid.Row="3" Content="Calculate and plot Metalimnion Boundaries" cal:Message.Attach="[Event Click] = [PlotMetalimnionBoundaries]" />
                         </Grid>
                     </TabItem>
                 </TabControl>

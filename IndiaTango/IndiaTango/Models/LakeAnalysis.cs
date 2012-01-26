@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
 
 namespace IndiaTango.Models
 {
@@ -15,8 +16,7 @@ namespace IndiaTango.Models
                 var series = new DensitySeries(sensor.Depth);
                 foreach (var value in sensor.CurrentState.Values)
                 {
-                    var density = (1 -
-                                   (((value.Value + 288.9414) / (508929.2 * (value.Value + 68.12963))) *
+                    var density = (1 - (((value.Value + 288.9414) / (508929.2 * (value.Value + 68.12963))) *
                                     Math.Pow((value.Value - 3.9863), 2))) * 1000;
                     series.AddValue(value.Key, density);
                 }
@@ -67,13 +67,20 @@ namespace IndiaTango.Models
                                 (depths[i + 1] - depths[i]);
                 }
 
+                if(t.Month == 11 && t.Day == 3)
+                {
+                    
+                }
+
+                thermoclineDetails.DrhoDz = slopes;
+
                 var maxSlope = slopes.Max();
                 var indexOfMaxium = Array.IndexOf(slopes, maxSlope);
 
                 thermoclineDetails.ThermoclineIndex = indexOfMaxium;
                 thermoclineDetails.ThermoclineDepth = (depths[indexOfMaxium] + depths[indexOfMaxium + 1]) / 2;
 
-                if (indexOfMaxium > 1 && indexOfMaxium < depths.Length - 1)
+                if (indexOfMaxium > 1 && indexOfMaxium < depths.Length - 2)
                 {
                     var sdn = -(depths[indexOfMaxium + 1] - depths[indexOfMaxium]) / (slopes[indexOfMaxium + 1] - slopes[indexOfMaxium]);
                     var sup = (depths[indexOfMaxium] - depths[indexOfMaxium - 1]) / (slopes[indexOfMaxium] - slopes[indexOfMaxium - 1]);
@@ -103,7 +110,7 @@ namespace IndiaTango.Models
                             thermoclineDetails.SeasonallyAdjustedThermoclineIndex = indexOfSeasonallyAdjustedMaximum;
                             thermoclineDetails.SeasonallyAdjustedThermoclineDepth = (depths[indexOfSeasonallyAdjustedMaximum] + depths[indexOfSeasonallyAdjustedMaximum + 1]) / 2;
 
-                            if (indexOfSeasonallyAdjustedMaximum > 1 && indexOfSeasonallyAdjustedMaximum < depths.Length - 1)
+                            if (indexOfSeasonallyAdjustedMaximum > 1 && indexOfSeasonallyAdjustedMaximum < depths.Length - 2)
                             {
                                 var sdn = -(depths[indexOfSeasonallyAdjustedMaximum + 1] - depths[indexOfSeasonallyAdjustedMaximum]) / (slopes[indexOfSeasonallyAdjustedMaximum + 1] - slopes[indexOfSeasonallyAdjustedMaximum]);
                                 var sup = (depths[indexOfSeasonallyAdjustedMaximum] - depths[indexOfSeasonallyAdjustedMaximum - 1]) / (slopes[indexOfSeasonallyAdjustedMaximum] - slopes[indexOfSeasonallyAdjustedMaximum - 1]);
@@ -126,11 +133,174 @@ namespace IndiaTango.Models
                         thermoclineDetails.NoSeasonalFound();
                     }
                 }
+                else
+                {
+                    thermoclineDetails.NoSeasonalFound();
+                }
 
                 thermocline[t] = thermoclineDetails;
             }
 
             return thermocline;
+        }
+
+        public static Dictionary<DateTime, MetalimnionBoundariesDetails> CalculateMetalimnionBoundaries(Dataset dataset, Dictionary<DateTime, ThermoclineDepthDetails> thermoclineDepths, float minimumMetalimionSlope = 0.1f)
+        {
+            var metalimnionBoundaries = new Dictionary<DateTime, MetalimnionBoundariesDetails>();
+
+            var depths = dataset.Sensors.Where(x => x.SensorType == "Water_Temperature").Select(x => x.Depth).Distinct().OrderBy(x => x).ToArray();
+
+            var meanDepths = new float[depths.Length - 1];
+
+            for (var i = 0; i < depths.Length - 1; i++)
+            {
+                meanDepths[i] = (depths[i] + depths[i + 1]) / 2;
+            }
+
+            foreach (var timestamp in thermoclineDepths.Keys)
+            {
+                var metalimnionBoundary = new MetalimnionBoundariesDetails();
+
+                var sortedDepths = meanDepths.Union(new[] { thermoclineDepths[timestamp].ThermoclineDepth }).OrderBy(x => x).ToArray();
+                var sortedDepthsParent = meanDepths.Union(new[] { thermoclineDepths[timestamp].SeasonallyAdjustedThermoclineDepth }).OrderBy(x => x).ToArray();
+
+                var points = new Point[meanDepths.Length];
+
+                for (var i = 0; i < points.Length; i++)
+                {
+                    points[i] = new Point(meanDepths[i],thermoclineDepths[timestamp].DrhoDz[i]);
+                }
+
+                var slopes = Interpolate(points, sortedDepths).ToArray();
+                var slopesParent = Interpolate(points, sortedDepthsParent).ToArray();
+
+                var thermoclineIndex = Array.IndexOf(slopes.Select(x => x.X).ToArray(), thermoclineDepths[timestamp].ThermoclineDepth);
+                var thermoclineIndexParent = Array.IndexOf(slopesParent.Select(x => x.X).ToArray(), thermoclineDepths[timestamp].SeasonallyAdjustedThermoclineDepth);
+                
+
+                #region Top
+
+                metalimnionBoundary.Top = meanDepths[0];
+                int k;
+                for (k = thermoclineIndex; k > -1; k--)
+                {
+                    if(slopes[k].Y  < minimumMetalimionSlope)
+                    {
+                        metalimnionBoundary.Top = sortedDepths[k];
+                        break;
+                    }
+                }
+
+                if (k == -1)
+                    k = 0;
+
+                if(thermoclineIndex - k > 0 && slopes[thermoclineIndex].Y > minimumMetalimionSlope)
+                {
+                    var outsidePoints = new List<Point>();
+                    for (var j = k; j  <= thermoclineIndex; j++)
+                    {
+                        outsidePoints.Add(new Point(slopes[j].Y,sortedDepths[j]));
+                    }
+                    metalimnionBoundary.Top = (float) Interpolate(outsidePoints.ToArray(), new [] {minimumMetalimionSlope})[0].Y;
+                }
+
+                #endregion
+
+                #region Bottom
+
+                metalimnionBoundary.Bottom = meanDepths.Last();
+
+                for (k = thermoclineIndex; k < slopes.Length; k++)
+                {
+                    if (slopes[k].Y < minimumMetalimionSlope)
+                    {
+                        metalimnionBoundary.Bottom = sortedDepths[k];
+                        break;
+                    }
+                }
+
+                if (k == slopes.Length)
+                    k--;
+
+                if (k - thermoclineIndex > 0 && slopes[thermoclineIndex].Y > minimumMetalimionSlope)
+                {
+                    var outsidePoints = new List<Point>();
+                    for (var j = thermoclineIndex; j <= k; j++)
+                    {
+                        outsidePoints.Add(new Point(slopes[j].Y, sortedDepths[j]));
+                    }
+                    metalimnionBoundary.Bottom = (float)Interpolate(outsidePoints.ToArray(), new[] { minimumMetalimionSlope })[0].Y;
+                }
+
+                #endregion
+
+                #region IfParent
+
+                if(thermoclineDepths[timestamp].HasSeaonallyAdjusted)
+                {
+                    #region Top
+
+                    metalimnionBoundary.SeasonallyAdjustedTop = meanDepths[0];
+                    int m;
+                    for (m = thermoclineIndexParent; m > -1; m--)
+                    {
+                        if (slopesParent[m].Y < minimumMetalimionSlope)
+                        {
+                            metalimnionBoundary.SeasonallyAdjustedTop = sortedDepthsParent[m];
+                            break;
+                        }
+                    }
+
+                    if (m == -1)
+                        m = 0;
+
+                    if (thermoclineIndexParent - m > 0 && slopesParent[thermoclineIndexParent].Y > minimumMetalimionSlope)
+                    {
+                        var outsidePoints = new List<Point>();
+                        for (var j = m; j <= thermoclineIndexParent; j++)
+                        {
+                            outsidePoints.Add(new Point(slopesParent[j].Y, sortedDepthsParent[j]));
+                        }
+                        metalimnionBoundary.SeasonallyAdjustedTop = (float)Interpolate(outsidePoints.ToArray(), new[] { minimumMetalimionSlope })[0].Y;
+                    }
+
+                    #endregion
+
+                    #region Bottom
+
+                    metalimnionBoundary.SeasonallyAdjustedBottom = meanDepths.Last();
+
+                    for (m = thermoclineIndexParent; m < slopesParent.Length; m++)
+                    {
+                        if (slopesParent[m].Y < minimumMetalimionSlope)
+                        {
+                            metalimnionBoundary.SeasonallyAdjustedBottom = sortedDepthsParent[m];
+                            break;
+                        }
+                    }
+
+                    if (m == slopes.Length)
+                        m--;
+
+                    if (m - thermoclineIndexParent > 0 && slopesParent[thermoclineIndexParent].Y > minimumMetalimionSlope)
+                    {
+                        var outsidePoints = new List<Point>();
+                        for (var j = thermoclineIndexParent; j <= m; j++)
+                        {
+                            outsidePoints.Add(new Point(slopesParent[j].Y, sortedDepthsParent[j]));
+                        }
+                        metalimnionBoundary.SeasonallyAdjustedBottom = (float)Interpolate(outsidePoints.ToArray(), new[] { minimumMetalimionSlope })[0].Y;
+                    }
+
+                    #endregion
+                }
+
+                #endregion
+
+                metalimnionBoundaries[timestamp] = metalimnionBoundary;
+            }
+
+            return metalimnionBoundaries;
         }
 
         #region Helpers
@@ -166,6 +336,53 @@ namespace IndiaTango.Models
             }
 
             return densityColumns;
+        }
+
+        public static Point[] Interpolate(Point[] points, float[] xi)
+        {
+            var interpolatedvalues = new List<Point>();
+
+            //Assumes inorder enumerables
+            var i = 0;
+
+            foreach (var xValue in xi)
+            {
+                while (points[i].X < xValue)
+                {
+                    i++;
+                    if (i >= points.Length)
+                        break;
+                }
+
+                if (i >= points.Length)
+                    break;
+
+
+                if (Math.Abs(points[i].X - xValue) < Double.Epsilon)
+                {
+                    interpolatedvalues.Add(points[i]);
+                }
+                else
+                {
+                    var x0 = 0d;
+                    var y0 = 0d;
+
+                    if (i > 0)
+                    {
+                        x0 = points[i - 1].X;
+                        y0 = points[i - 1].Y;
+                    }
+
+                    var x1 = points[i].X;
+                    var y1 = points[i].Y;
+
+                    var yValue = y0 * (xValue - x1) / (x0 - x1) + y1 * (xValue - x0) / (x1 - x0);
+                    interpolatedvalues.Add(new Point(xValue, yValue));
+                }
+            }
+
+
+            return interpolatedvalues.OrderBy(x => x.X).ToArray();
         }
 
         #endregion

@@ -2849,6 +2849,69 @@ namespace IndiaTango.ViewModels
 
         }
 
+        public void PlotMetalimnionBoundaries()
+        {
+            _sensorsToGraph.Clear();
+
+            var thermocline = LakeAnalysis.CalculateThermoclineDepth(CurrentDataset, MixedTempDifferential, seasonal: true);
+
+            var metalimnionBoundaries = LakeAnalysis.CalculateMetalimnionBoundaries(CurrentDataset, thermocline);
+
+            var metalimnionBoundaryTopSensor = new Sensor("Metalimnion Top", "m")
+                                                   {
+                                                       CurrentState =
+                                                           {
+                                                               Values =
+                                                                   metalimnionBoundaries.ToDictionary(v => v.Key,
+                                                                                                      v => v.Value.Top)
+                                                           }
+                                                   };
+
+            var metalimnionBoundaryBottomSensor = new Sensor("Metalimnion Bottom", "m")
+                                                      {
+                                                          CurrentState =
+                                                              {
+                                                                  Values =
+                                                                      metalimnionBoundaries.ToDictionary(v => v.Key,
+                                                                                                         v =>
+                                                                                                         v.Value.Bottom)
+                                                              }
+                                                      };
+
+            var metalimnionBoundaryTopSensorParent = new Sensor("Metalimnion Top [Parent]", "m")
+                                                         {
+                                                             CurrentState =
+                                                                 {
+                                                                     Values =
+                                                                         metalimnionBoundaries.ToDictionary(v => v.Key,
+                                                                                                            v =>
+                                                                                                            v.Value.
+                                                                                                                SeasonallyAdjustedTop)
+                                                                 }
+                                                         };
+
+            var metalimnionBoundaryBottomSensorParent = new Sensor("Metalimnion Bottom [Parent]", "m")
+                                                            {
+                                                                CurrentState =
+                                                                    {
+                                                                        Values =
+                                                                            metalimnionBoundaries.ToDictionary(
+                                                                                v => v.Key,
+                                                                                v =>
+                                                                                v.Value.SeasonallyAdjustedBottom)
+                                                                    }
+                                                            };
+
+            _sensorsToGraph.Add(new GraphableSensor(metalimnionBoundaryBottomSensor));
+            _sensorsToGraph.Add(new GraphableSensor(metalimnionBoundaryTopSensor));
+            _sensorsToGraph.Add(new GraphableSensor(metalimnionBoundaryBottomSensorParent));
+            _sensorsToGraph.Add(new GraphableSensor(metalimnionBoundaryTopSensorParent));
+
+            SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "[PlotMetalimnionBoundaries]");
+            CalculateYAxis();
+            CalculateGraphedEndPoints();
+        }
+
         #endregion
 
         #region Event Handlers

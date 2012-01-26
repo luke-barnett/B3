@@ -125,6 +125,7 @@
     <Compile Include="Models\LINQExtensions.cs" />
     <Compile Include="Models\ListedSensor.cs" />
     <Compile Include="Models\ManufacturerHelper.cs" />
+    <Compile Include="Models\MetalimnionBoundariesDetails.cs" />
     <Compile Include="Models\MinMaxDetector.cs" />
     <Compile Include="Models\MissingValuesDetector.cs" />
     <Compile Include="Models\NamedBitmap.cs" />

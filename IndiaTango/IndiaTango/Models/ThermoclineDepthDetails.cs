@@ -8,8 +8,13 @@
         public float SeasonallyAdjustedThermoclineDepth;
         public int SeasonallyAdjustedThermoclineIndex;
 
+        public bool HasSeaonallyAdjusted = true;
+
+        public double[] DrhoDz;
+
         public void NoSeasonalFound()
         {
+            HasSeaonallyAdjusted = false;
             SeasonallyAdjustedThermoclineDepth = ThermoclineDepth;
             SeasonallyAdjustedThermoclineIndex = ThermoclineIndex;
         }
