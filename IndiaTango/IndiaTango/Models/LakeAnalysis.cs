@@ -67,11 +67,6 @@ namespace IndiaTango.Models
                                 (depths[i + 1] - depths[i]);
                 }
 
-                if(t.Month == 11 && t.Day == 3)
-                {
-                    
-                }
-
                 thermoclineDetails.DrhoDz = slopes;
 
                 var maxSlope = slopes.Max();
