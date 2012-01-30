@@ -143,17 +143,17 @@ namespace IndiaTango.Models
         {
             var metalimnionBoundaries = new Dictionary<DateTime, MetalimnionBoundariesDetails>();
 
-            var depths = dataset.Sensors.Where(x => x.SensorType == "Water_Temperature").Select(x => x.Depth).Distinct().OrderBy(x => x).ToArray();
-
-            var meanDepths = new float[depths.Length - 1];
-
-            for (var i = 0; i < depths.Length - 1; i++)
-            {
-                meanDepths[i] = (depths[i] + depths[i + 1]) / 2;
-            }
-
             foreach (var timestamp in thermoclineDepths.Keys)
             {
+                var depths = dataset.Sensors.Where(x => x.SensorType == "Water_Temperature" && x.CurrentState.Values.ContainsKey(timestamp)).Select(x => x.Depth).Distinct().OrderBy(x => x).ToArray();
+
+                var meanDepths = new float[depths.Length - 1];
+
+                for (var i = 0; i < depths.Length - 1; i++)
+                {
+                    meanDepths[i] = (depths[i] + depths[i + 1]) / 2;
+                }
+
                 var metalimnionBoundary = new MetalimnionBoundariesDetails();
 
                 var sortedDepths = meanDepths.Union(new[] { thermoclineDepths[timestamp].ThermoclineDepth }).OrderBy(x => x).ToArray();
@@ -163,7 +163,7 @@ namespace IndiaTango.Models
 
                 for (var i = 0; i < points.Length; i++)
                 {
-                    points[i] = new Point(meanDepths[i],thermoclineDepths[timestamp].DrhoDz[i]);
+                    points[i] = new Point(meanDepths[i], thermoclineDepths[timestamp].DrhoDz[i]);
                 }
 
                 var slopes = Interpolate(points, sortedDepths).ToArray();
@@ -171,7 +171,6 @@ namespace IndiaTango.Models
 
                 var thermoclineIndex = Array.IndexOf(slopes.Select(x => x.X).ToArray(), thermoclineDepths[timestamp].ThermoclineDepth);
                 var thermoclineIndexParent = Array.IndexOf(slopesParent.Select(x => x.X).ToArray(), thermoclineDepths[timestamp].SeasonallyAdjustedThermoclineDepth);
-                
 
                 #region Top
 
@@ -179,7 +178,7 @@ namespace IndiaTango.Models
                 int k;
                 for (k = thermoclineIndex; k > -1; k--)
                 {
-                    if(slopes[k].Y  < minimumMetalimionSlope)
+                    if (slopes[k].Y < minimumMetalimionSlope)
                     {
                         metalimnionBoundary.Top = sortedDepths[k];
                         break;
@@ -189,14 +188,14 @@ namespace IndiaTango.Models
                 if (k == -1)
                     k = 0;
 
-                if(thermoclineIndex - k > 0 && slopes[thermoclineIndex].Y > minimumMetalimionSlope)
+                if (thermoclineIndex - k > 1 && slopes[thermoclineIndex].Y > minimumMetalimionSlope)
                 {
                     var outsidePoints = new List<Point>();
-                    for (var j = k; j  <= thermoclineIndex; j++)
+                    for (var j = k; j <= thermoclineIndex; j++)
                     {
-                        outsidePoints.Add(new Point(slopes[j].Y,sortedDepths[j]));
+                        outsidePoints.Add(new Point(slopes[j].Y, sortedDepths[j]));
                     }
-                    metalimnionBoundary.Top = (float) Interpolate(outsidePoints.ToArray(), new [] {minimumMetalimionSlope})[0].Y;
+                    metalimnionBoundary.Top = (float)Interpolate(outsidePoints.ToArray(), new[] { minimumMetalimionSlope })[0].Y;
                 }
 
                 #endregion
@@ -217,7 +216,7 @@ namespace IndiaTango.Models
                 if (k == slopes.Length)
                     k--;
 
-                if (k - thermoclineIndex > 0 && slopes[thermoclineIndex].Y > minimumMetalimionSlope)
+                if (k - thermoclineIndex > 1 && slopes[thermoclineIndex].Y > minimumMetalimionSlope)
                 {
                     var outsidePoints = new List<Point>();
                     for (var j = thermoclineIndex; j <= k; j++)
@@ -231,7 +230,7 @@ namespace IndiaTango.Models
 
                 #region IfParent
 
-                if(thermoclineDepths[timestamp].HasSeaonallyAdjusted)
+                if (thermoclineDepths[timestamp].HasSeaonallyAdjusted)
                 {
                     #region Top
 
@@ -289,6 +288,10 @@ namespace IndiaTango.Models
 
                     #endregion
                 }
+                else
+                {
+                    metalimnionBoundary.NoSeasonalFound();
+                }
 
                 #endregion
 
@@ -333,9 +336,11 @@ namespace IndiaTango.Models
             return densityColumns;
         }
 
-        public static Point[] Interpolate(Point[] points, float[] xi)
+        /*public static Point[] Interpolate(Point[] points, float[] xi)
         {
             var interpolatedvalues = new List<Point>();
+
+            points = points.OrderBy(x => x.X).ToArray();
 
             //Assumes inorder enumerables
             var i = 0;
@@ -378,6 +383,45 @@ namespace IndiaTango.Models
 
 
             return interpolatedvalues.OrderBy(x => x.X).ToArray();
+        }*/
+
+        public static Point[] Interpolate(Point[] points, float[] xi)
+        {
+            var interpolatedPoints = new Point[xi.Length];
+
+            for (var i = 0; i < xi.Length; i++)
+            {
+                interpolatedPoints[i] = new Point(xi[i], Interp1(points.Select(x => x.X).ToList(), points.Select(x => x.Y).ToList(), xi[i]));
+            }
+
+            return interpolatedPoints;
+        }
+
+        /// <summary>
+        /// Written for Virtual Photonics by Lisa Malenfant
+        /// http://virtualphotonics.codeplex.com/SourceControl/changeset/view/d67a776726d5#src%2fVts%2fCommon%2fMath%2fInterpolation.cs
+        /// </summary>
+        public static double Interp1(IList<double> x, IList<double> y, double xi)
+        {
+            if (x.Count != y.Count)
+            {
+                throw new ArgumentException("Error in interp1: arrays x and y are not the same size!");
+            }
+
+            var currentIndex = 1;
+
+            // changed this to clip to bounds (DC - 7/26/09)
+            if ((xi < x[0]))
+                return y[0];
+            if ((xi > x[x.Count - 1]))
+                return y[y.Count - 1];
+
+            // increment the index until you pass the desired interpolation point
+            while (x[currentIndex] < xi) currentIndex++;
+
+            // then do the interp between x[currentIndex-1] and xi[currentIndex]
+            var t = (xi - x[currentIndex - 1]) / (x[currentIndex] - x[currentIndex - 1]);
+            return y[currentIndex - 1] + t * (y[currentIndex] - y[currentIndex - 1]);
         }
 
         #endregion
