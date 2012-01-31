@@ -24,7 +24,7 @@ namespace DataAggregator.Models
                 {
                     var includedTimestamps = timestamps.Where(y => y >= inclusiveStart && y < exclusiveEnd).ToArray();
                     x.AggregatedValues[inclusiveStart] =
-                        x.AggregationModel.AggregationMethod.Aggregate(x.Values.Where(y => includedTimestamps.Contains(y.Key)).OrderBy(y => y.Key).Select(y => y.Value), inclusiveStart, exclusiveEnd);
+                        x.AggregationModel.AggregationMethod.Aggregate(x.Values.Where(y => includedTimestamps.Contains(y.Key)).OrderBy(y => y.Key), inclusiveStart, exclusiveEnd);
                 }
             }
             try

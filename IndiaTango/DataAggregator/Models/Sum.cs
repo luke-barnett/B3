@@ -11,9 +11,9 @@ namespace DataAggregator.Models
             get { return "Sum"; }
         }
 
-        public float Aggregate(IEnumerable<float> values, DateTime inclusiveStartTimestamp, DateTime exclusiveEndTimestamp)
+        public float Aggregate(IEnumerable<KeyValuePair<DateTime, float>> values, DateTime inclusiveStartTimestamp, DateTime exclusiveEndTimestamp)
         {
-            return values.Sum();
+            return !values.Any() ? float.NaN : values.Sum(x => x.Value);
         }
 
         public override string ToString()

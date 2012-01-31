@@ -87,6 +87,7 @@
     <Compile Include="Models\FirstValue.cs" />
     <Compile Include="Models\Sum.cs" />
     <Compile Include="Models\TimeSpanOption.cs" />
+    <Compile Include="Models\WeightedAverage.cs" />
     <Compile Include="SimpleContainer.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Page Include="Views\MainWindowView.xaml">

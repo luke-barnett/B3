@@ -10,9 +10,9 @@ namespace DataAggregator.Models
             get { return "First Value"; }
         }
 
-        public float Aggregate(IEnumerable<float> values, DateTime inclusiveStartTimestamp, DateTime exclusiveEndTimestamp)
+        public float Aggregate(IEnumerable<KeyValuePair<DateTime, float>> values, DateTime inclusiveStartTimestamp, DateTime exclusiveEndTimestamp)
         {
-            return !values.Any() ? float.NaN : values.First();
+            return !values.Any() ? float.NaN : values.First().Value;
         }
 
         public override string ToString()

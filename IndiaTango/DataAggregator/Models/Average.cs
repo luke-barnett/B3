@@ -11,9 +11,9 @@ namespace DataAggregator.Models
             get { return "Average"; }
         }
 
-        public float Aggregate(IEnumerable<float> values, DateTime inclusiveStartTimestamp, DateTime exclusiveEndTimestamp)
+        public float Aggregate(IEnumerable<KeyValuePair<DateTime, float>> values, DateTime inclusiveStartTimestamp, DateTime exclusiveEndTimestamp)
         {
-            return values.Average();
+            return !values.Any() ? float.NaN : values.Average(x => x.Value);
         }
 
         public override string ToString()

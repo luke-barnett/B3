@@ -1,7 +1,8 @@
 ﻿<Window x:Class="DataAggregator.Views.MainWindowView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Data Aggregator" Height="380" Width="380" Icon="../icon.ico">
+        xmlns:cal="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro"
+        Title="{Binding Title}" Height="380" Width="380" Icon="../icon.ico" Cursor="{Binding ApplicationCursor}" cal:Message.Attach="[Event Closing] = [Action Closing($eventArgs)]">
     <Grid Margin="5,0">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -17,14 +18,14 @@
                 <ColumnDefinition Width="2*" />
                 <ColumnDefinition Width="2*" />
             </Grid.ColumnDefinitions>
-            <Button Grid.Row="0" Grid.Column="0" Name="Load" Content="Load" Margin="0,5,0,0" />
-            <Button Grid.Row="1" Grid.Column="0" Name="Export" Content="Export" Margin="0,5,0,0" />
+            <Button Grid.Row="0" Grid.Column="0" Name="Load" Content="Load" Margin="0,5,0,0" IsEnabled="{Binding ActionsEnabled}" />
+            <Button Grid.Row="1" Grid.Column="0" Name="Export" Content="Export" Margin="0,5,0,0" IsEnabled="{Binding ActionsEnabled}" />
             <TextBlock Text="Aggregation Period:" Grid.Row="0" Grid.Column="1" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" />
-            <ComboBox Grid.Row="0" Grid.Column="2" Margin="5" ItemsSource="{Binding TimeSpanOptions}" SelectedValue="{Binding AggregationTimeSpan, UpdateSourceTrigger=PropertyChanged}" />
+            <ComboBox Grid.Row="0" Grid.Column="2" Margin="5" ItemsSource="{Binding TimeSpanOptions}" SelectedValue="{Binding AggregationTimeSpan, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding ActionsEnabled}" />
         </Grid>
-        <DataGrid Name="dataGrid" Grid.Row="1" CanUserDeleteRows="False" CanUserAddRows="False" ItemsSource="{Binding Series}" AutoGenerateColumns="False">
+        <DataGrid Name="dataGrid" Grid.Row="1" CanUserDeleteRows="False" CanUserAddRows="False" ItemsSource="{Binding Series}" AutoGenerateColumns="False" IsEnabled="{Binding ActionsEnabled}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}" IsReadOnly="True" />
                 <DataGridTemplateColumn Header="Aggregation Type">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>

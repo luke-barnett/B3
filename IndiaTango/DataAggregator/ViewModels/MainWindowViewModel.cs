@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Windows;
+using System.Windows.Input;
 using Caliburn.Micro;
 using DataAggregator.Models;
 using Microsoft.Win32;
@@ -39,6 +41,8 @@ namespace DataAggregator.ViewModels
         private List<Series> _series;
         private List<DateTime> _timestamps;
         private TimeSpanOption _aggregationTimeSpan = AggregationModel.TimeSpanOptions[0];
+        private bool _lockedIn;
+        private Cursor _applicationCursor = Cursors.Arrow;
 
         public MainWindowViewModel()
         {
@@ -70,6 +74,43 @@ namespace DataAggregator.ViewModels
             get { return AggregationModel.TimeSpanOptions; }
         }
 
+        public bool LockedIn
+        {
+            get { return _lockedIn; }
+            set
+            {
+                _lockedIn = value;
+                NotifyOfPropertyChange(() => LockedIn);
+                NotifyOfPropertyChange(() => ActionsEnabled);
+            }
+        }
+
+        public bool ActionsEnabled
+        {
+            get
+            {
+                {
+                    return !_lockedIn;
+                }
+
+            }
+        }
+
+        public Cursor ApplicationCursor
+        {
+            get { return _applicationCursor; }
+            set
+            {
+                _applicationCursor = value;
+                NotifyOfPropertyChange(() => ApplicationCursor);
+            }
+        }
+
+        public string Title
+        {
+            get { return "Data Aggregator"; }
+        }
+
         public void Load()
         {
             var openFileDialog = new OpenFileDialog { Filter = @"CSV Files|*.csv" };
@@ -98,10 +139,35 @@ namespace DataAggregator.ViewModels
             var saveFileDialog = new SaveFileDialog { Filter = @"CSV Files|*.csv" };
             if (saveFileDialog.ShowDialog() == true)
             {
+                var bw = new BackgroundWorker();
+                bw.DoWork += (o, e) =>
                 MessageBox.Show(Exporter.Export(_timestamps.ToArray(), Series.ToArray(), AggregationTimeSpan, saveFileDialog.FileName)
                                     ? "Successfully exported"
                                     : "Export didn't complete successfully");
+
+                bw.RunWorkerCompleted += (o, e) => Unlock();
+
+                LockIn();
+                bw.RunWorkerAsync();
             }
+        }
+
+        public void Closing(CancelEventArgs eventArgs)
+        {
+            if (_lockedIn)
+                eventArgs.Cancel = true;
+        }
+
+        private void LockIn()
+        {
+            LockedIn = true;
+            ApplicationCursor = Cursors.Wait;
+        }
+
+        private void Unlock()
+        {
+            LockedIn = false;
+            ApplicationCursor = Cursors.Arrow;
         }
 
         private void LoadCSV(string filename)
