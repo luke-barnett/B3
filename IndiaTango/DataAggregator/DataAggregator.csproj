@@ -81,7 +81,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="BootStrapper.cs" />
-    <Compile Include="Models\AggregationMethod.cs" />
+    <Compile Include="Models\IAggregationMethod.cs" />
     <Compile Include="Models\Average.cs" />
     <Compile Include="Models\Exporter.cs" />
     <Compile Include="Models\FirstValue.cs" />
