@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DataAggregator.Models
 {
@@ -6,6 +7,6 @@ namespace DataAggregator.Models
     {
         string Name { get; }
 
-        float Aggregate(IEnumerable<float> values);
+        float Aggregate(IEnumerable<float> values, DateTime inclusiveStartTimestamp, DateTime exclusiveEndTimestamp);
     }
 }

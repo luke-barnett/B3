@@ -12,8 +12,8 @@ namespace DataAggregator.Models
             var firstTimeStamp = timestamps.Min().RoundDown(aggregationPeriod.TimeSpan);
 
             var aggregatedTimestamps = new List<DateTime>();
-
-            for (var timestamp = firstTimeStamp; timestamp < timestamps.Max(); timestamp = timestamp.Add(aggregationPeriod.TimeSpan))
+            var maxTimestamp = timestamps.Max();
+            for (var timestamp = firstTimeStamp; timestamp < maxTimestamp; timestamp = timestamp.Add(aggregationPeriod.TimeSpan))
             {
                 var inclusiveStart = timestamp;
                 var exclusiveEnd = timestamp.Add(aggregationPeriod.TimeSpan);
@@ -24,7 +24,7 @@ namespace DataAggregator.Models
                 {
                     var includedTimestamps = timestamps.Where(y => y >= inclusiveStart && y < exclusiveEnd).ToArray();
                     x.AggregatedValues[inclusiveStart] =
-                        x.AggregationModel.AggregationMethod.Aggregate(x.Values.Where(y => includedTimestamps.Contains(y.Key)).OrderBy(y => y.Key).Select(y => y.Value));
+                        x.AggregationModel.AggregationMethod.Aggregate(x.Values.Where(y => includedTimestamps.Contains(y.Key)).OrderBy(y => y.Key).Select(y => y.Value), inclusiveStart, exclusiveEnd);
                 }
             }
             try

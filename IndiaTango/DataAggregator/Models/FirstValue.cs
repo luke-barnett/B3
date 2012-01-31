@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 namespace DataAggregator.Models
 {
@@ -9,14 +10,14 @@ namespace DataAggregator.Models
             get { return "First Value"; }
         }
 
+        public float Aggregate(IEnumerable<float> values, DateTime inclusiveStartTimestamp, DateTime exclusiveEndTimestamp)
+        {
+            return !values.Any() ? float.NaN : values.First();
+        }
+
         public override string ToString()
         {
             return Name;
-        }
-
-        public float Aggregate(IEnumerable<float> values)
-        {
-            return !values.Any() ? float.NaN : values.First();
         }
     }
 }
