@@ -119,7 +119,7 @@ namespace IndiaTango.Models
             set { _valueList = value; }
         }
 
-        [ProtoMember(4)]
+        //[ProtoMember(4)]
         public DataBlock[] CompressedValues
         {
             get
@@ -169,6 +169,50 @@ namespace IndiaTango.Models
                 Values = dictionary;
             }
 
+        }
+
+        public DataBlock[] GetCompressedValues(DateTime inclusiveStartTimestamp, DateTime exclusiveEndTimestamp)
+        {
+            var dataBlocks = new List<DataBlock>();
+            if (Values != null)
+            {
+                var orderedKeyValuePairs = Values.Where(x => x.Key >= inclusiveStartTimestamp && x.Key < exclusiveEndTimestamp).OrderBy(x => x.Key).ToArray();
+
+                var i = 0;
+                while (i < orderedKeyValuePairs.Length)
+                {
+                    var dataBlock = new DataBlock
+                    {
+                        DataInterval = _owner.Owner.DataInterval,
+                        StartTime = orderedKeyValuePairs[i].Key
+                    };
+                    var values = new List<float> { orderedKeyValuePairs[i].Value };
+                    var j = 0;
+                    while (i + j + 1 < orderedKeyValuePairs.Length &&
+                           orderedKeyValuePairs[i + j + 1].Key - orderedKeyValuePairs[i + j].Key ==
+                           new TimeSpan(0, dataBlock.DataInterval, 0))
+                    {
+                        values.Add(orderedKeyValuePairs[i + j + 1].Value);
+                        j++;
+                    }
+
+                    dataBlock.Values = values.ToArray();
+                    dataBlocks.Add(dataBlock);
+                    i += j + 1;
+                }
+            }
+            return dataBlocks.ToArray();
+        }
+
+        public void AddCompressedValues(DataBlock[] values)
+        {
+            foreach (var block in values)
+            {
+                for (var i = 0; i < block.Values.Length; i++)
+                {
+                    Values[block.StartTime.AddMinutes(i * block.DataInterval)] = block.Values[i];
+                }
+            }
         }
 
         [ProtoMember(5)]

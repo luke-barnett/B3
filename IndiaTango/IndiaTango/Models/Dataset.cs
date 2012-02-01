@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using Ionic.Zip;
+using Ionic.Zlib;
 using ProtoBuf;
 
 namespace IndiaTango.Models
@@ -14,7 +18,7 @@ namespace IndiaTango.Models
         private Site _site;
         private DateTime _startTimeStamp;
         private DateTime _endTimeStamp;
-        [ProtoMember(4)]
+        //[ProtoMember(4)]
         private List<Sensor> _sensors;
         [ProtoMember(6)]
         private int _expectedDataPointCount;
@@ -56,7 +60,7 @@ namespace IndiaTango.Models
         /// Gets and sets the Site that this dataset came from
         /// </summary>
         ///
-        [ProtoMember(1)]
+        //[ProtoMember(1)]
         public Site Site
         {
             get { return _site; }
@@ -249,14 +253,9 @@ namespace IndiaTango.Models
         public static Dataset LoadDataSet(string fileName)
         {
             EventLogger.LogInfo(null, "Loading", "Started loading from file: " + fileName);
-            /* .NET BinaryFormatter
-            using (var stream = new FileStream(fileName, FileMode.Open))
-                return (Dataset)new BinaryFormatter().Deserialize(stream);
-             * */
             try
             {
-                using (var file = File.OpenRead(fileName))
-                    return Serializer.Deserialize<Dataset>(file);
+                return LoadDataSetFromFile(fileName);
             }
             catch (Exception e)
             {
@@ -267,8 +266,7 @@ namespace IndiaTango.Models
                         Common.ShowMessageBox("Failed to load site",
                                               "We were unable to read the site file. However a backup was found, now trying to load from backup",
                                               false, false);
-                        using (var file = File.OpenRead(fileName + ".backup"))
-                            return Serializer.Deserialize<Dataset>(file);
+                        return LoadDataSetFromFile(fileName + ".backup");
                     }
                     catch (Exception e2)
                     {
@@ -286,23 +284,119 @@ namespace IndiaTango.Models
             return null;
         }
 
+        private static Dataset LoadDataSetFromFile(string filename)
+        {
+            /*
+            using (var file = File.OpenRead(filename))
+                return Serializer.Deserialize<Dataset>(file);
+             * */
+
+            using(var zip = ZipFile.Read(filename))
+            {
+                var datasetStream = new MemoryStream();
+                zip.Entries.First(x => x.FileName == "dataset").Extract(datasetStream);
+                datasetStream.Position = 0;
+
+                var dataset = Serializer.Deserialize<Dataset>(datasetStream);
+
+                var siteStream = new MemoryStream();
+                zip.Entries.First(x => x.FileName == "site").Extract(siteStream);
+                siteStream.Position = 0;
+
+                dataset.Site = Serializer.Deserialize<Site>(siteStream);
+
+                var sensors = zip.Entries.Where(x => x.FileName.EndsWith("metadata")).ToArray();
+
+                dataset.Sensors = new List<Sensor>();
+
+                foreach (var sensor in sensors)
+                {
+                    var sensorStream = new MemoryStream();
+                    sensor.Extract(sensorStream);
+                    sensorStream.Position = 0;
+                    var sensorobject = Serializer.Deserialize<Sensor>(sensorStream);
+
+                    var initialData =
+                        zip.Entries.FirstOrDefault(
+                            x =>
+                            x.FileName.Contains(sensorobject.Name.GetHashCode().ToString(CultureInfo.InvariantCulture)) &&
+                            x.FileName.EndsWith(
+                                dataset.StartTimeStamp.ToString(
+                                    CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern)));
+
+                    if(initialData != null)
+                    {
+                        var stream = new MemoryStream();
+                        initialData.Extract(stream);
+                        stream.Position = 0;
+                        var compressedValues = Serializer.Deserialize<DataBlock[]>(stream);
+                        sensorobject.CurrentState.AddCompressedValues(compressedValues);
+                    }
+
+                    dataset.Sensors.Add(sensorobject);
+                }
+
+                return dataset;
+            }
+        }
+
         public void SaveToFile()
         {
             if (!Directory.Exists(Common.DatasetSaveLocation))
                 Directory.CreateDirectory(Common.DatasetSaveLocation);
-
-            /* .NET BinaryFormatter
-            using (var stream = new FileStream(SaveLocation, FileMode.Create))
-                new BinaryFormatter().Serialize(stream, this);
-             * */
 
             if (File.Exists(SaveLocation))
                 File.Copy(SaveLocation, SaveLocation + ".backup", true);
 
             new DatasetExporter(this).Export(Common.DatasetExportLocation(this), ExportFormat.CSV, true);
 
+            /* .NET BinaryFormatter
+            using (var stream = new FileStream(SaveLocation, FileMode.Create))
+                new BinaryFormatter().Serialize(stream, this);
+            
+             * Protobuf
             using (var file = File.Create(SaveLocation))
                 Serializer.Serialize(file, this);
+            */
+
+            using (var zip = new ZipFile())
+            {
+                zip.CompressionLevel = CompressionLevel.None;
+                zip.Comment = string.Format("B3 ZIP FORMAT v1");
+
+                var datasetStream = new MemoryStream();
+                Serializer.Serialize(datasetStream,this);
+                datasetStream.Position = 0;
+                zip.AddEntry("dataset", datasetStream);
+
+                var siteStream = new MemoryStream();
+                Serializer.Serialize(siteStream, Site);
+                siteStream.Position = 0;
+                zip.AddEntry("site", siteStream);
+
+                foreach (var sensor in Sensors)
+                {
+                    var sensorHash = sensor.Name.GetHashCode().ToString(CultureInfo.InvariantCulture);
+
+                    var sensorMetaData = new MemoryStream();
+                    Serializer.Serialize(sensorMetaData, sensor);
+                    sensorMetaData.Position = 0;
+
+                    zip.AddDirectoryByName(sensorHash);
+                    zip.AddEntry(sensorHash + "\\metadata", sensorMetaData);
+
+                    for (var i = StartTimeStamp; i < EndTimeStamp; i = i.AddYears(1))
+                    {
+                        var dataBlockStream = new MemoryStream();
+                        var x = sensor.CurrentState.GetCompressedValues(i, i.AddYears(1));
+                        Serializer.Serialize(dataBlockStream, x);
+                        dataBlockStream.Position = 0;
+                        zip.AddEntry(sensorHash + "\\" + i.ToString(CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern), dataBlockStream);
+                    }
+                }
+
+                zip.Save(SaveLocation);
+            }
         }
     }
 }
