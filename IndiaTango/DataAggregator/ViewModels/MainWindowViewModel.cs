@@ -43,6 +43,7 @@ namespace DataAggregator.ViewModels
         private TimeSpanOption _aggregationTimeSpan = AggregationModel.TimeSpanOptions[0];
         private bool _lockedIn;
         private Cursor _applicationCursor = Cursors.Arrow;
+        private int _progress;
 
         public MainWindowViewModel()
         {
@@ -111,6 +112,22 @@ namespace DataAggregator.ViewModels
             get { return "Data Aggregator"; }
         }
 
+        public int Progress
+        {
+            get { return _progress; }
+            set
+            {
+                _progress = value;
+                NotifyOfPropertyChange(() => Progress);
+                NotifyOfPropertyChange(() => ProgressText);
+            }
+        }
+
+        public string ProgressText
+        {
+            get { return string.Format("{0}%", Progress); }
+        }
+
         public void Load()
         {
             var openFileDialog = new OpenFileDialog { Filter = @"CSV Files|*.csv" };
@@ -141,13 +158,20 @@ namespace DataAggregator.ViewModels
             {
                 var bw = new BackgroundWorker();
                 bw.DoWork += (o, e) =>
-                MessageBox.Show(Exporter.Export(_timestamps.ToArray(), Series.ToArray(), AggregationTimeSpan, saveFileDialog.FileName)
+                MessageBox.Show(Exporter.Export(_timestamps.ToArray(), Series.ToArray(), AggregationTimeSpan, saveFileDialog.FileName, bw)
                                     ? "Successfully exported"
                                     : "Export didn't complete successfully");
 
                 bw.RunWorkerCompleted += (o, e) => Unlock();
 
+                bw.WorkerReportsProgress = true;
+                bw.ProgressChanged += (o, e) =>
+                                          {
+                                              Progress = e.ProgressPercentage;
+                                          };
+
                 LockIn();
+                Progress = 0;
                 bw.RunWorkerAsync();
             }
         }

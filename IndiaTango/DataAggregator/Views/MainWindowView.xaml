@@ -7,6 +7,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="4*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid Grid.Row="0" Margin="0,0,0,5">
             <Grid.RowDefinitions>
@@ -40,5 +41,13 @@
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
+        <Grid Grid.Row="2" Margin="0,5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="3*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="{Binding ProgressText}" HorizontalAlignment="Right" Margin="0,0,5,0" />
+            <ProgressBar Grid.Column="1" Value="{Binding Progress}" />
+        </Grid>
     </Grid>
 </Window>
