@@ -12,14 +12,12 @@ namespace IndiaTango.Tests
     {
         private Dataset _ds;
         private DateTime _baseTime;
-        private MemoryStream _ms;
         private string _tempFile;
 
         [SetUp]
         public void SetUp()
         {
             _tempFile = Path.GetTempFileName();
-            _ms = new MemoryStream();
             _baseTime = DateTime.Now;
             _ds = new Dataset(new Site(1, "Super Site", "Jimmy Jones", new Contact("Jimmy", "Jones", "jim@jones.com", "Jones Industries", "5551234"), null, new GPSCoords(1, 1)));
 
@@ -51,21 +49,6 @@ namespace IndiaTango.Tests
         }
 
         [Test]
-        public void SerializeToMemoryStream()
-        {
-            Serializer.Serialize(_ms, _ds);
-        }
-
-        [Test]
-        public void DeSerializeFromMemoryStream()
-        {
-            SerializeToMemoryStream();
-            _ms.Position = 0;
-            var clone = Serializer.Deserialize<Dataset>(_ms);
-            TestClone(clone);
-        }
-
-        [Test]
         public void SerializeToFileUsingDataSetMethod()
         {
             _ds.SaveToFile();
@@ -76,23 +59,6 @@ namespace IndiaTango.Tests
         {
             SerializeToFileUsingDataSetMethod();
             var clone = Dataset.LoadDataSet(_ds.SaveLocation);
-            TestClone(clone);
-        }
-
-        [Test]
-        public void SerializeToFile()
-        {
-            using (var fileStream = File.Create(_tempFile))
-                Serializer.Serialize(fileStream, _ds);
-        }
-
-        [Test]
-        public void DeSerializeFromFile()
-        {
-            Dataset clone;
-            SerializeToFile();
-            using (var fileStream = File.OpenRead(_tempFile))
-                clone = Serializer.Deserialize<Dataset>(fileStream);
             TestClone(clone);
         }
 
