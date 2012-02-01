@@ -34,7 +34,7 @@ namespace IndiaTango.Models
 
             var detectedValues = new List<ErroneousValue>();
             
-            for (var time = sensorToCheck.Owner.StartTimeStamp; time <= sensorToCheck.Owner.EndTimeStamp; time = time.AddMinutes(sensorToCheck.Owner.DataInterval))
+            for (var time = sensorToCheck.Owner.StartTimeStamp.AddYears(sensorToCheck.Owner.LowestYearLoaded); time <= sensorToCheck.Owner.StartTimeStamp.AddYears(sensorToCheck.Owner.HighestYearLoaded + 1); time = time.AddMinutes(sensorToCheck.Owner.DataInterval))
             {
                 if (!sensorToCheck.CurrentState.Values.ContainsKey(time))
                 {

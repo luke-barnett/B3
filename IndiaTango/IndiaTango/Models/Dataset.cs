@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace IndiaTango.Models
 {
     [Serializable]
     [ProtoContract]
-    public class Dataset
+    public class Dataset : INotifyPropertyChanged
     {
         private Site _site;
         private DateTime _startTimeStamp;
@@ -25,6 +26,8 @@ namespace IndiaTango.Models
         [ProtoMember(7)]
         private int _actualDataPointCount;
         private int _dataInterval;
+        private int _lowestYearLoaded;
+        private int _highestYearLoaded;
 
         public Dataset() { } //For Protobuf-net
 
@@ -99,6 +102,7 @@ namespace IndiaTango.Models
                     throw new ArgumentException("Sensors cannot be null");
 
                 _sensors = value;
+
                 CalculateDataSetValues();
             }
         }
@@ -229,7 +233,8 @@ namespace IndiaTango.Models
                 }
             }
 
-            _expectedDataPointCount = (int)Math.Floor(EndTimeStamp.Subtract(StartTimeStamp).TotalMinutes / DataInterval) + 1;
+            if (_sensors.Count > 0)
+                _expectedDataPointCount = (int)Math.Floor(EndTimeStamp.Subtract(StartTimeStamp).TotalMinutes / DataInterval) + 1;
         }
 
         public string IdentifiableName
@@ -242,6 +247,26 @@ namespace IndiaTango.Models
             get
             {
                 return Path.Combine(Common.DatasetSaveLocation, string.Format("{0} - {1}.b3", _site.Id, _site.Name));
+            }
+        }
+
+        public int LowestYearLoaded
+        {
+            get { return _lowestYearLoaded; }
+            set
+            {
+                _lowestYearLoaded = value;
+                OnPropertyChanged("LowestYearLoaded");
+            }
+        }
+
+        public int HighestYearLoaded
+        {
+            get { return _highestYearLoaded; }
+            set
+            {
+                _highestYearLoaded = value;
+                OnPropertyChanged("HighestYearLoaded");
             }
         }
 
@@ -291,7 +316,7 @@ namespace IndiaTango.Models
                 return Serializer.Deserialize<Dataset>(file);
              * */
 
-            using(var zip = ZipFile.Read(filename))
+            using (var zip = ZipFile.Read(filename))
             {
                 var datasetStream = new MemoryStream();
                 zip.Entries.First(x => x.FileName == "dataset").Extract(datasetStream);
@@ -324,13 +349,14 @@ namespace IndiaTango.Models
                                 dataset.StartTimeStamp.ToString(
                                     CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern)));
 
-                    if(initialData != null)
+                    if (initialData != null)
                     {
                         var stream = new MemoryStream();
                         initialData.Extract(stream);
                         stream.Position = 0;
-                        var compressedValues = Serializer.Deserialize<DataBlock[]>(stream);
-                        sensorobject.CurrentState.AddCompressedValues(compressedValues);
+                        var compressedValues = Serializer.Deserialize<YearlyDataBlock>(stream);
+                        sensorobject.CurrentState.AddCompressedValues(compressedValues.CurrentValues);
+                        sensorobject.RawData.AddCompressedValues(compressedValues.RawValues);
                     }
 
                     dataset.Sensors.Add(sensorobject);
@@ -348,7 +374,7 @@ namespace IndiaTango.Models
             if (File.Exists(SaveLocation))
                 File.Copy(SaveLocation, SaveLocation + ".backup", true);
 
-            new DatasetExporter(this).Export(Common.DatasetExportLocation(this), ExportFormat.CSV, true);
+            DatasetExporter.Export(this, Common.DatasetExportLocation(this), ExportFormat.CSV, true);
 
             /* .NET BinaryFormatter
             using (var stream = new FileStream(SaveLocation, FileMode.Create))
@@ -365,7 +391,7 @@ namespace IndiaTango.Models
                 zip.Comment = string.Format("B3 ZIP FORMAT v1");
 
                 var datasetStream = new MemoryStream();
-                Serializer.Serialize(datasetStream,this);
+                Serializer.Serialize(datasetStream, this);
                 datasetStream.Position = 0;
                 zip.AddEntry("dataset", datasetStream);
 
@@ -385,10 +411,11 @@ namespace IndiaTango.Models
                     zip.AddDirectoryByName(sensorHash);
                     zip.AddEntry(sensorHash + "\\metadata", sensorMetaData);
 
-                    for (var i = StartTimeStamp; i < EndTimeStamp; i = i.AddYears(1))
+                    for (var i = StartTimeStamp; i <= EndTimeStamp; i = i.AddYears(1))
                     {
                         var dataBlockStream = new MemoryStream();
-                        var x = sensor.CurrentState.GetCompressedValues(i, i.AddYears(1));
+                        var x = new YearlyDataBlock(sensor.CurrentState.GetCompressedValues(i, i.AddYears(1)),
+                                                    sensor.RawData.GetCompressedValues(i, i.AddYears(1)));
                         Serializer.Serialize(dataBlockStream, x);
                         dataBlockStream.Position = 0;
                         zip.AddEntry(sensorHash + "\\" + i.ToString(CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern), dataBlockStream);
@@ -397,6 +424,57 @@ namespace IndiaTango.Models
 
                 zip.Save(SaveLocation);
             }
+        }
+
+        public void LoadInSensorData(int year, bool retainExistingValues = false)
+        {
+            using (var zip = ZipFile.Read(SaveLocation))
+            {
+                foreach (var sensor in Sensors)
+                {
+                    if (!retainExistingValues)
+                        sensor.CurrentState.Values = new Dictionary<DateTime, float>();
+
+                    var data =
+                        zip.Entries.FirstOrDefault(
+                            x =>
+                            x.FileName.Contains(sensor.Name.GetHashCode().ToString(CultureInfo.InvariantCulture)) &&
+                            x.FileName.EndsWith(
+                                StartTimeStamp.AddYears(year).ToString(
+                                    CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern)));
+
+                    if (data != null)
+                    {
+                        var stream = new MemoryStream();
+                        data.Extract(stream);
+                        stream.Position = 0;
+                        var compressedValues = Serializer.Deserialize<YearlyDataBlock>(stream);
+                        sensor.CurrentState.AddCompressedValues(compressedValues.CurrentValues);
+                        sensor.RawData.AddCompressedValues(compressedValues.RawValues);
+                    }
+                }
+            }
+
+            if (!retainExistingValues)
+            {
+                if (LowestYearLoaded > year)
+                    LowestYearLoaded = year;
+                if (HighestYearLoaded < year)
+                    HighestYearLoaded = year;
+            }
+            else
+            {
+                LowestYearLoaded = year;
+                HighestYearLoaded = year;
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void OnPropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

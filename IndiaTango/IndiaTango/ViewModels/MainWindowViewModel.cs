@@ -2280,9 +2280,14 @@ namespace IndiaTango.ViewModels
                                              var sensors = (List<Sensor>)e.Result;
 
                                              if (CurrentDataset.Sensors == null || CurrentDataset.Sensors.Count == 0)
+                                             {
                                                  CurrentDataset.Sensors = sensors;
+                                                 //TODO NEED TO UNLOAD DATA MORE THAN A YEAR?
+                                                 CurrentDataset.HighestYearLoaded = CurrentDataset.EndTimeStamp.Year - CurrentDataset.StartTimeStamp.Year;
+                                             }
                                              else
                                              {
+                                                 //TODO FIX IMPORTING NEW VALUES WITH NEW SAVE MODEL
                                                  var askUser =
                                                      _container.GetInstance(typeof(SpecifyValueViewModel),
                                                                             "SpecifyValueViewModel") as

@@ -146,6 +146,7 @@
     <Compile Include="Models\ToHighRateOfChangeDetector.cs" />
     <Compile Include="Models\Tools.cs" />
     <Compile Include="Models\UnitsHelper.cs" />
+    <Compile Include="Models\YearlyDataBlock.cs" />
     <Compile Include="MultiSeriesBinding\MultiSeries.cs" />
     <Compile Include="SimpleContainer.cs" />
     <Compile Include="ViewModels\BaseViewModel.cs" />

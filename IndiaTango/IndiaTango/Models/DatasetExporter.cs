@@ -6,18 +6,8 @@ using System.Linq;
 
 namespace IndiaTango.Models
 {
-    public class DatasetExporter
+    public static class DatasetExporter
     {
-        public readonly Dataset Data;
-
-        public DatasetExporter(Dataset data)
-        {
-            if (data == null)
-                throw new ArgumentNullException("Dataset cannot be null");
-
-            Data = data;
-        }
-
         /// <summary>
         /// Exports a data set to a CSV file.
         /// The file is saved in the same format as the original CSV files.
@@ -25,9 +15,9 @@ namespace IndiaTango.Models
         /// <param name="filePath">The desired path and file name of the file to be saved. No not include an extension.</param>
         /// <param name="format">The format to save the file in.</param>
         /// <param name="includeEmptyLines">Wether to export the file with empty lines or not.</param>
-        public void Export(string filePath, ExportFormat format, bool includeEmptyLines)
+        public static void Export(Dataset data, string filePath, ExportFormat format, bool includeEmptyLines)
         {
-            Export(filePath, format, includeEmptyLines, false, false, ExportedPoints.AllPoints, DateColumnFormat.TwoDateColumn);
+            Export(data, filePath, format, includeEmptyLines, false, false, ExportedPoints.AllPoints, DateColumnFormat.TwoDateColumn);
         }
 
         /// <summary>
@@ -39,9 +29,9 @@ namespace IndiaTango.Models
         /// <param name="includeEmptyLines">Wether to export the file with empty lines or not.</param>
         /// <param name="addMetaDataFile">Wether to export the file with embedded site meta data.</param>
         /// <param name="includeChangeLog">Wether to include a seperate log file that details the changes made to the data.</param>
-        public void Export(string filePath, ExportFormat format, bool includeEmptyLines, bool addMetaDataFile, bool includeChangeLog)
+        public static void Export(Dataset data, string filePath, ExportFormat format, bool includeEmptyLines, bool addMetaDataFile, bool includeChangeLog)
         {
-            Export(filePath, format, includeEmptyLines, addMetaDataFile, includeChangeLog, ExportedPoints.AllPoints, DateColumnFormat.TwoDateColumn, false);
+            Export(data, filePath, format, includeEmptyLines, addMetaDataFile, includeChangeLog, ExportedPoints.AllPoints, DateColumnFormat.TwoDateColumn, false);
         }
 
         /// <summary>
@@ -55,15 +45,16 @@ namespace IndiaTango.Models
         /// <param name="includeChangeLog">Wether to include a seperate log file that details the changes made to the data.</param>
         /// <param name="exportedPoints">What points to export.</param>
         /// <param name="dateColumnFormat">Wether to split the two date/time columns into five seperate columns</param>
-        public void Export(string filePath, ExportFormat format, bool includeEmptyLines, bool addMetaDataFile, bool includeChangeLog, ExportedPoints exportedPoints, DateColumnFormat dateColumnFormat)
+        public static void Export(Dataset data, string filePath, ExportFormat format, bool includeEmptyLines, bool addMetaDataFile, bool includeChangeLog, ExportedPoints exportedPoints, DateColumnFormat dateColumnFormat)
         {
-            Export(filePath, format, includeEmptyLines, addMetaDataFile, includeChangeLog, exportedPoints, dateColumnFormat, false);
+            Export(data, filePath, format, includeEmptyLines, addMetaDataFile, includeChangeLog, exportedPoints, dateColumnFormat, false);
         }
 
         /// <summary>
         /// Exports a data set to a CSV file.
         /// The file is saved in the same format as the original CSV files.
         /// </summary>
+        /// <param name="data">The dataset to export</param>
         /// <param name="filePath">The desired path and file name of the file to be saved. No not include an extension.</param>
         /// <param name="format">The format to save the file in.</param>
         /// <param name="includeEmptyLines">Wether to export the file with empty lines or not.</param>
@@ -72,9 +63,32 @@ namespace IndiaTango.Models
         /// <param name="exportedPoints">What points to export.</param>
         /// <param name="dateColumnFormat">Wether to split the two date/time columns into five seperate columns</param>
         /// <param name="exportRaw">Whether to export the raw data or the current state.</param>
-        public void Export(string filePath, ExportFormat format, bool includeEmptyLines, bool addMetaDataFile, bool includeChangeLog, ExportedPoints exportedPoints, DateColumnFormat dateColumnFormat, bool exportRaw)
+        public static void Export(Dataset data, string filePath, ExportFormat format, bool includeEmptyLines, bool addMetaDataFile, bool includeChangeLog, ExportedPoints exportedPoints, DateColumnFormat dateColumnFormat, bool exportRaw)
         {
-            EventLogger.LogInfo(Data, GetType().ToString(), "Data export started.");
+            if (data == null)
+                throw new ArgumentNullException("Dataset cannot be null");
+
+            //LOAD IN ALL THE VALUES
+            var firstYearLoaded = data.LowestYearLoaded;
+            var lastYearLoaded = data.HighestYearLoaded;
+
+            if (firstYearLoaded != 0)
+            {
+                for (var i = 0; i < firstYearLoaded; i++)
+                {
+                    data.LoadInSensorData(i, true);
+                }
+            }
+
+            if (data.EndTimeStamp > data.StartTimeStamp.AddYears(lastYearLoaded + 1))
+            {
+                for (var i = lastYearLoaded + 1; data.EndTimeStamp > data.StartTimeStamp.AddYears(i + 1); i++)
+                {
+                    data.LoadInSensorData(i, true);
+                }
+            }
+
+            EventLogger.LogInfo(data, "EXPORTER", "Data export started.");
 
             if (String.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentNullException("filePath cannot be null");
@@ -94,18 +108,18 @@ namespace IndiaTango.Models
 
             if (format.Equals(ExportFormat.CSV))
             {
-                ExportCSV(filePath, includeEmptyLines, dateColumnFormat, false, numOfPointsToSummarise);
+                ExportCSV(data, filePath, includeEmptyLines, dateColumnFormat, false, numOfPointsToSummarise);
 
                 if (exportRaw)
-                    ExportCSV(filePath + " Raw.csv", includeEmptyLines, dateColumnFormat, true, numOfPointsToSummarise);
+                    ExportCSV(data, filePath + " Raw.csv", includeEmptyLines, dateColumnFormat, true, numOfPointsToSummarise);
 
-                if (addMetaDataFile && Data.Site != null)
-                    ExportMetaData(filePath, metaDataFilePath);
+                if (addMetaDataFile && data.Site != null)
+                    ExportMetaData(data, filePath, metaDataFilePath);
 
                 if (includeChangeLog)
-                    ExportChangesFile(filePath, changeMatrixFilePath, changesFilePath, dateColumnFormat);
+                    ExportChangesFile(data, filePath, changeMatrixFilePath, changesFilePath, dateColumnFormat);
 
-                EventLogger.LogInfo(Data, GetType().ToString(), "Data export complete. File saved to: " + filePath);
+                EventLogger.LogInfo(data, "EXPORTER", "Data export complete. File saved to: " + filePath);
             }
             else if (format.Equals(ExportFormat.XLSX))
             {
@@ -115,9 +129,33 @@ namespace IndiaTango.Models
             {
                 throw new NotImplementedException("File format not supported.");
             }
+
+            //Unload all values not in our time range
+            foreach (var sensor in data.Sensors)
+            {
+                var currentValuesToRemove =
+                    sensor.CurrentState.Values.Where(
+                        x =>
+                        x.Key < data.StartTimeStamp.AddYears(firstYearLoaded) ||
+                        x.Key >= data.StartTimeStamp.AddYears(lastYearLoaded)).ToArray();
+                foreach (var keyValuePair in currentValuesToRemove)
+                {
+                    sensor.CurrentState.Values.Remove(keyValuePair.Key);
+                }
+
+                var rawValuesToRemove =
+                    sensor.RawData.Values.Where(
+                        x =>
+                        x.Key < data.StartTimeStamp.AddYears(firstYearLoaded) ||
+                        x.Key >= data.StartTimeStamp.AddYears(lastYearLoaded)).ToArray();
+                foreach (var keyValuePair in rawValuesToRemove)
+                {
+                    sensor.RawData.Values.Remove(keyValuePair.Key);
+                }
+            }
         }
 
-        private void ExportCSV(string filePath, bool includeEmptyLines, DateColumnFormat dateColumnFormat, bool exportRaw, int numOfPointsToSummarise)
+        private static void ExportCSV(Dataset data, string filePath, bool includeEmptyLines, DateColumnFormat dateColumnFormat, bool exportRaw, int numOfPointsToSummarise)
         {
             using (StreamWriter writer = File.CreateText(filePath))
             {
@@ -126,18 +164,18 @@ namespace IndiaTango.Models
                                             ? "DD" + del + "MM" + del + "YYYY" + del + "hh" + del + "mm"
                                             : "DD/MM/YYYY" + del + "hhmm";
                 var currentSensorIndex = 0;
-                var outputData = new string[Data.Sensors.Count, (Data.ExpectedDataPointCount / numOfPointsToSummarise) + 1];
-                var rowDate = Data.StartTimeStamp;
+                var outputData = new string[data.Sensors.Count, (data.ExpectedDataPointCount / numOfPointsToSummarise) + 1];
+                var rowDate = data.StartTimeStamp;
 
 
-                foreach (var sensor in Data.Sensors)
+                foreach (var sensor in data.Sensors)
                 {
                     var stateToUse = (exportRaw) ? sensor.RawData : sensor.CurrentState;
 
                     //Construct the column headings (Sensor names)
                     columnHeadings += del + sensor.Name;
-                    var i = Data.StartTimeStamp;
-                    while (i <= Data.EndTimeStamp)
+                    var i = data.StartTimeStamp;
+                    while (i <= data.EndTimeStamp)
                     {
                         var sum = float.MinValue;
                         for (var j = 0; j < numOfPointsToSummarise; j++, i = i.AddMinutes(15))
@@ -155,13 +193,13 @@ namespace IndiaTango.Models
                             if (sensor.SummaryType == SummaryType.Average)
                                 outputData[
                                     currentSensorIndex,
-                                    GetArrayRowFromTime(Data.StartTimeStamp, i.AddMinutes((-15) * numOfPointsToSummarise),
+                                    GetArrayRowFromTime(data, data.StartTimeStamp, i.AddMinutes((-15) * numOfPointsToSummarise),
                                                         numOfPointsToSummarise)] =
                                     Math.Round((sum / numOfPointsToSummarise), 2).ToString();
                             else
                                 outputData[
                                     currentSensorIndex,
-                                    GetArrayRowFromTime(Data.StartTimeStamp, i.AddMinutes((-15) * numOfPointsToSummarise),
+                                    GetArrayRowFromTime(data, data.StartTimeStamp, i.AddMinutes((-15) * numOfPointsToSummarise),
                                                         numOfPointsToSummarise)] =
                                     Math.Round((sum), 2).ToString();
                         }
@@ -173,14 +211,14 @@ namespace IndiaTango.Models
                 writer.WriteLine(columnHeadings);
 
                 //write the data here...
-                for (int row = 0; row < Data.ExpectedDataPointCount / numOfPointsToSummarise; row++)
+                for (int row = 0; row < data.ExpectedDataPointCount / numOfPointsToSummarise; row++)
                 {
                     string line = "";
 
-                    for (int col = 0; col < Data.Sensors.Count; col++)
+                    for (int col = 0; col < data.Sensors.Count; col++)
                         line += del + outputData[col, row];
 
-                    if (includeEmptyLines || line.Length != Data.Sensors.Count)
+                    if (includeEmptyLines || line.Length != data.Sensors.Count)
                     {
                         line = dateColumnFormat.Equals(DateColumnFormat.SplitDateColumn)
                                 ? rowDate.ToString("dd") + del + rowDate.ToString("MM") + del + rowDate.ToString("yyyy") + del +
@@ -196,7 +234,7 @@ namespace IndiaTango.Models
             }
         }
 
-        private void ExportChangesFile(string filePath, string changeMatrixFilePath, string changesFilePath, DateColumnFormat dateColumnFormat)
+        private static void ExportChangesFile(Dataset data, string filePath, string changeMatrixFilePath, string changesFilePath, DateColumnFormat dateColumnFormat)
         {
             var changesUsed = new List<int>();
             using (var writer = File.CreateText(changeMatrixFilePath))
@@ -205,16 +243,16 @@ namespace IndiaTango.Models
                 var line = dateColumnFormat.Equals(DateColumnFormat.SplitDateColumn)
                                ? "Day,Month,Year,Hours,Minutes" + ','
                                : "Date,Time" + ',';
-                line = Data.Sensors.Aggregate(line, (current, sensor) => current + (sensor.Name + ","));
+                line = data.Sensors.Aggregate(line, (current, sensor) => current + (sensor.Name + ","));
                 line = line.Remove(line.Count() - 2);
                 writer.WriteLine(line);
-                for (var time = Data.StartTimeStamp; time <= Data.EndTimeStamp; time = time.AddMinutes(Data.DataInterval))
+                for (var time = data.StartTimeStamp; time <= data.EndTimeStamp; time = time.AddMinutes(data.DataInterval))
                 {
                     line = dateColumnFormat.Equals(DateColumnFormat.SplitDateColumn)
                             ? time.ToString("dd") + ',' + time.ToString("MM") + ',' + time.ToString("yyyy") + ',' +
                               time.ToString("HH") + ',' + time.ToString("mm") + ','
                             : time.ToString("dd/MM/yyyy") + ',' + time.ToString("HH:mm") + ',';
-                    foreach (var sensor in Data.Sensors)
+                    foreach (var sensor in data.Sensors)
                     {
                         LinkedList<int> vals;
                         if (sensor.CurrentState.Changes.TryGetValue(time, out vals))
@@ -241,40 +279,40 @@ namespace IndiaTango.Models
             }
         }
 
-        private void ExportMetaData(string filePath, string metaDataFilePath)
+        private static void ExportMetaData(Dataset data, string filePath, string metaDataFilePath)
         {
             using (StreamWriter writer = File.CreateText(metaDataFilePath))
             {
                 writer.WriteLine("Site details for file: " + Path.GetFileName(filePath));
-                writer.WriteLine("ID: " + Data.Site.Id);
-                writer.WriteLine("Name: " + Data.Site.Name);
-                writer.WriteLine("Owner: " + Data.Site.Owner);
+                writer.WriteLine("ID: " + data.Site.Id);
+                writer.WriteLine("Name: " + data.Site.Name);
+                writer.WriteLine("Owner: " + data.Site.Owner);
 
                 //TODO: clean up
-                if (Data.Site.PrimaryContact != null)
+                if (data.Site.PrimaryContact != null)
                 {
                     writer.WriteLine("Primary Contact:");
-                    writer.WriteLine("\tName: " + Data.Site.PrimaryContact.FirstName + " " +
-                                     Data.Site.PrimaryContact.LastName);
-                    writer.WriteLine("\tBusiness: " + Data.Site.PrimaryContact.Business);
-                    writer.WriteLine("\tPhone: " + Data.Site.PrimaryContact.Phone);
-                    writer.WriteLine("\tEmail: " + Data.Site.PrimaryContact.Email);
+                    writer.WriteLine("\tName: " + data.Site.PrimaryContact.FirstName + " " +
+                                     data.Site.PrimaryContact.LastName);
+                    writer.WriteLine("\tBusiness: " + data.Site.PrimaryContact.Business);
+                    writer.WriteLine("\tPhone: " + data.Site.PrimaryContact.Phone);
+                    writer.WriteLine("\tEmail: " + data.Site.PrimaryContact.Email);
                 }
 
-                if (Data.Site.SecondaryContact != null)
+                if (data.Site.SecondaryContact != null)
                 {
                     writer.WriteLine("Secondary Contact:");
-                    writer.WriteLine("\tName: " + Data.Site.SecondaryContact.FirstName + " " +
-                                     Data.Site.SecondaryContact.LastName);
-                    writer.WriteLine("\tBusiness: " + Data.Site.SecondaryContact.Business);
-                    writer.WriteLine("\tPhone: " + Data.Site.SecondaryContact.Phone);
-                    writer.WriteLine("\tEmail: " + Data.Site.SecondaryContact.Email);
+                    writer.WriteLine("\tName: " + data.Site.SecondaryContact.FirstName + " " +
+                                     data.Site.SecondaryContact.LastName);
+                    writer.WriteLine("\tBusiness: " + data.Site.SecondaryContact.Business);
+                    writer.WriteLine("\tPhone: " + data.Site.SecondaryContact.Phone);
+                    writer.WriteLine("\tEmail: " + data.Site.SecondaryContact.Email);
                 }
 
-                if (Data.Sensors != null && Data.Sensors.Count > 0)
+                if (data.Sensors != null && data.Sensors.Count > 0)
                 {
                     writer.WriteLine("Series:");
-                    foreach (var sensor in Data.Sensors)
+                    foreach (var sensor in data.Sensors)
                     {
                         writer.WriteLine("\t" + sensor.Name);
                         writer.WriteLine("\t\tDescription: " + sensor.Description);
@@ -295,7 +333,7 @@ namespace IndiaTango.Models
                         {
                             writer.WriteLine("\t\t\t" + calibration);
                         }
-                        
+
                     }
                 }
 
@@ -304,12 +342,12 @@ namespace IndiaTango.Models
             }
         }
 
-        private int GetArrayRowFromTime(DateTime startDate, DateTime currentDate, int numOfPointsToAverage)
+        private static int GetArrayRowFromTime(Dataset data, DateTime startDate, DateTime currentDate, int numOfPointsToAverage)
         {
             if (currentDate < startDate)
                 throw new ArgumentException("currentDate must be larger than or equal to startDate\nYou supplied startDate=" + startDate.ToString() + " currentDate=" + currentDate.ToString());
 
-            return (int)Math.Floor(currentDate.Subtract(startDate).TotalMinutes / Data.DataInterval / numOfPointsToAverage);
+            return (int)Math.Floor(currentDate.Subtract(startDate).TotalMinutes / data.DataInterval / numOfPointsToAverage);
         }
     }
 
