@@ -356,7 +356,7 @@ namespace IndiaTango.Models
                     sensor.Extract(sensorStream);
                     sensorStream.Position = 0;
                     var sensorobject = Serializer.Deserialize<Sensor>(sensorStream);
-
+                    sensorobject.Owner = dataset;
                     var initialData =
                         zip.Entries.FirstOrDefault(
                             x =>
@@ -471,7 +471,7 @@ namespace IndiaTango.Models
                 }
             }
 
-            if (!retainExistingValues)
+            if (retainExistingValues)
             {
                 if (LowestYearLoaded > year)
                     LowestYearLoaded = year;

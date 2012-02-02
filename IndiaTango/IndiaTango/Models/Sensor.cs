@@ -414,8 +414,7 @@ namespace IndiaTango.Models
             }
         }
 
-        [ProtoMember(15, AsReference = true)]
-        public Dataset Owner { get; private set; }
+        public Dataset Owner { get; set; }
 
         public SensorState RawData
         {

@@ -814,6 +814,13 @@ namespace IndiaTango.ViewModels
                         CurrentDataset.UnloadSensorData(i);
                     }
                 }
+                foreach (var graphableSensor in GraphableSensors)
+                {
+                    graphableSensor.RefreshDataPoints();
+                }
+                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "Data Loader");
+                CalculateGraphedEndPoints();
+                CheckTheseMethods(_detectionMethods.Where(x => x.IsEnabled));
             }
         }
 
@@ -829,10 +836,10 @@ namespace IndiaTango.ViewModels
                 if (CurrentDataset == null) return;
                 var year = int.Parse(value) - CurrentDataset.StartYear.Year;
 
-                if(year == CurrentDataset.HighestYearLoaded)
+                if (year == CurrentDataset.HighestYearLoaded)
                     return;
 
-                if(year < CurrentDataset.LowestYearLoaded)
+                if (year < CurrentDataset.LowestYearLoaded)
                 {
                     Common.ShowMessageBox("Chosen year is lower than the start year",
                                           "You need to choose a year that is greater than the start year", false, false);
@@ -855,6 +862,13 @@ namespace IndiaTango.ViewModels
                         CurrentDataset.UnloadSensorData(i);
                     }
                 }
+                foreach (var graphableSensor in GraphableSensors)
+                {
+                    graphableSensor.RefreshDataPoints();
+                }
+                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "Data Loader");
+                CalculateGraphedEndPoints();
+                CheckTheseMethods(_detectionMethods.Where(x => x.IsEnabled));
             }
         }
 
