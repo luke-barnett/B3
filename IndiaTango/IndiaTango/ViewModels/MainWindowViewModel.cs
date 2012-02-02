@@ -749,6 +749,115 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        public string[] LowestYearLoadedOptions
+        {
+            get
+            {
+                if (CurrentDataset == null)
+                    return new string[0];
+                var values = new string[NumberOfDataChunks()];
+                for (var i = 0; i < values.Length; i++)
+                {
+                    values[i] = CurrentDataset.StartYear.AddYears(i).ToString("yyyy");
+                }
+                return values;
+            }
+        }
+
+        public string[] HighestYearLoadedOptions
+        {
+            get
+            {
+                if (CurrentDataset == null)
+                    return new string[0];
+                var values = new string[NumberOfDataChunks()];
+                for (var i = 0; i < values.Length; i++)
+                {
+                    values[i] = CurrentDataset.StartYear.AddYears(i).ToString("yyyy");
+                }
+                return values;
+            }
+        }
+
+        public string LowestYearLoaded
+        {
+            get { return CurrentDataset != null ? CurrentDataset.StartYear.AddYears(CurrentDataset.LowestYearLoaded).ToString("yyyy") : ""; }
+
+            set
+            {
+                if (CurrentDataset == null) return;
+                var year = int.Parse(value) - CurrentDataset.StartYear.Year;
+
+                if (year == CurrentDataset.LowestYearLoaded)
+                    return;
+
+                if (year > CurrentDataset.HighestYearLoaded)
+                {
+                    Common.ShowMessageBox("Chosen year is higher than the end year",
+                                          "You need to choose a year that is lower than the end year", false, false);
+                    NotifyOfPropertyChange(() => LowestYearLoaded);
+                    return;
+                }
+
+                if (year < CurrentDataset.LowestYearLoaded)
+                {
+                    var currentLowestYear = CurrentDataset.LowestYearLoaded;
+                    for (var i = year - CurrentDataset.StartYear.Year; i < currentLowestYear; i++)
+                    {
+                        CurrentDataset.LoadInSensorData(i, true);
+                    }
+                }
+                else
+                {
+                    for (var i = CurrentDataset.LowestYearLoaded; i < year; i++)
+                    {
+                        CurrentDataset.UnloadSensorData(i);
+                    }
+                }
+            }
+        }
+
+        public string HighestYearLoaded
+        {
+            get
+            {
+                return CurrentDataset != null ? CurrentDataset.StartYear.AddYears(CurrentDataset.HighestYearLoaded).ToString("yyyy") : "";
+            }
+
+            set
+            {
+                if (CurrentDataset == null) return;
+                var year = int.Parse(value) - CurrentDataset.StartYear.Year;
+
+                if(year == CurrentDataset.HighestYearLoaded)
+                    return;
+
+                if(year < CurrentDataset.LowestYearLoaded)
+                {
+                    Common.ShowMessageBox("Chosen year is lower than the start year",
+                                          "You need to choose a year that is greater than the start year", false, false);
+                    NotifyOfPropertyChange(() => HighestYearLoaded);
+                    return;
+                }
+
+                if (year > CurrentDataset.HighestYearLoaded)
+                {
+                    var currentHighestYear = CurrentDataset.HighestYearLoaded;
+                    for (var i = currentHighestYear + 1; i <= year; i++)
+                    {
+                        CurrentDataset.LoadInSensorData(i, true);
+                    }
+                }
+                else
+                {
+                    for (var i = CurrentDataset.HighestYearLoaded; i > year; i--)
+                    {
+                        CurrentDataset.UnloadSensorData(i);
+                    }
+                }
+            }
+        }
+
         #endregion
 
         #region Private Methods
@@ -2215,6 +2324,16 @@ namespace IndiaTango.ViewModels
             CanRedo = SensorsForEditing.FirstOrDefault(x => x.RedoStates.Count > 0) != null;
         }
 
+        private int NumberOfDataChunks()
+        {
+            var i = 0;
+
+            while (CurrentDataset.StartTimeStamp.AddYears(i) < CurrentDataset.EndTimeStamp)
+                i++;
+
+            return i;
+        }
+
         #endregion
 
         #region Public Methods
@@ -2283,7 +2402,7 @@ namespace IndiaTango.ViewModels
                                              {
                                                  CurrentDataset.Sensors = sensors;
                                                  //TODO NEED TO UNLOAD DATA MORE THAN A YEAR?
-                                                 CurrentDataset.HighestYearLoaded = CurrentDataset.EndTimeStamp.Year - CurrentDataset.StartTimeStamp.Year;
+                                                 CurrentDataset.HighestYearLoaded = NumberOfDataChunks();
                                              }
                                              else
                                              {
@@ -2576,6 +2695,10 @@ namespace IndiaTango.ViewModels
                 ShowProgressArea = false;
                 Title = string.Format("B3: {0}", CurrentDataset.Site.Name);
                 EnableFeatures();
+                NotifyOfPropertyChange(() => LowestYearLoaded);
+                NotifyOfPropertyChange(() => HighestYearLoaded);
+                NotifyOfPropertyChange(() => LowestYearLoadedOptions);
+                NotifyOfPropertyChange(() => HighestYearLoadedOptions);
             };
 
             DisableFeatures();

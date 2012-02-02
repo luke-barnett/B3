@@ -206,6 +206,8 @@ namespace IndiaTango.Models
 
         public void AddCompressedValues(DataBlock[] values)
         {
+            if(values == null)
+                return;
             foreach (var block in values)
             {
                 for (var i = 0; i < block.Values.Length; i++)

@@ -7,7 +7,7 @@
         xmlns:multiseries="clr-namespace:IndiaTango.MultiSeriesBinding"
         xmlns:models="clr-namespace:IndiaTango.Models"
         xmlns:toolkit="clr-namespace:Microsoft.Windows.Controls;assembly=WPFToolkit.Extended"
-        Title="{Binding Title}" Icon="{Binding Icon}" Height="800" Width="1000" WindowStartupLocation="CenterScreen" Cursor="{Binding ApplicationCursor}">
+        Title="{Binding Title}" Icon="{Binding Icon}" Height="800" Width="1200" WindowStartupLocation="CenterScreen" Cursor="{Binding ApplicationCursor}">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closing">
             <cal:ActionMessage MethodName="ClosingRequested">
@@ -373,6 +373,10 @@
                                 <TextBlock Text="Graph" VerticalAlignment="Center" />
                                 <ComboBox IsEnabled="{Binding FeaturesEnabled}" ItemsSource="{Binding SamplingOptions}" Margin="3,0,0,0" Width="100" SelectedIndex="{Binding SamplingOptionIndex, Mode=TwoWay}" />
                                 <TextBlock Text="Points" Margin="3,0,0,0" VerticalAlignment="Center" />
+                                <TextBlock Text="Year" Margin="10,0" VerticalAlignment="Center" />
+                                <ComboBox SelectedItem="{Binding LowestYearLoaded}" ItemsSource="{Binding LowestYearLoadedOptions}" Width="70" />
+                                <TextBlock Text="-" Margin="5,0" VerticalAlignment="Center" />
+                                <ComboBox SelectedItem="{Binding HighestYearLoaded}" ItemsSource="{Binding HighestYearLoadedOptions}" Width="70" />
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                 <TextBlock Text="Current Site:" Margin="10,0" VerticalAlignment="Center" />

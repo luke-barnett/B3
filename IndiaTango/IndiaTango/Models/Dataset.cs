@@ -80,6 +80,14 @@ namespace IndiaTango.Models
             private set { _startTimeStamp = value; }
         }
 
+        public DateTime StartYear
+        {
+            get
+            {
+                return new DateTime(StartTimeStamp.Year, 1, 1);
+            }
+        }
+
         /// <summary>
         /// Returns the end time stamp for this dataset
         /// </summary>
@@ -88,6 +96,14 @@ namespace IndiaTango.Models
         {
             get { return _endTimeStamp; }
             private set { _endTimeStamp = value; }
+        }
+
+        public DateTime EndYear
+        {
+            get
+            {
+                return new DateTime(EndTimeStamp.Year, 1, 1);
+            }
         }
 
         /// <summary>
@@ -346,7 +362,7 @@ namespace IndiaTango.Models
                             x =>
                             x.FileName.Contains(sensorobject.Name.GetHashCode().ToString(CultureInfo.InvariantCulture)) &&
                             x.FileName.EndsWith(
-                                dataset.StartTimeStamp.ToString(
+                                dataset.StartYear.ToString(
                                     CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern)));
 
                     if (initialData != null)
@@ -411,7 +427,7 @@ namespace IndiaTango.Models
                     zip.AddDirectoryByName(sensorHash);
                     zip.AddEntry(sensorHash + "\\metadata", sensorMetaData);
 
-                    for (var i = StartTimeStamp; i <= EndTimeStamp; i = i.AddYears(1))
+                    for (var i = StartYear; i <= EndYear; i = i.AddYears(1))
                     {
                         var dataBlockStream = new MemoryStream();
                         var x = new YearlyDataBlock(sensor.CurrentState.GetCompressedValues(i, i.AddYears(1)),
@@ -440,7 +456,7 @@ namespace IndiaTango.Models
                             x =>
                             x.FileName.Contains(sensor.Name.GetHashCode().ToString(CultureInfo.InvariantCulture)) &&
                             x.FileName.EndsWith(
-                                StartTimeStamp.AddYears(year).ToString(
+                                StartYear.AddYears(year).ToString(
                                     CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern)));
 
                     if (data != null)
@@ -466,6 +482,54 @@ namespace IndiaTango.Models
             {
                 LowestYearLoaded = year;
                 HighestYearLoaded = year;
+            }
+        }
+
+        public void UnloadSensorData(int year, bool saveValues = true)
+        {
+            if (saveValues)
+                SaveSensorData(year);
+            foreach (var sensor in Sensors)
+            {
+                var currentValuesToRemove =
+                        sensor.CurrentState.Values.Where(
+                            x =>
+                            x.Key >= StartYear.AddYears(year) ||
+                            x.Key < StartYear.AddYears(year)).ToArray();
+                foreach (var keyValuePair in currentValuesToRemove)
+                {
+                    sensor.CurrentState.Values.Remove(keyValuePair.Key);
+                }
+
+                var rawValuesToRemove =
+                    sensor.RawData.Values.Where(
+                        x =>
+                        x.Key >= StartYear.AddYears(year) ||
+                        x.Key < StartYear.AddYears(year)).ToArray();
+                foreach (var keyValuePair in rawValuesToRemove)
+                {
+                    sensor.RawData.Values.Remove(keyValuePair.Key);
+                }
+            }
+        }
+
+        public void SaveSensorData(int year)
+        {
+            using (var zip = ZipFile.Read(SaveLocation))
+            {
+                foreach (var sensor in Sensors)
+                {
+                    var sensorHash = sensor.Name.GetHashCode().ToString(CultureInfo.InvariantCulture);
+
+                    var dataBlockStream = new MemoryStream();
+                    var x = new YearlyDataBlock(sensor.CurrentState.GetCompressedValues(StartYear.AddYears(year), StartYear.AddYears(year + 1)),
+                                                sensor.RawData.GetCompressedValues(StartYear.AddYears(year), StartYear.AddYears(year + 1)));
+                    Serializer.Serialize(dataBlockStream, x);
+                    dataBlockStream.Position = 0;
+                    zip.AddEntry(sensorHash + "\\" + StartYear.AddYears(year).ToString(CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern), dataBlockStream);
+                }
+
+                zip.Save(SaveLocation);
             }
         }
 

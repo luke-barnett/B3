@@ -80,9 +80,9 @@ namespace IndiaTango.Models
                 }
             }
 
-            if (data.EndTimeStamp > data.StartTimeStamp.AddYears(lastYearLoaded + 1))
+            if (data.EndYear > data.StartYear.AddYears(lastYearLoaded + 1))
             {
-                for (var i = lastYearLoaded + 1; data.EndTimeStamp > data.StartTimeStamp.AddYears(i + 1); i++)
+                for (var i = lastYearLoaded + 1; data.EndYear >= data.StartYear.AddYears(i + 1); i++)
                 {
                     data.LoadInSensorData(i, true);
                 }
@@ -136,8 +136,8 @@ namespace IndiaTango.Models
                 var currentValuesToRemove =
                     sensor.CurrentState.Values.Where(
                         x =>
-                        x.Key < data.StartTimeStamp.AddYears(firstYearLoaded) ||
-                        x.Key >= data.StartTimeStamp.AddYears(lastYearLoaded)).ToArray();
+                        x.Key < data.StartYear.AddYears(firstYearLoaded) ||
+                        x.Key >= data.StartYear.AddYears(lastYearLoaded)).ToArray();
                 foreach (var keyValuePair in currentValuesToRemove)
                 {
                     sensor.CurrentState.Values.Remove(keyValuePair.Key);
@@ -146,8 +146,8 @@ namespace IndiaTango.Models
                 var rawValuesToRemove =
                     sensor.RawData.Values.Where(
                         x =>
-                        x.Key < data.StartTimeStamp.AddYears(firstYearLoaded) ||
-                        x.Key >= data.StartTimeStamp.AddYears(lastYearLoaded)).ToArray();
+                        x.Key < data.StartYear.AddYears(firstYearLoaded) ||
+                        x.Key >= data.StartYear.AddYears(lastYearLoaded)).ToArray();
                 foreach (var keyValuePair in rawValuesToRemove)
                 {
                     sensor.RawData.Values.Remove(keyValuePair.Key);
