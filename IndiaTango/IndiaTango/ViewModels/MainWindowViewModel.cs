@@ -801,11 +801,7 @@ namespace IndiaTango.ViewModels
 
                 if (year < CurrentDataset.LowestYearLoaded)
                 {
-                    var currentLowestYear = CurrentDataset.LowestYearLoaded;
-                    for (var i = year; i < currentLowestYear; i++)
-                    {
-                        CurrentDataset.LoadInSensorData(i, true);
-                    }
+                    CurrentDataset.LoadInSensorData(Enumerable.Range(year, CurrentDataset.LowestYearLoaded - year).ToArray(), true);
                 }
                 else
                 {
@@ -846,11 +842,7 @@ namespace IndiaTango.ViewModels
 
                 if (year > CurrentDataset.HighestYearLoaded)
                 {
-                    var currentHighestYear = CurrentDataset.HighestYearLoaded;
-                    for (var i = currentHighestYear + 1; i <= year; i++)
-                    {
-                        CurrentDataset.LoadInSensorData(i, true);
-                    }
+                    CurrentDataset.LoadInSensorData(Enumerable.Range(CurrentDataset.HighestYearLoaded + 1, year - CurrentDataset.HighestYearLoaded).ToArray(), true);
                 }
                 else
                 {
