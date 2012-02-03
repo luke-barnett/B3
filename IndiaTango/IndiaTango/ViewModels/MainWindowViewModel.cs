@@ -2416,7 +2416,7 @@ namespace IndiaTango.ViewModels
                                              {
                                                  CurrentDataset.Sensors = sensors;
                                                  //TODO NEED TO UNLOAD DATA MORE THAN A YEAR?
-                                                 CurrentDataset.HighestYearLoaded = NumberOfDataChunks();
+                                                 CurrentDataset.HighestYearLoaded = NumberOfDataChunks() - 1;
                                              }
                                              else
                                              {
@@ -2529,6 +2529,10 @@ namespace IndiaTango.ViewModels
 
                                              ShowProgressArea = false;
                                              EnableFeatures();
+                                             NotifyOfPropertyChange(() => LowestYearLoadedOptions);
+                                             NotifyOfPropertyChange(() => HighestYearLoadedOptions);
+                                             NotifyOfPropertyChange(() => LowestYearLoaded);
+                                             NotifyOfPropertyChange(() => HighestYearLoaded);
                                          };
             DisableFeatures();
             bw.RunWorkerAsync();

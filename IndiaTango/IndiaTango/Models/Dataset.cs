@@ -357,6 +357,7 @@ namespace IndiaTango.Models
                     sensorStream.Position = 0;
                     var sensorobject = Serializer.Deserialize<Sensor>(sensorStream);
                     sensorobject.Owner = dataset;
+
                     var initialData =
                         zip.Entries.FirstOrDefault(
                             x =>
@@ -401,7 +402,7 @@ namespace IndiaTango.Models
                 Serializer.Serialize(file, this);
             */
 
-            using (var zip = new ZipFile())
+            using (var zip = File.Exists(SaveLocation) ? ZipFile.Read(SaveLocation) : new ZipFile())
             {
                 zip.CompressionLevel = CompressionLevel.None;
                 zip.Comment = string.Format("B3 ZIP FORMAT v1");
@@ -409,11 +410,15 @@ namespace IndiaTango.Models
                 var datasetStream = new MemoryStream();
                 Serializer.Serialize(datasetStream, this);
                 datasetStream.Position = 0;
+                if (zip.EntryFileNames.Contains("dataset"))
+                    zip.RemoveEntry("dataset");
                 zip.AddEntry("dataset", datasetStream);
 
                 var siteStream = new MemoryStream();
                 Serializer.Serialize(siteStream, Site);
                 siteStream.Position = 0;
+                if (zip.EntryFileNames.Contains("site"))
+                    zip.RemoveEntry("site");
                 zip.AddEntry("site", siteStream);
 
                 foreach (var sensor in Sensors)
@@ -424,16 +429,22 @@ namespace IndiaTango.Models
                     Serializer.Serialize(sensorMetaData, sensor);
                     sensorMetaData.Position = 0;
 
-                    zip.AddDirectoryByName(sensorHash);
+                    if (!zip.EntryFileNames.Contains(sensorHash + "/"))
+                        zip.AddDirectoryByName(sensorHash);
+                    if (zip.EntryFileNames.Contains(sensorHash + "/metadata"))
+                        zip.RemoveEntry(sensorHash + "\\metadata");
                     zip.AddEntry(sensorHash + "\\metadata", sensorMetaData);
 
-                    for (var i = StartYear; i <= EndYear; i = i.AddYears(1))
+                    for (var i = StartYear.AddYears(LowestYearLoaded); i < StartYear.AddYears(HighestYearLoaded + 1); i = i.AddYears(1))
                     {
                         var dataBlockStream = new MemoryStream();
                         var x = new YearlyDataBlock(sensor.CurrentState.GetCompressedValues(i, i.AddYears(1)),
                                                     sensor.RawData.GetCompressedValues(i, i.AddYears(1)));
                         Serializer.Serialize(dataBlockStream, x);
                         dataBlockStream.Position = 0;
+
+                        if (zip.EntryFileNames.Contains(sensorHash + "/" + i.ToString(CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern)))
+                            zip.RemoveEntry(sensorHash + "\\" + i.ToString(CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern));
                         zip.AddEntry(sensorHash + "\\" + i.ToString(CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern), dataBlockStream);
                     }
                 }
@@ -444,91 +455,122 @@ namespace IndiaTango.Models
 
         public void LoadInSensorData(int year, bool retainExistingValues = false)
         {
+            LoadInSensorData(new[] { year }, retainExistingValues);
+        }
+
+        public void LoadInSensorData(int[] years, bool retainExistingValues = false)
+        {
             using (var zip = ZipFile.Read(SaveLocation))
             {
-                foreach (var sensor in Sensors)
+                foreach (var year in years)
                 {
-                    if (!retainExistingValues)
-                        sensor.CurrentState.Values = new Dictionary<DateTime, float>();
-
-                    var data =
-                        zip.Entries.FirstOrDefault(
-                            x =>
-                            x.FileName.Contains(sensor.Name.GetHashCode().ToString(CultureInfo.InvariantCulture)) &&
-                            x.FileName.EndsWith(
-                                StartYear.AddYears(year).ToString(
-                                    CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern)));
-
-                    if (data != null)
+                    foreach (var sensor in Sensors)
                     {
-                        var stream = new MemoryStream();
-                        data.Extract(stream);
-                        stream.Position = 0;
-                        var compressedValues = Serializer.Deserialize<YearlyDataBlock>(stream);
-                        sensor.CurrentState.AddCompressedValues(compressedValues.CurrentValues);
-                        sensor.RawData.AddCompressedValues(compressedValues.RawValues);
+                        if (!retainExistingValues)
+                            sensor.CurrentState.Values = new Dictionary<DateTime, float>();
+
+                        var data =
+                            zip.Entries.FirstOrDefault(
+                                x =>
+                                x.FileName.Contains(sensor.Name.GetHashCode().ToString(CultureInfo.InvariantCulture)) &&
+                                x.FileName.EndsWith(
+                                    StartYear.AddYears(year).ToString(
+                                        CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern)));
+
+                        if (data != null)
+                        {
+                            var stream = new MemoryStream();
+                            data.Extract(stream);
+                            stream.Position = 0;
+                            var compressedValues = Serializer.Deserialize<YearlyDataBlock>(stream);
+                            sensor.CurrentState.AddCompressedValues(compressedValues.CurrentValues);
+                            sensor.RawData.AddCompressedValues(compressedValues.RawValues);
+                        }
+                    }
+
+                    if (retainExistingValues)
+                    {
+                        if (LowestYearLoaded > year)
+                            LowestYearLoaded = year;
+                        if (HighestYearLoaded < year)
+                            HighestYearLoaded = year;
+                    }
+                    else
+                    {
+                        LowestYearLoaded = year;
+                        HighestYearLoaded = year;
                     }
                 }
+
             }
 
-            if (retainExistingValues)
-            {
-                if (LowestYearLoaded > year)
-                    LowestYearLoaded = year;
-                if (HighestYearLoaded < year)
-                    HighestYearLoaded = year;
-            }
-            else
-            {
-                LowestYearLoaded = year;
-                HighestYearLoaded = year;
-            }
+
         }
 
         public void UnloadSensorData(int year, bool saveValues = true)
         {
-            if (saveValues)
-                SaveSensorData(year);
-            foreach (var sensor in Sensors)
-            {
-                var currentValuesToRemove =
-                        sensor.CurrentState.Values.Where(
-                            x =>
-                            x.Key >= StartYear.AddYears(year) ||
-                            x.Key < StartYear.AddYears(year)).ToArray();
-                foreach (var keyValuePair in currentValuesToRemove)
-                {
-                    sensor.CurrentState.Values.Remove(keyValuePair.Key);
-                }
+            UnloadSensorData(new[] { year }, saveValues);
+        }
 
-                var rawValuesToRemove =
-                    sensor.RawData.Values.Where(
-                        x =>
-                        x.Key >= StartYear.AddYears(year) ||
-                        x.Key < StartYear.AddYears(year)).ToArray();
-                foreach (var keyValuePair in rawValuesToRemove)
+        public void UnloadSensorData(int[] years, bool saveValues = true)
+        {
+            foreach (var year in years)
+            {
+                if (saveValues)
+                    SaveSensorData(year);
+
+                foreach (var sensor in Sensors)
                 {
-                    sensor.RawData.Values.Remove(keyValuePair.Key);
+                    var currentValuesToRemove =
+                            sensor.CurrentState.Values.Where(
+                                x =>
+                                x.Key >= StartYear.AddYears(year) &&
+                                x.Key < StartYear.AddYears(year + 1)).ToArray();
+                    foreach (var keyValuePair in currentValuesToRemove)
+                    {
+                        sensor.CurrentState.Values.Remove(keyValuePair.Key);
+                    }
+
+                    var rawValuesToRemove =
+                        sensor.RawData.Values.Where(
+                            x =>
+                            x.Key >= StartYear.AddYears(year) &&
+                            x.Key < StartYear.AddYears(year + 1)).ToArray();
+                    foreach (var keyValuePair in rawValuesToRemove)
+                    {
+                        sensor.RawData.Values.Remove(keyValuePair.Key);
+                    }
                 }
             }
         }
 
         public void SaveSensorData(int year)
         {
+            SaveSensorData(new[] { year });
+        }
+
+        public void SaveSensorData(int[] years)
+        {
             using (var zip = ZipFile.Read(SaveLocation))
             {
-                foreach (var sensor in Sensors)
+                foreach (var year in years)
                 {
-                    var sensorHash = sensor.Name.GetHashCode().ToString(CultureInfo.InvariantCulture);
+                    foreach (var sensor in Sensors)
+                    {
+                        var sensorHash = sensor.Name.GetHashCode().ToString(CultureInfo.InvariantCulture);
 
-                    var dataBlockStream = new MemoryStream();
-                    var x = new YearlyDataBlock(sensor.CurrentState.GetCompressedValues(StartYear.AddYears(year), StartYear.AddYears(year + 1)),
-                                                sensor.RawData.GetCompressedValues(StartYear.AddYears(year), StartYear.AddYears(year + 1)));
-                    Serializer.Serialize(dataBlockStream, x);
-                    dataBlockStream.Position = 0;
-                    zip.AddEntry(sensorHash + "\\" + StartYear.AddYears(year).ToString(CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern), dataBlockStream);
+                        var dataBlockStream = new MemoryStream();
+                        var x = new YearlyDataBlock(sensor.CurrentState.GetCompressedValues(StartYear.AddYears(year), StartYear.AddYears(year + 1)),
+                                                    sensor.RawData.GetCompressedValues(StartYear.AddYears(year), StartYear.AddYears(year + 1)));
+                        Serializer.Serialize(dataBlockStream, x);
+                        dataBlockStream.Position = 0;
+
+                        if (zip.EntryFileNames.Contains(sensorHash + "/" + StartYear.AddYears(year).ToString(CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern)))
+                            zip.RemoveEntry(sensorHash + "\\" + StartYear.AddYears(year).ToString(CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern));
+
+                        zip.AddEntry(sensorHash + "\\" + StartYear.AddYears(year).ToString(CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern), dataBlockStream);
+                    }
                 }
-
                 zip.Save(SaveLocation);
             }
         }

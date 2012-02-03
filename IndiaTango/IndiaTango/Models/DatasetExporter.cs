@@ -137,7 +137,7 @@ namespace IndiaTango.Models
                     sensor.CurrentState.Values.Where(
                         x =>
                         x.Key < data.StartYear.AddYears(firstYearLoaded) ||
-                        x.Key >= data.StartYear.AddYears(lastYearLoaded)).ToArray();
+                        x.Key >= data.StartYear.AddYears(lastYearLoaded + 1)).ToArray();
                 foreach (var keyValuePair in currentValuesToRemove)
                 {
                     sensor.CurrentState.Values.Remove(keyValuePair.Key);
@@ -147,7 +147,7 @@ namespace IndiaTango.Models
                     sensor.RawData.Values.Where(
                         x =>
                         x.Key < data.StartYear.AddYears(firstYearLoaded) ||
-                        x.Key >= data.StartYear.AddYears(lastYearLoaded)).ToArray();
+                        x.Key >= data.StartYear.AddYears(lastYearLoaded + 1)).ToArray();
                 foreach (var keyValuePair in rawValuesToRemove)
                 {
                     sensor.RawData.Values.Remove(keyValuePair.Key);
