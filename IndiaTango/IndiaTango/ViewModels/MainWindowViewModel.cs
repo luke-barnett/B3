@@ -2415,12 +2415,10 @@ namespace IndiaTango.ViewModels
                                              if (CurrentDataset.Sensors == null || CurrentDataset.Sensors.Count == 0)
                                              {
                                                  CurrentDataset.Sensors = sensors;
-                                                 //TODO NEED TO UNLOAD DATA MORE THAN A YEAR?
                                                  CurrentDataset.HighestYearLoaded = NumberOfDataChunks() - 1;
                                              }
                                              else
                                              {
-                                                 //TODO FIX IMPORTING NEW VALUES WITH NEW SAVE MODEL
                                                  var askUser =
                                                      _container.GetInstance(typeof(SpecifyValueViewModel),
                                                                             "SpecifyValueViewModel") as
@@ -2457,6 +2455,30 @@ namespace IndiaTango.ViewModels
                                                  sensorMatchView.NewSensors = sensors;
 
                                                  _windowManager.ShowDialog(sensorMatchView);
+
+                                                 var orderedTimestamps = sensors.SelectMany(x => x.CurrentState.Values).Select(x => x.Key).Distinct().ToArray();
+                                                 var firstTimestamp = orderedTimestamps.Min();
+                                                 var lastTimestamp = orderedTimestamps.Max();
+                                                 orderedTimestamps = new DateTime[0];
+                                                 var highestYear = NumberOfDataChunks() - 1;
+
+                                                 var firstNewYear = firstTimestamp.Year - CurrentDataset.StartYear.Year;
+
+                                                 if (firstNewYear < CurrentDataset.LowestYearLoaded)
+                                                 {
+                                                     CurrentDataset.LoadInSensorData(firstNewYear < 0 ?
+                                                            Enumerable.Range(0, CurrentDataset.LowestYearLoaded).ToArray()
+                                                          : Enumerable.Range(firstNewYear, CurrentDataset.LowestYearLoaded - firstNewYear).ToArray(), true);
+                                                 }
+
+                                                 var lastNewYear = lastTimestamp.Year - CurrentDataset.StartYear.Year;
+
+                                                 if (lastNewYear > CurrentDataset.HighestYearLoaded)
+                                                 {
+                                                     CurrentDataset.LoadInSensorData(lastNewYear > highestYear ?
+                                                         Enumerable.Range(CurrentDataset.HighestYearLoaded + 1, highestYear - CurrentDataset.HighestYearLoaded).ToArray()
+                                                       : Enumerable.Range(CurrentDataset.HighestYearLoaded + 1, lastNewYear - CurrentDataset.HighestYearLoaded).ToArray(), true);
+                                                 }
 
                                                  foreach (var newSensor in sensors)
                                                  {
@@ -2512,6 +2534,8 @@ namespace IndiaTango.ViewModels
                                                      }
                                                  }
                                                  CurrentDataset.CalculateDataSetValues();
+                                                 if (CurrentDataset.HighestYearLoaded == highestYear)
+                                                     CurrentDataset.HighestYearLoaded = NumberOfDataChunks() - 1;
                                              }
 
                                              UpdateGUI();
@@ -2533,6 +2557,8 @@ namespace IndiaTango.ViewModels
                                              NotifyOfPropertyChange(() => HighestYearLoadedOptions);
                                              NotifyOfPropertyChange(() => LowestYearLoaded);
                                              NotifyOfPropertyChange(() => HighestYearLoaded);
+
+                                             CurrentDataset.SaveToFile();
                                          };
             DisableFeatures();
             bw.RunWorkerAsync();
