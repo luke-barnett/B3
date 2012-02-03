@@ -375,7 +375,7 @@
                                 <TextBlock Text="Points" Margin="3,0,0,0" VerticalAlignment="Center" />
                                 <TextBlock Text="Year" Margin="10,0" VerticalAlignment="Center" />
                                 <ComboBox SelectedItem="{Binding LowestYearLoaded}" ItemsSource="{Binding LowestYearLoadedOptions}" Width="70" />
-                                <TextBlock Text="-" Margin="5,0" VerticalAlignment="Center" />
+                                <TextBlock Text="- to -" Margin="5,0" VerticalAlignment="Center" />
                                 <ComboBox SelectedItem="{Binding HighestYearLoaded}" ItemsSource="{Binding HighestYearLoadedOptions}" Width="70" />
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
