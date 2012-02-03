@@ -514,11 +514,11 @@ namespace IndiaTango.Models
 
         public void UnloadSensorData(int[] years, bool saveValues = true)
         {
+            if (saveValues)
+                SaveSensorData(years);
+
             foreach (var year in years)
             {
-                if (saveValues)
-                    SaveSensorData(year);
-
                 foreach (var sensor in Sensors)
                 {
                     var currentValuesToRemove =
@@ -542,6 +542,9 @@ namespace IndiaTango.Models
                     }
                 }
             }
+            var timestamps = Sensors.SelectMany(x => x.CurrentState.Values).Select(x => x.Key).Distinct().ToArray();
+            HighestYearLoaded = timestamps.Max().Year - StartYear.Year;
+            LowestYearLoaded = timestamps.Min().Year - StartYear.Year;
         }
 
         public void SaveSensorData(int year)
@@ -553,6 +556,7 @@ namespace IndiaTango.Models
         {
             using (var zip = ZipFile.Read(SaveLocation))
             {
+                zip.CompressionLevel = CompressionLevel.None;
                 foreach (var year in years)
                 {
                     foreach (var sensor in Sensors)
