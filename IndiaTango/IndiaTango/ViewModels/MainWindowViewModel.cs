@@ -1964,7 +1964,11 @@ namespace IndiaTango.ViewModels
                             list.AddRange(values);
                             valuesDictionary[detectionMethod] = list;
                         }
-                        valuesDictionary[detectionMethod] = values;
+                        else
+                        {
+                            valuesDictionary[detectionMethod] = values;
+                        }
+
                     }
                 }
                 e.Result = valuesDictionary;
