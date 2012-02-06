@@ -243,7 +243,7 @@
                     </models:CustomSortDataGrid>
                 </GroupBox>
                 <GridSplitter Grid.Row="1" ResizeBehavior="PreviousAndNext" ResizeDirection="Rows" Height="1" Margin="5,7" HorizontalAlignment="Stretch" Background="OrangeRed" />
-                <TabControl Grid.Row="2" Name="TabSection">
+                <TabControl Grid.Row="2" Name="TabSection" cal:Message.Attach="[Event SelectionChanged] = [Action TabChanged($eventArgs)]">
                     <TabItem Header="Home">
                         <Grid>
                             <Grid.RowDefinitions>

@@ -3468,6 +3468,15 @@ namespace IndiaTango.ViewModels
             ActionsEnabled = _erroneousValuesFromDataTable.Count > 0;
         }
 
+        public void TabChanged(SelectionChangedEventArgs eventArgs)
+        {
+            if (eventArgs.AddedItems.Count > 0 && (eventArgs.AddedItems[0] as TabItem).Header is string && (string)(eventArgs.AddedItems[0] as TabItem).Header == "Home")
+            {
+                _selectionBehaviour.UseFullYAxis = _useFullYAxis;
+                NotInCalibrationMode = true;
+            }
+        }
+
         #endregion
     }
 }
