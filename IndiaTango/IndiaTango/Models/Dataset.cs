@@ -332,6 +332,16 @@ namespace IndiaTango.Models
                 return Serializer.Deserialize<Dataset>(file);
              * */
 
+            if (!ZipFile.IsZipFile(filename))
+            {
+                Dataset dataset;
+                File.Copy(filename, filename + ".old");
+                using (var file = File.OpenRead(filename))
+                    dataset = Serializer.Deserialize<Dataset>(file);
+                if (dataset != null)
+                    dataset.SaveToFile();
+            }
+
             using (var zip = ZipFile.Read(filename))
             {
                 var datasetStream = new MemoryStream();
