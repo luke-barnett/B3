@@ -2326,6 +2326,12 @@ namespace IndiaTango.ViewModels
         {
             CanUndo = SensorsForEditing.FirstOrDefault(x => x.UndoStates.Count > 0) != null;
             CanRedo = SensorsForEditing.FirstOrDefault(x => x.RedoStates.Count > 0) != null;
+
+            if(ViewAllSensors)
+            {
+                CanUndo = Sensors.FirstOrDefault(x => x.UndoStates.Count > 0) != null;
+                CanRedo = Sensors.FirstOrDefault(x => x.RedoStates.Count > 0) != null;
+            }
         }
 
         private int NumberOfDataChunks()
@@ -2776,6 +2782,15 @@ namespace IndiaTango.ViewModels
                 return state != null ? state.EditTimestamp : new DateTime();
             });
 
+            if(ViewAllSensors)
+            {
+                orderedSensors = Sensors.OrderBy(x =>
+                                                     {
+                                                         var state = x.UndoStates.DefaultIfEmpty(new SensorState(x, DateTime.MaxValue)).FirstOrDefault();
+                                                         return state != null ? state.EditTimestamp : new DateTime();
+                                                     });
+            }
+
             var firstSensor = orderedSensors.FirstOrDefault();
             if (firstSensor == null) return;
 
@@ -2798,6 +2813,15 @@ namespace IndiaTango.ViewModels
                 var state = x.RedoStates.DefaultIfEmpty(new SensorState(x, DateTime.MaxValue)).FirstOrDefault();
                 return state != null ? state.EditTimestamp : new DateTime();
             });
+
+            if (ViewAllSensors)
+            {
+                orderedSensors = Sensors.OrderBy(x =>
+                {
+                    var state = x.UndoStates.DefaultIfEmpty(new SensorState(x, DateTime.MaxValue)).FirstOrDefault();
+                    return state != null ? state.EditTimestamp : new DateTime();
+                });
+            }
 
             var firstSensor = orderedSensors.FirstOrDefault();
             if (firstSensor == null) return;
