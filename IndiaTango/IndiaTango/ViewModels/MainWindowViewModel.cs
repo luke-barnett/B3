@@ -1648,6 +1648,13 @@ namespace IndiaTango.ViewModels
             Grid.SetColumn(bTextBlock, 0);
             automaticValuesGrid.Children.Add(bTextBlock);
 
+            var previewTextBlock = new TextBlock
+                                       {
+                                           Text = "Preview",
+                                           VerticalAlignment = VerticalAlignment.Center,
+                                           Margin = new Thickness(5)
+                                       };
+
             var calibratedAValue = 0d;
             var calibratedAValid = false;
             var calibratedBValue = 0d;
@@ -1671,6 +1678,15 @@ namespace IndiaTango.ViewModels
                                                 autoApplyButton.IsEnabled = calibratedAValid && calibratedBValid && currentAValid && currentBValid;
                                                 autoPreviewButton.IsEnabled = autoApplyButton.IsEnabled;
                                                 // ReSharper restore AccessToModifiedClosure
+                                                if (String.CompareOrdinal(previewTextBlock.Text, "Reject") != 0)
+                                                    return;
+
+                                                foreach (var gSensor in _sensorsToGraph)
+                                                {
+                                                    gSensor.RemovePreview();
+                                                }
+                                                previewTextBlock.Text = "Preview";
+                                                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph,"AutoCalibration");
                                             };
 
             Grid.SetRow(calibratedATextBox, 2);
@@ -1691,6 +1707,15 @@ namespace IndiaTango.ViewModels
                                                 autoApplyButton.IsEnabled = calibratedAValid && calibratedBValid && currentAValid && currentBValid;
                                                 autoPreviewButton.IsEnabled = autoApplyButton.IsEnabled;
                                                 // ReSharper restore AccessToModifiedClosure
+                                                if (String.CompareOrdinal(previewTextBlock.Text, "Reject") != 0)
+                                                    return;
+
+                                                foreach (var gSensor in _sensorsToGraph)
+                                                {
+                                                    gSensor.RemovePreview();
+                                                }
+                                                previewTextBlock.Text = "Preview";
+                                                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "AutoCalibration");
                                             };
             Grid.SetRow(calibratedBTextBox, 1);
             Grid.SetColumn(calibratedBTextBox, 1);
@@ -1710,6 +1735,15 @@ namespace IndiaTango.ViewModels
                                              autoApplyButton.IsEnabled = calibratedAValid && calibratedBValid && currentAValid && currentBValid;
                                              autoPreviewButton.IsEnabled = autoApplyButton.IsEnabled;
                                              // ReSharper restore AccessToModifiedClosure
+                                             if (String.CompareOrdinal(previewTextBlock.Text, "Reject") != 0)
+                                                 return;
+
+                                             foreach (var gSensor in _sensorsToGraph)
+                                             {
+                                                 gSensor.RemovePreview();
+                                             }
+                                             previewTextBlock.Text = "Preview";
+                                             SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "AutoCalibration");
                                          };
             Grid.SetRow(currentATextBox, 2);
             Grid.SetColumn(currentATextBox, 2);
@@ -1729,6 +1763,15 @@ namespace IndiaTango.ViewModels
                                              autoApplyButton.IsEnabled = calibratedAValid && calibratedBValid && currentAValid && currentBValid;
                                              autoPreviewButton.IsEnabled = autoApplyButton.IsEnabled;
                                              // ReSharper restore AccessToModifiedClosure
+                                             if (String.CompareOrdinal(previewTextBlock.Text, "Reject") != 0)
+                                                 return;
+
+                                             foreach (var gSensor in _sensorsToGraph)
+                                             {
+                                                 gSensor.RemovePreview();
+                                             }
+                                             previewTextBlock.Text = "Preview";
+                                             SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "AutoCalibration");
                                          };
             Grid.SetRow(currentBTextBox, 1);
             Grid.SetColumn(currentBTextBox, 2);
@@ -1820,12 +1863,7 @@ namespace IndiaTango.ViewModels
                                                                  new Uri("pack://application:,,,/Images/preview_32.png",
                                                                          UriKind.Absolute))
                                                          });
-            var previewTextBlock = new TextBlock
-                                       {
-                                           Text = "Preview",
-                                           VerticalAlignment = VerticalAlignment.Center,
-                                           Margin = new Thickness(5)
-                                       };
+            
             autoPreviewButtonStackPanel.Children.Add(previewTextBlock);
 
             autoPreviewButton.Click += (o, e) =>
