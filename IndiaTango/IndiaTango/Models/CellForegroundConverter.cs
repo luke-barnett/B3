@@ -2,27 +2,28 @@
 using System.Data;
 using System.Globalization;
 using System.Linq;
+using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 
 namespace IndiaTango.Models
 {
-    [ValueConversion(typeof(string), typeof(Brush))]
-    public class CellForegroundConverter : IValueConverter
+    public class CellForegroundConverter : IMultiValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            if (!(value is DataRowView))
+            var cell = values[0] as DataGridCell;
+            var row = values[1] as DataRow;
+
+            if (cell == null  || row == null)
                 return Brushes.Black;
 
-            var rowView = (DataRowView) value;
+            var isAnEditedValue = cell.Column.DisplayIndex != 0 && row.ItemArray[cell.Column.DisplayIndex] is string && (row.ItemArray[cell.Column.DisplayIndex] as string).Contains('[');
 
-            var hasEditedValues = rowView.Row.ItemArray.Where(item => item is string).Cast<string>().Any(x => x.IndexOf('[') != -1);
-            
-            return hasEditedValues ? Brushes.Red : Brushes.Black;;
+            return isAnEditedValue ? Brushes.Red : Brushes.Black;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

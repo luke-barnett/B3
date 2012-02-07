@@ -328,7 +328,7 @@
                         </Grid>
                     </TabItem>
                 </TabControl>
-                
+
                 <GroupBox Grid.Row="3" x:Name="ActionsSection" Header="Actions" BorderBrush="OrangeRed" Margin="0,0,0,5">
                     <StackPanel>
                         <WrapPanel HorizontalAlignment="Center">
@@ -527,7 +527,16 @@
                         <models:CustomDataGrid Grid.Row="1" ItemsSource="{Binding DataTable}" CanUserDeleteRows="True" Background="Transparent" BorderThickness="0" AlternatingRowBackground="LightGray" SelectionUnit="Cell" AlternationCount="2" cal:Message.Attach="[Event DeleteRequested] = [Action DeleteRequestedFromDataTable($eventArgs)];[Event SelectedCellsChanged] = [Action SelectedCellsChanged($eventArgs)]">
                             <models:CustomDataGrid.CellStyle>
                                 <Style TargetType="{x:Type DataGridCell}">
-                                    <Setter Property="Foreground" Value="{Binding Converter={StaticResource cellForegroundConverter}}" />
+                                    <Setter Property="DataGridCell.Foreground">
+                                        <Setter.Value>
+                                            <MultiBinding Converter="{StaticResource cellForegroundConverter}" >
+                                                <MultiBinding.Bindings>
+                                                    <Binding RelativeSource="{RelativeSource Self}"/>
+                                                    <Binding Path="Row" Mode="OneWay"/>
+                                                </MultiBinding.Bindings>
+                                            </MultiBinding>
+                                        </Setter.Value>
+                                    </Setter>
                                 </Style>
                             </models:CustomDataGrid.CellStyle>
                         </models:CustomDataGrid>
