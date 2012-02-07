@@ -1687,7 +1687,7 @@ namespace IndiaTango.ViewModels
                                                     gSensor.RemovePreview();
                                                 }
                                                 previewTextBlock.Text = "Preview";
-                                                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph,"AutoCalibration");
+                                                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "AutoCalibration");
                                             };
 
             Grid.SetRow(calibratedATextBox, 2);
@@ -1864,7 +1864,7 @@ namespace IndiaTango.ViewModels
                                                                  new Uri("pack://application:,,,/Images/preview_32.png",
                                                                          UriKind.Absolute))
                                                          });
-            
+
             autoPreviewButtonStackPanel.Children.Add(previewTextBlock);
 
             autoPreviewButton.Click += (o, e) =>
@@ -2775,12 +2775,15 @@ namespace IndiaTango.ViewModels
             bw.RunWorkerCompleted += (o, e) =>
             {
                 ShowProgressArea = false;
-                Title = CurrentDataset == null ? "B3" :  string.Format("B3: {0}", CurrentDataset.Site.Name);
+                Title = CurrentDataset == null ? "B3" : string.Format("B3: {0}", CurrentDataset.Site.Name);
                 EnableFeatures();
                 NotifyOfPropertyChange(() => LowestYearLoaded);
                 NotifyOfPropertyChange(() => HighestYearLoaded);
                 NotifyOfPropertyChange(() => LowestYearLoadedOptions);
                 NotifyOfPropertyChange(() => HighestYearLoadedOptions);
+                if (CurrentDataset != null)
+                    Common.ShowMessageBox(string.Format("Loaded in {0}", CurrentDataset.Site.Name),
+                                          string.Format("Loaded in {0} to {1}", LowestYearLoaded, HighestYearLoaded), false, false);
             };
 
             DisableFeatures();
@@ -3531,7 +3534,7 @@ namespace IndiaTango.ViewModels
                     NotInCalibrationMode = false;
                 }
             }
-            
+
         }
 
         public void RemoveEditingNote(string note, KeyEventArgs args)

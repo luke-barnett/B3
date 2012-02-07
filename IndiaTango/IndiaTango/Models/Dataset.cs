@@ -366,22 +366,49 @@ namespace IndiaTango.Models
                     var sensorobject = Serializer.Deserialize<Sensor>(sensorStream);
                     sensorobject.Owner = dataset;
 
-                    var initialData =
+                    var lastestYear =
                         zip.Entries.FirstOrDefault(
                             x =>
                             x.FileName.Contains(sensorobject.Name.GetHashCode().ToString(CultureInfo.InvariantCulture)) &&
                             x.FileName.EndsWith(
-                                dataset.StartYear.ToString(
+                                dataset.EndYear.ToString(
                                     CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern)));
 
-                    if (initialData != null)
+                    if (lastestYear != null)
                     {
                         var stream = new MemoryStream();
-                        initialData.Extract(stream);
+                        lastestYear.Extract(stream);
                         stream.Position = 0;
                         var compressedValues = Serializer.Deserialize<YearlyDataBlock>(stream);
                         sensorobject.CurrentState.AddCompressedValues(compressedValues.CurrentValues);
                         sensorobject.RawData.AddCompressedValues(compressedValues.RawValues);
+                    }
+
+                    var secondToLastYear =
+                        zip.Entries.FirstOrDefault(
+                            x =>
+                            x.FileName.Contains(sensorobject.Name.GetHashCode().ToString(CultureInfo.InvariantCulture)) &&
+                            x.FileName.EndsWith(
+                                dataset.EndYear.AddYears(-1).ToString(
+                                    CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern)));
+
+                    if (secondToLastYear != null)
+                    {
+                        var stream = new MemoryStream();
+                        secondToLastYear.Extract(stream);
+                        stream.Position = 0;
+                        var compressedValues = Serializer.Deserialize<YearlyDataBlock>(stream);
+                        sensorobject.CurrentState.AddCompressedValues(compressedValues.CurrentValues);
+                        sensorobject.RawData.AddCompressedValues(compressedValues.RawValues);
+                    }
+
+                    var numberOfYears = dataset.EndYear.Year - dataset.StartYear.Year;
+
+                    dataset.HighestYearLoaded = numberOfYears;
+
+                    if(numberOfYears > 0)
+                    {
+                        dataset.LowestYearLoaded = numberOfYears - 1;
                     }
 
                     dataset.Sensors.Add(sensorobject);

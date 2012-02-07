@@ -19,7 +19,7 @@ namespace IndiaTango.Models
         /// <param name="loadInUnloadedValues">Whether or not to load in any unloaded values</param>
         public static void Export(Dataset data, string filePath, ExportFormat format, bool includeEmptyLines, bool loadInUnloadedValues = true)
         {
-            Export(data, filePath, format, includeEmptyLines, false, false, ExportedPoints.AllPoints, DateColumnFormat.TwoDateColumn, loadInUnloadedValues);
+            Export(data, filePath, format, includeEmptyLines, false, false, ExportedPoints.AllPoints, DateColumnFormat.TwoDateColumn, false, loadInUnloadedValues);
         }
 
         /// <summary>
@@ -70,7 +70,8 @@ namespace IndiaTango.Models
         /// <param name="dateColumnFormat">Wether to split the two date/time columns into five seperate columns</param>
         /// <param name="exportRaw">Whether to export the raw data or the current state.</param>
         /// <param name="loadInUnloadedValues">Whether or not to load in any unloaded values</param>
-        public static void Export(Dataset data, string filePath, ExportFormat format, bool includeEmptyLines, bool addMetaDataFile, bool includeChangeLog, ExportedPoints exportedPoints, DateColumnFormat dateColumnFormat, bool exportRaw, bool loadInUnloadedValues)
+        /// <param name="copyLogFiles">Whether or not to copy the log files</param>
+        public static void Export(Dataset data, string filePath, ExportFormat format, bool includeEmptyLines, bool addMetaDataFile, bool includeChangeLog, ExportedPoints exportedPoints, DateColumnFormat dateColumnFormat, bool exportRaw, bool loadInUnloadedValues, bool copyLogFiles = false)
         {
             if (data == null)
                 throw new ArgumentNullException("Dataset cannot be null");
@@ -79,7 +80,7 @@ namespace IndiaTango.Models
             var firstYearLoaded = data.LowestYearLoaded;
             var lastYearLoaded = data.HighestYearLoaded;
 
-            if(loadInUnloadedValues)
+            if (loadInUnloadedValues)
             {
                 if (firstYearLoaded != 0)
                 {
@@ -97,7 +98,7 @@ namespace IndiaTango.Models
                     }
                 }
             }
-            
+
 
             EventLogger.LogInfo(data, "EXPORTER", "Data export started.");
 
@@ -141,7 +142,7 @@ namespace IndiaTango.Models
                 throw new NotImplementedException("File format not supported.");
             }
 
-            if (data.Site != null && Directory.Exists(Path.Combine(Common.AppDataPath, "Logs", data.Site.Name, "SensorLogs")))
+            if (copyLogFiles && data.Site != null && Directory.Exists(Path.Combine(Common.AppDataPath, "Logs", data.Site.Name, "SensorLogs")))
             {
                 var sourcePath = Path.Combine(Common.AppDataPath, "Logs", data.Site.Name, "SensorLogs");
                 var destinationPath = Path.Combine(Path.GetDirectoryName(filePath), data.Site.Name + " Sensor Logs");
@@ -160,7 +161,7 @@ namespace IndiaTango.Models
                     File.Copy(newPath, newPath.Replace(sourcePath, destinationPath));
             }
 
-            if(loadInUnloadedValues)
+            if (loadInUnloadedValues)
             {
                 //Unload all values not in our time range
                 foreach (var sensor in data.Sensors)
