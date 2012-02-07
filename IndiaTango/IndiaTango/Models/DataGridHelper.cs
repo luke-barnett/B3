@@ -187,7 +187,7 @@ namespace IndiaTango.Models
 
             var minimum = table.NewRow();
 
-            minimum[0] = "Maximum";
+            minimum[0] = "Minimum";
 
             for (var i = 0; i < sensors.Length; i++)
             {
