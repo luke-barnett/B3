@@ -12,32 +12,37 @@ namespace IndiaTango.Models
         /// Exports a data set to a CSV file.
         /// The file is saved in the same format as the original CSV files.
         /// </summary>
+        /// <param name="data">The dataset to export</param>
         /// <param name="filePath">The desired path and file name of the file to be saved. No not include an extension.</param>
         /// <param name="format">The format to save the file in.</param>
         /// <param name="includeEmptyLines">Wether to export the file with empty lines or not.</param>
-        public static void Export(Dataset data, string filePath, ExportFormat format, bool includeEmptyLines)
+        /// <param name="loadInUnloadedValues">Whether or not to load in any unloaded values</param>
+        public static void Export(Dataset data, string filePath, ExportFormat format, bool includeEmptyLines, bool loadInUnloadedValues = true)
         {
-            Export(data, filePath, format, includeEmptyLines, false, false, ExportedPoints.AllPoints, DateColumnFormat.TwoDateColumn);
+            Export(data, filePath, format, includeEmptyLines, false, false, ExportedPoints.AllPoints, DateColumnFormat.TwoDateColumn, loadInUnloadedValues);
         }
 
         /// <summary>
         /// Exports a data set to a CSV file.
         /// The file is saved in the same format as the original CSV files.
         /// </summary>
+        /// <param name="data">The dataset to export</param>
         /// <param name="filePath">The desired path and file name of the file to be saved. No not include an extension.</param>
         /// <param name="format">The format to save the file in.</param>
         /// <param name="includeEmptyLines">Wether to export the file with empty lines or not.</param>
         /// <param name="addMetaDataFile">Wether to export the file with embedded site meta data.</param>
         /// <param name="includeChangeLog">Wether to include a seperate log file that details the changes made to the data.</param>
-        public static void Export(Dataset data, string filePath, ExportFormat format, bool includeEmptyLines, bool addMetaDataFile, bool includeChangeLog)
+        /// <param name="loadInUnloadedValues">Whether or not to load in any unloaded values</param>
+        public static void Export(Dataset data, string filePath, ExportFormat format, bool includeEmptyLines, bool addMetaDataFile, bool includeChangeLog, bool loadInUnloadedValues = true)
         {
-            Export(data, filePath, format, includeEmptyLines, addMetaDataFile, includeChangeLog, ExportedPoints.AllPoints, DateColumnFormat.TwoDateColumn, false);
+            Export(data, filePath, format, includeEmptyLines, addMetaDataFile, includeChangeLog, ExportedPoints.AllPoints, DateColumnFormat.TwoDateColumn, false, loadInUnloadedValues);
         }
 
         /// <summary>
         /// Exports a data set to a CSV file.
         /// The file is saved in the same format as the original CSV files.
         /// </summary>
+        /// <param name="data">The dataset to export</param>
         /// <param name="filePath">The desired path and file name of the file to be saved. No not include an extension.</param>
         /// <param name="format">The format to save the file in.</param>
         /// <param name="includeEmptyLines">Wether to export the file with empty lines or not.</param>
@@ -45,9 +50,10 @@ namespace IndiaTango.Models
         /// <param name="includeChangeLog">Wether to include a seperate log file that details the changes made to the data.</param>
         /// <param name="exportedPoints">What points to export.</param>
         /// <param name="dateColumnFormat">Wether to split the two date/time columns into five seperate columns</param>
-        public static void Export(Dataset data, string filePath, ExportFormat format, bool includeEmptyLines, bool addMetaDataFile, bool includeChangeLog, ExportedPoints exportedPoints, DateColumnFormat dateColumnFormat)
+        /// <param name="loadInUnloadedValues">Whether or not to load in any unloaded values</param>
+        public static void Export(Dataset data, string filePath, ExportFormat format, bool includeEmptyLines, bool addMetaDataFile, bool includeChangeLog, ExportedPoints exportedPoints, DateColumnFormat dateColumnFormat, bool loadInUnloadedValues = true)
         {
-            Export(data, filePath, format, includeEmptyLines, addMetaDataFile, includeChangeLog, exportedPoints, dateColumnFormat, false);
+            Export(data, filePath, format, includeEmptyLines, addMetaDataFile, includeChangeLog, exportedPoints, dateColumnFormat, false, loadInUnloadedValues);
         }
 
         /// <summary>
@@ -63,7 +69,8 @@ namespace IndiaTango.Models
         /// <param name="exportedPoints">What points to export.</param>
         /// <param name="dateColumnFormat">Wether to split the two date/time columns into five seperate columns</param>
         /// <param name="exportRaw">Whether to export the raw data or the current state.</param>
-        public static void Export(Dataset data, string filePath, ExportFormat format, bool includeEmptyLines, bool addMetaDataFile, bool includeChangeLog, ExportedPoints exportedPoints, DateColumnFormat dateColumnFormat, bool exportRaw)
+        /// <param name="loadInUnloadedValues">Whether or not to load in any unloaded values</param>
+        public static void Export(Dataset data, string filePath, ExportFormat format, bool includeEmptyLines, bool addMetaDataFile, bool includeChangeLog, ExportedPoints exportedPoints, DateColumnFormat dateColumnFormat, bool exportRaw, bool loadInUnloadedValues)
         {
             if (data == null)
                 throw new ArgumentNullException("Dataset cannot be null");
@@ -72,21 +79,25 @@ namespace IndiaTango.Models
             var firstYearLoaded = data.LowestYearLoaded;
             var lastYearLoaded = data.HighestYearLoaded;
 
-            if (firstYearLoaded != 0)
+            if(loadInUnloadedValues)
             {
-                for (var i = 0; i < firstYearLoaded; i++)
+                if (firstYearLoaded != 0)
                 {
-                    data.LoadInSensorData(i, true);
+                    for (var i = 0; i < firstYearLoaded; i++)
+                    {
+                        data.LoadInSensorData(i, true);
+                    }
                 }
-            }
 
-            if (data.EndYear > data.StartYear.AddYears(lastYearLoaded + 1))
-            {
-                for (var i = lastYearLoaded + 1; data.EndYear >= data.StartYear.AddYears(i + 1); i++)
+                if (data.EndYear > data.StartYear.AddYears(lastYearLoaded + 1))
                 {
-                    data.LoadInSensorData(i, true);
+                    for (var i = lastYearLoaded + 1; data.EndYear >= data.StartYear.AddYears(i + 1); i++)
+                    {
+                        data.LoadInSensorData(i, true);
+                    }
                 }
             }
+            
 
             EventLogger.LogInfo(data, "EXPORTER", "Data export started.");
 
@@ -130,27 +141,49 @@ namespace IndiaTango.Models
                 throw new NotImplementedException("File format not supported.");
             }
 
-            //Unload all values not in our time range
-            foreach (var sensor in data.Sensors)
+            if (data.Site != null && Directory.Exists(Path.Combine(Common.AppDataPath, "Logs", data.Site.Name, "SensorLogs")))
             {
-                var currentValuesToRemove =
-                    sensor.CurrentState.Values.Where(
-                        x =>
-                        x.Key < data.StartYear.AddYears(firstYearLoaded) ||
-                        x.Key >= data.StartYear.AddYears(lastYearLoaded + 1)).ToArray();
-                foreach (var keyValuePair in currentValuesToRemove)
-                {
-                    sensor.CurrentState.Values.Remove(keyValuePair.Key);
-                }
+                var sourcePath = Path.Combine(Common.AppDataPath, "Logs", data.Site.Name, "SensorLogs");
+                var destinationPath = Path.Combine(Path.GetDirectoryName(filePath), data.Site.Name + " Sensor Logs");
 
-                var rawValuesToRemove =
-                    sensor.RawData.Values.Where(
-                        x =>
-                        x.Key < data.StartYear.AddYears(firstYearLoaded) ||
-                        x.Key >= data.StartYear.AddYears(lastYearLoaded + 1)).ToArray();
-                foreach (var keyValuePair in rawValuesToRemove)
+                if (!Directory.Exists(destinationPath))
+                    Directory.CreateDirectory(destinationPath);
+
+                //Now Create all of the directories
+                foreach (string dirPath in Directory.GetDirectories(sourcePath, "*",
+                    SearchOption.AllDirectories))
+                    Directory.CreateDirectory(dirPath.Replace(sourcePath, destinationPath));
+
+                //Copy all the files
+                foreach (string newPath in Directory.GetFiles(sourcePath, "*.*",
+                    SearchOption.AllDirectories))
+                    File.Copy(newPath, newPath.Replace(sourcePath, destinationPath));
+            }
+
+            if(loadInUnloadedValues)
+            {
+                //Unload all values not in our time range
+                foreach (var sensor in data.Sensors)
                 {
-                    sensor.RawData.Values.Remove(keyValuePair.Key);
+                    var currentValuesToRemove =
+                        sensor.CurrentState.Values.Where(
+                            x =>
+                            x.Key < data.StartYear.AddYears(firstYearLoaded) ||
+                            x.Key >= data.StartYear.AddYears(lastYearLoaded + 1)).ToArray();
+                    foreach (var keyValuePair in currentValuesToRemove)
+                    {
+                        sensor.CurrentState.Values.Remove(keyValuePair.Key);
+                    }
+
+                    var rawValuesToRemove =
+                        sensor.RawData.Values.Where(
+                            x =>
+                            x.Key < data.StartYear.AddYears(firstYearLoaded) ||
+                            x.Key >= data.StartYear.AddYears(lastYearLoaded + 1)).ToArray();
+                    foreach (var keyValuePair in rawValuesToRemove)
+                    {
+                        sensor.RawData.Values.Remove(keyValuePair.Key);
+                    }
                 }
             }
         }
@@ -287,8 +320,9 @@ namespace IndiaTango.Models
                 writer.WriteLine("ID: " + data.Site.Id);
                 writer.WriteLine("Name: " + data.Site.Name);
                 writer.WriteLine("Owner: " + data.Site.Owner);
+                writer.WriteLine("Site notes:" + data.Site.SiteNotes);
+                writer.WriteLine("Editing notes:" + data.Site.EditingNotes);
 
-                //TODO: clean up
                 if (data.Site.PrimaryContact != null)
                 {
                     writer.WriteLine("Primary Contact:");

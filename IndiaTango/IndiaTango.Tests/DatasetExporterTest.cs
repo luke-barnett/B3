@@ -28,7 +28,7 @@ namespace IndiaTango.Tests
         {
             var reader = new CSVReader(Path.Combine(_inputFilePath));
             _data.Sensors = reader.ReadSensors();
-            DatasetExporter.Export(_data, _outputFilePath, ExportFormat.CSV, false, false, false, ExportedPoints.AllPoints, DateColumnFormat.TwoDateColumn);
+            DatasetExporter.Export(_data, _outputFilePath, ExportFormat.CSV, false, false, false, ExportedPoints.AllPoints, DateColumnFormat.TwoDateColumn, loadInUnloadedValues:false);
             Assert.AreEqual(Tools.GenerateMD5HashFromFile(_outputFilePath), Tools.GenerateMD5HashFromFile(_inputFilePath));
         }
 
@@ -37,7 +37,7 @@ namespace IndiaTango.Tests
         {
             var reader = new CSVReader(Path.Combine(_inputFilePath));
             _data.Sensors = reader.ReadSensors();
-            DatasetExporter.Export(_data, _outputFilePath, ExportFormat.CSV, true, false, false, ExportedPoints.AllPoints, DateColumnFormat.TwoDateColumn);
+            DatasetExporter.Export(_data, _outputFilePath, ExportFormat.CSV, true, false, false, ExportedPoints.AllPoints, DateColumnFormat.TwoDateColumn, loadInUnloadedValues: false);
             Assert.AreEqual(File.ReadLines(_outputFilePath).Count(), _data.ExpectedDataPointCount + 1);
         }
 
@@ -46,7 +46,7 @@ namespace IndiaTango.Tests
         {
             var reader = new CSVReader(Path.Combine(_inputFilePath));
             _data.Sensors = reader.ReadSensors();
-            DatasetExporter.Export(_data, _outputFilePath, ExportFormat.CSV, true, false, false, ExportedPoints.HourlyPoints, DateColumnFormat.TwoDateColumn);
+            DatasetExporter.Export(_data, _outputFilePath, ExportFormat.CSV, true, false, false, ExportedPoints.HourlyPoints, DateColumnFormat.TwoDateColumn, loadInUnloadedValues: false);
             Assert.AreEqual(File.ReadLines(_outputFilePath).Count(), ((_data.ExpectedDataPointCount) / 4) + 1);
         }
 
@@ -55,7 +55,7 @@ namespace IndiaTango.Tests
         {
             var reader = new CSVReader(Path.Combine(_inputFilePath));
             _data.Sensors = reader.ReadSensors();
-            DatasetExporter.Export(_data, _outputFilePath, ExportFormat.CSV, false, true, false, ExportedPoints.AllPoints, DateColumnFormat.TwoDateColumn);
+            DatasetExporter.Export(_data, _outputFilePath, ExportFormat.CSV, false, true, false, ExportedPoints.AllPoints, DateColumnFormat.TwoDateColumn, loadInUnloadedValues: false);
             Assert.AreEqual(Tools.GenerateMD5HashFromFile(_outputFilePath), Tools.GenerateMD5HashFromFile(_inputFilePath));
         }
 
@@ -95,7 +95,7 @@ namespace IndiaTango.Tests
             s.AddState(ss);
             givenDataSet.AddSensor(s);
 
-            DatasetExporter.Export(_data, _outputFilePath, ExportFormat.CSV, true, false, false, ExportedPoints.AllPoints, DateColumnFormat.SplitDateColumn);
+            DatasetExporter.Export(givenDataSet, _outputFilePath, ExportFormat.CSV, true, false, false, ExportedPoints.AllPoints, DateColumnFormat.SplitDateColumn, loadInUnloadedValues: false);
 
             Assert.AreEqual(DatasetOutputWithIndividualColumns, File.ReadAllText(_outputFilePath));
 
@@ -115,7 +115,7 @@ namespace IndiaTango.Tests
             newState.Values[new DateTime(2009, 1, 10, 7, 45, 0)] = 0;
             _data.Sensors[0].AddState(newState);
 
-            DatasetExporter.Export(_data, _outputFilePath, ExportFormat.CSV, true, false, false, ExportedPoints.AllPoints, DateColumnFormat.TwoDateColumn, true);
+            DatasetExporter.Export(_data, _outputFilePath, ExportFormat.CSV, true, false, false, ExportedPoints.AllPoints, DateColumnFormat.TwoDateColumn, true, loadInUnloadedValues: false);
 
             reader = new CSVReader(_outputFilePath + " Raw.csv");
             _data.Sensors = reader.ReadSensors();
@@ -146,7 +146,7 @@ namespace IndiaTango.Tests
                 _data.Sensors[0].CurrentState.Changes.Add(time, ll);
             }
 
-            DatasetExporter.Export(_data, _outputFilePath, ExportFormat.CSV, true, false, true);
+            DatasetExporter.Export(_data, _outputFilePath, ExportFormat.CSV, true, false, true, loadInUnloadedValues: false);
             Assert.AreEqual(Tools.GenerateMD5HashFromFile(_outputFilePath + "ChangesTest.csv"), Tools.GenerateMD5HashFromFile(_outputFilePath + " Changes Matrix.csv"));
         }
     }

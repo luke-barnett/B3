@@ -46,13 +46,15 @@ namespace IndiaTango.Tests
 
             dataSet.DataInterval = 60;
 
+            dataSet.HighestYearLoaded = 1;
+
             Assert.AreEqual(60, dataSet.DataInterval);
 
             var missingValues = missingValuesDetector.GetDetectedValues(sensor);
 
             for (var i = new DateTime(1990, 5, 1, 6, 0, 0); i < new DateTime(1991, 8, 2, 0, 0, 0); i = i.AddHours(1))
             {
-                Assert.Contains(new ErroneousValue(i, sensor), missingValues);
+                Assert.Contains(new ErroneousValue(i, missingValuesDetector, sensor), missingValues);
             }
         }
     }

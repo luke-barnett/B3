@@ -29,7 +29,6 @@ namespace IndiaTango.Models
         private const string Error = "ERROR";
         private static StreamWriter _writer;
         private readonly static object Mutex = new object();
-        private static int _logRefNum;
         #endregion
 
         public static event EventLoggedEventHandler Changed;
@@ -64,11 +63,6 @@ namespace IndiaTango.Models
         public static string TimeFormatString
         {
             get { return "dd/MM/yyyy HH:mm:ss"; }
-        }
-
-        public static int NextRefNum
-        {
-            get { return _logRefNum; }
         }
         #endregion
 
@@ -106,13 +100,11 @@ namespace IndiaTango.Models
             if (threadName.Contains("IndiaTango."))
                 threadName = threadName.Substring("IndiaTango.".Length);
 
-            string logString = _logRefNum + " " + DateTime.Now.ToString(TimeFormatString) + "    " + logType.PadRight(10).Substring(0, 10) + " " + threadName.PadRight(25).Substring(0, 25) + " " + eventDetails;
+            string logString = DateTime.Now.ToString(TimeFormatString) + "    " + logType.PadRight(10).Substring(0, 10) + " " + threadName.PadRight(25).Substring(0, 25) + " " + eventDetails;
 
             WriteLogToFile(logString, destFile);
 
             OnLogEvent(null, new EventLoggedArgs(logString, destFile));
-
-            _logRefNum++;
 
             return logString;
         }
@@ -194,10 +186,6 @@ namespace IndiaTango.Models
                 }
             }
 
-            int currentRef;
-            Int32.TryParse(q.Last().Split(' ')[0], out currentRef);
-
-            _logRefNum = currentRef + 1;
             return q.Aggregate("", (current, s) => current + s);
         }
 
