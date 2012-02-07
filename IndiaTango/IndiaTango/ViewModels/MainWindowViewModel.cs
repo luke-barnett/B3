@@ -3518,11 +3518,20 @@ namespace IndiaTango.ViewModels
 
         public void TabChanged(SelectionChangedEventArgs eventArgs)
         {
-            if (eventArgs.AddedItems.Count > 0 && eventArgs.AddedItems[0] is TabItem && (eventArgs.AddedItems[0] as TabItem).Header is string && (string)(eventArgs.AddedItems[0] as TabItem).Header == "Home")
+            if (eventArgs.AddedItems.Count > 0 && eventArgs.AddedItems[0] is TabItem && (eventArgs.AddedItems[0] as TabItem).Header is string)
             {
-                _selectionBehaviour.UseFullYAxis = _useFullYAxis;
-                NotInCalibrationMode = true;
+                if ((string)(eventArgs.AddedItems[0] as TabItem).Header == "Home")
+                {
+                    _selectionBehaviour.UseFullYAxis = _useFullYAxis;
+                    NotInCalibrationMode = true;
+                }
+                else if ((string)(eventArgs.AddedItems[0] as TabItem).Header == "QA\\QC Tools" && _detectionMethods.Count(x => x.IsEnabled) == 0)
+                {
+                    _selectionBehaviour.UseFullYAxis = true;
+                    NotInCalibrationMode = false;
+                }
             }
+            
         }
 
         public void RemoveEditingNote(string note, KeyEventArgs args)
