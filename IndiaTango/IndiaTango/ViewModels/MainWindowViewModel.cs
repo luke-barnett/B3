@@ -2775,7 +2775,7 @@ namespace IndiaTango.ViewModels
             bw.RunWorkerCompleted += (o, e) =>
             {
                 ShowProgressArea = false;
-                Title = string.Format("B3: {0}", CurrentDataset.Site.Name);
+                Title = CurrentDataset == null ? "B3" :  string.Format("B3: {0}", CurrentDataset.Site.Name);
                 EnableFeatures();
                 NotifyOfPropertyChange(() => LowestYearLoaded);
                 NotifyOfPropertyChange(() => HighestYearLoaded);

@@ -334,12 +334,10 @@ namespace IndiaTango.Models
 
             if (!ZipFile.IsZipFile(filename))
             {
-                Dataset dataset;
-                File.Copy(filename, filename + ".old");
-                using (var file = File.OpenRead(filename))
-                    dataset = Serializer.Deserialize<Dataset>(file);
-                if (dataset != null)
-                    dataset.SaveToFile();
+                Common.ShowMessageBox("File in old format",
+                                      "We are unable to load in your site as it's not in the updated format\r\nPlease create a new site and import your data again\r\n\n(Note %APPDATA%/B3/Backups/Exports should have a copy of your latest data)",
+                                      false, false);
+                return null;
             }
 
             using (var zip = ZipFile.Read(filename))
@@ -393,15 +391,19 @@ namespace IndiaTango.Models
             }
         }
 
-        public void SaveToFile()
+        public void SaveToFile(bool exportData = true, bool deleteFile = false)
         {
+            if(deleteFile && File.Exists(SaveLocation))
+                File.Delete(SaveLocation);
+
             if (!Directory.Exists(Common.DatasetSaveLocation))
                 Directory.CreateDirectory(Common.DatasetSaveLocation);
 
             if (File.Exists(SaveLocation))
                 File.Copy(SaveLocation, SaveLocation + ".backup", true);
 
-            DatasetExporter.Export(this, Common.DatasetExportLocation(this), ExportFormat.CSV, true);
+            if (exportData)
+                DatasetExporter.Export(this, Common.DatasetExportLocation(this), ExportFormat.CSV, true);
 
             /* .NET BinaryFormatter
             using (var stream = new FileStream(SaveLocation, FileMode.Create))
