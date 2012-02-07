@@ -14,23 +14,36 @@ namespace DataAggregator.Models
             var firstTimeStamp = timestamps.Min().RoundDown(aggregationPeriod.TimeSpan);
             var finalTimeStamp = timestamps.Max().RoundUp(aggregationPeriod.TimeSpan);
             var totalTimeSpan = finalTimeStamp - firstTimeStamp;
+            var sortedTimestamps = timestamps.OrderBy(x => x).ToArray();
 
             var halfOfTimeSpan = aggregationPeriod.TimeSpan.Subtract(new TimeSpan(aggregationPeriod.TimeSpan.Ticks / 2));
 
             var aggregatedTimestamps = new List<DateTime>();
-
+            var currentTimestampIndex = 0;
             for (var timestamp = firstTimeStamp; timestamp <= finalTimeStamp; timestamp = timestamp.Add(aggregationPeriod.TimeSpan))
             {
                 aggregatedTimestamps.Add(timestamp);
                 var inclusiveStart = timestamp - halfOfTimeSpan;
                 var exclusiveEnd = timestamp + halfOfTimeSpan;
 
-                var includedTimestamps = timestamps.Where(y => y >= inclusiveStart && y < exclusiveEnd).ToArray();
+                var timestampsList = new List<DateTime>();
+
+                while (currentTimestampIndex < sortedTimestamps.Length && sortedTimestamps[currentTimestampIndex] < inclusiveStart)
+                    currentTimestampIndex++;
+
+
+                while (currentTimestampIndex < sortedTimestamps.Length && sortedTimestamps[currentTimestampIndex] < exclusiveEnd)
+                {
+                    timestampsList.Add(sortedTimestamps[currentTimestampIndex]);
+                    currentTimestampIndex++;
+                }
+
+                var includedTimestamps = timestampsList.ToArray();
 
                 foreach (var x in series)
                 {
                     x.AggregatedValues[timestamp] =
-                        x.AggregationModel.AggregationMethod.Aggregate(x.Values.Where(y => includedTimestamps.Contains(y.Key)).OrderBy(y => y.Key), inclusiveStart, exclusiveEnd);
+                        x.AggregationModel.AggregationMethod.Aggregate((from includedTimestamp in includedTimestamps where x.Values.ContainsKey(includedTimestamp) select new KeyValuePair<DateTime, float>(includedTimestamp, x.Values[includedTimestamp])).OrderBy(y => y.Key).ToArray(), inclusiveStart, exclusiveEnd);
                 }
 
                 if (worker == null || !worker.WorkerReportsProgress) continue;
