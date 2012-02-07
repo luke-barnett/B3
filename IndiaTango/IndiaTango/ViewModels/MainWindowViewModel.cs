@@ -3184,12 +3184,10 @@ namespace IndiaTango.ViewModels
         /// <param name="e">The event arguments about the new date</param>
         public void StartTimeChanged(RoutedPropertyChangedEventArgs<object> e)
         {
-            if (e == null || (DateTime)e.NewValue == StartTime)
+            if (e == null)
                 return;
 
-            if ((e.OldValue != null && (DateTime)e.OldValue == new DateTime()) || (DateTime)e.NewValue < EndTime)
-                StartTime = (DateTime)e.NewValue;
-            else if (e.OldValue != null)
+            if (e.OldValue != null && (DateTime)e.NewValue >= EndTime)
                 StartTime = (DateTime)e.OldValue;
 
             foreach (var sensor in _sensorsToGraph)
@@ -3207,12 +3205,10 @@ namespace IndiaTango.ViewModels
         /// <param name="e">The event arguments about the new date</param>
         public void EndTimeChanged(RoutedPropertyChangedEventArgs<object> e)
         {
-            if (e == null || (DateTime)e.NewValue == EndTime)
+            if (e == null)
                 return;
 
-            if ((e.OldValue != null && (DateTime)e.OldValue == new DateTime()) || (DateTime)e.NewValue > StartTime)
-                EndTime = (DateTime)e.NewValue;
-            else if (e.OldValue != null)
+            if (e.OldValue != null && (DateTime)e.NewValue <= StartTime)
                 EndTime = (DateTime)e.OldValue;
 
             foreach (var sensor in _sensorsToGraph)
