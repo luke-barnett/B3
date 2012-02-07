@@ -116,7 +116,7 @@ namespace IndiaTango.ViewModels
                 {
                     SiteName = DataSet.Site.Name;
                     Owner = DataSet.Site.Owner;
-                    Notes = DataSet.Site.Notes;
+                    Notes = DataSet.Site.SiteNotes;
                     PrimaryContact = DataSet.Site.PrimaryContact;
                     SecondaryContact = DataSet.Site.SecondaryContact;
                     if (DataSet.Site.GpsLocation != null)
@@ -559,7 +559,7 @@ namespace IndiaTango.ViewModels
                 DataSet.Site.GpsLocation = GPSCoords.Parse(Latitude, Longitude);
                 DataSet.Site.Owner = Owner;
                 OwnerHelper.Add(Owner);
-                DataSet.Site.Notes = Notes;
+                DataSet.Site.SiteNotes = Notes;
                 DataSet.Site.PrimaryContact = PrimaryContact;
                 DataSet.Site.SecondaryContact = SecondaryContact;
 

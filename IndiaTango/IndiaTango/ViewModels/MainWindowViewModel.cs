@@ -730,13 +730,16 @@ namespace IndiaTango.ViewModels
             }
         }
 
-        public string SiteNotes
+        public List<string> EditingNotes
         {
-            get { return CurrentDataset != null ? CurrentDataset.Site.Notes : string.Empty; }
-            set
+            get
             {
-                if (CurrentDataset != null)
-                    CurrentDataset.Site.Notes = value;
+                if (CurrentDataset == null || CurrentDataset.Site == null || CurrentDataset.Site.DataEditingNotes == null)
+                    return new List<string>();
+
+                return
+                    CurrentDataset.Site.DataEditingNotes.OrderBy(x => x.Key).Select(x => string.Format("[{0}] {1}", x.Key.ToString("yyyy/MM/dd HH:mm:ss"), x.Value)).
+                        ToList();
             }
         }
 
@@ -888,7 +891,7 @@ namespace IndiaTango.ViewModels
                 UpdateGraph(true);
 
             NotifyOfPropertyChange(() => GraphableSensors);
-            NotifyOfPropertyChange(() => SiteNotes);
+            NotifyOfPropertyChange(() => EditingNotes);
         }
 
         private void UpdateDataTable()
@@ -1043,7 +1046,7 @@ namespace IndiaTango.ViewModels
             };
 
             _windowManager.ShowDialog(view);
-            NotifyOfPropertyChange(() => SiteNotes);
+            NotifyOfPropertyChange(() => EditingNotes);
             return view.WasCompleted;
         }
 
@@ -2327,7 +2330,7 @@ namespace IndiaTango.ViewModels
             CanUndo = SensorsForEditing.FirstOrDefault(x => x.UndoStates.Count > 0) != null;
             CanRedo = SensorsForEditing.FirstOrDefault(x => x.RedoStates.Count > 0) != null;
 
-            if(ViewAllSensors)
+            if (ViewAllSensors)
             {
                 CanUndo = Sensors.FirstOrDefault(x => x.UndoStates.Count > 0) != null;
                 CanRedo = Sensors.FirstOrDefault(x => x.RedoStates.Count > 0) != null;
@@ -2782,7 +2785,7 @@ namespace IndiaTango.ViewModels
                 return state != null ? state.EditTimestamp : new DateTime();
             });
 
-            if(ViewAllSensors)
+            if (ViewAllSensors)
             {
                 orderedSensors = Sensors.OrderBy(x =>
                                                      {
@@ -3096,6 +3099,16 @@ namespace IndiaTango.ViewModels
             SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "[PlotMetalimnionBoundaries]");
             CalculateYAxis();
             CalculateGraphedEndPoints();
+        }
+
+        public void AddNote(bool useDate, DateTime date, string note)
+        {
+            date = !useDate ? DateTime.Now : date.Subtract(new TimeSpan(0, 0, date.Second));
+
+            if (CurrentDataset != null && CurrentDataset.Site != null)
+                CurrentDataset.Site.AddEditingNote(date, note);
+
+            NotifyOfPropertyChange(() => EditingNotes);
         }
 
         #endregion
@@ -3470,10 +3483,22 @@ namespace IndiaTango.ViewModels
 
         public void TabChanged(SelectionChangedEventArgs eventArgs)
         {
-            if (eventArgs.AddedItems.Count > 0 && (eventArgs.AddedItems[0] as TabItem).Header is string && (string)(eventArgs.AddedItems[0] as TabItem).Header == "Home")
+            if (eventArgs.AddedItems.Count > 0 && eventArgs.AddedItems[0] is TabItem && (eventArgs.AddedItems[0] as TabItem).Header is string && (string)(eventArgs.AddedItems[0] as TabItem).Header == "Home")
             {
                 _selectionBehaviour.UseFullYAxis = _useFullYAxis;
                 NotInCalibrationMode = true;
+            }
+        }
+
+        public void RemoveEditingNote(string note, KeyEventArgs args)
+        {
+            if (args.Key == Key.Delete)
+            {
+                var date = note.Substring(note.IndexOf('[') + 1, 19);
+                var timeStamp = DateTime.Parse(date);
+
+                CurrentDataset.Site.RemoveEditingNote(timeStamp);
+                NotifyOfPropertyChange(() => EditingNotes);
             }
         }
 

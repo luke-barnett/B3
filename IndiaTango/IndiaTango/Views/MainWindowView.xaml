@@ -251,7 +251,42 @@
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
                             <TextBlock Grid.Row="0" Text="Notes:" VerticalAlignment="Center" FontWeight="Bold" />
-                            <TextBox Grid.Row="1" Text="{Binding SiteNotes,UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" />
+                            <Grid Grid.Row="1">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="25" />
+                                    <RowDefinition Height="30" />
+                                    <RowDefinition Height="25" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="3*" />
+                                </Grid.ColumnDefinitions>
+                                <CheckBox Name="specifyDateCheckbox" VerticalAlignment="Center" Grid.Row="0" Grid.Column="0" Content="Specify Date" />
+                                <toolkit:DateTimePicker Name="notesDate" Grid.Row="0" Grid.Column="1" IsEnabled="{Binding IsChecked, ElementName=specifyDateCheckbox}" Format="Custom" FormatString="yyyy/MM/dd HH:mm}" />
+                                <TextBox Name="notesString" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" />
+                                <Button Content="Add Note" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Right">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Click">
+                                            <cal:ActionMessage MethodName="AddNote">
+                                                <cal:Parameter Value="{Binding IsChecked, ElementName=specifyDateCheckbox}" />
+                                                <cal:Parameter Value="{Binding Value, ElementName=notesDate}" />
+                                                <cal:Parameter Value="{Binding Text, ElementName=notesString}" />
+                                            </cal:ActionMessage>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </Button>
+                                <ListBox Name="editingNotes" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{Binding EditingNotes}">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="KeyDown">
+                                            <cal:ActionMessage MethodName="RemoveEditingNote">
+                                                <cal:Parameter Value="{Binding SelectedItem, ElementName=editingNotes}" />
+                                                <cal:Parameter Value="$eventArgs" />
+                                            </cal:ActionMessage>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </ListBox>
+                            </Grid>
                         </Grid>
                     </TabItem>
                     <TabItem Header="QA\QC Tools">

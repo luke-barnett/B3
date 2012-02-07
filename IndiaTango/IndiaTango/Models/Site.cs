@@ -200,7 +200,16 @@ namespace IndiaTango.Models
         /// Notes to be made about the site
         /// </summary>
         [ProtoMember(14)]
-        public string Notes { get; set; }
+        public string SiteNotes { get; set; }
+
+        /// <summary>
+        /// Notes to be made about the site
+        /// </summary>
+        public string EditingNotes { get { return DataEditingNotes == null ? string.Empty : DataEditingNotes.Aggregate("", (x, y) => string.Format("{0} - {1}", y.Key, y.Value)); }}
+
+        [ProtoMember(15)]
+        public Dictionary<DateTime, string> DataEditingNotes { get; set; }
+
         #endregion
 
         #region Public methods
@@ -214,6 +223,24 @@ namespace IndiaTango.Models
                 throw new ArgumentException("Event must not be null");
             Events.Add(@event);
         }
+
+        public void AddEditingNote(DateTime timestamp, string note)
+        {
+            if(DataEditingNotes == null)
+                DataEditingNotes = new Dictionary<DateTime, string>();
+
+            DataEditingNotes[timestamp] = note;
+        }
+
+        public void RemoveEditingNote(DateTime timestamp)
+        {
+            if(DataEditingNotes == null)
+                return;
+            var fullTimestamp = DataEditingNotes.First(x => (x.Key - timestamp).TotalMilliseconds < 1000000);
+
+            DataEditingNotes.Remove(fullTimestamp.Key);
+        }
+
         #endregion
 
         public static int NextID
