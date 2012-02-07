@@ -168,6 +168,36 @@ namespace IndiaTango.Models
             table.Rows.Add(median);
             table.Rows.Add(standardDev);
 
+            #region Maximum
+
+            var maximum = table.NewRow();
+
+            maximum[0] = "Maximum";
+
+            for (var i = 0; i < sensors.Length; i++)
+            {
+                maximum[i + 1] = sensors[i].CurrentState.Values.Select(x => x.Value).Max();
+            }
+
+            table.Rows.Add(maximum);
+
+            #endregion
+
+            #region Minimum
+
+            var minimum = table.NewRow();
+
+            minimum[0] = "Maximum";
+
+            for (var i = 0; i < sensors.Length; i++)
+            {
+                minimum[i + 1] = sensors[i].CurrentState.Values.Select(x => x.Value).Min();
+            }
+
+            table.Rows.Add(minimum);
+
+            #endregion
+
             return table;
         }
     }
