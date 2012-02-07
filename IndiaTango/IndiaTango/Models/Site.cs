@@ -205,7 +205,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// Notes to be made about the site
         /// </summary>
-        public string EditingNotes { get { return DataEditingNotes == null ? string.Empty : DataEditingNotes.Aggregate("", (x, y) => string.Format("{0} - {1}", y.Key, y.Value)); }}
+        public string EditingNotes { get { return DataEditingNotes == null ? string.Empty : DataEditingNotes.OrderBy(x => x.Key).Aggregate("", (x, y) => string.Format("\r\n\t{0} - {1}", y.Key, y.Value)); }}
 
         [ProtoMember(15)]
         public Dictionary<DateTime, string> DataEditingNotes { get; set; }

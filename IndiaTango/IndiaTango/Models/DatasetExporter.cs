@@ -320,7 +320,7 @@ namespace IndiaTango.Models
                 writer.WriteLine("ID: " + data.Site.Id);
                 writer.WriteLine("Name: " + data.Site.Name);
                 writer.WriteLine("Owner: " + data.Site.Owner);
-                writer.WriteLine("Site notes:" + data.Site.SiteNotes);
+                writer.WriteLine("Site notes:\r\n\t" + data.Site.SiteNotes);
                 writer.WriteLine("Editing notes:" + data.Site.EditingNotes);
 
                 if (data.Site.PrimaryContact != null)
