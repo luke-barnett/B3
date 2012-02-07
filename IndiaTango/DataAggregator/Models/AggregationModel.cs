@@ -31,6 +31,10 @@ namespace DataAggregator.Models
 
         public static TimeSpanOption[] TimeSpanOptions = new[]
                                                              {
+                                                                 new TimeSpanOption { Option = "1 Minute", TimeSpan = TimeSpan.FromMinutes(1) },
+                                                                 new TimeSpanOption { Option = "5 Minutes", TimeSpan = TimeSpan.FromMinutes(5) },
+                                                                 new TimeSpanOption { Option = "10 Minutes", TimeSpan = TimeSpan.FromMinutes(10) },
+                                                                 new TimeSpanOption { Option = "15 Minutes", TimeSpan = TimeSpan.FromMinutes(15) },
                                                                  new TimeSpanOption { Option = "30 Minutes", TimeSpan = TimeSpan.FromMinutes(30) },
                                                                  new TimeSpanOption { Option = "Hourly", TimeSpan = TimeSpan.FromHours(1) },
                                                                  new TimeSpanOption { Option = "6 Hourly", TimeSpan = TimeSpan.FromHours(6) },
