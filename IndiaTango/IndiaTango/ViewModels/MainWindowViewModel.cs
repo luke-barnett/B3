@@ -1568,17 +1568,18 @@ namespace IndiaTango.ViewModels
 
             var applyToCombo = new ComboBox
                                    {
-                                       Width = 120
+                                       Width = 130
                                    };
             applyToStackPanel.Children.Add(applyToCombo);
 
-            applyToCombo.Items.Add("All");
+            applyToCombo.Items.Add("All graphed sensors");
+            applyToCombo.SelectedIndex = 0;
             SensorsToCheckMethodsAgainst.CollectionChanged += (o, e) => applyToCombo.Dispatcher.BeginInvoke(
                 DispatcherPriority.Input,
                 new ThreadStart(() =>
                                     {
                                         applyToCombo.Items.Clear();
-                                        applyToCombo.Items.Add("All");
+                                        applyToCombo.Items.Add("All graphed sensors");
                                         SensorsForEditing.ForEach(x =>
                                                                   applyToCombo.Items.Add(x.Name));
                                         applyToCombo.SelectedIndex = 0;
@@ -1794,7 +1795,7 @@ namespace IndiaTango.ViewModels
                                              //                                 "Should we use the date range of your selection for to apply the formula on?");
                                              var reason = Common.RequestReason(_container, _windowManager, 4);
                                              var successfulSensors = new List<Sensor>();
-                                             foreach (var sensor in SensorsToCheckMethodsAgainst.Where(x => (string)applyToCombo.SelectedItem == "All" || (string)applyToCombo.SelectedItem == x.Name))
+                                             foreach (var sensor in SensorsToCheckMethodsAgainst.Where(x => (string)applyToCombo.SelectedItem == "All graphed sensors" || (string)applyToCombo.SelectedItem == x.Name))
                                              {
                                                  try
                                                  {
@@ -1874,7 +1875,7 @@ namespace IndiaTango.ViewModels
                                                    //if (Selection != null)
                                                    //    useSelected = Common.Confirm("Should we use your selection?",
                                                    //                                 "Should we use the date range of your selection for to apply the formula on?");
-                                                   foreach (var sensor in SensorsToCheckMethodsAgainst.Where(x => (string)applyToCombo.SelectedItem == "All" || (string)applyToCombo.SelectedItem == x.Name))
+                                                   foreach (var sensor in SensorsToCheckMethodsAgainst.Where(x => (string)applyToCombo.SelectedItem == "All graphed sensors" || (string)applyToCombo.SelectedItem == x.Name))
                                                    {
                                                        var gSensor =
                                                            _sensorsToGraph.FirstOrDefault(x => x.Sensor == sensor);
