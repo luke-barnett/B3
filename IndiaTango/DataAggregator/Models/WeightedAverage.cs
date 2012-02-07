@@ -11,7 +11,7 @@ namespace DataAggregator.Models
             get { return "Weighted Average"; }
         }
 
-        public float Aggregate(IEnumerable<KeyValuePair<DateTime, float>> values, DateTime inclusiveStartTimestamp, DateTime exclusiveEndTimestamp)
+        public float Aggregate(IEnumerable<KeyValuePair<DateTime, float>> values, DateTime inclusiveStartTimestamp, DateTime exclusiveEndTimestamp, DateTime midPointTimestamp)
         {
             if (!values.Any())
                 return float.NaN;

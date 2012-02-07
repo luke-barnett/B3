@@ -43,7 +43,7 @@ namespace DataAggregator.Models
                 foreach (var x in series)
                 {
                     x.AggregatedValues[timestamp] =
-                        x.AggregationModel.AggregationMethod.Aggregate((from includedTimestamp in includedTimestamps where x.Values.ContainsKey(includedTimestamp) select new KeyValuePair<DateTime, float>(includedTimestamp, x.Values[includedTimestamp])).OrderBy(y => y.Key).ToArray(), inclusiveStart, exclusiveEnd);
+                        x.AggregationModel.AggregationMethod.Aggregate((from includedTimestamp in includedTimestamps where x.Values.ContainsKey(includedTimestamp) select new KeyValuePair<DateTime, float>(includedTimestamp, x.Values[includedTimestamp])).OrderBy(y => y.Key).ToArray(), inclusiveStart, exclusiveEnd, timestamp);
                 }
 
                 if (worker == null || !worker.WorkerReportsProgress) continue;

@@ -49,7 +49,7 @@ namespace DataAggregator.Models
         {
             get
             {
-                return new IAggregationMethod[] { new Average(), new Sum(), new FirstValue(), new WeightedAverage()  };
+                return new IAggregationMethod[] { new Average(), new Sum(), new NearestValue(), new WeightedAverage()  };
             }
         }
     }

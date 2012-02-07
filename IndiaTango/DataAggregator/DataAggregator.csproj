@@ -84,7 +84,7 @@
     <Compile Include="Models\IAggregationMethod.cs" />
     <Compile Include="Models\Average.cs" />
     <Compile Include="Models\Exporter.cs" />
-    <Compile Include="Models\FirstValue.cs" />
+    <Compile Include="Models\NearestValue.cs" />
     <Compile Include="Models\Sum.cs" />
     <Compile Include="Models\TimeSpanOption.cs" />
     <Compile Include="Models\WeightedAverage.cs" />
