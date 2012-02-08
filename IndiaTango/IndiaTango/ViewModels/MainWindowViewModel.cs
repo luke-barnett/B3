@@ -262,7 +262,7 @@ namespace IndiaTango.ViewModels
                 NotifyOfPropertyChange(() => CurrentDataSetNotNull);
                 if (CurrentDataSetNotNull)
                 {
-                    _evaluator = new FormulaEvaluator(Sensors, CurrentDataset.DataInterval);
+                    _evaluator = new FormulaEvaluator(Sensors);
                     _dateAnnotator.DataInterval = CurrentDataset.DataInterval;
                 }
                 UpdateGUI();
@@ -1345,7 +1345,7 @@ namespace IndiaTango.ViewModels
                                             message =
                                                "The program applies the formula entered across all sensors data points within the specified range.\n" +
                                                "The following gives an indication of the operations and syntax.\n\n" +
-                                               "Mathematical operations\t [ -, +, *, ^, % ]\n" +
+                                               "Mathematical operations\t [ -, +, *, % ]\n" +
                                                "Mathematical functions\t [ Sin(y), Cos(y), Tan(y), Pi ]\n\n" +
                                                "To set a data points value for a particular sensor, use that sensors variable followed by a space and an equals sign, then by the value.\n" +
                                                "   eg: To set the values of the sensor " + Sensors[0].Name + " to 5 for all points, use '" + Sensors[0].Variable.VariableName + " = 5' \n\n" +
@@ -1392,9 +1392,6 @@ namespace IndiaTango.ViewModels
                                                 if (validFormula)
                                                 {
                                                     var useSelected = Selection != null;
-                                                    //if (Selection != null)
-                                                    //    useSelected = Common.Confirm("Should we use your selection?",
-                                                    //                                 "Should we use the date range of your selection for to apply the formula on?");
                                                     var skipMissingValues = false;
                                                     var detector = new MissingValuesDetector();
 
@@ -1424,10 +1421,10 @@ namespace IndiaTango.ViewModels
                                                     var reason = Common.RequestReason(_container, _windowManager, 12);
 
                                                     ApplicationCursor = Cursors.Wait;
-                                                    if (useSelected)
-                                                        _evaluator.EvaluateFormula(formula, Selection.LowerX.Round(TimeSpan.FromMinutes(CurrentDataset.DataInterval)), Selection.UpperX, skipMissingValues, reason);
-                                                    else
-                                                        _evaluator.EvaluateFormula(formula, StartTime.Round(TimeSpan.FromMinutes(CurrentDataset.DataInterval)), EndTime, skipMissingValues, reason);
+
+                                                    var result = useSelected ? _evaluator.EvaluateFormula(formula, Selection.LowerX.Round(TimeSpan.FromMinutes(CurrentDataset.DataInterval)), Selection.UpperX, skipMissingValues, reason) : _evaluator.EvaluateFormula(formula, StartTime.Round(TimeSpan.FromMinutes(CurrentDataset.DataInterval)), EndTime, skipMissingValues, reason);
+
+                                                    result.Key.AddState(result.Value);
 
                                                     ApplicationCursor = Cursors.Arrow;
 
@@ -2586,7 +2583,7 @@ namespace IndiaTango.ViewModels
                                                      sensor.Variable = sensorVariables.FirstOrDefault(x => x.Sensor == sensor);
                                                  }
                                              }
-                                             _evaluator = new FormulaEvaluator(Sensors, CurrentDataset.DataInterval);
+                                             _evaluator = new FormulaEvaluator(Sensors);
                                              _dateAnnotator.DataInterval = CurrentDataset.DataInterval;
 
                                              ShowProgressArea = false;

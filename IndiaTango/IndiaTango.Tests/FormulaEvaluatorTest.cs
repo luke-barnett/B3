@@ -23,8 +23,14 @@ namespace IndiaTango.Tests
         {
             _reader = new CSVReader(Path.Combine(Common.TestDataPath, "lakeTutira120120110648_extra_small.csv"));
             _ds = new Dataset(_s, _reader.ReadSensors());
+            var sensorVariables = SensorVariable.CreateSensorVariablesFromSensors(_ds.Sensors);
+            foreach (var sensor in _ds.Sensors)
+            {
+                sensor.Owner = _ds;
+                sensor.Variable = sensorVariables.FirstOrDefault(x => x.Sensor == sensor);
+            }
 
-            _eval = new FormulaEvaluator(_ds.Sensors, _ds.DataInterval);
+            _eval = new FormulaEvaluator(_ds.Sensors);
         }
 
         //Parsing not yet implemented
@@ -111,9 +117,9 @@ namespace IndiaTango.Tests
         public void SetValuetoMonth()
         {
             Formula formula = _eval.CompileFormula("a = time.Month");
-            _eval.EvaluateFormula(formula, _ds.StartTimeStamp, _ds.EndTimeStamp, false, new ChangeReason(0, "Test"));
+            var result = _eval.EvaluateFormula(formula, _ds.StartTimeStamp, _ds.EndTimeStamp, false, new ChangeReason(0, "Test"));
 
-            foreach (var pair in _ds.Sensors[0].CurrentState.Values)
+            foreach (var pair in result.Value.Values)
             {
                 Assert.AreEqual(pair.Key.Month, pair.Value);
             }
@@ -123,9 +129,9 @@ namespace IndiaTango.Tests
         public void SetValuetoCosDay()
         {
             Formula formula = _eval.CompileFormula("b = Cos(time.Day)");
-            _eval.EvaluateFormula(formula, _ds.StartTimeStamp, _ds.EndTimeStamp, false, new ChangeReason(0, "Test"));
+            var result = _eval.EvaluateFormula(formula, _ds.StartTimeStamp, _ds.EndTimeStamp, false, new ChangeReason(0, "Test"));
 
-            foreach (var pair in _ds.Sensors[1].CurrentState.Values)
+            foreach (var pair in result.Value.Values)
             {
                 Assert.AreEqual(Math.Cos(pair.Key.Day), pair.Value, delta);
             }
@@ -134,12 +140,12 @@ namespace IndiaTango.Tests
         [Test]
         public void SetLToM()
         {
-            Formula formula = _eval.CompileFormula("l = m");
-            _eval.EvaluateFormula(formula, _ds.StartTimeStamp, _ds.EndTimeStamp, false, new ChangeReason(0, "Test"));
+            Formula formula = _eval.CompileFormula("l = m ");
+            var result = _eval.EvaluateFormula(formula, _ds.StartTimeStamp, _ds.EndTimeStamp, false, new ChangeReason(0, "Test"));
 
-            foreach (var pair in _ds.Sensors[11].CurrentState.Values)
+            foreach (var pair in _ds.Sensors[12].CurrentState.Values)
             {
-                Assert.AreEqual(pair.Value, _ds.Sensors[12].CurrentState.Values[pair.Key]);
+                Assert.AreEqual(pair.Value, result.Value.Values[pair.Key]);
             }
         }
 

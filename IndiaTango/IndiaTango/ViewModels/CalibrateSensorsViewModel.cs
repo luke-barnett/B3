@@ -341,7 +341,7 @@ namespace IndiaTango.ViewModels
             set
             {
                 _ds = value;
-                _eval = new FormulaEvaluator(_ds.Sensors, _ds.DataInterval);
+                _eval = new FormulaEvaluator(_ds.Sensors);
                 StartTime = _ds.StartTimeStamp;
                 EndTime = _ds.EndTimeStamp;
                 _sensorVariables = SensorVariable.CreateSensorVariablesFromSensors(_ds.Sensors);
