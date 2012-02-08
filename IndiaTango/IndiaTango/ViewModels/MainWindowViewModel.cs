@@ -1346,7 +1346,7 @@ namespace IndiaTango.ViewModels
                                                "The program applies the formula entered across all sensors data points within the specified range.\n" +
                                                "The following gives an indication of the operations and syntax.\n\n" +
                                                "Mathematical operations\t [ -, +, *, % ]\n" +
-                                               "Mathematical functions\t [ Sin(y), Cos(y), Tan(y), Pi ]\n\n" +
+                                               "Mathematical functions\t [ Sin(y), Cos(y), Tan(y), Pi, Pow(x,y) ]\n\n" +
                                                "To set a data points value for a particular sensor, use that sensors variable followed by a space and an equals sign, then by the value.\n" +
                                                "   eg: To set the values of the sensor " + Sensors[0].Name + " to 5 for all points, use '" + Sensors[0].Variable.VariableName + " = 5' \n\n" +
                                                "To use a sensors values in a calculation, use that sesnors variable.\n" +
@@ -1354,10 +1354,11 @@ namespace IndiaTango.ViewModels
                                                    ", use " + Sensors[0].Variable.VariableName + " = " + Sensors[1].Variable.VariableName + "\n\n" +
                                                "To use the data points time stamp in calculations use 'time.' followed by the time part desired.\n" +
                                                "   eg: time.Year, time.Month, time.Day, time.Hour, time.Minute, time.Second\n\n" +
+                                               "Note: Variables must be seperated out by whitespace like so \" a \"" +
                                                "Examples:\n" +
                                                "'x = x + 1'\n" +
                                                "'x = time.Date'\n" +
-                                               "'x = x * Cos(x + 1) + 2'";
+                                               "'x = x * Cos( x + 1) + 2'";
                                         Common.ShowMessageBox("Formula Help", message, false, false);
                                     };
             buttonsWrapper.Children.Add(helpButton);
