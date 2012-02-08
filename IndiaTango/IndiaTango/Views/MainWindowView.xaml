@@ -303,7 +303,7 @@
                             </Grid>
                         </GroupBox>
                     </TabItem>
-                    <TabItem Header="Lake Analysis">
+                    <!--<TabItem Header="Lake Analysis">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
@@ -326,7 +326,7 @@
                             <Button Grid.Row="2" Content="Calculate and plot Thermocline Depth" cal:Message.Attach="[Event Click] = [PlotThermoclineDepth]" />
                             <Button Grid.Row="3" Content="Calculate and plot Metalimnion Boundaries" cal:Message.Attach="[Event Click] = [PlotMetalimnionBoundaries]" />
                         </Grid>
-                    </TabItem>
+                    </TabItem>-->
                 </TabControl>
 
                 <GroupBox Grid.Row="3" x:Name="ActionsSection" Header="Actions" BorderBrush="OrangeRed" Margin="0,0,0,5">
