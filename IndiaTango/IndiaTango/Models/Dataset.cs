@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -406,7 +407,7 @@ namespace IndiaTango.Models
 
                     dataset.HighestYearLoaded = numberOfYears;
 
-                    if(numberOfYears > 0)
+                    if (numberOfYears > 0)
                     {
                         dataset.LowestYearLoaded = numberOfYears - 1;
                     }
@@ -420,7 +421,7 @@ namespace IndiaTango.Models
 
         public void SaveToFile(bool exportData = true, bool deleteFile = false)
         {
-            if(deleteFile && File.Exists(SaveLocation))
+            if (deleteFile && File.Exists(SaveLocation))
                 File.Delete(SaveLocation);
 
             if (!Directory.Exists(Common.DatasetSaveLocation))
@@ -613,6 +614,22 @@ namespace IndiaTango.Models
                     }
                 }
                 zip.Save(SaveLocation);
+            }
+        }
+
+        public void DeleteSensor(Sensor sensorToDelete)
+        {
+            if (!Sensors.Contains(sensorToDelete)) return;
+
+            Sensors.Remove(sensorToDelete);
+
+            Debug.WriteLine("Deleting Sensor (HASH {0})", sensorToDelete.Hash);
+
+            using (var zip = ZipFile.Read(SaveLocation))
+            {
+                zip.CompressionLevel = CompressionLevel.None;
+                zip.RemoveEntries(zip.Entries.Where(x => x.FileName.Contains(sensorToDelete.Hash)).ToArray());
+                zip.Save();
             }
         }
 

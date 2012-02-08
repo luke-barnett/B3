@@ -1309,7 +1309,7 @@ namespace IndiaTango.ViewModels
 
             manualFormulaTextBox.KeyUp += (o, e) =>
                                               {
-                                                  if(previewTextBox.Text == "Reject")
+                                                  if (previewTextBox.Text == "Reject")
                                                   {
                                                       foreach (var graphableSensor in GraphableSensors)
                                                       {
@@ -1516,7 +1516,7 @@ namespace IndiaTango.ViewModels
 
             previewFormulaButton.Click += (sender, args) =>
                                               {
-                                                  if(previewTextBox.Text == "Reject")
+                                                  if (previewTextBox.Text == "Reject")
                                                   {
                                                       foreach (var graphableSensor in GraphableSensors)
                                                       {
@@ -3423,7 +3423,7 @@ namespace IndiaTango.ViewModels
         {
             if (!Common.Confirm("Are you sure?", string.Format("Do you really want to delete {0}?", gSensor.Sensor.Name)))
                 return;
-            CurrentDataset.Sensors.Remove(gSensor.Sensor);
+            CurrentDataset.DeleteSensor(gSensor.Sensor);
             if (_sensorsToGraph.Contains(gSensor))
                 _sensorsToGraph.Remove(gSensor);
             if (SensorsToCheckMethodsAgainst.Contains(gSensor.Sensor))

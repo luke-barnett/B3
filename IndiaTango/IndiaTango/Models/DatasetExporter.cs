@@ -186,6 +186,9 @@ namespace IndiaTango.Models
                         sensor.RawData.Values.Remove(keyValuePair.Key);
                     }
                 }
+
+                data.LowestYearLoaded = firstYearLoaded;
+                data.HighestYearLoaded = lastYearLoaded;
             }
         }
 
