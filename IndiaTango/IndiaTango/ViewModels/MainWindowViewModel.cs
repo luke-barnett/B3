@@ -1270,6 +1270,7 @@ namespace IndiaTango.ViewModels
                                                BorderBrush = Brushes.OrangeRed,
                                                Margin = new Thickness(0, 0, 0, 10),
                                                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                                               TextWrapping = TextWrapping.Wrap,
                                                AcceptsReturn = true,
                                                IsEnabled = CurrentDataSetNotNull
                                            };
@@ -1289,8 +1290,35 @@ namespace IndiaTango.ViewModels
                                              VerticalContentAlignment = VerticalAlignment.Bottom,
                                              IsEnabled = !Properties.Settings.Default.EvaluateFormulaOnKeyUp
                                          };
+            var previewFormulaButton = new Button
+                                           {
+                                               FontSize = 15,
+                                               HorizontalAlignment = HorizontalAlignment.Right,
+                                               Margin = new Thickness(5, 0, 5, 0),
+                                               VerticalAlignment = VerticalAlignment.Bottom,
+                                               VerticalContentAlignment = VerticalAlignment.Bottom,
+                                               IsEnabled = !Properties.Settings.Default.EvaluateFormulaOnKeyUp
+                                           };
+
+            var previewTextBox = new TextBlock
+                                     {
+                                         Text = "Preview",
+                                         VerticalAlignment = VerticalAlignment.Center,
+                                         Margin = new Thickness(5)
+                                     };
+
             manualFormulaTextBox.KeyUp += (o, e) =>
                                               {
+                                                  if(previewTextBox.Text == "Reject")
+                                                  {
+                                                      foreach (var graphableSensor in GraphableSensors)
+                                                      {
+                                                          graphableSensor.RemovePreview();
+                                                      }
+                                                      UpdateGraph(false);
+                                                      previewTextBox.Text = "Preview";
+                                                  }
+
                                                   if (!Properties.Settings.Default.EvaluateFormulaOnKeyUp)
                                                       return;
                                                   bool validFormula;
@@ -1306,6 +1334,7 @@ namespace IndiaTango.ViewModels
 
                                                   manualFormulaTextBox.Background = !validFormula && Properties.Settings.Default.EvaluateFormulaOnKeyUp ? new SolidColorBrush(Color.FromArgb(126, 255, 69, 0)) : new SolidColorBrush(Colors.White);
                                                   applyFormulaButton.IsEnabled = validFormula;
+                                                  previewFormulaButton.IsEnabled = validFormula;
                                               };
             Grid.SetRow(manualFormulaTextBox, 1);
             manualTabGrid.Children.Add(manualFormulaTextBox);
@@ -1425,6 +1454,13 @@ namespace IndiaTango.ViewModels
 
                                                     var result = useSelected ? _evaluator.EvaluateFormula(formula, Selection.LowerX.Round(TimeSpan.FromMinutes(CurrentDataset.DataInterval)), Selection.UpperX, skipMissingValues, reason) : _evaluator.EvaluateFormula(formula, StartTime.Round(TimeSpan.FromMinutes(CurrentDataset.DataInterval)), EndTime, skipMissingValues, reason);
 
+                                                    if (result.Key == null)
+                                                    {
+                                                        Common.ShowMessageBox("Formula failed", "Failed to apply the formula to the sensor(s) involved",
+                                                                          false, false);
+                                                        return;
+                                                    }
+
                                                     result.Key.AddState(result.Value);
 
                                                     ApplicationCursor = Cursors.Arrow;
@@ -1477,6 +1513,108 @@ namespace IndiaTango.ViewModels
                                                             VerticalAlignment = VerticalAlignment.Center,
                                                             Margin = new Thickness(5)
                                                         });
+
+            previewFormulaButton.Click += (sender, args) =>
+                                              {
+                                                  if(previewTextBox.Text == "Reject")
+                                                  {
+                                                      foreach (var graphableSensor in GraphableSensors)
+                                                      {
+                                                          graphableSensor.RemovePreview();
+                                                      }
+                                                      UpdateGraph(false);
+                                                      previewTextBox.Text = "Preview";
+                                                      return;
+                                                  }
+
+                                                  var validFormula = false;
+                                                  if (!string.IsNullOrWhiteSpace(manualFormulaTextBox.Text))
+                                                  {
+                                                      formula = _evaluator.CompileFormula(manualFormulaTextBox.Text);
+                                                      validFormula = formula.IsValid;
+                                                  }
+
+                                                  if (validFormula)
+                                                  {
+                                                      var useSelected = Selection != null;
+                                                      var skipMissingValues = false;
+                                                      var detector = new MissingValuesDetector();
+
+                                                      //Detect if missing values
+                                                      var missingSensors = formula.SensorsUsed.Where(sensorVariable => detector.GetDetectedValues(sensorVariable.Sensor).Count > 0).Aggregate("", (current, sensorVariable) => current + ("\t" + sensorVariable.Sensor.Name + " (" + sensorVariable.VariableName + ")\n"));
+
+                                                      if (missingSensors != "")
+                                                      {
+                                                          var specify =
+                                                              (SpecifyValueViewModel)_container.GetInstance(typeof(SpecifyValueViewModel), "SpecifyValueViewModel");
+                                                          specify.Title = "Missing Values Detected";
+                                                          specify.Message =
+                                                              "The following sensors you have used in the formula contain missing values:\n\n" + missingSensors + "\nPlease select an action to take.";
+                                                          specify.ShowComboBox = true;
+                                                          specify.ShowCancel = true;
+                                                          specify.CanEditComboBox = false;
+                                                          specify.ComboBoxItems =
+                                                              new List<string>(new[] { "Treat all missing values as zero", "Skip over all missing values" });
+                                                          specify.ComboBoxSelectedIndex = 1;
+
+                                                          _windowManager.ShowDialog(specify);
+
+                                                          if (specify.WasCanceled) return;
+                                                          skipMissingValues = specify.ComboBoxSelectedIndex == 1;
+                                                      }
+
+                                                      var reason = new ChangeReason(-1, "Preview");
+
+                                                      ApplicationCursor = Cursors.Wait;
+
+                                                      var result = useSelected ? _evaluator.EvaluateFormula(formula, Selection.LowerX.Round(TimeSpan.FromMinutes(CurrentDataset.DataInterval)), Selection.UpperX, skipMissingValues, reason) : _evaluator.EvaluateFormula(formula, StartTime.Round(TimeSpan.FromMinutes(CurrentDataset.DataInterval)), EndTime, skipMissingValues, reason);
+
+                                                      if (result.Key == null)
+                                                      {
+                                                          Common.ShowMessageBox("Formula failed", "Failed to apply the formula for the preview of sensor(s) involved",
+                                                                            false, false);
+                                                          return;
+                                                      }
+
+                                                      var gSensor = GraphableSensors.First(x => x.Sensor == result.Key);
+
+                                                      gSensor.GeneratePreview(result.Value);
+
+                                                      ApplicationCursor = Cursors.Arrow;
+                                                      previewTextBox.Text = "Reject";
+                                                      UpdateGraph(false);
+                                                  }
+                                                  else
+                                                  {
+                                                      var errorString = "";
+
+                                                      if (formula != null && formula.CompilerResults.Errors.Count > 0)
+                                                          errorString = formula.CompilerResults.Errors.Cast<CompilerError>().Aggregate(errorString, (current, error) => current + (error.ErrorText + "\n"));
+
+                                                      Common.ShowMessageBoxWithExpansion("Unable to Preview Formula",
+                                                                                         "An error was encounted when trying to preview the formula.\nPlease check the formula syntax.",
+                                                                                         false, true, errorString);
+                                                  }
+                                              };
+
+            var previewFormulaButtonStackPanel = new StackPanel
+                                                     {
+                                                         Orientation = Orientation.Horizontal
+                                                     };
+            previewFormulaButton.Content = previewFormulaButtonStackPanel;
+            previewFormulaButtonStackPanel.Children.Add(new Image
+                                                            {
+                                                                Width = 32,
+                                                                Height = 32,
+                                                                Source =
+                                                                    new BitmapImage(
+                                                                    new Uri(
+                                                                        "pack://application:,,,/Images/preview_32.png",
+                                                                        UriKind.Absolute))
+                                                            });
+            previewFormulaButtonStackPanel.Children.Add(previewTextBox);
+
+            buttonsWrapper.Children.Add(previewFormulaButton);
 
             var clearButton = new Button
                                 {
