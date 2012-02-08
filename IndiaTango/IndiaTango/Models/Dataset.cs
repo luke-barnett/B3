@@ -369,7 +369,7 @@ namespace IndiaTango.Models
                     var lastestYear =
                         zip.Entries.FirstOrDefault(
                             x =>
-                            x.FileName.Contains(sensorobject.Name.GetHashCode().ToString(CultureInfo.InvariantCulture)) &&
+                            x.FileName.Contains(sensorobject.Hash) &&
                             x.FileName.EndsWith(
                                 dataset.EndYear.ToString(
                                     CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern)));
@@ -387,7 +387,7 @@ namespace IndiaTango.Models
                     var secondToLastYear =
                         zip.Entries.FirstOrDefault(
                             x =>
-                            x.FileName.Contains(sensorobject.Name.GetHashCode().ToString(CultureInfo.InvariantCulture)) &&
+                            x.FileName.Contains(sensorobject.Hash) &&
                             x.FileName.EndsWith(
                                 dataset.EndYear.AddYears(-1).ToString(
                                     CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern)));
@@ -444,7 +444,7 @@ namespace IndiaTango.Models
             using (var zip = File.Exists(SaveLocation) ? ZipFile.Read(SaveLocation) : new ZipFile())
             {
                 zip.CompressionLevel = CompressionLevel.None;
-                zip.Comment = string.Format("B3 ZIP FORMAT v1");
+                zip.Comment = string.Format("B3 ZIP FORMAT v1.1");
 
                 var datasetStream = new MemoryStream();
                 Serializer.Serialize(datasetStream, this);
@@ -462,17 +462,15 @@ namespace IndiaTango.Models
 
                 foreach (var sensor in Sensors)
                 {
-                    var sensorHash = sensor.Name.GetHashCode().ToString(CultureInfo.InvariantCulture);
-
                     var sensorMetaData = new MemoryStream();
                     Serializer.Serialize(sensorMetaData, sensor);
                     sensorMetaData.Position = 0;
 
-                    if (!zip.EntryFileNames.Contains(sensorHash + "/"))
-                        zip.AddDirectoryByName(sensorHash);
-                    if (zip.EntryFileNames.Contains(sensorHash + "/metadata"))
-                        zip.RemoveEntry(sensorHash + "\\metadata");
-                    zip.AddEntry(sensorHash + "\\metadata", sensorMetaData);
+                    if (!zip.EntryFileNames.Contains(sensor.Hash + "/"))
+                        zip.AddDirectoryByName(sensor.Hash);
+                    if (zip.EntryFileNames.Contains(sensor.Hash + "/metadata"))
+                        zip.RemoveEntry(sensor.Hash + "\\metadata");
+                    zip.AddEntry(sensor.Hash + "\\metadata", sensorMetaData);
 
                     for (var i = StartYear.AddYears(LowestYearLoaded); i < StartYear.AddYears(HighestYearLoaded + 1); i = i.AddYears(1))
                     {
@@ -482,9 +480,9 @@ namespace IndiaTango.Models
                         Serializer.Serialize(dataBlockStream, x);
                         dataBlockStream.Position = 0;
 
-                        if (zip.EntryFileNames.Contains(sensorHash + "/" + i.ToString(CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern)))
-                            zip.RemoveEntry(sensorHash + "\\" + i.ToString(CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern));
-                        zip.AddEntry(sensorHash + "\\" + i.ToString(CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern), dataBlockStream);
+                        if (zip.EntryFileNames.Contains(sensor.Hash + "/" + i.ToString(CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern)))
+                            zip.RemoveEntry(sensor.Hash + "\\" + i.ToString(CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern));
+                        zip.AddEntry(sensor.Hash + "\\" + i.ToString(CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern), dataBlockStream);
                     }
                 }
 
@@ -511,7 +509,7 @@ namespace IndiaTango.Models
                         var data =
                             zip.Entries.FirstOrDefault(
                                 x =>
-                                x.FileName.Contains(sensor.Name.GetHashCode().ToString(CultureInfo.InvariantCulture)) &&
+                                x.FileName.Contains(sensor.Hash) &&
                                 x.FileName.EndsWith(
                                     StartYear.AddYears(year).ToString(
                                         CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern)));
@@ -600,7 +598,7 @@ namespace IndiaTango.Models
                 {
                     foreach (var sensor in Sensors)
                     {
-                        var sensorHash = sensor.Name.GetHashCode().ToString(CultureInfo.InvariantCulture);
+                        ;
 
                         var dataBlockStream = new MemoryStream();
                         var x = new YearlyDataBlock(sensor.CurrentState.GetCompressedValues(StartYear.AddYears(year), StartYear.AddYears(year + 1)),
@@ -608,10 +606,10 @@ namespace IndiaTango.Models
                         Serializer.Serialize(dataBlockStream, x);
                         dataBlockStream.Position = 0;
 
-                        if (zip.EntryFileNames.Contains(sensorHash + "/" + StartYear.AddYears(year).ToString(CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern)))
-                            zip.RemoveEntry(sensorHash + "\\" + StartYear.AddYears(year).ToString(CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern));
+                        if (zip.EntryFileNames.Contains(sensor.Hash + "/" + StartYear.AddYears(year).ToString(CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern)))
+                            zip.RemoveEntry(sensor.Hash + "\\" + StartYear.AddYears(year).ToString(CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern));
 
-                        zip.AddEntry(sensorHash + "\\" + StartYear.AddYears(year).ToString(CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern), dataBlockStream);
+                        zip.AddEntry(sensor.Hash + "\\" + StartYear.AddYears(year).ToString(CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern), dataBlockStream);
                     }
                 }
                 zip.Save(SaveLocation);

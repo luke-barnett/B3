@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Media;
@@ -40,6 +41,7 @@ namespace IndiaTango.Models
         private string _sensorType;
         private ObservableCollection<SensorMetaData> _metaData;
         private SensorMetaData _currentMetaData;
+        private string _hash;
         #endregion
 
         #region Constructors
@@ -507,6 +509,22 @@ namespace IndiaTango.Models
             }
         }
 
+        [ProtoMember(23)]
+        public string Hash
+        {
+            get
+            {
+                if (_hash == null || string.IsNullOrWhiteSpace(_hash))
+                    _hash = (Name + DateTime.Now.ToString("yyyy/MMMM/dddd HH:mm:ss:fffffff")).GetHashCode().ToString(CultureInfo.InvariantCulture);
+                return _hash;
+            }
+            set
+            {
+                if (_hash == null || string.IsNullOrWhiteSpace(_hash))
+                    _hash = value;
+            }
+        }
+
         #endregion
 
         #region Public Methods
@@ -580,7 +598,7 @@ namespace IndiaTango.Models
             {
                 changesMadeInTimePeriod =
                     changesMadeInTimePeriod.Where(
-                        x => !CurrentState.Values.ContainsKey(x) ||  CurrentState.Values[x] >= lowerYLimit && CurrentState.Values[x] <= upperYLimit).ToArray();
+                        x => !CurrentState.Values.ContainsKey(x) || CurrentState.Values[x] >= lowerYLimit && CurrentState.Values[x] <= upperYLimit).ToArray();
             }
             foreach (var timeStamp in changesMadeInTimePeriod)
             {
