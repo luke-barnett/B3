@@ -303,7 +303,9 @@
                             </Grid>
                         </GroupBox>
                     </TabItem>
-                    <!--<TabItem Header="Lake Analysis">
+                    <!--
+                    Hidden Tab Due to Incomplete Feature
+                    <TabItem Header="Lake Analysis"> 
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
