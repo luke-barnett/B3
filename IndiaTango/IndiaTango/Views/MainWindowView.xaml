@@ -53,9 +53,9 @@
 
         <Grid Grid.Row="1" x:Name="MainSection">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="385" MinWidth="385" />
+                <ColumnDefinition Width="415" MinWidth="415" />
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" MinWidth="500" />
+                <ColumnDefinition Width="*" MinWidth="760" />
             </Grid.ColumnDefinitions>
 
             <Grid Grid.Column="0" x:Name="DataSection" Margin="5,0">

@@ -1285,7 +1285,7 @@ namespace IndiaTango.ViewModels
                                          {
                                              FontSize = 15,
                                              HorizontalAlignment = HorizontalAlignment.Right,
-                                             Margin = new Thickness(5, 0, 5, 0),
+                                             Margin = new Thickness(5, 0, 0, 0),
                                              VerticalAlignment = VerticalAlignment.Bottom,
                                              VerticalContentAlignment = VerticalAlignment.Bottom,
                                              IsEnabled = !Properties.Settings.Default.EvaluateFormulaOnKeyUp
@@ -1294,7 +1294,7 @@ namespace IndiaTango.ViewModels
                                            {
                                                FontSize = 15,
                                                HorizontalAlignment = HorizontalAlignment.Right,
-                                               Margin = new Thickness(5, 0, 5, 0),
+                                               Margin = new Thickness(5, 0, 0, 0),
                                                VerticalAlignment = VerticalAlignment.Bottom,
                                                VerticalContentAlignment = VerticalAlignment.Bottom,
                                                IsEnabled = !Properties.Settings.Default.EvaluateFormulaOnKeyUp
@@ -1351,7 +1351,7 @@ namespace IndiaTango.ViewModels
                                  {
                                      FontSize = 15,
                                      HorizontalAlignment = HorizontalAlignment.Left,
-                                     Margin = new Thickness(5, 0, 5, 0),
+                                     Margin = new Thickness(0, 0, 0, 0),
                                      VerticalAlignment = VerticalAlignment.Bottom,
                                      VerticalContentAlignment = VerticalAlignment.Bottom,
                                  };
@@ -1390,7 +1390,7 @@ namespace IndiaTango.ViewModels
                                                "'x = x * Cos( x + 1) + 2'";
                                         Common.ShowMessageBox("Formula Help", message, false, false);
                                     };
-            buttonsWrapper.Children.Add(helpButton);
+            
 
             var helpButtonStackPanel = new StackPanel
                                            {
@@ -1494,7 +1494,7 @@ namespace IndiaTango.ViewModels
                                                                                        false, true, errorString);
                                                 }
                                             };
-            buttonsWrapper.Children.Add(applyFormulaButton);
+            
 
             var applyFormulaButtonStackPanel = new StackPanel
                                                     {
@@ -1614,13 +1614,11 @@ namespace IndiaTango.ViewModels
                                                             });
             previewFormulaButtonStackPanel.Children.Add(previewTextBox);
 
-            buttonsWrapper.Children.Add(previewFormulaButton);
-
             var clearButton = new Button
                                 {
                                     FontSize = 15,
                                     HorizontalAlignment = HorizontalAlignment.Right,
-                                    Margin = new Thickness(5, 0, 5, 0),
+                                    Margin = new Thickness(5, 0, 0, 0),
                                     VerticalAlignment = VerticalAlignment.Bottom,
                                     VerticalContentAlignment = VerticalAlignment.Bottom
                                 };
@@ -1629,7 +1627,7 @@ namespace IndiaTango.ViewModels
                                          manualFormulaTextBox.Text = "";
                                          applyFormulaButton.IsEnabled = !Properties.Settings.Default.EvaluateFormulaOnKeyUp;
                                      };
-            buttonsWrapper.Children.Add(clearButton);
+            
 
             var clearButtonStackPanel = new StackPanel
                                             {
@@ -1648,6 +1646,13 @@ namespace IndiaTango.ViewModels
                                                         VerticalAlignment = VerticalAlignment.Center,
                                                         Margin = new Thickness(5)
                                                     });
+
+            #region Add Buttons to Wrapper
+            buttonsWrapper.Children.Add(helpButton);
+            buttonsWrapper.Children.Add(clearButton);
+            buttonsWrapper.Children.Add(previewFormulaButton);
+            buttonsWrapper.Children.Add(applyFormulaButton);
+            #endregion
 
             #endregion
 
@@ -1961,7 +1966,7 @@ namespace IndiaTango.ViewModels
                                              SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "AutoCalibration");
                                              UpdateUndoRedo();
                                          };
-            autoButtonsWrapPanel.Children.Add(autoApplyButton);
+            
 
             var autoApplyButtonStackPanel = new StackPanel
                                                 {
@@ -1983,8 +1988,6 @@ namespace IndiaTango.ViewModels
                                                            VerticalAlignment = VerticalAlignment.Center,
                                                            Margin = new Thickness(5)
                                                        });
-
-            autoButtonsWrapPanel.Children.Add(autoPreviewButton);
 
             var autoPreviewButtonStackPanel = new StackPanel
                                                   {
@@ -2081,7 +2084,6 @@ namespace IndiaTango.ViewModels
                                                  SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "PreviewResetFromAutoClear");
                                              }
                                          };
-            autoButtonsWrapPanel.Children.Add(autoClearButton);
 
             var autoClearButtonStackPanel = new StackPanel
                                             {
@@ -2103,6 +2105,12 @@ namespace IndiaTango.ViewModels
                                                        VerticalAlignment = VerticalAlignment.Center,
                                                        Margin = new Thickness(5)
                                                    });
+
+            #region Add Buttons to Wrapper
+            autoButtonsWrapPanel.Children.Add(autoClearButton);
+            autoButtonsWrapPanel.Children.Add(autoPreviewButton);
+            autoButtonsWrapPanel.Children.Add(autoApplyButton);
+            #endregion
 
             #endregion
 
