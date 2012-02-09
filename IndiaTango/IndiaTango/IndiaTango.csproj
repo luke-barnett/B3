@@ -151,46 +151,28 @@
     <Compile Include="MultiSeriesBinding\MultiSeries.cs" />
     <Compile Include="SimpleContainer.cs" />
     <Compile Include="ViewModels\BaseViewModel.cs" />
-    <Compile Include="ViewModels\BuoyDetailsViewModel.cs" />
     <Compile Include="ViewModels\CalibrationDetailsViewModel.cs" />
     <Compile Include="ViewModels\ContactEditorViewModel.cs" />
-    <Compile Include="ViewModels\CalibrateSensorsViewModel.cs" />
     <Compile Include="ViewModels\EditSensorViewModel.cs" />
     <Compile Include="ViewModels\EditSiteDataViewModel.cs" />
-    <Compile Include="ViewModels\ErroneousValuesDetectionViewModel.cs" />
     <Compile Include="ViewModels\ExportToImageViewModel.cs" />
     <Compile Include="ViewModels\ExportViewModel.cs" />
-    <Compile Include="ViewModels\GraphViewModel.cs" />
     <Compile Include="ViewModels\HeatMapViewModel.cs" />
     <Compile Include="ViewModels\LogWindowViewModel.cs" />
-    <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\MatchToExistingSensorsViewModel.cs" />
-    <Compile Include="ViewModels\MissingValuesViewModel.cs" />
-    <Compile Include="ViewModels\OutlierDetectionViewModel.cs" />
     <Compile Include="ViewModels\SensorTemplateManagerViewModel.cs" />
-    <Compile Include="ViewModels\SessionViewModel.cs" />
     <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="ViewModels\SpecifyValueViewModel.cs" />
     <Compile Include="ViewModels\UseSelectedRangeViewModel.cs" />
-    <Compile Include="ViewModels\WizardViewModel.cs" />
-    <Compile Include="Views\BuoyDetailsView.xaml.cs">
-      <DependentUpon>BuoyDetailsView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\CalibrationDetailsView.xaml.cs">
       <DependentUpon>CalibrationDetailsView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ContactEditorView.xaml.cs">
       <DependentUpon>ContactEditorView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\CalibrateSensorsView.xaml.cs">
-      <DependentUpon>CalibrateSensorsView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\EditSiteDataView.xaml.cs">
       <DependentUpon>EditSiteDataView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\ErroneousValuesDetectionView.xaml.cs">
-      <DependentUpon>ErroneousValuesDetectionView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ExportToImageView.xaml.cs">
       <DependentUpon>ExportToImageView.xaml</DependentUpon>
@@ -201,17 +183,11 @@
     <Compile Include="Views\EditSensorView.xaml.cs">
       <DependentUpon>EditSensorView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\GraphView.xaml.cs">
-      <DependentUpon>GraphView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\HeatMapView.xaml.cs">
       <DependentUpon>HeatMapView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\LogWindowView.xaml.cs">
       <DependentUpon>LogWindowView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\MainView.xaml.cs">
-      <DependentUpon>MainView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MainWindowView.xaml.cs">
       <DependentUpon>MainWindowView.xaml</DependentUpon>
@@ -219,17 +195,8 @@
     <Compile Include="Views\MatchToExistingSensorsView.xaml.cs">
       <DependentUpon>MatchToExistingSensorsView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\MissingValuesView.xaml.cs">
-      <DependentUpon>MissingValuesView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\OutlierDetectionView.xaml.cs">
-      <DependentUpon>OutlierDetectionView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\SensorTemplateManagerView.xaml.cs">
       <DependentUpon>SensorTemplateManagerView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\SessionView.xaml.cs">
-      <DependentUpon>SessionView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SettingsView.xaml.cs">
       <DependentUpon>SettingsView.xaml</DependentUpon>
@@ -239,9 +206,6 @@
     </Compile>
     <Compile Include="Views\UseSelectedRangeView.xaml.cs">
       <DependentUpon>UseSelectedRangeView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\WizardView.xaml.cs">
-      <DependentUpon>WizardView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -292,10 +256,6 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Views\BuoyDetailsView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\CalibrationDetailsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -304,15 +264,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\CalibrateSensorsView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="Views\EditSiteDataView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\ErroneousValuesDetectionView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -328,19 +280,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\GraphView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\HeatMapView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\LogWindowView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\MainView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -352,19 +296,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\MissingValuesView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\OutlierDetectionView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\SensorTemplateManagerView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\SessionView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -377,10 +309,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\UseSelectedRangeView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\WizardView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
