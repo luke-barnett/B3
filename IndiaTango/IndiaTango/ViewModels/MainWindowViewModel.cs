@@ -3298,6 +3298,14 @@ namespace IndiaTango.ViewModels
             NotifyOfPropertyChange(() => EditingNotes);
         }
 
+        public void ShowSettings()
+        {
+            var settings = _container.GetInstance(typeof (SettingsViewModel), "SettingsViewModel");
+            if(settings == null) return;
+
+            _windowManager.ShowDialog(settings);
+        }
+
         #endregion
 
         #region Event Handlers

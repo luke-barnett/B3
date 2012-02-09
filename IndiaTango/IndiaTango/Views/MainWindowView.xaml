@@ -42,6 +42,7 @@
                 <MenuItem Header="_Import" cal:Message.Attach="[Event Click] = [Action Import]" />
                 <MenuItem Header="E_xport" cal:Message.Attach="[Event Click] = [Action Export]" />
                 <MenuItem Header="_New Site" cal:Message.Attach="[Event Click] = [Action CreateNewSite]" />
+                <MenuItem Header="Se_ttings" cal:Message.Attach="[Event Click] = [Action ShowSettings]" />
                 <MenuItem Header="_Exit" cal:Message.Attach="[Event Click] = [Action Exit]" />
             </MenuItem>
             <MenuItem Header="_Sensors">
