@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using DataAggregator.ViewModels;
 
 namespace DataAggregator.Models
 {
     public static class Exporter
     {
-        public static bool Export(DateTime[] timestamps, Series[] series, TimeSpanOption aggregationPeriod, string filename, BackgroundWorker worker = null)
+        public static bool Export(DateTime[] timestamps, Series[] series, TimeSpanOption aggregationPeriod, string filename, BackgroundWorker worker = null, GroupingType groupingType = GroupingType.Centered)
         {
             var progress = 0;
             var firstTimeStamp = timestamps.Min().RoundDown(aggregationPeriod.TimeSpan);
@@ -23,8 +24,20 @@ namespace DataAggregator.Models
             for (var timestamp = firstTimeStamp; timestamp <= finalTimeStamp; timestamp = timestamp.Add(aggregationPeriod.TimeSpan))
             {
                 aggregatedTimestamps.Add(timestamp);
-                var inclusiveStart = timestamp - halfOfTimeSpan;
-                var exclusiveEnd = timestamp + halfOfTimeSpan;
+                var inclusiveStart = DateTime.MinValue;
+                var exclusiveEnd = DateTime.MaxValue;
+
+                switch (groupingType)
+                {
+                    case GroupingType.Centered:
+                        inclusiveStart = timestamp - halfOfTimeSpan;
+                        exclusiveEnd = timestamp + halfOfTimeSpan;
+                        break;
+                    case GroupingType.Forward:
+                        inclusiveStart = timestamp;
+                        exclusiveEnd = timestamp.Add(aggregationPeriod.TimeSpan);
+                        break;
+                }
 
                 var timestampsList = new List<DateTime>();
 

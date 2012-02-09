@@ -36,6 +36,12 @@ namespace DataAggregator.ViewModels
         MMDDYYYYhhmm,
     }
 
+    public enum GroupingType
+    {
+        Centered,
+        Forward
+    }
+
     public class MainWindowViewModel : Screen
     {
         private List<Series> _series;
@@ -44,6 +50,7 @@ namespace DataAggregator.ViewModels
         private bool _lockedIn;
         private Cursor _applicationCursor = Cursors.Arrow;
         private int _progress;
+        private GroupingType _groupingType = GroupingType.Centered;
 
         public MainWindowViewModel()
         {
@@ -158,7 +165,7 @@ namespace DataAggregator.ViewModels
             {
                 var bw = new BackgroundWorker();
                 bw.DoWork += (o, e) =>
-                MessageBox.Show(Exporter.Export(_timestamps.ToArray(), Series.ToArray(), AggregationTimeSpan, saveFileDialog.FileName, bw)
+                MessageBox.Show(Exporter.Export(_timestamps.ToArray(), Series.ToArray(), AggregationTimeSpan, saveFileDialog.FileName, bw, _groupingType)
                                     ? "Successfully exported"
                                     : "Export didn't complete successfully");
 
@@ -174,6 +181,16 @@ namespace DataAggregator.ViewModels
                 Progress = 0;
                 bw.RunWorkerAsync();
             }
+        }
+
+        public void UseCenteredGrouping()
+        {
+            _groupingType = GroupingType.Centered;
+        }
+
+        public void UseForwardGrouping()
+        {
+            _groupingType = GroupingType.Forward;
         }
 
         public void Closing(CancelEventArgs eventArgs)

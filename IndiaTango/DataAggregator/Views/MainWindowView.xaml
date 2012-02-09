@@ -23,6 +23,11 @@
             <Button Grid.Row="1" Grid.Column="0" Name="Export" Content="Export" Margin="0,5,0,0" IsEnabled="{Binding ActionsEnabled}" />
             <TextBlock Text="Aggregation Period:" Grid.Row="0" Grid.Column="1" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" />
             <ComboBox Grid.Row="0" Grid.Column="2" Margin="5" ItemsSource="{Binding TimeSpanOptions}" SelectedValue="{Binding AggregationTimeSpan, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding ActionsEnabled}" />
+            <WrapPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                <TextBlock Text="Grouping Method:" />
+                <RadioButton Content="Centered" Margin="10,0" IsChecked="True" cal:Message.Attach="[Event Checked] = [Action UseCenteredGrouping]" />
+                <RadioButton Content="Forward" Margin="10,0" cal:Message.Attach="[Event Checked] = [Action UseForwardGrouping]"/>
+            </WrapPanel>
         </Grid>
         <DataGrid Name="dataGrid" Grid.Row="1" CanUserDeleteRows="False" CanUserAddRows="False" ItemsSource="{Binding Series}" AutoGenerateColumns="False" IsEnabled="{Binding ActionsEnabled}">
             <DataGrid.Columns>
