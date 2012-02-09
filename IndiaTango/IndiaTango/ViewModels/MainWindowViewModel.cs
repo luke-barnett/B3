@@ -815,7 +815,7 @@ namespace IndiaTango.ViewModels
                     graphableSensor.RefreshDataPoints();
                 }
                 SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "Data Loader");
-                CalculateGraphedEndPoints();
+                CalculateGraphedEndPoints(true);
                 CheckTheseMethods(_detectionMethods.Where(x => x.IsEnabled));
             }
         }
@@ -856,7 +856,7 @@ namespace IndiaTango.ViewModels
                     graphableSensor.RefreshDataPoints();
                 }
                 SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "Data Loader");
-                CalculateGraphedEndPoints();
+                CalculateGraphedEndPoints(true);
                 CheckTheseMethods(_detectionMethods.Where(x => x.IsEnabled));
             }
         }
@@ -985,23 +985,47 @@ namespace IndiaTango.ViewModels
             _background.Visibility = Visibility.Visible;
         }
 
-        private void CalculateGraphedEndPoints()
+        private void CalculateGraphedEndPoints(bool useSensorData = false)
         {
             var minimum = DateTime.MaxValue;
             var maximum = DateTime.MinValue;
 
-            foreach (var sensor in _sensorsToGraph)
+            if(useSensorData)
             {
-                if (!sensor.DataPoints.Any()) continue;
+                foreach (var sensor in Sensors)
+                {
+                    if(sensor.CurrentState == null || !sensor.CurrentState.Values.Any()) continue;
 
-                var first = sensor.DataPoints.First().X;
-                var last = sensor.DataPoints.Last().X;
+                    var sortedValues = sensor.CurrentState.Values.Keys.OrderBy(x => x).ToArray();
 
-                if (first < minimum)
-                    minimum = first;
+                    if(!sortedValues.Any()) continue;
 
-                if (last > maximum)
-                    maximum = last;
+                    var first = sortedValues.First();
+                    var last = sortedValues.Last();
+
+                    if (first < minimum)
+                        minimum = first;
+
+                    if (last > maximum)
+                        maximum = last;
+
+                }
+            }
+            else
+            {
+                foreach (var sensor in _sensorsToGraph)
+                {
+                    if (!sensor.DataPoints.Any()) continue;
+
+                    var first = sensor.DataPoints.First().X;
+                    var last = sensor.DataPoints.Last().X;
+
+                    if (first < minimum)
+                        minimum = first;
+
+                    if (last > maximum)
+                        maximum = last;
+                }
             }
 
             if (minimum > maximum)
