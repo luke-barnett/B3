@@ -2968,7 +2968,7 @@ namespace IndiaTango.ViewModels
 
             SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "Undo");
             CalculateYAxis();
-            Common.ShowMessageBox("Undo suceeded", "Sucessfully stepped back the following sensors: \n\r\n\r" + firstSensor.Name + "\r\n\nNote: Only one sensor is undone at a time so there may be additional undo's available", false, false);
+            Common.ShowMessageBox("Undo suceeded", "Sucessfully stepped back the following sensors: \n\r\n\r" + firstSensor.Name + "\r\n\nNote: Only one sensor is undone at a time so additional undo's may be needed", false, false);
             UpdateUndoRedo();
         }
 
@@ -3000,7 +3000,7 @@ namespace IndiaTango.ViewModels
 
             SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "Redo");
             CalculateYAxis();
-            Common.ShowMessageBox("Redo suceeded", "Sucessfully stepped forward the following sensors: \n\r\n\r" + firstSensor.Name + "\r\n\nNote: Only one sensor is redone at a time so there may be additional redo's available", false, false);
+            Common.ShowMessageBox("Redo suceeded", "Sucessfully stepped forward the following sensors: \n\r\n\r" + firstSensor.Name + "\r\n\nNote: Only one sensor is redone at a time so additional redo's may be needed", false, false);
             UpdateUndoRedo();
         }
 
