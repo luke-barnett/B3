@@ -168,19 +168,14 @@ namespace IndiaTango.ViewModels
         /// The container holding all the views
         /// </summary>
         private readonly SimpleContainer _container;
-        /// <summary>
-        /// The current data set being used
-        /// </summary>
         private Dataset _currentDataset;
         private string[] _dataSetFiles;
         private int _chosenSelectedIndex;
         #region Progress Values
-
         private int _progressValue;
         private bool _progressIndeterminate;
         private bool _showProgressArea;
         private string _waitText;
-
         #endregion
         private string _title = "B3";
         #region Chart
@@ -240,6 +235,10 @@ namespace IndiaTango.ViewModels
 
         #region Private Properties
 
+        /// <summary>
+        /// The Current Dataset that we are working with
+        /// <remarks>Could be null</remarks>
+        /// </summary>
         private Dataset CurrentDataset
         {
             get { return _currentDataset; }
@@ -271,21 +270,33 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// The list of filenames for sites we have in the sites directory
+        /// </summary>
         private string[] DataSetFiles
         {
             get { return _dataSetFiles ?? (_dataSetFiles = Dataset.GetAllDataSetFileNames()); }
         }
 
+        /// <summary>
+        /// The list of sensors that are being used for editing
+        /// </summary>
         private List<Sensor> SensorsForEditing
         {
             get { return SensorsToCheckMethodsAgainst.ToList(); }
         }
 
+        /// <summary>
+        /// Whether or not the current dataset is null
+        /// </summary>
         private bool CurrentDataSetNotNull
         {
             get { return CurrentDataset != null; }
         }
 
+        /// <summary>
+        /// The selection details about the current selection made (if any)
+        /// </summary>
         private SelectionMadeArgs Selection
         {
             get { return _selection; }
@@ -296,6 +307,9 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// Whether or not the revert graphed button is visible
+        /// </summary>
         private bool RevertGraphedButtonIsVisible
         {
             set
@@ -590,6 +604,9 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// Whether or not to graph raw data
+        /// </summary>
         public bool GraphRawData
         {
             get { return _showRaw; }
@@ -601,6 +618,9 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// Whether or not we are in selection mode
+        /// </summary>
         public bool SelectionModeEnabled
         {
             get { return _selectionBehaviour.IsEnabled; }
@@ -615,6 +635,9 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// Whether or not actions are enabled for the user
+        /// </summary>
         public bool ActionsEnabled
         {
             get { return _actionsEnabled; }
@@ -625,6 +648,9 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// Whether or not we can undo
+        /// </summary>
         public bool CanUndo
         {
             get { return _canUndo; }
@@ -635,6 +661,9 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// Whether or not we can redo
+        /// </summary>
         public bool CanRedo
         {
             get { return _canRedo; }
@@ -645,11 +674,17 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// The current visibility of the revert graphed button
+        /// </summary>
         public Visibility RevertGraphedToRawVisibility
         {
             get { return _revertGraphedToRawIsVisible ? Visibility.Visible : Visibility.Collapsed; }
         }
 
+        /// <summary>
+        /// Whether or not the annotations are enabled
+        /// </summary>
         public bool AnnotationsModeEnabled
         {
             get { return _dateAnnotator.IsEnabled; }
@@ -660,23 +695,38 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// The datatable for the values view
+        /// </summary>
         public DataTable DataTable
         {
             get { return _dataTable ?? new DataTable(); }
         }
 
+        /// <summary>
+        /// The summary statistics for the values view
+        /// </summary>
         public DataTable SummaryStatistics
         {
             get { return _summaryStatistics ?? new DataTable(); }
         }
 
+        /// <summary>
+        /// The total number of values between all sensors
+        /// </summary>
         public string TotalDataCount
         {
             get { return (ViewAllSensors) ? Sensors.Sum(x => x.CurrentState.Values.Count(y => y.Key >= StartTime && y.Key <= EndTime)).ToString(CultureInfo.InvariantCulture) : SensorsToCheckMethodsAgainst.Sum(x => x.CurrentState.Values.Count(y => y.Key >= StartTime && y.Key <= EndTime)).ToString(CultureInfo.InvariantCulture); }
         }
 
+        /// <summary>
+        /// Whether or not to apply a function to all sensors
+        /// </summary>
         public bool ApplyToAllSensors { get; set; }
 
+        /// <summary>
+        /// Whether or not we are fixing the selection to the full y axis
+        /// </summary>
         public bool FixYAxis
         {
             get { return !NotInCalibrationMode || _selectionBehaviour.UseFullYAxis; }
@@ -689,6 +739,9 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// Whether or not to viw all the sensors in values tab
+        /// </summary>
         public bool ViewAllSensors
         {
             get { return _viewAllSensors; }
@@ -700,6 +753,9 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// Whether or not we are in calibration mode
+        /// </summary>
         public bool NotInCalibrationMode
         {
             get { return _notInCalibrationMode; }
@@ -711,6 +767,9 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// When set will uncheck all sensors
+        /// </summary>
         public bool UncheckAllSensors
         {
             get { return _sensorsToGraph.Count > 0; }
@@ -730,6 +789,9 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// The list of editing notes for the current sensor
+        /// </summary>
         public List<string> EditingNotes
         {
             get
@@ -743,6 +805,9 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// The mixed temp differential value to use for lake analysis
+        /// </summary>
         public float MixedTempDifferential
         {
             get { return _mixedTempDifferential; }
@@ -752,6 +817,9 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// The set of years we have available for the lowest year
+        /// </summary>
         public string[] LowestYearLoadedOptions
         {
             get
@@ -767,6 +835,9 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// The set of years we have available for the highest year
+        /// </summary>
         public string[] HighestYearLoadedOptions
         {
             get
@@ -782,6 +853,9 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// The lowest year that we have currently loaded
+        /// </summary>
         public string LowestYearLoaded
         {
             get { return CurrentDataset != null ? CurrentDataset.StartYear.AddYears(CurrentDataset.LowestYearLoaded).ToString("yyyy") : ""; }
@@ -820,6 +894,9 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// The highest year that we have currently loaded
+        /// </summary>
         public string HighestYearLoaded
         {
             get
@@ -865,6 +942,9 @@ namespace IndiaTango.ViewModels
 
         #region Private Methods
 
+        /// <summary>
+        /// Update the GUI for new dataset values
+        /// </summary>
         private void UpdateGUI()
         {
             NotifyOfPropertyChange(() => Sensors);
@@ -894,6 +974,9 @@ namespace IndiaTango.ViewModels
             NotifyOfPropertyChange(() => EditingNotes);
         }
 
+        /// <summary>
+        /// Update the data table used to display values in the values tab
+        /// </summary>
         private void UpdateDataTable()
         {
             if (_graphEnabled) return;
@@ -919,6 +1002,12 @@ namespace IndiaTango.ViewModels
             bw.RunWorkerAsync();
         }
 
+        /// <summary>
+        /// Samples and then graphs values
+        /// </summary>
+        /// <param name="numberOfPoints">How many points to sample</param>
+        /// <param name="sensors">The list of graphable sensors to sample from</param>
+        /// <param name="sender">The caller to update the graph</param>
         private void SampleValues(int numberOfPoints, ICollection<GraphableSensor> sensors, string sender)
         {
             if (!_graphEnabled)
@@ -975,30 +1064,40 @@ namespace IndiaTango.ViewModels
             ChartSeries = generatedSeries;
         }
 
+        /// <summary>
+        /// Hides the sampling background on the graph
+        /// </summary>
         private void HideBackground()
         {
             _background.Visibility = Visibility.Collapsed;
         }
-
+        
+        /// <summary>
+        /// Shows the sampling background on the graph
+        /// </summary>
         private void ShowBackground()
         {
             _background.Visibility = Visibility.Visible;
         }
 
+        /// <summary>
+        /// Calculates the graphed endpoints
+        /// </summary>
+        /// <param name="useSensorData">Whether or not to look at the actual sensor data for the values over the graphed values</param>
         private void CalculateGraphedEndPoints(bool useSensorData = false)
         {
             var minimum = DateTime.MaxValue;
             var maximum = DateTime.MinValue;
 
-            if(useSensorData)
+            if (useSensorData)
             {
                 foreach (var sensor in Sensors)
                 {
-                    if(sensor.CurrentState == null || !sensor.CurrentState.Values.Any()) continue;
+                    if (sensor.CurrentState == null || !sensor.CurrentState.Values.Any()) continue;
 
                     var sortedValues = sensor.CurrentState.Values.Keys.OrderBy(x => x).ToArray();
 
-                    if(!sortedValues.Any()) continue;
+                    if (!sortedValues.Any()) continue;
 
                     var first = sortedValues.First();
                     var last = sortedValues.Last();
@@ -1041,6 +1140,11 @@ namespace IndiaTango.ViewModels
             Debug.WriteLine("As a result start {0} and end {1}", StartTime, EndTime);
         }
 
+        /// <summary>
+        /// Shows the site editing view for a given site
+        /// </summary>
+        /// <param name="dataSetToShow">The dataset that owns the site to view</param>
+        /// <returns>Whether or not the view was completed</returns>
         private bool ShowSiteInformation(Dataset dataSetToShow)
         {
             if (dataSetToShow == null)
@@ -1074,6 +1178,11 @@ namespace IndiaTango.ViewModels
             return view.WasCompleted;
         }
 
+        /// <summary>
+        /// Calculates the smallest Y value from what is currently graphed
+        /// </summary>
+        /// <param name="series">The line series to calculate from</param>
+        /// <returns>The smallest Y value</returns>
         private double MinimumY(IEnumerable<LineSeries> series)
         {
             double[] min = { double.MaxValue };
@@ -1084,6 +1193,11 @@ namespace IndiaTango.ViewModels
             return min[0];
         }
 
+        /// <summary>
+        /// Calculates the highest Y value from what is currently graphed
+        /// </summary>
+        /// <param name="series">The line series to calculate from</param>
+        /// <returns>The highest Y value</returns>
         private double MaximumY(IEnumerable<LineSeries> series)
         {
             double[] max = { double.MinValue };
@@ -1094,18 +1208,27 @@ namespace IndiaTango.ViewModels
             return max[0];
         }
 
+        /// <summary>
+        /// Disables features and actions during calculation periods
+        /// </summary>
         private void DisableFeatures()
         {
             FeaturesEnabled = false;
             ApplicationCursor = Cursors.Wait;
         }
 
+        /// <summary>
+        /// Enables features after calculation periods
+        /// </summary>
         private void EnableFeatures()
         {
             FeaturesEnabled = true;
             ApplicationCursor = Cursors.Arrow;
         }
 
+        /// <summary>
+        /// Builds the detection method tab items 
+        /// </summary>
         private void BuildDetectionMethodTabItems()
         {
             var tabItems = _detectionMethods.Select(GenerateTabItemFromDetectionMethod).ToList();
@@ -1113,6 +1236,11 @@ namespace IndiaTango.ViewModels
             DetectionTabItems = tabItems;
         }
 
+        /// <summary>
+        /// Builds a tab item for a detection method
+        /// </summary>
+        /// <param name="method">The detection method to build it from</param>
+        /// <returns>The constructed tab item</returns>
         private TabItem GenerateTabItemFromDetectionMethod(IDetectionMethod method)
         {
             var tabItem = new TabItem { Header = new TextBlock { Text = method.Abbreviation }, IsEnabled = FeaturesEnabled };
@@ -1194,6 +1322,10 @@ namespace IndiaTango.ViewModels
             return tabItem;
         }
 
+        /// <summary>
+        /// Builds the calibration tab item (beware dragons!)
+        /// </summary>
+        /// <returns>The constructed tab item</returns>
         private TabItem GenerateCalibrationTabItem()
         {
             var tabItem = new TabItem { Header = "Calibration", IsEnabled = FeaturesEnabled };
@@ -2114,6 +2246,10 @@ namespace IndiaTango.ViewModels
             return tabItem;
         }
 
+        /// <summary>
+        /// Checks the sensors for editing against a set of detection methods
+        /// </summary>
+        /// <param name="methodsToCheck">The detection methods to use against the sensors</param>
         private void CheckTheseMethods(IEnumerable<IDetectionMethod> methodsToCheck)
         {
             if (!_detectionMethodsEnabled)
@@ -2183,6 +2319,11 @@ namespace IndiaTango.ViewModels
             bw.RunWorkerAsync();
         }
 
+        /// <summary>
+        /// Checks a sensor against a set of detection methods
+        /// </summary>
+        /// <param name="methodsToCheck">The detection methods to use against the sensor</param>
+        /// <param name="sensor">The sensor to check against</param>
         private void CheckTheseMethodsForThisSensor(IEnumerable<IDetectionMethod> methodsToCheck, Sensor sensor)
         {
             if (!_detectionMethodsEnabled)
@@ -2230,6 +2371,9 @@ namespace IndiaTango.ViewModels
             bw.RunWorkerAsync();
         }
 
+        /// <summary>
+        /// Updates the list of sensors available to detection methods
+        /// </summary>
         private void UpdateDetectionMethodGraphableSensors()
         {
             foreach (var detectionMethod in _detectionMethods)
@@ -2238,6 +2382,11 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// Interpolates (linear) a set of erroneous values
+        /// </summary>
+        /// <param name="values">The values to interpolate</param>
+        /// <param name="methodCheckedAgainst">The method used to find the values</param>
         private void Interpolate(IEnumerable<ErroneousValue> values, IDetectionMethod methodCheckedAgainst)
         {
             values = values.ToList();
@@ -2306,6 +2455,11 @@ namespace IndiaTango.ViewModels
             bw.RunWorkerAsync();
         }
 
+        /// <summary>
+        /// Removes a set of erroneous values
+        /// </summary>
+        /// <param name="values">The values to remove</param>
+        /// <param name="methodCheckedAgainst">The method used to find the values</param>
         private void RemoveValues(IEnumerable<ErroneousValue> values, IDetectionMethod methodCheckedAgainst)
         {
             values = values.ToList();
@@ -2384,6 +2538,11 @@ namespace IndiaTango.ViewModels
             bw.RunWorkerAsync();
         }
 
+        /// <summary>
+        /// Sets a set of erroneous values to a specific value
+        /// </summary>
+        /// <param name="values">The values to set</param>
+        /// <param name="methodCheckedAgainst">The method used to find the values</param>
         private void SpecifyValue(IEnumerable<ErroneousValue> values, IDetectionMethod methodCheckedAgainst)
         {
             values = values.ToList();
@@ -2477,6 +2636,10 @@ namespace IndiaTango.ViewModels
             bw.RunWorkerAsync();
         }
 
+        /// <summary>
+        /// Calculates the Y Axis
+        /// </summary>
+        /// <param name="resetRange">Whether or not to reset the range to the new values</param>
         private void CalculateYAxis(bool resetRange = true)
         {
             var min = MinimumY(ChartSeries);
@@ -2505,6 +2668,9 @@ namespace IndiaTango.ViewModels
             MinMaximum = (int)Math.Ceiling(min);
         }
 
+        /// <summary>
+        /// Checks if Undo/Redo states are available
+        /// </summary>
         private void UpdateUndoRedo()
         {
             CanUndo = SensorsForEditing.FirstOrDefault(x => x.UndoStates.Count > 0) != null;
@@ -2517,6 +2683,10 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// Calculates the number of data chuncks there are for the dataset
+        /// </summary>
+        /// <returns>The number of data chunks</returns>
         private int NumberOfDataChunks()
         {
             var i = 0;
@@ -2958,12 +3128,18 @@ namespace IndiaTango.ViewModels
             NotifyOfPropertyChange(() => CanEditDates);
         }
 
+        /// <summary>
+        /// Shows the log window
+        /// </summary>
         public void ShowLog()
         {
             var logWindow = (LogWindowViewModel)_container.GetInstance(typeof(LogWindowViewModel), "LogWindowViewModel");
             _windowManager.ShowWindow(logWindow);
         }
 
+        /// <summary>
+        /// Undoes the first sensor that it can find with undo states
+        /// </summary>
         public void Undo()
         {
             var orderedSensors = SensorsForEditing.OrderBy(x =>
@@ -2996,6 +3172,9 @@ namespace IndiaTango.ViewModels
             UpdateUndoRedo();
         }
 
+        /// <summary>
+        /// Redoes the first sensor that it can find with redo states
+        /// </summary>
         public void Redo()
         {
             var orderedSensors = SensorsForEditing.OrderBy(x =>
@@ -3028,6 +3207,9 @@ namespace IndiaTango.ViewModels
             UpdateUndoRedo();
         }
 
+        /// <summary>
+        /// Interpolates values
+        /// </summary>
         public void Interpolate()
         {
             var detectionMethod = _detectionMethods.FirstOrDefault(x => x.IsEnabled);
@@ -3035,6 +3217,9 @@ namespace IndiaTango.ViewModels
             Interpolate(detectionMethod != null ? detectionMethod.ListBox.SelectedItems.Cast<ErroneousValue>() : new List<ErroneousValue>(), detectionMethod);
         }
 
+        /// <summary>
+        /// Removes values
+        /// </summary>
         public void RemoveValues()
         {
             var detectionMethod = _detectionMethods.FirstOrDefault(x => x.IsEnabled);
@@ -3042,6 +3227,9 @@ namespace IndiaTango.ViewModels
             RemoveValues(detectionMethod != null ? detectionMethod.ListBox.SelectedItems.Cast<ErroneousValue>() : new List<ErroneousValue>(), detectionMethod);
         }
 
+        /// <summary>
+        /// Specifys values
+        /// </summary>
         public void SpecifyValue()
         {
             var detectionMethod = _detectionMethods.FirstOrDefault(x => x.IsEnabled);
@@ -3049,6 +3237,9 @@ namespace IndiaTango.ViewModels
             SpecifyValue(detectionMethod != null ? detectionMethod.ListBox.SelectedItems.Cast<ErroneousValue>() : new List<ErroneousValue>(), detectionMethod);
         }
 
+        /// <summary>
+        /// Enables and checks detection methods
+        /// </summary>
         public void EnableDetectionMethods()
         {
             _detectionMethodsEnabled = true;
@@ -3056,12 +3247,18 @@ namespace IndiaTango.ViewModels
             CheckTheseMethods(_detectionMethods.Where(x => x.IsEnabled));
         }
 
+        /// <summary>
+        /// Disables detection metods
+        /// </summary>
         public void DisableDetectionMethods()
         {
             _detectionMethodsEnabled = false;
             _selectedMethod.IsEnabled = false;
         }
 
+        /// <summary>
+        /// Reverts sensors to raw values
+        /// </summary>
         public void RevertToRaw()
         {
             if (!CurrentDataSetNotNull || Sensors == null || Sensors.Count == 0)
@@ -3109,6 +3306,9 @@ namespace IndiaTango.ViewModels
             SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "RevertedToRaw");
         }
 
+        /// <summary>
+        /// Reverts only the graphed sensors to their raw values
+        /// </summary>
         public void RevertGraphedToRaw()
         {
             if (_sensorsToGraph.Count == 0)
@@ -3137,6 +3337,10 @@ namespace IndiaTango.ViewModels
             SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "RevertSelectionToRaw");
         }
 
+        /// <summary>
+        /// Shows the calibration log window for a sensor
+        /// </summary>
+        /// <param name="sensor">The sensor to show the log for</param>
         public void ShowCalibrationDetails(Sensor sensor)
         {
             var view = _container.GetInstance(typeof(CalibrationDetailsViewModel), "CalibrationDetailsViewModel") as CalibrationDetailsViewModel;
@@ -3147,22 +3351,34 @@ namespace IndiaTango.ViewModels
             _windowManager.ShowWindow(view);
         }
 
+        /// <summary>
+        /// Shows the graph help information
+        /// </summary>
         public void ShowGraphHelp()
         {
             Common.ShowMessageBox("About Graphing", "Select a sensor(s) using the check-boxes in the sensor metadata list, to display data on the graph.\r\n\nYou may choose to display all available data points on the graph or, to increase speed, limit the number of points displayed. If the number of points exceeds the display limit, the graph background will turn pink to alert you that there may be hidden data within the date range. You can click-drag on the graph to zoom in on a range of data. Hold down shift to select a range of data without zooming, in order to modify only the selected range using the tools to the left. Raw data may be superimposed at any time by selecting ‘Graph raw data’ and you can revert to the raw data at any time (this will revert only the range of data currently displayed on the graph). You can manually adjust the date range and y-axis, or select ‘Show annotations’ to display the data values for the timestamp on which the cursor is located.\r\nSelections are reset on a single mouse click and zoom out is a double mouse click.", false, false);
         }
 
+        /// <summary>
+        /// Enables actions
+        /// </summary>
         public void EnableActions()
         {
             ActionsEnabled = _previousActionsStatus;
         }
 
+        /// <summary>
+        /// Disables actions
+        /// </summary>
         public void DisableActions()
         {
             _previousActionsStatus = ActionsEnabled;
             ActionsEnabled = false;
         }
 
+        /// <summary>
+        /// Shows the heat map view
+        /// </summary>
         public void ShowHeatMap()
         {
             /*if(CurrentDataset == null) return;
@@ -3171,6 +3387,9 @@ namespace IndiaTango.ViewModels
             _windowManager.ShowWindow(view);*/
         }
 
+        /// <summary>
+        /// Plots the density calcualations for the site
+        /// </summary>
         public void PlotDensity()
         {
             _sensorsToGraph.Clear();
@@ -3193,6 +3412,9 @@ namespace IndiaTango.ViewModels
             CalculateGraphedEndPoints();
         }
 
+        /// <summary>
+        /// Plots the thermocline calculation results for the site
+        /// </summary>
         public void PlotThermoclineDepth()
         {
             _sensorsToGraph.Clear();
@@ -3225,6 +3447,9 @@ namespace IndiaTango.ViewModels
 
         }
 
+        /// <summary>
+        /// Plots the metalimnion boundary results for the site
+        /// </summary>
         public void PlotMetalimnionBoundaries()
         {
             _sensorsToGraph.Clear();
@@ -3288,6 +3513,12 @@ namespace IndiaTango.ViewModels
             CalculateGraphedEndPoints();
         }
 
+        /// <summary>
+        /// Adds an editing note to the site
+        /// </summary>
+        /// <param name="useDate">Whether or not to use the date provided</param>
+        /// <param name="date">The date to use</param>
+        /// <param name="note">The note</param>
         public void AddNote(bool useDate, DateTime date, string note)
         {
             date = !useDate ? DateTime.Now : date.Subtract(new TimeSpan(0, 0, date.Second));
@@ -3298,10 +3529,13 @@ namespace IndiaTango.ViewModels
             NotifyOfPropertyChange(() => EditingNotes);
         }
 
+        /// <summary>
+        /// Shows the settings view
+        /// </summary>
         public void ShowSettings()
         {
-            var settings = _container.GetInstance(typeof (SettingsViewModel), "SettingsViewModel");
-            if(settings == null) return;
+            var settings = _container.GetInstance(typeof(SettingsViewModel), "SettingsViewModel");
+            if (settings == null) return;
 
             _windowManager.ShowDialog(settings);
         }
@@ -3310,6 +3544,10 @@ namespace IndiaTango.ViewModels
 
         #region Event Handlers
 
+        /// <summary>
+        /// Handles a closing request and cancels it if we are doing something important at the time
+        /// </summary>
+        /// <param name="eventArgs">The closing event arguments</param>
         public void ClosingRequested(CancelEventArgs eventArgs)
         {
             if (!FeaturesEnabled)
@@ -3329,6 +3567,11 @@ namespace IndiaTango.ViewModels
             Debug.WriteLine("Closing Program");
         }
 
+        /// <summary>
+        /// Adds a sensor to the graph
+        /// </summary>
+        /// <param name="graphableSensor">The sensor to add to the graph</param>
+        /// <param name="updateGraph">Whether or not to update the graph or not</param>
         public void AddToGraph(GraphableSensor graphableSensor, bool updateGraph = true)
         {
             if (_sensorsToGraph.FirstOrDefault(x => x.BoundsSet) != null)
@@ -3344,6 +3587,10 @@ namespace IndiaTango.ViewModels
             NotifyOfPropertyChange(() => UncheckAllSensors);
         }
 
+        /// <summary>
+        /// Handles the request of adding a sensor to the graph
+        /// </summary>
+        /// <param name="eventArgs">The event arguments</param>
         public void AddToGraph(RoutedEventArgs eventArgs)
         {
             var checkBox = (CheckBox)eventArgs.Source;
@@ -3351,6 +3598,10 @@ namespace IndiaTango.ViewModels
             AddToGraph(graphableSensor);
         }
 
+        /// <summary>
+        /// Handles the request to remove a sensor from the graph
+        /// </summary>
+        /// <param name="eventArgs">The event arguments</param>
         public void RemoveFromGraph(RoutedEventArgs eventArgs)
         {
             RemoveFromEditingSensors(eventArgs);
@@ -3368,6 +3619,9 @@ namespace IndiaTango.ViewModels
             NotifyOfPropertyChange(() => UncheckAllSensors);
         }
 
+        /// <summary>
+        /// Shows the current sites information view
+        /// </summary>
         public void ShowCurrentSiteInformation()
         {
             ShowSiteInformation(CurrentDataset);
@@ -3415,6 +3669,11 @@ namespace IndiaTango.ViewModels
                 SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "EndTimeChanged");
         }
 
+        /// <summary>
+        /// Handles when a sensors trace colour is changed
+        /// </summary>
+        /// <param name="args">The colour change arguments</param>
+        /// <param name="owner">The sensor whose colour was changed</param>
         public void ColourChanged(RoutedPropertyChangedEventArgs<Color> args, GraphableSensor owner)
         {
             if (ChartSeries == null)
@@ -3436,6 +3695,10 @@ namespace IndiaTango.ViewModels
             NotifyOfPropertyChange(() => ChartSeries);
         }
 
+        /// <summary>
+        /// Deletes a sensor from the current dataset
+        /// </summary>
+        /// <param name="gSensor">The sensor to remove</param>
         public void DeleteSensor(GraphableSensor gSensor)
         {
             if (!Common.Confirm("Are you sure?", string.Format("Do you really want to delete {0}?", gSensor.Sensor.Name)))
@@ -3449,6 +3712,10 @@ namespace IndiaTango.ViewModels
             NotifyOfPropertyChange(() => GraphableSensors);
         }
 
+        /// <summary>
+        /// Shows the export chart window to save the chart as an image
+        /// </summary>
+        /// <param name="chart">The chart to save as an image</param>
         public void ExportChart(Chart chart)
         {
             if (_sensorsToGraph.Count == 0)
@@ -3474,6 +3741,10 @@ namespace IndiaTango.ViewModels
             _windowManager.ShowDialog(exportView);
         }
 
+        /// <summary>
+        /// Adds a sensor to the list of sensors used for editing
+        /// </summary>
+        /// <param name="graphableSensor">The sensor to add</param>
         public void AddToEditingSensors(GraphableSensor graphableSensor)
         {
             SensorsToCheckMethodsAgainst.Add(graphableSensor.Sensor);
@@ -3484,6 +3755,10 @@ namespace IndiaTango.ViewModels
             UpdateDataTable();
         }
 
+        /// <summary>
+        /// Handles the request of adding a sensor to the list of sensors used for editing
+        /// </summary>
+        /// <param name="eventArgs"></param>
         public void AddToEditingSensors(RoutedEventArgs eventArgs)
         {
             var checkBox = (CheckBox)eventArgs.Source;
@@ -3491,6 +3766,10 @@ namespace IndiaTango.ViewModels
             AddToEditingSensors(graphableSensor);
         }
 
+        /// <summary>
+        /// Handles the request to remove a sensor from the list of sensors used for editing
+        /// </summary>
+        /// <param name="eventArgs"></param>
         public void RemoveFromEditingSensors(RoutedEventArgs eventArgs)
         {
             var checkBox = (CheckBox)eventArgs.Source;
@@ -3518,6 +3797,10 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// Handles the detection method currenly being used change
+        /// </summary>
+        /// <param name="eventArgs">The selection changed event arguments</param>
         public void DetectionMethodChanged(SelectionChangedEventArgs eventArgs)
         {
             GraphableSensors.ForEach(x => x.RemovePreview());
@@ -3570,6 +3853,10 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// Handles a Key Down event on the window
+        /// </summary>
+        /// <param name="eventArgs">The Key Down event arguments</param>
         public void KeyDown(KeyEventArgs eventArgs)
         {
             if (Keyboard.Modifiers == ModifierKeys.Control)
@@ -3596,6 +3883,11 @@ namespace IndiaTango.ViewModels
 
         }
 
+        /// <summary>
+        /// Handles when a sensors property changes
+        /// </summary>
+        /// <param name="sender">The origin of the event fired</param>
+        /// <param name="e">The property that was changed</param>
         private void SensorPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (!_detectionMethodsEnabled) return;
@@ -3610,6 +3902,12 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// Adds a new meta data object to the sensor
+        /// </summary>
+        /// <param name="sensor">The sensor to recieve a new meta data object</param>
+        /// <param name="keyPressEvent">The key press used to fire the method</param>
+        /// <param name="sender">The origin of the event</param>
         public void AddNewMetaData(GraphableSensor sensor, KeyEventArgs keyPressEvent, ComboBox sender)
         {
             if (keyPressEvent.Key != Key.Enter)
@@ -3623,12 +3921,18 @@ namespace IndiaTango.ViewModels
             sensor.Sensor.CurrentMetaData = newMetaData;
         }
 
+        /// <summary>
+        /// Enables the graph
+        /// </summary>
         public void EnableGraph()
         {
             _graphEnabled = true;
             SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "EnablingGraph");
         }
 
+        /// <summary>
+        /// Disables the graph
+        /// </summary>
         public void DisableGraph()
         {
             SampleValues(0, new Collection<GraphableSensor>(), "DisablingGraph");
@@ -3636,11 +3940,19 @@ namespace IndiaTango.ViewModels
             UpdateDataTable();
         }
 
+        /// <summary>
+        /// Handles a delete request from the data table in the values tab
+        /// </summary>
+        /// <param name="eventArgs">The event arguments</param>
         public void DeleteRequestedFromDataTable(RoutedEventArgs eventArgs)
         {
             RemoveValues();
         }
 
+        /// <summary>
+        /// Handles a selection of cells in the data table
+        /// </summary>
+        /// <param name="eventArgs">The event arguments</param>
         public void SelectedCellsChanged(SelectedCellsChangedEventArgs eventArgs)
         {
             foreach (var cell in eventArgs.AddedCells.Where(x => x.Column != null && x.Column.DisplayIndex != 0))
@@ -3672,6 +3984,10 @@ namespace IndiaTango.ViewModels
             ActionsEnabled = _erroneousValuesFromDataTable.Count > 0;
         }
 
+        /// <summary>
+        /// Handles a tab change
+        /// </summary>
+        /// <param name="eventArgs">The tab change event arguments</param>
         public void TabChanged(SelectionChangedEventArgs eventArgs)
         {
             if (eventArgs.AddedItems.Count > 0 && eventArgs.AddedItems[0] is TabItem && (eventArgs.AddedItems[0] as TabItem).Header is string)
@@ -3690,6 +4006,11 @@ namespace IndiaTango.ViewModels
 
         }
 
+        /// <summary>
+        /// Removes a note from the editing notes for the site
+        /// </summary>
+        /// <param name="note">The note to remove</param>
+        /// <param name="args">Key press arguments</param>
         public void RemoveEditingNote(string note, KeyEventArgs args)
         {
             if (args.Key == Key.Delete)

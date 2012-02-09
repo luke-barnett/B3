@@ -21,8 +21,14 @@ namespace IndiaTango.ViewModels
 
         #region Public Parameters
 
+        /// <summary>
+        /// The title of the window
+        /// </summary>
         public string Title { get { return "Sensor Matching"; } }
 
+        /// <summary>
+        /// The list of exiting sensors
+        /// </summary>
         public List<Sensor> ExistingSensors
         {
             get { return _existingSensors; }
@@ -34,6 +40,9 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// The list of new sensors
+        /// </summary>
         public List<Sensor> NewSensors
         {
             get { return _newSensors; }
@@ -45,6 +54,9 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// The list of sensor links that are currently made
+        /// </summary>
         public List<SensorMatch> SensorLinks
         {
             get { return _matches; }
@@ -55,6 +67,9 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// The currently selected new sensor
+        /// </summary>
         public Sensor SelectedNewSensor
         {
             get { return _selectedNewSensor; }
@@ -66,6 +81,9 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// The currently selected existing sensor
+        /// </summary>
         public Sensor SelectedExistingSensor
         {
             get { return _selectedExistingSensor; }
@@ -77,6 +95,9 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// The currently selected sensor match
+        /// </summary>
         public SensorMatch SelectedSensorMatch
         {
             get { return _selectedSensorMatch; }
@@ -91,11 +112,17 @@ namespace IndiaTango.ViewModels
 
         #region Public Methods
 
+        /// <summary>
+        /// Creates a link between the currently selected existing sensor and the currently selected new sensor
+        /// </summary>
         public void MakeLink()
         {
             MakeLink(SelectedExistingSensor, SelectedNewSensor);
         }
 
+        /// <summary>
+        /// Removes the currently selected sensor link
+        /// </summary>
         public void RemoveLink()
         {
             if (SelectedSensorMatch == null || !SensorLinks.Contains(SelectedSensorMatch))
@@ -111,6 +138,9 @@ namespace IndiaTango.ViewModels
             SensorLinks = new List<SensorMatch>(SensorLinks);
         }
 
+        /// <summary>
+        /// Closes the window
+        /// </summary>
         public void Done()
         {
             TryClose();
@@ -120,6 +150,11 @@ namespace IndiaTango.ViewModels
 
         #region Private Methods
 
+        /// <summary>
+        /// Makes a link between two sensors
+        /// </summary>
+        /// <param name="existing">The existing sensor</param>
+        /// <param name="matching">The matching new sensor</param>
         private void MakeLink(Sensor existing, Sensor matching)
         {
             Debug.Print("Existing {0} Matching {1} Existing in list {2} Matching in list {3}", existing, matching, ExistingSensors.Contains(existing), NewSensors.Contains(matching));
@@ -135,6 +170,9 @@ namespace IndiaTango.ViewModels
             NewSensors = new List<Sensor>(NewSensors);
         }
 
+        /// <summary>
+        /// Matches all sensors from existing and new that have the same name
+        /// </summary>
         private void SensorMatch()
         {
             if (_runSensorMatch || NewSensors.Count == 0 || ExistingSensors.Count == 0)

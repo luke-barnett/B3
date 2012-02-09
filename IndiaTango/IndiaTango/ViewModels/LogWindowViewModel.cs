@@ -19,6 +19,11 @@ namespace IndiaTango.ViewModels
             SelectedModeIndex = 0;
         }
 
+        /// <summary>
+        /// Updates the logs to reflect a new event being logged
+        /// </summary>
+        /// <param name="sender">The sender of the event</param>
+        /// <param name="e">The event log arguments</param>
         public void EventLogged(object sender, EventLoggedArgs e)
         {
             if (!_logFiles.Contains(e.Filename))
@@ -39,6 +44,9 @@ namespace IndiaTango.ViewModels
             Logs = temp;
         }
 
+        /// <summary>
+        /// The list of modes to show logs for
+        /// </summary>
         public string[] Modes
         {
             get
@@ -47,6 +55,9 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// The index of the currently selected mode
+        /// </summary>
         public int SelectedModeIndex
         {
             get { return _selectedModeIndex; }
@@ -57,11 +68,17 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// The window title
+        /// </summary>
         public string Title
         {
             get { return "Log"; }
         }
 
+        /// <summary>
+        /// The list of log files
+        /// </summary>
         public string[] LogFiles
         {
             get { return _logFiles; }
@@ -72,6 +89,9 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// The index of the currently selected log file
+        /// </summary>
         public int SelectedLogFileIndex
         {
             get { return _selectedLogFileIndex; }
@@ -83,6 +103,9 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        /// <summary>
+        /// The current list of logs being displayed
+        /// </summary>
         public string[] Logs
         {
             get { return _logs.Where(x => SelectedModeIndex == 0 || x.Contains(Modes[SelectedModeIndex])).ToArray(); }

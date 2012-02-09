@@ -91,7 +91,6 @@ namespace IndiaTango.ViewModels
             set { _exportRaw = value; NotifyOfPropertyChange(() => ExportRawData); }
         }
 
-
         public Dataset Dataset
         {
             get { return _dataset; }
