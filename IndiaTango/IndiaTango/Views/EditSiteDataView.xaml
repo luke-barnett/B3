@@ -20,6 +20,7 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                     <RowDefinition Height="2*" />
                     <RowDefinition Height="Auto" />
@@ -55,8 +56,10 @@
                 <Button Grid.Column="4" Grid.Row="3" Height="24" IsEnabled="{Binding HasSelectedSecondaryContact}" Margin="3" Name="BtnDelSecondary" ToolTip="Delete Contact" VerticalAlignment="Top" Visibility="{Binding DoneCancelVisible}">
                     <Image Height="16" Source="/B3;component/Images/delete_16.png" Width="16" />
                 </Button>
-                <TextBlock Grid.Column="0" Grid.Row="4" Margin="5" Text="GPS Coordinates:" TextAlignment="Right" />
-                <Grid Background="GhostWhite" Grid.Column="1" Grid.Row="4">
+                <TextBlock Grid.Column="0" Grid.Row="4" Margin="5" Text="Elevation (m):" TextAlignment="Right" />
+                <TextBox Grid.Column="1" Grid.Row="4" IsEnabled="{Binding SiteControlsEnabled}" Margin="3" Name="txtElevation" Text="{Binding Elevation}" />
+                <TextBlock Grid.Column="0" Grid.Row="5" Margin="5" Text="GPS Coordinates:" TextAlignment="Right" />
+                <Grid Background="GhostWhite" Grid.Column="1" Grid.Row="5">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
@@ -68,10 +71,10 @@
                     <TextBlock Grid.Column="2" Grid.Row="0" Margin="7" Text="Long:" TextAlignment="Right" />
                     <TextBox Grid.Column="3" Grid.Row="0" IsEnabled="{Binding SiteControlsEnabled}" Margin="3" Name="Longitude" Text="{Binding Longitude}" ToolTip="Enter longitude in Degrees Minutes Seconds or Decimal Degrees" />
                 </Grid>
-                <TextBlock Grid.Column="0" Grid.Row="5" Margin="7" Text="Notes:" TextAlignment="Right" />
-                <TextBox Grid.Column="1" Grid.Row="5" IsEnabled="{Binding SiteControlsEnabled}" Margin="3" Name="txtDepth" Text="{Binding Notes}" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" />
-                <TextBlock Grid.Column="0" Grid.Row="6" Margin="7" Text="Images:" TextAlignment="Right" />
-                <ListBox AllowDrop="{Binding CanDragDropImages}" Grid.Column="1" Grid.Row="6" ItemsSource="{Binding StackPanelSiteImages}" Margin="5" Name="imgList" SelectedIndex="{Binding SelectedImage, Mode=TwoWay}">
+                <TextBlock Grid.Column="0" Grid.Row="6" Margin="7" Text="Notes:" TextAlignment="Right" />
+                <TextBox Grid.Column="1" Grid.Row="6" IsEnabled="{Binding SiteControlsEnabled}" Margin="3" Name="txtDepth" Text="{Binding Notes}" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" />
+                <TextBlock Grid.Column="0" Grid.Row="7" Margin="7" Text="Images:" TextAlignment="Right" />
+                <ListBox AllowDrop="{Binding CanDragDropImages}" Grid.Column="1" Grid.Row="7" ItemsSource="{Binding StackPanelSiteImages}" Margin="5" Name="imgList" SelectedIndex="{Binding SelectedImage, Mode=TwoWay}">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="DragEnter">
                             <cal:ActionMessage MethodName="StartImageDrag">
@@ -85,7 +88,7 @@
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                 </ListBox>
-                <StackPanel Grid.Column="2" Grid.ColumnSpan="3" Grid.Row="6">
+                <StackPanel Grid.Column="2" Grid.ColumnSpan="3" Grid.Row="7">
                     <Button Height="24" HorizontalAlignment="Left" Margin="3,5,3,3" Name="BtnNewImage" ToolTip="Add a new image associated with this site" VerticalAlignment="Top" Visibility="{Binding DoneCancelVisible}">
                         <StackPanel Orientation="Horizontal">
                             <Image Height="16" Margin="3,0" Source="/B3;component/Images/new_16.png" Width="16" />

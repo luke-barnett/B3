@@ -72,6 +72,7 @@ namespace IndiaTango.ViewModels
         private string _siteName;
         private string _owner;
         private string _notes;
+        private string _elevation;
         private Contact _primaryContact;
         private Contact _secondaryContact;
         private string _latitude;
@@ -119,6 +120,7 @@ namespace IndiaTango.ViewModels
                     Notes = DataSet.Site.SiteNotes;
                     PrimaryContact = DataSet.Site.PrimaryContact;
                     SecondaryContact = DataSet.Site.SecondaryContact;
+                    Elevation = DataSet.Site.Elevation.ToString();
                     if (DataSet.Site.GpsLocation != null)
                     {
                         Latitude = DataSet.Site.GpsLocation.DecimalDegreesLatitude.ToString();
@@ -137,6 +139,7 @@ namespace IndiaTango.ViewModels
                     SiteName = "";
                     Owner = "";
                     Notes = "";
+                    Elevation = "";
                     Latitude = "0";
                     Longitude = "0";
                     PrimaryContact = null;
@@ -298,6 +301,16 @@ namespace IndiaTango.ViewModels
             {
                 _notes = value;
                 NotifyOfPropertyChange(() => Notes);
+            }
+        }
+
+        public string Elevation
+        {
+            get { return _elevation; }
+            set
+            {
+                _elevation = value;
+                NotifyOfPropertyChange(() => Elevation);
             }
         }
 
@@ -562,7 +575,7 @@ namespace IndiaTango.ViewModels
                 DataSet.Site.SiteNotes = Notes;
                 DataSet.Site.PrimaryContact = PrimaryContact;
                 DataSet.Site.SecondaryContact = SecondaryContact;
-
+                DataSet.Site.Elevation = float.Parse(Elevation);
                 DataSet.Site.Images = _siteImages.ToList();
 
                 var bw = new BackgroundWorker();

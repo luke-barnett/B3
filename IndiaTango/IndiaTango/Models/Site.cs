@@ -210,6 +210,9 @@ namespace IndiaTango.Models
         [ProtoMember(15)]
         public Dictionary<DateTime, string> DataEditingNotes { get; set; }
 
+        [ProtoMember(16)]
+        public float Elevation { get; set; }
+
         #endregion
 
         #region Public methods
