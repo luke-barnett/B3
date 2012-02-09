@@ -1200,7 +1200,44 @@ namespace IndiaTango.ViewModels
                 HorizontalContentAlignment = HorizontalAlignment.Center
             };
             aboutButton.Click +=
-                (o, e) => Common.ShowMessageBox(string.Format("  About Calibration"), "This method is used to post-calibrate a range of data using a mathematical formula. It can also be used to perform unit conversions on sensor data.\r\n\nYou may select a range of data to modify by holding the shift key, and click-dragging the mouse over a range of data on the graph to the right. If no range is selected, then the formula will be applied to the date range that is displayed on the graph.\r\n\nUse ‘Formula’ mode to apply an equation to the data. Each sensor has an identifier (‘Variable’ in the sensor metadata) that can be used in formulas. Formulas can also relate one sensor to another (e.g. to calculate dissolved oxygen concentration from % saturation and water temperature measurements). If you wish to retain the original data, you can create a new sensor and use formula mode to derive values for it.\r\n\nUse ‘Drift adjustment’ mode to adjust for linear drift between sensor calibrations. Calibration logs can be stored in sensor metadata. You can enter a two point calibration (e.g. 0% and 100% following dissolved oxygen sensor calibration), and then enter corresponding values at the end of a period of drift (e.g. 4.3% and 115% after six months of dissolved oxygen sensor deployment). Click ‘Apply’ and the data over the period selected will have a linear back-correction applied in order to compensate for (assumed linear) drift in the electronic response of the instrument.\r\n\nYou can use ‘Preview’ to view the calibration change before applying it.", false, false);
+                (o, e) =>
+                    {
+                        var message =
+                            "This method is used to post-calibrate a range of data using a mathematical formula. It can also be used to perform unit conversions on sensor data.\r\n\nYou may select a range of data to modify by holding the shift key, and click-dragging the mouse over a range of data on the graph to the right. If no range is selected, then the formula will be applied to the date range that is displayed on the graph.\r\n\nUse ‘Formula’ mode to apply an equation to the data. Each sensor has an identifier (‘Variable’ in the sensor metadata) that can be used in formulas. Formulas can also relate one sensor to another (e.g. to calculate dissolved oxygen concentration from % saturation and water temperature measurements). If you wish to retain the original data, you can create a new sensor and use formula mode to derive values for it.\r\n\nUse ‘Drift adjustment’ mode to adjust for linear drift between sensor calibrations. Calibration logs can be stored in sensor metadata. You can enter a two point calibration (e.g. 0% and 100% following dissolved oxygen sensor calibration), and then enter corresponding values at the end of a period of drift (e.g. 4.3% and 115% after six months of dissolved oxygen sensor deployment). Click ‘Apply’ and the data over the period selected will have a linear back-correction applied in order to compensate for (assumed linear) drift in the electronic response of the instrument.\r\n\nYou can use ‘Preview’ to view the calibration change before applying it.\r\n\n";
+                        
+                    if (Sensors.Count > 1)
+                        message +=
+                           "The program applies the formula entered across all sensors data points within the specified range.\n" +
+                           "The following gives an indication of the operations and syntax.\n\n" +
+                           "Mathematical operations\t [ -, +, *, % ]\n" +
+                           "Mathematical functions\t [ Sin(y), Cos(y), Tan(y), Pi, Pow(x,y) ]\n\n" +
+                           "To set a data points value for a particular sensor, use that sensors variable followed by a space and an equals sign, then by the value.\n" +
+                           "   eg: To set the values of the sensor " + Sensors[0].Name + " to 5 for all points, use '" + Sensors[0].Variable.VariableName + " = 5' \n\n" +
+                           "To use a sensors values in a calculation, use that sesnors variable.\n" +
+                           "   eg: To make all the values of the sensor " + Sensors[0].Name + " equal to " + Sensors[1].Name +
+                               ", use " + Sensors[0].Variable.VariableName + " = " + Sensors[1].Variable.VariableName + "\n\n" +
+                           "To use the data points time stamp in calculations use 'time.' followed by the time part desired.\n" +
+                           "   eg: time.Year, time.Month, time.Day, time.Hour, time.Minute, time.Second\n\n" +
+                           "Note: Variables must be seperated out by whitespace like so \" a \"" +
+                           "Examples:\n" +
+                           "'x = x + 1'\n" +
+                           "'x = time.Date'\n" +
+                           "'x = x * Cos( x + 1) + 2'";
+                    else
+                        message +=
+                            "The program applies the formula entered across all sensors data points within the specified range.\n" +
+                                       "The following gives an indication of the operations and syntax.\n\n" +
+                                       "Mathematical operations\t [ -, +, *, ^, % ]\n" +
+                                       "Mathematical functions\t [ Sin(y), Cos(y), Tan(y), Pi ]\n\n" +
+                                       "Examples:\n" +
+                                       "'x = x + 1'\n" +
+                                       "'x = time.Date'\n" +
+                                       "'x = x * Cos(x + 1) + 2'";
+
+                    Common.ShowMessageBox("About Calibration",
+                                          message
+                                          , false, false);
+                };
             Grid.SetRow(aboutButton, 0);
             contentGrid.Children.Add(aboutButton);
 
@@ -1347,69 +1384,6 @@ namespace IndiaTango.ViewModels
             Grid.SetRow(buttonsWrapper, 2);
             manualTabGrid.Children.Add(buttonsWrapper);
 
-            var helpButton = new Button
-                                 {
-                                     FontSize = 15,
-                                     HorizontalAlignment = HorizontalAlignment.Left,
-                                     Margin = new Thickness(0, 0, 0, 0),
-                                     VerticalAlignment = VerticalAlignment.Bottom,
-                                     VerticalContentAlignment = VerticalAlignment.Bottom,
-                                 };
-            helpButton.Click += (o, e) =>
-                                    {
-                                        if (!CurrentDataSetNotNull)
-                                            return;
-
-                                        var message =
-                                            "The program applies the formula entered across all sensors data points within the specified range.\n" +
-                                           "The following gives an indication of the operations and syntax.\n\n" +
-                                           "Mathematical operations\t [ -, +, *, ^, % ]\n" +
-                                           "Mathematical functions\t [ Sin(y), Cos(y), Tan(y), Pi ]\n\n" +
-                                           "Examples:\n" +
-                                           "'x = x + 1'\n" +
-                                           "'x = time.Date'\n" +
-                                           "'x = x * Cos(x + 1) + 2'";
-
-                                        if (Sensors.Count > 1)
-                                            message =
-                                               "The program applies the formula entered across all sensors data points within the specified range.\n" +
-                                               "The following gives an indication of the operations and syntax.\n\n" +
-                                               "Mathematical operations\t [ -, +, *, % ]\n" +
-                                               "Mathematical functions\t [ Sin(y), Cos(y), Tan(y), Pi, Pow(x,y) ]\n\n" +
-                                               "To set a data points value for a particular sensor, use that sensors variable followed by a space and an equals sign, then by the value.\n" +
-                                               "   eg: To set the values of the sensor " + Sensors[0].Name + " to 5 for all points, use '" + Sensors[0].Variable.VariableName + " = 5' \n\n" +
-                                               "To use a sensors values in a calculation, use that sesnors variable.\n" +
-                                               "   eg: To make all the values of the sensor " + Sensors[0].Name + " equal to " + Sensors[1].Name +
-                                                   ", use " + Sensors[0].Variable.VariableName + " = " + Sensors[1].Variable.VariableName + "\n\n" +
-                                               "To use the data points time stamp in calculations use 'time.' followed by the time part desired.\n" +
-                                               "   eg: time.Year, time.Month, time.Day, time.Hour, time.Minute, time.Second\n\n" +
-                                               "Note: Variables must be seperated out by whitespace like so \" a \"" +
-                                               "Examples:\n" +
-                                               "'x = x + 1'\n" +
-                                               "'x = time.Date'\n" +
-                                               "'x = x * Cos( x + 1) + 2'";
-                                        Common.ShowMessageBox("Formula Help", message, false, false);
-                                    };
-            
-
-            var helpButtonStackPanel = new StackPanel
-                                           {
-                                               Orientation = Orientation.Horizontal
-                                           };
-            helpButton.Content = helpButtonStackPanel;
-            helpButtonStackPanel.Children.Add(new Image
-                                                  {
-                                                      Width = 32,
-                                                      Height = 32,
-                                                      Source = new BitmapImage(new Uri("pack://application:,,,/Images/help_32.png", UriKind.Absolute))
-                                                  });
-            helpButtonStackPanel.Children.Add(new TextBlock
-                                                  {
-                                                      Text = "Help",
-                                                      VerticalAlignment = VerticalAlignment.Center,
-                                                      Margin = new Thickness(5)
-                                                  });
-
             applyFormulaButton.Click += (sender, eventArgs) =>
                                             {
                                                 var validFormula = false;
@@ -1494,7 +1468,7 @@ namespace IndiaTango.ViewModels
                                                                                        false, true, errorString);
                                                 }
                                             };
-            
+
 
             var applyFormulaButtonStackPanel = new StackPanel
                                                     {
@@ -1627,7 +1601,7 @@ namespace IndiaTango.ViewModels
                                          manualFormulaTextBox.Text = "";
                                          applyFormulaButton.IsEnabled = !Properties.Settings.Default.EvaluateFormulaOnKeyUp;
                                      };
-            
+
 
             var clearButtonStackPanel = new StackPanel
                                             {
@@ -1648,7 +1622,6 @@ namespace IndiaTango.ViewModels
                                                     });
 
             #region Add Buttons to Wrapper
-            buttonsWrapper.Children.Add(helpButton);
             buttonsWrapper.Children.Add(clearButton);
             buttonsWrapper.Children.Add(previewFormulaButton);
             buttonsWrapper.Children.Add(applyFormulaButton);
@@ -1966,7 +1939,7 @@ namespace IndiaTango.ViewModels
                                              SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "AutoCalibration");
                                              UpdateUndoRedo();
                                          };
-            
+
 
             var autoApplyButtonStackPanel = new StackPanel
                                                 {
