@@ -7,7 +7,7 @@ namespace DataAggregator.Models
     {
         public string Name
         {
-            get { return "Nearest Value"; }
+            get { return "Nearest Timestamp"; }
         }
 
         public float Aggregate(IEnumerable<KeyValuePair<DateTime, float>> values, DateTime inclusiveStartTimestamp, DateTime exclusiveEndTimestamp, DateTime midPointTimestamp)
