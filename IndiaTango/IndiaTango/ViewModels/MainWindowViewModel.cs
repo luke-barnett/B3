@@ -2917,10 +2917,10 @@ namespace IndiaTango.ViewModels
         public void UpdateGraph(bool recalculateDateRange)
         {
             Debug.WriteLine("Updating Graph");
-            ChartTitle = (_sensorsToGraph.Count > 0) ? string.Format("{0} [{1}m]", _sensorsToGraph[0].Sensor.Name, _sensorsToGraph[0].Sensor.Depth) : String.Empty;
+            ChartTitle = (_sensorsToGraph.Count > 0) ? string.Format("{0} [{1}m]", _sensorsToGraph[0].Sensor.Name, _sensorsToGraph[0].Sensor.Elevation) : String.Empty;
 
             for (var i = 1; i < _sensorsToGraph.Count; i++)
-                ChartTitle += string.Format(" and {0} [{1}m]", _sensorsToGraph[i].Sensor.Name, _sensorsToGraph[i].Sensor.Depth);
+                ChartTitle += string.Format(" and {0} [{1}m]", _sensorsToGraph[i].Sensor.Name, _sensorsToGraph[i].Sensor.Elevation);
 
             var distinctUnits = (from sensor in _sensorsToGraph select sensor.Sensor.Unit).Distinct().ToArray();
 

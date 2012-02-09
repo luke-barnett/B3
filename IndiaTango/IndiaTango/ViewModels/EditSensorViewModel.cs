@@ -155,7 +155,7 @@ namespace IndiaTango.ViewModels
                 {
                     Name = _selectedItem.Sensor.Name;
                     Description = _selectedItem.Sensor.Description;
-                    Depth = _selectedItem.Sensor.Depth.ToString();
+                    Depth = _selectedItem.Sensor.Elevation.ToString();
                     LowerLimit = _selectedItem.Sensor.LowerLimit.ToString();
                     UpperLimit = _selectedItem.Sensor.UpperLimit.ToString();
                     Unit = _selectedItem.Sensor.Unit;
@@ -263,7 +263,7 @@ namespace IndiaTango.ViewModels
                 try
                 {
                     // TODO: more user-friendly conversion messages!
-                    var s = new Sensor(Name, Description, float.Parse(UpperLimit), float.Parse(LowerLimit), Unit, float.Parse(MaximumRateOfChange), new Stack<SensorState>(), new Stack<SensorState>(), new List<Calibration>(), int.Parse(ErrorThreshold), _ds, (SummaryType)SummaryType) { Depth = float.Parse(Depth)};
+                    var s = new Sensor(Name, Description, float.Parse(UpperLimit), float.Parse(LowerLimit), Unit, float.Parse(MaximumRateOfChange), new Stack<SensorState>(), new Stack<SensorState>(), new List<Calibration>(), int.Parse(ErrorThreshold), _ds, (SummaryType)SummaryType) { Elevation = float.Parse(Depth)};
                     
                     if(Dataset.Sensors == null)
                         Dataset.Sensors = new List<Sensor>();
@@ -289,7 +289,7 @@ namespace IndiaTango.ViewModels
                 {
                     SelectedItem.Sensor.Name = Name;
                     SelectedItem.Sensor.Description = Description;
-                    SelectedItem.Sensor.Depth = float.Parse(Depth);
+                    SelectedItem.Sensor.Elevation = float.Parse(Depth);
                     SelectedItem.Sensor.UpperLimit = float.Parse(UpperLimit);
                     SelectedItem.Sensor.LowerLimit = float.Parse(LowerLimit);
                     SelectedItem.Sensor.Unit = Unit;

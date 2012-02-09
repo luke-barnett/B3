@@ -24,7 +24,7 @@ namespace IndiaTango.Models
         private List<Calibration> _calibrations;
         private string _name;
         private string _description;
-        private float _depth;
+        private float _elevation;
         private string _unit;
         private float _maxRateOfChange;
         private int _errorThreshold;
@@ -42,6 +42,7 @@ namespace IndiaTango.Models
         private ObservableCollection<SensorMetaData> _metaData;
         private SensorMetaData _currentMetaData;
         private string _hash;
+        private int _sortIndex;
         #endregion
 
         #region Constructors
@@ -285,12 +286,12 @@ namespace IndiaTango.Models
         /// Gets or sets the depth of the sensor
         /// </summary>
         [ProtoMember(5)]
-        public float Depth
+        public float Elevation
         {
-            get { return _depth; }
+            get { return _elevation; }
             set
             {
-                _depth = value;
+                _elevation = value;
                 FirePropertyChanged("Depth");
             }
         }
@@ -525,6 +526,20 @@ namespace IndiaTango.Models
             }
         }
 
+        [ProtoMember(24)]
+        public int SortIndex
+        {
+            get
+            {
+                return _sortIndex;
+            }
+            set
+            {
+                _sortIndex = value;
+                FirePropertyChanged("SortIndex");
+            }
+        }
+
         #endregion
 
         #region Public Methods
@@ -639,7 +654,7 @@ namespace IndiaTango.Models
             if (!sensorObj.CurrentState.Equals(CurrentState))
                 return false;
 
-            if (sensorObj.Depth != Depth)
+            if (sensorObj.Elevation != Elevation)
                 return false;
 
             if (sensorObj.Description != Description)

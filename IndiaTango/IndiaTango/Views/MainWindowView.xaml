@@ -23,6 +23,7 @@
 
     <Window.Resources>
         <models:FloatStringConverter x:Key="floatStringConverter" />
+        <models:IntStringConverter x:Key="intStringConverter" />
         <models:TimeSpanStringConverter x:Key="timeSpanStringConverter" />
         <models:ColourConverter x:Key="colourConverter" />
         <models:CellForegroundConverter x:Key="cellForegroundConverter" />
@@ -108,6 +109,7 @@
                                 </DataGridTemplateColumn.HeaderTemplate>
                             </DataGridTemplateColumn>
                             <DataGridTextColumn Header="Name" Binding="{Binding Sensor.Name}" />
+                            <DataGridTextColumn Header="Sort Index" Binding="{Binding Sensor.SortIndex, Converter={StaticResource intStringConverter}}" SortMemberPath="Sensor.SortIndex" />
                             <DataGridTextColumn Header="Variable" Binding="{Binding Sensor.Variable}" IsReadOnly="True" SortMemberPath="Sensor.Variable" />
                             <DataGridTemplateColumn Header="Parameter" CanUserSort="True" SortMemberPath="Sensor.SensorType">
                                 <DataGridTemplateColumn.CellTemplate>
@@ -133,7 +135,7 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellEditingTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="Depth (m)" Binding="{Binding Sensor.Depth, Converter={StaticResource floatStringConverter}}" />
+                            <DataGridTextColumn Header="Elevation (m)" Binding="{Binding Sensor.Elevation, Converter={StaticResource floatStringConverter}}" />
                             <DataGridTextColumn Header="Accuracy (+/-)" Binding="{Binding Sensor.CurrentMetaData.Accuracy, Converter={StaticResource floatStringConverter}}" />
                             <DataGridTextColumn Header="Lower Limit" Binding="{Binding Sensor.LowerLimit, Converter={StaticResource floatStringConverter}}" />
                             <DataGridTextColumn Header="Upper Limit" Binding="{Binding Sensor.UpperLimit, Converter={StaticResource floatStringConverter}}" />

@@ -356,7 +356,7 @@ namespace IndiaTango.Models
                         writer.WriteLine("\t\tDescription: " + sensor.Description);
                         writer.WriteLine("\t\tSensor Type: " + sensor.SensorType);
                         writer.WriteLine("\t\tUnit: " + sensor.Unit);
-                        writer.WriteLine("\t\tDepth (m): " + sensor.Depth);
+                        writer.WriteLine("\t\tDepth (m): " + sensor.Elevation);
                         writer.WriteLine("\t\tSensors:");
                         foreach (var metaData in sensor.MetaData)
                         {

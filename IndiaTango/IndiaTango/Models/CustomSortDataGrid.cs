@@ -59,14 +59,16 @@ namespace IndiaTango.Models
                     return 0;
                 case "Name":
                     return Direction == ListSortDirection.Ascending ? String.CompareOrdinal(graphableSensorX.Sensor.Name, graphableSensorY.Sensor.Name) : String.CompareOrdinal(graphableSensorY.Sensor.Name, graphableSensorX.Sensor.Name);
+                case "Sort Index":
+                    return Direction == ListSortDirection.Ascending ? graphableSensorX.Sensor.SortIndex.CompareTo(graphableSensorY.Sensor.SortIndex) : graphableSensorY.Sensor.SortIndex.CompareTo(graphableSensorX.Sensor.SortIndex);
                 case "Variable":
                     return Direction == ListSortDirection.Ascending ? graphableSensorX.Sensor.Variable.CompareTo(graphableSensorY.Sensor.Variable) : graphableSensorY.Sensor.Variable.CompareTo(graphableSensorX.Sensor.Variable);
                 case "Parameter":
                     return Direction == ListSortDirection.Ascending ? String.CompareOrdinal(graphableSensorX.Sensor.SensorType, graphableSensorY.Sensor.SensorType) : String.CompareOrdinal(graphableSensorY.Sensor.SensorType, graphableSensorX.Sensor.SensorType);
                 case "Unit":
                     return Direction == ListSortDirection.Ascending ? String.CompareOrdinal(graphableSensorX.Sensor.Unit, graphableSensorY.Sensor.Unit) : String.CompareOrdinal(graphableSensorY.Sensor.Unit, graphableSensorX.Sensor.Unit);
-                case "Depth (m)":
-                    return Direction == ListSortDirection.Ascending ? graphableSensorX.Sensor.Depth.CompareTo(graphableSensorY.Sensor.Depth) : graphableSensorY.Sensor.Depth.CompareTo(graphableSensorX.Sensor.Depth);
+                case "Elevation (m)":
+                    return Direction == ListSortDirection.Ascending ? graphableSensorX.Sensor.Elevation.CompareTo(graphableSensorY.Sensor.Elevation) : graphableSensorY.Sensor.Elevation.CompareTo(graphableSensorX.Sensor.Elevation);
                 case "Accuracy (+/-)":
                     return Direction == ListSortDirection.Ascending ? graphableSensorX.Sensor.CurrentMetaData.Accuracy.CompareTo(graphableSensorY.Sensor.CurrentMetaData.Accuracy) : graphableSensorY.Sensor.CurrentMetaData.Accuracy.CompareTo(graphableSensorX.Sensor.CurrentMetaData.Accuracy);
                 case "Lower Limit":

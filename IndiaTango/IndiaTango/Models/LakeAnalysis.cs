@@ -13,7 +13,7 @@ namespace IndiaTango.Models
 
             foreach (var sensor in dataset.Sensors.Where(x => x.SensorType == "Water_Temperature"))
             {
-                var series = new DensitySeries(sensor.Depth);
+                var series = new DensitySeries(sensor.Elevation);
                 foreach (var value in sensor.CurrentState.Values)
                 {
                     var density = (1 - (((value.Value + 288.9414) / (508929.2 * (value.Value + 68.12963))) *
@@ -45,7 +45,7 @@ namespace IndiaTango.Models
 
                 if (mixedTempDifferential > 0)
                 {
-                    var orderedSensors = dataset.Sensors.Where(x => x.SensorType == "Water_Temperature").OrderBy(x => x.Depth).ToArray();
+                    var orderedSensors = dataset.Sensors.Where(x => x.SensorType == "Water_Temperature").OrderBy(x => x.Elevation).ToArray();
                     if (orderedSensors.Any())
                     {
                         var first = orderedSensors.First(x => x.CurrentState.Values.ContainsKey(t));
@@ -145,7 +145,7 @@ namespace IndiaTango.Models
 
             foreach (var timestamp in thermoclineDepths.Keys)
             {
-                var depths = dataset.Sensors.Where(x => x.SensorType == "Water_Temperature" && x.CurrentState.Values.ContainsKey(timestamp)).Select(x => x.Depth).Distinct().OrderBy(x => x).ToArray();
+                var depths = dataset.Sensors.Where(x => x.SensorType == "Water_Temperature" && x.CurrentState.Values.ContainsKey(timestamp)).Select(x => x.Elevation).Distinct().OrderBy(x => x).ToArray();
 
                 var meanDepths = new float[depths.Length - 1];
 

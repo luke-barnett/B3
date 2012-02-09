@@ -318,14 +318,14 @@ namespace IndiaTango.ViewModels
 
         public string SensorDepth
         {
-            get { return _selectedSensor != null ? _selectedSensor.Depth.ToString() : "!!!!"; }
+            get { return _selectedSensor != null ? _selectedSensor.Elevation.ToString() : "!!!!"; }
             set
             {
                 if (_selectedSensor != null)
                 {
                     try
                     {
-                        _selectedSensor.Depth = float.Parse(value);
+                        _selectedSensor.Elevation = float.Parse(value);
                     }
                     catch
                     {

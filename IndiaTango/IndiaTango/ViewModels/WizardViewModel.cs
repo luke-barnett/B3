@@ -420,12 +420,12 @@ namespace IndiaTango.ViewModels
 
         public string Description { get { return (SelectedSensor == null) ? string.Empty : SelectedSensor.Description; } set { if (SelectedSensor != null) SelectedSensor.Description = value; } }
 
-        public string Depth { get { return (SelectedSensor == null) ? string.Empty : SelectedSensor.Depth.ToString(); } set
+        public string Depth { get { return (SelectedSensor == null) ? string.Empty : SelectedSensor.Elevation.ToString(); } set
         {
             if (SelectedSensor != null)
                 try
                 {
-                    SelectedSensor.Depth = float.Parse(value);
+                    SelectedSensor.Elevation = float.Parse(value);
                 }
                 catch
                 {

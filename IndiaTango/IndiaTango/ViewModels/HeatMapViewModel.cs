@@ -381,7 +381,7 @@ namespace IndiaTango.ViewModels
             var width = _heatMap.Width;
             var height = _heatMap.Height;
 
-            var depths = _sensorsToUse.Select(x => x.Depth).Distinct().OrderBy(x => x).ToArray();
+            var depths = _sensorsToUse.Select(x => x.Elevation).Distinct().OrderBy(x => x).ToArray();
 
             MinDepth = depths.Min();
             MaxDepth = depths.Max();
@@ -433,8 +433,8 @@ namespace IndiaTango.ViewModels
             _depths = new List<DepthYValue>();
             foreach (var sensor in _sensorsToUse)
             {
-                var y = (Array.IndexOf(depths, sensor.Depth) * heightMultiplier);
-                _depths.Add(new DepthYValue(sensor.Depth, y));
+                var y = (Array.IndexOf(depths, sensor.Elevation) * heightMultiplier);
+                _depths.Add(new DepthYValue(sensor.Elevation, y));
                 foreach (var timeStamp in sensor.CurrentState.Values.OrderBy(x => x.Key).Where((x, index) => index % SamplingRate == 0))
                 {
                     var intensity = (byte)((timeStamp.Value - MinValue) * valuesMultiplier);
