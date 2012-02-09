@@ -7,12 +7,12 @@ using System.Windows;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("DataAggregator")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Data Aggregator")]
+[assembly: AssemblyDescription("Aggregates data into regular timestamps")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("DataAggregator")]
-[assembly: AssemblyCopyright("Copyright ©  2012")]
+[assembly: AssemblyCompany("India Tango")]
+[assembly: AssemblyProduct("Data Aggregator")]
+[assembly: AssemblyCopyright("© India Tango 2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
