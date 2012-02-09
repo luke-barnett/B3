@@ -599,6 +599,7 @@ namespace IndiaTango.Models
 
         public void RevertToRaw()
         {
+            EventLogger.LogSensorInfo(Owner, Name, "Reverted to raw");
             _currentState = null;
         }
 
