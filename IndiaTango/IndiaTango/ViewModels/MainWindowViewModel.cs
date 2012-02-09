@@ -1201,10 +1201,10 @@ namespace IndiaTango.ViewModels
             };
             aboutButton.Click +=
                 (o, e) =>
-                    {
-                        var message =
-                            "This method is used to post-calibrate a range of data using a mathematical formula. It can also be used to perform unit conversions on sensor data.\r\n\nYou may select a range of data to modify by holding the shift key, and click-dragging the mouse over a range of data on the graph to the right. If no range is selected, then the formula will be applied to the date range that is displayed on the graph.\r\n\nUse ‘Formula’ mode to apply an equation to the data. Each sensor has an identifier (‘Variable’ in the sensor metadata) that can be used in formulas. Formulas can also relate one sensor to another (e.g. to calculate dissolved oxygen concentration from % saturation and water temperature measurements). If you wish to retain the original data, you can create a new sensor and use formula mode to derive values for it.\r\n\nUse ‘Drift adjustment’ mode to adjust for linear drift between sensor calibrations. Calibration logs can be stored in sensor metadata. You can enter a two point calibration (e.g. 0% and 100% following dissolved oxygen sensor calibration), and then enter corresponding values at the end of a period of drift (e.g. 4.3% and 115% after six months of dissolved oxygen sensor deployment). Click ‘Apply’ and the data over the period selected will have a linear back-correction applied in order to compensate for (assumed linear) drift in the electronic response of the instrument.\r\n\nYou can use ‘Preview’ to view the calibration change before applying it.\r\n\n";
-                        
+                {
+                    var message =
+                        "This method is used to post-calibrate a range of data using a mathematical formula. It can also be used to perform unit conversions on sensor data.\r\n\nYou may select a range of data to modify by holding the shift key, and click-dragging the mouse over a range of data on the graph to the right. If no range is selected, then the formula will be applied to the date range that is displayed on the graph.\r\n\nUse ‘Formula’ mode to apply an equation to the data. Each sensor has an identifier (‘Variable’ in the sensor metadata) that can be used in formulas. Formulas can also relate one sensor to another (e.g. to calculate dissolved oxygen concentration from % saturation and water temperature measurements). If you wish to retain the original data, you can create a new sensor and use formula mode to derive values for it.\r\n\nUse ‘Drift adjustment’ mode to adjust for linear drift between sensor calibrations. Calibration logs can be stored in sensor metadata. You can enter a two point calibration (e.g. 0% and 100% following dissolved oxygen sensor calibration), and then enter corresponding values at the end of a period of drift (e.g. 4.3% and 115% after six months of dissolved oxygen sensor deployment). Click ‘Apply’ and the data over the period selected will have a linear back-correction applied in order to compensate for (assumed linear) drift in the electronic response of the instrument.\r\n\nYou can use ‘Preview’ to view the calibration change before applying it.\r\n\n";
+
                     if (Sensors.Count > 1)
                         message +=
                            "The program applies the formula entered across all sensors data points within the specified range.\n" +
@@ -2898,9 +2898,13 @@ namespace IndiaTango.ViewModels
                 NotifyOfPropertyChange(() => HighestYearLoaded);
                 NotifyOfPropertyChange(() => LowestYearLoadedOptions);
                 NotifyOfPropertyChange(() => HighestYearLoadedOptions);
+                var message = string.Format("Loaded in {0} to {1}", LowestYearLoaded, HighestYearLoaded);
+                if (CurrentDataset != null && CurrentDataset.LowestYearLoaded != 0)
+                    message +=
+                        string.Format("\r\n\nThere are additional year(s) prior to {0} of data that are available for selection", LowestYearLoaded);
                 if (CurrentDataset != null)
-                    Common.ShowMessageBox(string.Format("Loaded in {0}", CurrentDataset.Site.Name),
-                                          string.Format("Loaded in {0} to {1}", LowestYearLoaded, HighestYearLoaded), false, false);
+                    Common.ShowMessageBox(string.Format("Loaded in {0}", CurrentDataset.Site.Name), message
+                                          , false, false);
             };
 
             DisableFeatures();
