@@ -12,6 +12,9 @@ namespace DataAggregator.Models
 
         public float Aggregate(IEnumerable<KeyValuePair<DateTime, float>> values, DateTime inclusiveStartTimestamp, DateTime exclusiveEndTimestamp, DateTime midPointTimestamp)
         {
+            if (!values.Any())
+                return float.NaN;
+
             var distances = values.Select(x => new KeyValuePair<DateTime,TimeSpan>(x.Key,(midPointTimestamp - x.Key).Duration())).ToArray();
 
             var minDistance = distances[0];
