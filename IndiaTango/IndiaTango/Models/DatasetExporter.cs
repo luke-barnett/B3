@@ -217,7 +217,7 @@ namespace IndiaTango.Models
                 var rowDate = data.StartTimeStamp;
 
 
-                foreach (var sensor in data.Sensors)
+                foreach (var sensor in data.Sensors.OrderBy(x => x.SortIndex))
                 {
                     var stateToUse = (exportRaw) ? sensor.RawData : sensor.CurrentState;
 
@@ -300,7 +300,7 @@ namespace IndiaTango.Models
                 var line = dateColumnFormat.Equals(DateColumnFormat.SplitDateColumn)
                                ? "Day,Month,Year,Hours,Minutes" + ','
                                : "Date,Time" + ',';
-                line = data.Sensors.Aggregate(line, (current, sensor) => current + (sensor.Name + ","));
+                line = data.Sensors.OrderBy(x => x.SortIndex).Aggregate(line, (current, sensor) => current + (sensor.Name + ","));
                 line = line.Remove(line.Count() - 2);
                 writer.WriteLine(line);
                 for (var time = data.StartTimeStamp; time <= data.EndTimeStamp; time = time.AddMinutes(data.DataInterval))
@@ -309,7 +309,7 @@ namespace IndiaTango.Models
                             ? time.ToString("dd") + ',' + time.ToString("MM") + ',' + time.ToString("yyyy") + ',' +
                               time.ToString("HH") + ',' + time.ToString("mm") + ','
                             : time.ToString("dd/MM/yyyy") + ',' + time.ToString("HH:mm") + ',';
-                    foreach (var sensor in data.Sensors)
+                    foreach (var sensor in data.Sensors.OrderBy(x => x.SortIndex))
                     {
                         LinkedList<int> vals;
                         if (sensor.CurrentState.Changes.TryGetValue(time, out vals))
@@ -376,7 +376,7 @@ namespace IndiaTango.Models
                 if (data.Sensors != null && data.Sensors.Count > 0)
                 {
                     writer.WriteLine("Series:");
-                    foreach (var sensor in data.Sensors)
+                    foreach (var sensor in data.Sensors.OrderBy(x => x.SortIndex))
                     {
                         writer.WriteLine("\t" + sensor.Name);
                         writer.WriteLine("\t\tDescription: " + sensor.Description);

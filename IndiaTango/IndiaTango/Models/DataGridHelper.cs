@@ -13,7 +13,7 @@ namespace IndiaTango.Models
     {
         public static DataTable GenerateDataTable(IEnumerable<Sensor> sensorsToGenerateFrom, DateTime startTime, DateTime endTime)
         {
-            var sensors = sensorsToGenerateFrom.Distinct(new SensorNameEqualityComparer()).OrderBy(x => x.Name).ToArray();
+            var sensors = sensorsToGenerateFrom.Distinct(new SensorNameEqualityComparer()).OrderBy(x => x.SortIndex).ToArray();
 
             if (sensors.Length == 0)
                 return new DataTable();
