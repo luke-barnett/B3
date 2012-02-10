@@ -862,35 +862,52 @@ namespace IndiaTango.ViewModels
 
             set
             {
-                if (CurrentDataset == null) return;
-                var year = int.Parse(value) - CurrentDataset.StartYear.Year;
+                var bw = new BackgroundWorker();
 
-                if (year == CurrentDataset.LowestYearLoaded)
-                    return;
+                bw.DoWork += (o, e) =>
+                                 {
+                                     if (CurrentDataset == null) return;
+                                     var year = int.Parse(value) - CurrentDataset.StartYear.Year;
 
-                if (year > CurrentDataset.HighestYearLoaded)
-                {
-                    Common.ShowMessageBox("Chosen year is higher than the end year",
-                                          "You need to choose a year that is lower than the end year", false, false);
-                    NotifyOfPropertyChange(() => LowestYearLoaded);
-                    return;
-                }
+                                     if (year == CurrentDataset.LowestYearLoaded)
+                                         return;
 
-                if (year < CurrentDataset.LowestYearLoaded)
-                {
-                    CurrentDataset.LoadInSensorData(Enumerable.Range(year, CurrentDataset.LowestYearLoaded - year).ToArray(), true);
-                }
-                else
-                {
-                    CurrentDataset.UnloadSensorData(Enumerable.Range(CurrentDataset.LowestYearLoaded, year - CurrentDataset.LowestYearLoaded).ToArray());
-                }
-                foreach (var graphableSensor in GraphableSensors)
-                {
-                    graphableSensor.RefreshDataPoints();
-                }
-                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "Data Loader");
-                CalculateGraphedEndPoints(true);
-                CheckTheseMethods(_detectionMethods.Where(x => x.IsEnabled));
+                                     if (year > CurrentDataset.HighestYearLoaded)
+                                     {
+                                         Common.ShowMessageBox("Chosen year is higher than the end year",
+                                                               "You need to choose a year that is lower than the end year", false, false);
+                                         NotifyOfPropertyChange(() => LowestYearLoaded);
+                                         return;
+                                     }
+
+                                     if (year < CurrentDataset.LowestYearLoaded)
+                                     {
+                                         CurrentDataset.LoadInSensorData(Enumerable.Range(year, CurrentDataset.LowestYearLoaded - year).ToArray(), true);
+                                     }
+                                     else
+                                     {
+                                         CurrentDataset.UnloadSensorData(Enumerable.Range(CurrentDataset.LowestYearLoaded, year - CurrentDataset.LowestYearLoaded).ToArray());
+                                     }
+                                     CalculateGraphedEndPoints(true);
+                                 };
+
+                bw.RunWorkerCompleted += (o, e) =>
+                                             {
+                                                 foreach (var graphableSensor in GraphableSensors)
+                                                 {
+                                                     graphableSensor.RefreshDataPoints();
+                                                 }
+                                                 SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "Data Loader");
+                                                 CheckTheseMethods(_detectionMethods.Where(x => x.IsEnabled));
+                                                 EnableFeatures();
+                                                 ShowProgressArea = false;
+                                             };
+
+                DisableFeatures();
+                ProgressIndeterminate = true;
+                ShowProgressArea = true;
+                WaitEventString = "Updating data";
+                bw.RunWorkerAsync();
             }
         }
 
@@ -906,35 +923,51 @@ namespace IndiaTango.ViewModels
 
             set
             {
-                if (CurrentDataset == null) return;
-                var year = int.Parse(value) - CurrentDataset.StartYear.Year;
+                var bw = new BackgroundWorker();
 
-                if (year == CurrentDataset.HighestYearLoaded)
-                    return;
+                bw.DoWork += (o, e) =>
+                                 {
+                                     if (CurrentDataset == null) return;
+                                     var year = int.Parse(value) - CurrentDataset.StartYear.Year;
 
-                if (year < CurrentDataset.LowestYearLoaded)
-                {
-                    Common.ShowMessageBox("Chosen year is lower than the start year",
-                                          "You need to choose a year that is greater than the start year", false, false);
-                    NotifyOfPropertyChange(() => HighestYearLoaded);
-                    return;
-                }
+                                     if (year == CurrentDataset.HighestYearLoaded)
+                                         return;
 
-                if (year > CurrentDataset.HighestYearLoaded)
-                {
-                    CurrentDataset.LoadInSensorData(Enumerable.Range(CurrentDataset.HighestYearLoaded + 1, year - CurrentDataset.HighestYearLoaded).ToArray(), true);
-                }
-                else
-                {
-                    CurrentDataset.UnloadSensorData(Enumerable.Range(year + 1, CurrentDataset.HighestYearLoaded - year).ToArray());
-                }
-                foreach (var graphableSensor in GraphableSensors)
-                {
-                    graphableSensor.RefreshDataPoints();
-                }
-                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "Data Loader");
-                CalculateGraphedEndPoints(true);
-                CheckTheseMethods(_detectionMethods.Where(x => x.IsEnabled));
+                                     if (year < CurrentDataset.LowestYearLoaded)
+                                     {
+                                         Common.ShowMessageBox("Chosen year is lower than the start year",
+                                                               "You need to choose a year that is greater than the start year", false, false);
+                                         NotifyOfPropertyChange(() => HighestYearLoaded);
+                                         return;
+                                     }
+
+                                     if (year > CurrentDataset.HighestYearLoaded)
+                                     {
+                                         CurrentDataset.LoadInSensorData(Enumerable.Range(CurrentDataset.HighestYearLoaded + 1, year - CurrentDataset.HighestYearLoaded).ToArray(), true);
+                                     }
+                                     else
+                                     {
+                                         CurrentDataset.UnloadSensorData(Enumerable.Range(year + 1, CurrentDataset.HighestYearLoaded - year).ToArray());
+                                     }
+                                     CalculateGraphedEndPoints(true);
+                                 };
+                bw.RunWorkerCompleted += (o, e) =>
+                                             {
+                                                 foreach (var graphableSensor in GraphableSensors)
+                                                 {
+                                                     graphableSensor.RefreshDataPoints();
+                                                 }
+                                                 SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "Data Loader");
+                                                 CheckTheseMethods(_detectionMethods.Where(x => x.IsEnabled));
+                                                 EnableFeatures();
+                                                 ShowProgressArea = false;
+                                             };
+
+                DisableFeatures();
+                ProgressIndeterminate = true;
+                ShowProgressArea = true;
+                WaitEventString = "Updating data";
+                bw.RunWorkerAsync();
             }
         }
 
@@ -1071,7 +1104,7 @@ namespace IndiaTango.ViewModels
         {
             _background.Visibility = Visibility.Collapsed;
         }
-        
+
         /// <summary>
         /// Shows the sampling background on the graph
         /// </summary>
