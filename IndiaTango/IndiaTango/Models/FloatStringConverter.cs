@@ -4,6 +4,9 @@ using System.Windows.Data;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Converts between float and string
+    /// </summary>
     [ValueConversion(typeof(float), typeof(string))]
     public class FloatStringConverter : IValueConverter
     {

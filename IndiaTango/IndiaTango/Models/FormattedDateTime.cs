@@ -2,6 +2,9 @@
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Object to represent a formatted date time
+    /// </summary>
     public class FormattedDateTime
     {
         public FormattedDateTime(DateTime time)

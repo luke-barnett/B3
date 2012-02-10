@@ -5,8 +5,16 @@ using System.Windows;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Set of lake analysis calculations
+    /// </summary>
     public static class LakeAnalysis
     {
+        /// <summary>
+        /// Calculates the densities for the dataset
+        /// </summary>
+        /// <param name="dataset">The dataset to calculate from</param>
+        /// <returns>The list of densities</returns>
         public static IEnumerable<DensitySeries> CalculateDensity(Dataset dataset)
         {
             var densitySeries = new List<DensitySeries>();
@@ -26,6 +34,15 @@ namespace IndiaTango.Models
             return densitySeries.ToArray();
         }
 
+        /// <summary>
+        /// Calculate the thermocline depth
+        /// </summary>
+        /// <param name="dataset">The dataset to use</param>
+        /// <param name="mixedTempDifferential">The minimum mixed temp differnetial</param>
+        /// <param name="preCalculatedDensities">The set of precalculated densities</param>
+        /// <param name="seasonal">Whether or not to look check that values aren't seasonal</param>
+        /// <param name="minimumMetalimionSlope">The minimum metalimion slope</param>
+        /// <returns></returns>
         public static Dictionary<DateTime, ThermoclineDepthDetails> CalculateThermoclineDepth(Dataset dataset, double mixedTempDifferential = 0, IEnumerable<DensitySeries> preCalculatedDensities = null, bool seasonal = false, float minimumMetalimionSlope = 0.1f)
         {
             var thermocline = new Dictionary<DateTime, ThermoclineDepthDetails>();
@@ -139,6 +156,13 @@ namespace IndiaTango.Models
             return thermocline;
         }
 
+        /// <summary>
+        /// Calculates the metalimnion boundaries
+        /// </summary>
+        /// <param name="dataset">The dataset to use</param>
+        /// <param name="thermoclineDepths">The precalculated thermocline depths for the dataset</param>
+        /// <param name="minimumMetalimionSlope">The minimum metalimnion slope</param>
+        /// <returns></returns>
         public static Dictionary<DateTime, MetalimnionBoundariesDetails> CalculateMetalimnionBoundaries(Dataset dataset, Dictionary<DateTime, ThermoclineDepthDetails> thermoclineDepths, float minimumMetalimionSlope = 0.1f)
         {
             var metalimnionBoundaries = new Dictionary<DateTime, MetalimnionBoundariesDetails>();

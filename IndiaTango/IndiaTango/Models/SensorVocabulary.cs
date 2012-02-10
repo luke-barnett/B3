@@ -4,6 +4,9 @@ using System.Reflection;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Helper class for the set of sensor vocabularies available
+    /// </summary>
     public static class SensorVocabulary
     {
         public static string FileLocation

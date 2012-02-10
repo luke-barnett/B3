@@ -6,6 +6,9 @@ using Visiblox.Charts;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Detects missing values
+    /// </summary>
     public class MissingValuesDetector : IDetectionMethod
     {
         public override string ToString()

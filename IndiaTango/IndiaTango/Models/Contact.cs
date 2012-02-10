@@ -7,6 +7,9 @@ using ProtoBuf;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Contact object
+    /// </summary>
     [Serializable]
     [DataContract]
     [ProtoContract]
@@ -25,6 +28,9 @@ namespace IndiaTango.Models
         private Contact() { } // Necessary for serialisation.
         private int _id;
 
+        /// <summary>
+        /// The ID of the contact
+        /// </summary>
         [DataMember]
         [ProtoMember(1)]
         public int ID

@@ -7,6 +7,9 @@ using Visiblox.Charts;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Annotates values based on dates
+    /// </summary>
     class DateAnnotationBehaviour : BehaviourBase
     {
         private Canvas _annotationCanvas;

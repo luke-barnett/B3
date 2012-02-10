@@ -7,6 +7,9 @@ using System.Windows.Controls;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Custom datagrid to handle fire events on selection and delete
+    /// </summary>
     public class CustomDataGrid : DataGrid
     {
         public static readonly RoutedEvent DeleteRequestedEvent = EventManager.RegisterRoutedEvent("DeleteRequested",

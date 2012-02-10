@@ -5,6 +5,9 @@ using System.Text;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Helper class to retreive the existing manufacturers
+    /// </summary>
     public static class ManufacturerHelper
     {
         public static string FileLocation

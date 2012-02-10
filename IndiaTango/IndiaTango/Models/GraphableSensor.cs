@@ -55,6 +55,9 @@ namespace IndiaTango.Models
         /// </summary>
         public Color Colour { get { return Sensor.Colour; } set { Sensor.Colour = value; } }
 
+        /// <summary>
+        /// The colour used to plot raw values
+        /// </summary>
         public Color RawDataColour
         {
             get
@@ -73,12 +76,24 @@ namespace IndiaTango.Models
         /// </summary>
         public IEnumerable<DataPoint<DateTime, float>> DataPoints { get { if (_dataPoints == null) { RefreshDataPoints(); } return _dataPoints; } private set { _dataPoints = value; } }
 
+        /// <summary>
+        /// The lower line to graph
+        /// </summary>
         public IEnumerable<DataPoint<DateTime, float>> LowerLine { get { if (_lowerLimit == null) { RefreshDataPoints(); } return _lowerLimit; } private set { _lowerLimit = value; } }
 
+        /// <summary>
+        /// The upper line to graph
+        /// </summary>
         public IEnumerable<DataPoint<DateTime, float>> UpperLine { get { if (_upperLimit == null) { RefreshDataPoints(); } return _upperLimit; } private set { _upperLimit = value; } }
 
+        /// <summary>
+        /// The set of raw data points
+        /// </summary>
         public IEnumerable<DataPoint<DateTime, float>> RawDataPoints { get { if (_rawDataPoints == null) { RefreshDataPoints(); } return _rawDataPoints; } private set { _rawDataPoints = value; } }
 
+        /// <summary>
+        /// The set of preview data points
+        /// </summary>
         public IEnumerable<DataPoint<DateTime, float>> PreviewDataPoints { get; private set; }
 
         /// <summary>

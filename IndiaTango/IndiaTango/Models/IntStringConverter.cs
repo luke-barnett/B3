@@ -4,6 +4,9 @@ using System.Windows.Data;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Converts integers to strings
+    /// </summary>
     [ValueConversion(typeof(int), typeof(string))]
     public class IntStringConverter : IValueConverter
     {

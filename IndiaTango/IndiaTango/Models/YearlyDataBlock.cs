@@ -1,5 +1,8 @@
 ﻿namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Object to hold a year of current and raw values
+    /// </summary>
     public class YearlyDataBlock
     {
         public readonly DataBlock[] CurrentValues;

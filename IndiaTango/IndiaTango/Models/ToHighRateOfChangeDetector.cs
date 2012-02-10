@@ -5,6 +5,9 @@ using Visiblox.Charts;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Detection method for values that are above the maximum rate of change for the sensor
+    /// </summary>
     public class ToHighRateOfChangeDetector : IDetectionMethod
     {
         public string Name

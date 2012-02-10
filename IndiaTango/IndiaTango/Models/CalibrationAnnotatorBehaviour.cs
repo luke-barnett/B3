@@ -11,6 +11,9 @@ using System;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Annotates calibrations on the graph
+    /// </summary>
     public class CalibrationAnnotatorBehaviour : BehaviourBase
     {
         private readonly MainWindowViewModel _viewModel;

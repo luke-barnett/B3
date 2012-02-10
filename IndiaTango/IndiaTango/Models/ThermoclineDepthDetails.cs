@@ -1,5 +1,8 @@
 ﻿namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Object to hold a set of thermocline depth details
+    /// </summary>
     public class ThermoclineDepthDetails
     {
         public float ThermoclineDepth;

@@ -86,6 +86,9 @@ namespace IndiaTango.Models
 
         #endregion
 
+        /// <summary>
+        /// The list of changes made to the sensor state from the original raw values
+        /// </summary>
         [ProtoMember(1)]
         public Dictionary<DateTime, LinkedList<int>> Changes
         {
@@ -93,6 +96,9 @@ namespace IndiaTango.Models
             set { _changes = value; }
         }
 
+        /// <summary>
+        /// Whether or not this state is the raw values state
+        /// </summary>
         [ProtoMember(2)]
         public bool IsRaw
         {
@@ -119,7 +125,9 @@ namespace IndiaTango.Models
             set { _valueList = value; }
         }
 
-        //[ProtoMember(4)]
+        /// <summary>
+        /// The list of values in a compressed state
+        /// </summary>
         public DataBlock[] CompressedValues
         {
             get
@@ -171,6 +179,12 @@ namespace IndiaTango.Models
 
         }
 
+        /// <summary>
+        /// Gets a set of compressed values
+        /// </summary>
+        /// <param name="inclusiveStartTimestamp">The start of the values to get</param>
+        /// <param name="exclusiveEndTimestamp">The exclusive end of the values to get</param>
+        /// <returns>A compressed data block of values</returns>
         public DataBlock[] GetCompressedValues(DateTime inclusiveStartTimestamp, DateTime exclusiveEndTimestamp)
         {
             var dataBlocks = new List<DataBlock>();
@@ -204,6 +218,10 @@ namespace IndiaTango.Models
             return dataBlocks.ToArray();
         }
 
+        /// <summary>
+        /// Adds a block of compressed values to the list of values
+        /// </summary>
+        /// <param name="values">The data block to add</param>
         public void AddCompressedValues(DataBlock[] values)
         {
             if(values == null)
@@ -217,6 +235,9 @@ namespace IndiaTango.Models
             }
         }
 
+        /// <summary>
+        /// The reason for the change made to this sensor state
+        /// </summary>
         [ProtoMember(5)]
         public ChangeReason Reason
         {
@@ -242,6 +263,13 @@ namespace IndiaTango.Models
             return s.Values.Count == Values.Count && _valueList.All(f => s.Values.ContainsKey(f.Key) && s.Values[f.Key].Equals(f.Value));
         }
 
+        /// <summary>
+        /// Finds all the missing timestamps for this sensor state
+        /// </summary>
+        /// <param name="timeGap">The expected data interval</param>
+        /// <param name="start">The timestamp to start looking from</param>
+        /// <param name="end">The end timestamp to stop looking from</param>
+        /// <returns>The list of missing timestamps</returns>
         public List<DateTime> GetMissingTimes(int timeGap, DateTime start, DateTime end)
         {
             var missing = new List<DateTime>();
@@ -255,6 +283,16 @@ namespace IndiaTango.Models
             return missing;
         }
 
+        /// <summary>
+        /// Gets the outliers based on the limits set
+        /// </summary>
+        /// <param name="timeGap">The expected data interval</param>
+        /// <param name="start">The start timestamp</param>
+        /// <param name="end">The end timestamp</param>
+        /// <param name="upperLimit">The upper limit</param>
+        /// <param name="lowerLimit">The lower limit</param>
+        /// <param name="maxRateChange">The maximum rate of change</param>
+        /// <returns></returns>
         public List<DateTime> GetOutliersFromMaxAndMin(int timeGap, DateTime start, DateTime end, float upperLimit, float lowerLimit, float maxRateChange)
         {
             var outliers = new List<DateTime>();
@@ -328,16 +366,32 @@ namespace IndiaTango.Models
             return outliers;
         }
 
+        /// <summary>
+        /// Calculates the squares sum for a set of values
+        /// </summary>
+        /// <param name="values">The values to calculate from</param>
+        /// <param name="average">The average of the values</param>
+        /// <returns>The squares sum value</returns>
         private float GetSquaresSum(IEnumerable<float> values, float average)
         {
             return values.Where(value => !float.IsNaN(value)).Sum(v => (float)Math.Pow((v - average), 2));
         }
 
+        /// <summary>
+        /// Calculates how many real values there are in a list of values
+        /// </summary>
+        /// <param name="values">The list of values to look in</param>
+        /// <returns>How many real values there are</returns>
         private int GetCount(IEnumerable<float> values)
         {
             return values.Count(value => !float.IsNaN(value));
         }
 
+        /// <summary>
+        /// Calculates the average of a list of values
+        /// </summary>
+        /// <param name="values">The list of values to calculate for</param>
+        /// <returns>The average of the values</returns>
         private float GetAverage(IEnumerable<float> values)
         {
             var sum = 0f;
@@ -350,6 +404,17 @@ namespace IndiaTango.Models
             return sum / count;
         }
 
+        /// <summary>
+        /// Returns a calibrated state
+        /// </summary>
+        /// <param name="start">The start timestamp for the calibration</param>
+        /// <param name="end">The end timestamp for the calibration</param>
+        /// <param name="origA">The original high</param>
+        /// <param name="origB">The original low</param>
+        /// <param name="newA">The calibrated high</param>
+        /// <param name="newB">The calibrated low</param>
+        /// <param name="reason">The reason for the calibration</param>
+        /// <returns>The calibrated sensor state</returns>
         public SensorState Calibrate(DateTime start, DateTime end, double origA, double origB, double newA, double newB, ChangeReason reason)
         {
             if (start >= end)
@@ -404,6 +469,16 @@ namespace IndiaTango.Models
             return newState;
         }
 
+        /// <summary>
+        /// Gets the relative position between two lines
+        /// </summary>
+        /// <param name="intercept1">The first intercept</param>
+        /// <param name="intercept2">The second intercept</param>
+        /// <param name="slope1">The first rate of change</param>
+        /// <param name="slope2">The second rate of change</param>
+        /// <param name="x">The x value</param>
+        /// <param name="y">The y value</param>
+        /// <returns>The relative position</returns>
         private double GetRelativePositionBetweenLines(double intercept1, double intercept2, double slope1, double slope2, double x, double y)
         {
             double y1 = slope1 * x + intercept1;
@@ -533,16 +608,34 @@ namespace IndiaTango.Models
             return Values.Keys.Where(x => x < dataValue).Max();
         }
 
+        /// <summary>
+        /// Finds timestamp for the value coming after the given timestamp
+        /// </summary>
+        /// <param name="dataValue">The timestamp to look after</param>
+        /// <returns>The next timestamp</returns>
         public DateTime FindNextValue(DateTime dataValue)
         {
             return Values.Keys.Where(x => x > dataValue).Min();
         }
 
+        /// <summary>
+        /// Returns a new sensor state where the given values are set to zero
+        /// </summary>
+        /// <param name="values">The values to set to zero</param>
+        /// <param name="reason">The reason to make them zero</param>
+        /// <returns>The new sensor state</returns>
         public SensorState MakeZero(List<DateTime> values, ChangeReason reason)
         {
             return MakeValue(values, 0, reason);
         }
 
+        /// <summary>
+        /// Returns a new sensor state where the given values are set to a specific value
+        /// </summary>
+        /// <param name="values">The values to set</param>
+        /// <param name="value">The value to set to</param>
+        /// <param name="reason">The reson for the change</param>
+        /// <returns>The new sensor state</returns>
         public SensorState MakeValue(List<DateTime> values, float value, ChangeReason reason)
         {
             if (values == null)
@@ -582,6 +675,12 @@ namespace IndiaTango.Models
             return newState;
         }
 
+        /// <summary>
+        /// Returns a new sensor state where the given values are removed
+        /// </summary>
+        /// <param name="values">The values to remove</param>
+        /// <param name="reason">The reason for the change</param>
+        /// <returns>The new sensor state</returns>
         public SensorState RemoveValues(List<DateTime> values, ChangeReason reason)
         {
             if (values == null)
@@ -605,26 +704,38 @@ namespace IndiaTango.Models
             return _editTimestamp.ToString() + " " + title;
         }
 
+        /// <summary>
+        /// Logs a change
+        /// </summary>
+        /// <param name="sensorName">The name of the sensor</param>
+        /// <param name="taskPerformed">The log to make</param>
+        /// <returns>The log result</returns>
         public string LogChange(string sensorName, string taskPerformed)
         {
             return _owner != null ? EventLogger.LogSensorInfo(_owner.Owner, sensorName, taskPerformed + " Reason: " + Reason) : EventLogger.LogSensorInfo(null, sensorName, taskPerformed + " Reason: " + Reason);
         }
 
+        /// <summary>
+        /// The Upperline calculated
+        /// </summary>
         public Dictionary<DateTime, float> UpperLine
         {
             get { return _upperLine; }
         }
 
+        /// <summary>
+        /// The Lowerline calculated
+        /// </summary>
         public Dictionary<DateTime, float> LowerLine
         {
             get { return _lowerLine; }
         }
 
-        private bool IsPointAbove(double x1, double y1, double x2, double y2, double xPoint, double yPoint)
-        {
-            return ((x2 - x1) * (yPoint - y1) - (y2 - y1) * (xPoint - x1)) > 0;
-        }
-
+        /// <summary>
+        /// Adds a change to the list of changes
+        /// </summary>
+        /// <param name="timestamp">The timestamp to add the change to</param>
+        /// <param name="changeID">The change ID to add</param>
         public void AddToChanges(DateTime timestamp, int changeID)
         {
             if (!Changes.Keys.Contains(timestamp))

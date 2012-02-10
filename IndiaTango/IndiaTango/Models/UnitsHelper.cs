@@ -7,6 +7,9 @@ using System.Text;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Helper class for retrieving the units
+    /// </summary>
     public static class UnitsHelper
     {
         public static string FileLocation
@@ -15,6 +18,9 @@ namespace IndiaTango.Models
         }
 
         private static ObservableCollection<string> _units;
+        /// <summary>
+        /// The collection of units
+        /// </summary>
         public static ObservableCollection<string> Units
         {
             get

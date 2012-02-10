@@ -4,6 +4,9 @@ using ProtoBuf;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Object to describe a set of sensor metadata
+    /// </summary>
     [ProtoContract]
     public class SensorMetaData : INotifyPropertyChanged
     {
@@ -51,6 +54,9 @@ namespace IndiaTango.Models
         #endregion
 
         #region Public Properties
+        /// <summary>
+        /// The accuracy of the sensor
+        /// </summary>
         public float Accuracy
         {
             get { return _accuracy; }
@@ -61,6 +67,9 @@ namespace IndiaTango.Models
             }
         }
 
+        /// <summary>
+        /// The date the sensor was instatted
+        /// </summary>
         public DateTime DateOfInstallation
         {
             get { return _dateOfInstallation; }
@@ -71,11 +80,17 @@ namespace IndiaTango.Models
             }
         }
 
+        /// <summary>
+        /// The date the sensor was installed as a string
+        /// </summary>
         public String DateOfInstallationString
         {
             get { return (_dateOfInstallation == DateTime.MinValue) ? "" : _dateOfInstallation.ToString("yyy/MM/dd"); }
         }
 
+        /// <summary>
+        /// The serial number of the sensor
+        /// </summary>
         public string SerialNumber
         {
             get { return _serialNumber; }
@@ -86,6 +101,9 @@ namespace IndiaTango.Models
             }
         }
 
+        /// <summary>
+        /// The manufacturer of the sensor
+        /// </summary>
         public string Manufacturer
         {
             get { return _manufacturer; }
@@ -96,6 +114,9 @@ namespace IndiaTango.Models
             }
         }
 
+        /// <summary>
+        /// The ideal calibration frequency for the sensor
+        /// </summary>
         public TimeSpan IdealCalibrationFrequency
         {
             get { return _idealCalibrationFrequency; }

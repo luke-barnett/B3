@@ -7,6 +7,9 @@ using Visiblox.Charts;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Zoom behaviour for graph
+    /// </summary>
     class CustomZoomBehaviour : BehaviourBase
     {
         private readonly ZoomRectangle _zoomRectangle = new ZoomRectangle();

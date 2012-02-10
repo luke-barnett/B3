@@ -7,6 +7,9 @@ using System.Linq;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Reads CSV files
+    /// </summary>
     public class CSVReader : IDataReader
     {
         private readonly string _filename;

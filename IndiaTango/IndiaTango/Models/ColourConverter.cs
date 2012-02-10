@@ -5,6 +5,9 @@ using System.Windows.Media;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Converts between Colour and Color
+    /// </summary>
     [ValueConversion(typeof(Colour), typeof(Color))]
     class ColourConverter : IValueConverter
     {

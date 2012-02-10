@@ -181,6 +181,9 @@ namespace IndiaTango.Models
         #endregion
 
         #region Properties
+        /// <summary>
+        /// The list of undo states
+        /// </summary>
         public ReadOnlyCollection<SensorState> UndoStates
         {
             get
@@ -191,6 +194,9 @@ namespace IndiaTango.Models
             }
         }
 
+        /// <summary>
+        /// The list of redo states
+        /// </summary>
         public ReadOnlyCollection<SensorState> RedoStates
         {
             get
@@ -384,6 +390,9 @@ namespace IndiaTango.Models
             }
         }
 
+        /// <summary>
+        /// The current state of the sensor
+        /// </summary>
         public SensorState CurrentState
         {
             get { return (_currentState == null) ? RawData : _currentState; }
@@ -404,6 +413,9 @@ namespace IndiaTango.Models
             }
         }
 
+        /// <summary>
+        /// The error threshold for the sensor
+        /// </summary>
         [ProtoMember(14)]
         public int ErrorThreshold
         {
@@ -417,8 +429,14 @@ namespace IndiaTango.Models
             }
         }
 
+        /// <summary>
+        /// The dataset that owns the sensor
+        /// </summary>
         public Dataset Owner { get; set; }
 
+        /// <summary>
+        /// The raw data for the sensor
+        /// </summary>
         public SensorState RawData
         {
             get { return _rawData ?? (_rawData = new SensorState(this, DateTime.Now, new Dictionary<DateTime, float>(), null, true, null)); }
@@ -466,6 +484,9 @@ namespace IndiaTango.Models
             return false;
         }
 
+        /// <summary>
+        /// The summary method to use with the sensor
+        /// </summary>
         [ProtoMember(17)]
         public SummaryType SummaryType
         {
@@ -477,6 +498,9 @@ namespace IndiaTango.Models
             }
         }
 
+        /// <summary>
+        /// The type of the sensor
+        /// </summary>
         [ProtoMember(18)]
         public string SensorType
         {
@@ -488,6 +512,9 @@ namespace IndiaTango.Models
             }
         }
 
+        /// <summary>
+        /// The current metadata for the sensor
+        /// </summary>
         public SensorMetaData CurrentMetaData
         {
             get { return _currentMetaData; }
@@ -498,6 +525,9 @@ namespace IndiaTango.Models
             }
         }
 
+        /// <summary>
+        /// The list of metadata for the sensor
+        /// </summary>
         [ProtoMember(22)]
         public ObservableCollection<SensorMetaData> MetaData
         {
@@ -510,6 +540,9 @@ namespace IndiaTango.Models
             }
         }
 
+        /// <summary>
+        /// The hash to use for the sensor when saving to file
+        /// </summary>
         [ProtoMember(23)]
         public string Hash
         {
@@ -526,6 +559,9 @@ namespace IndiaTango.Models
             }
         }
 
+        /// <summary>
+        /// The sort index for the sensor
+        /// </summary>
         [ProtoMember(24)]
         public int SortIndex
         {
@@ -733,6 +769,10 @@ namespace IndiaTango.Models
             }
         }
 
+        /// <summary>
+        /// Guesses the conventional name for the sensor
+        /// </summary>
+        /// <returns>The guessed conventional name</returns>
         public string GuessConventionalNameForSensor()
         {
             // We will guess the name of the sensor, following convention,
@@ -756,6 +796,10 @@ namespace IndiaTango.Models
         [field: NonSerialized]
         public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>
+        /// Notifies listeners of a property being changed
+        /// </summary>
+        /// <param name="propertyThatChanged">The property that was changed</param>
         private void FirePropertyChanged(string propertyThatChanged)
         {
             if (PropertyChanged != null && !string.IsNullOrWhiteSpace(propertyThatChanged))
@@ -764,21 +808,33 @@ namespace IndiaTango.Models
             }
         }
 
+        /// <summary>
+        /// The list of vocabulary that can be applied to a the sensor
+        /// </summary>
         public List<string> SensorVocabulary
         {
             get { return Models.SensorVocabulary.Vocabulary; }
         }
 
+        /// <summary>
+        /// The unit options for the sensor
+        /// </summary>
         public ObservableCollection<string> Units
         {
             get { return UnitsHelper.Units; }
         }
 
+        /// <summary>
+        /// The manufacter options for the sensor
+        /// </summary>
         public ObservableCollection<string> Manufacturers
         {
             get { return ManufacturerHelper.Manufacturers; }
         }
 
+        /// <summary>
+        /// The description options for the sensor
+        /// </summary>
         public ObservableCollection<string> Descriptions
         {
             get { return DescriptionHelper.Descriptions; }

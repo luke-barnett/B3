@@ -585,7 +585,7 @@ namespace IndiaTango.ViewModels
                                      var oldFile = DataSet.SaveLocation;
                                      var oldName = DataSet.Site.Name;
                                      DataSet.Site.Name = SiteName;
-                                     DataSet.SaveToFile();
+                                     DataSet.SaveToFile(false);
 
                                      if (SiteName.CompareTo(oldName) != 0)
                                      {

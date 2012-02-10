@@ -4,6 +4,9 @@ using ProtoBuf;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// A bitmap that has an applied name
+    /// </summary>
     [Serializable]
     [ProtoContract]
     public class NamedBitmap
@@ -19,6 +22,9 @@ namespace IndiaTango.Models
             _name = name;
         }
 
+        /// <summary>
+        /// The bitmap
+        /// </summary>
         [ProtoMember(1)]
         public Bitmap Bitmap
         {
@@ -26,6 +32,9 @@ namespace IndiaTango.Models
             set { _bitmap = value; }
         }
 
+        /// <summary>
+        /// The name of the bitmap
+        /// </summary>
         [ProtoMember(2)]
         public string Name
         {

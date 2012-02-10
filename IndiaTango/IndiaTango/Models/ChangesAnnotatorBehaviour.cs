@@ -14,6 +14,9 @@ using Visiblox.Charts;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Annotates changes on the graph
+    /// </summary>
     public class ChangesAnnotatorBehaviour : BehaviourBase
     {
         private readonly MainWindowViewModel _viewModel;

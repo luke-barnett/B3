@@ -5,6 +5,9 @@ using Visiblox.Charts;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Interface for detection methods
+    /// </summary>
     public interface IDetectionMethod
     {
         /// <summary>
@@ -12,6 +15,9 @@ namespace IndiaTango.Models
         /// </summary>
         string Name { get; }
 
+        /// <summary>
+        /// The abbreviation for the detection method
+        /// </summary>
         string Abbreviation { get; }
 
         /// <summary>

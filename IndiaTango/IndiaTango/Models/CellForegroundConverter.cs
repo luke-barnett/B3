@@ -8,6 +8,9 @@ using System.Windows.Media;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Converts cell values to their foreground colour to show edited values
+    /// </summary>
     public class CellForegroundConverter : IMultiValueConverter
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)

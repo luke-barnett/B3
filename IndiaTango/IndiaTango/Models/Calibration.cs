@@ -3,6 +3,9 @@ using ProtoBuf;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Object to represent a calibration point
+    /// </summary>
     [ProtoContract]
     public class Calibration
     {

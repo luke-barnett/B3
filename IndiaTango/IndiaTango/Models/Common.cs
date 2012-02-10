@@ -23,6 +23,9 @@ using Size = System.Windows.Size;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Set of commonly used values and methods
+    /// </summary>
     public static class Common
     {
         [DllImport("gdi32")]

@@ -6,6 +6,9 @@ using System.Linq;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Helper for creating datagrids
+    /// </summary>
     public static class DataGridHelper
     {
         public static DataTable GenerateDataTable(IEnumerable<Sensor> sensorsToGenerateFrom, DateTime startTime, DateTime endTime)

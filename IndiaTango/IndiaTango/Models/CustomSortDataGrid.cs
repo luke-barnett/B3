@@ -6,6 +6,9 @@ using System.Windows.Data;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Custom datagrid to handle sorting better
+    /// </summary>
     public class CustomSortDataGrid : DataGrid
     {
         protected override void OnSorting(DataGridSortingEventArgs eventArgs)

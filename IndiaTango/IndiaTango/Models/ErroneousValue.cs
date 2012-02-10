@@ -6,6 +6,9 @@ using System.Windows.Input;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Represents an erroneous value
+    /// </summary>
     public class ErroneousValue
     {
         private readonly bool _hasValue;
@@ -45,12 +48,24 @@ namespace IndiaTango.Models
             _command = new GraphCenteringCommand(this);
         }
 
+        /// <summary>
+        /// The timestamp of the value
+        /// </summary>
         public DateTime TimeStamp { get; set; }
 
+        /// <summary>
+        /// The value
+        /// </summary>
         public float Value { get; set; }
 
+        /// <summary>
+        /// The sensor the value belongs to
+        /// </summary>
         public Sensor Owner { get; set; }
 
+        /// <summary>
+        /// The list of detectors that found the value
+        /// </summary>
         public List<IDetectionMethod> Detectors { get; private set; }
 
         public event GraphCenteringRequest GraphCenteringRequested
@@ -68,7 +83,9 @@ namespace IndiaTango.Models
             }
         }
 
-
+        /// <summary>
+        /// The string representation of the erroneous value
+        /// </summary>
         public string AsString
         {
             get { return ToString(); }

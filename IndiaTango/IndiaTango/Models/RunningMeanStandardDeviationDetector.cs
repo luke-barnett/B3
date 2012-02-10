@@ -10,6 +10,9 @@ using Visiblox.Charts;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Detects erroneous values based on a standard deviation on a running mean
+    /// </summary>
     public class RunningMeanStandardDeviationDetector : IDetectionMethod
     {
         private int _smoothingPeriod = 60;

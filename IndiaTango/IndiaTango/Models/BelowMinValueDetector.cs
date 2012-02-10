@@ -5,6 +5,9 @@ using Visiblox.Charts;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Dummy detector to show a value below the minimum value of a sensor
+    /// </summary>
     public class BelowMinValueDetector : IDetectionMethod
     {
         private readonly MinMaxDetector _owner;

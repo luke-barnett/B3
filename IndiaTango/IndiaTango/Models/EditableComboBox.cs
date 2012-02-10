@@ -5,6 +5,9 @@ using System;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Extension of a ComboBox for Helper classes
+    /// </summary>
     public class EditableComboBox : ComboBox
     {
         protected override void OnKeyDown(KeyEventArgs e)

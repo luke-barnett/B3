@@ -5,6 +5,9 @@ using System.Text;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Helper class for descriptions
+    /// </summary>
     class DescriptionHelper
     {
         public static string FileLocation

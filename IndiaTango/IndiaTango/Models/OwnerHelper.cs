@@ -5,6 +5,9 @@ using System.Text;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Helper class for loading existing owners
+    /// </summary>
     public class OwnerHelper
     {
         public static string FileLocation

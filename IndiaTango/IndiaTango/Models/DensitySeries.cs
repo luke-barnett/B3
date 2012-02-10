@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Object to describe a series of densities
+    /// </summary>
     public class DensitySeries
     {
         private readonly float _depth;

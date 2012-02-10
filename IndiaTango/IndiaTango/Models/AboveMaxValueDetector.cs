@@ -5,6 +5,9 @@ using Visiblox.Charts;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Dummy detector to show a value above the maximum value of a sensor
+    /// </summary>
     public class AboveMaxValueDetector : IDetectionMethod
     {
         private readonly MinMaxDetector _owner;

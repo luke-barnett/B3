@@ -6,6 +6,9 @@ using System.Linq;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Exports a dataset
+    /// </summary>
     public static class DatasetExporter
     {
         /// <summary>
@@ -192,6 +195,15 @@ namespace IndiaTango.Models
             }
         }
 
+        /// <summary>
+        /// Exports as a CSV
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="filePath"></param>
+        /// <param name="includeEmptyLines"></param>
+        /// <param name="dateColumnFormat"></param>
+        /// <param name="exportRaw"></param>
+        /// <param name="numOfPointsToSummarise"></param>
         private static void ExportCSV(Dataset data, string filePath, bool includeEmptyLines, DateColumnFormat dateColumnFormat, bool exportRaw, int numOfPointsToSummarise)
         {
             using (StreamWriter writer = File.CreateText(filePath))
@@ -271,6 +283,14 @@ namespace IndiaTango.Models
             }
         }
 
+        /// <summary>
+        /// Exports the changes file
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="filePath"></param>
+        /// <param name="changeMatrixFilePath"></param>
+        /// <param name="changesFilePath"></param>
+        /// <param name="dateColumnFormat"></param>
         private static void ExportChangesFile(Dataset data, string filePath, string changeMatrixFilePath, string changesFilePath, DateColumnFormat dateColumnFormat)
         {
             var changesUsed = new List<int>();
@@ -316,6 +336,12 @@ namespace IndiaTango.Models
             }
         }
 
+        /// <summary>
+        /// Exports the metadata
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="filePath"></param>
+        /// <param name="metaDataFilePath"></param>
         private static void ExportMetaData(Dataset data, string filePath, string metaDataFilePath)
         {
             using (StreamWriter writer = File.CreateText(metaDataFilePath))

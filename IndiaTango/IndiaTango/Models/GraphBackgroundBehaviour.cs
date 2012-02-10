@@ -5,6 +5,9 @@ using Visiblox.Charts;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Provides access to a background for the graph
+    /// </summary>
     class GraphBackgroundBehaviour : BehaviourBase
     {
         private readonly Canvas _background;

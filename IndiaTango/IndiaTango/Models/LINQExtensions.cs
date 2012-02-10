@@ -4,6 +4,9 @@ using System.Linq;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Set of useful LINQ Extensions
+    /// </summary>
     public static class LINQExtensions
     {
         public static float Variance(this IEnumerable<float> source)

@@ -7,6 +7,9 @@ using Visiblox.Charts;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Detects values that are below or above the limits for it's sensor
+    /// </summary>
     public class MinMaxDetector : IDetectionMethod
     {
         private readonly AboveMaxValueDetector _aboveMaxValue;

@@ -10,6 +10,9 @@ using Visiblox.Charts;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Detects repeated values
+    /// </summary>
     public class RepeatedValuesDetector : IDetectionMethod
     {
         private int _requiredNumberInSequence = 100;

@@ -65,6 +65,11 @@ namespace IndiaTango.Models
             _source = new StringBuilder();
         }
 
+        /// <summary>
+        /// Compiles a formula
+        /// </summary>
+        /// <param name="formula">The formula</param>
+        /// <returns>The compiled result</returns>
         public Formula CompileFormula(string formula)
         {
             //Get variables used in the formula
@@ -113,6 +118,15 @@ namespace IndiaTango.Models
             return new Formula(compilerResults, variablesUsed, variableAssignedTo);
         }
 
+        /// <summary>
+        /// Evaluates a formula
+        /// </summary>
+        /// <param name="formula">The formula to evaluate</param>
+        /// <param name="startTime">The start time to evaluate from</param>
+        /// <param name="endTime">The end time to stop evaluating from</param>
+        /// <param name="skipMissingValues">Whether or not to skip missing values</param>
+        /// <param name="reason">The reason for the evaluation</param>
+        /// <returns>The sensor used and the newly evaulated state</returns>
         public KeyValuePair<Sensor, SensorState> EvaluateFormula(Formula formula, DateTime startTime, DateTime endTime, bool skipMissingValues, ChangeReason reason)
         {
             if (startTime >= endTime)
@@ -134,6 +148,9 @@ namespace IndiaTango.Models
 
         #region Private Methods
 
+        /// <summary>
+        /// Gets the math members
+        /// </summary>
         private void GetMathMemberNames()
         {
             // get a reflected assembly of the System assembly
@@ -160,6 +177,11 @@ namespace IndiaTango.Models
             }
         }
 
+        /// <summary>
+        /// Extends a formula for the math class
+        /// </summary>
+        /// <param name="formula">The formula to extend</param>
+        /// <returns>The extended formula</returns>
         private string ExtendForMathClassMembers(string formula)
         {
             var regularExpression = new Regex("[a-zA-Z_]+");
@@ -193,6 +215,11 @@ namespace IndiaTango.Models
             return formula;
         }
 
+        /// <summary>
+        /// Makes a matched number a float
+        /// </summary>
+        /// <param name="m">The matched number</param>
+        /// <returns>The float of the matched number</returns>
         private static string MakeFloat(Match m)
         {
             var str = m.ToString();
@@ -200,6 +227,9 @@ namespace IndiaTango.Models
             return str + "f";
         }
 
+        /// <summary>
+        /// Builds the class
+        /// </summary>
         private void BuildClass()
         {
             // need a string to put the code into
@@ -251,6 +281,15 @@ namespace IndiaTango.Models
             sw.Close();
         }
 
+        /// <summary>
+        /// Runs the formula
+        /// </summary>
+        /// <param name="formula">The formula to run</param>
+        /// <param name="startTime">The start time to evaluate from</param>
+        /// <param name="endTime">The end time to stop evaluating from</param>
+        /// <param name="skipMissingValues">Whether or not to skip missing values</param>
+        /// <param name="reason">The reason for the evaluation</param>
+        /// <returns>The sensor used and the newly evaulated state</returns>
         private KeyValuePair<Sensor, SensorState> RunCode(Formula formula, DateTime startTime, DateTime endTime, bool skipMissingValues, ChangeReason reason)
         {
             var executingAssembly = formula.CompilerResults.CompiledAssembly;

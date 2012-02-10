@@ -4,6 +4,9 @@ using System.Windows.Data;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Converts between a timespan object and a string object
+    /// </summary>
     [ValueConversion(typeof(TimeSpan), typeof(string))]
     class TimeSpanStringConverter : IValueConverter
     {

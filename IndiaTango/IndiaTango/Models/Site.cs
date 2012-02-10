@@ -18,6 +18,9 @@ namespace IndiaTango.Models
         private GPSCoords _gpsLocation;
         private List<NamedBitmap> _images;
 
+        /// <summary>
+        /// The location to export to on save
+        /// </summary>
         public static string ExportPath
         {
             get { return Common.AppDataPath + "\\ExportedSites.xml"; }
@@ -103,10 +106,9 @@ namespace IndiaTango.Models
             }
         }
 
-        [ProtoMember(13)]
-        public float Depth { get; set; }
-
-
+        /// <summary>
+        /// The sites primary contact id
+        /// </summary>
         [ProtoMember(4)]
         public int PrimaryContactID
         {
@@ -126,6 +128,9 @@ namespace IndiaTango.Models
             }
         }
 
+        /// <summary>
+        /// The sites secondary contact id
+        /// </summary>
         [ProtoMember(5)]
         public int SecondaryContactID
         {
@@ -145,6 +150,9 @@ namespace IndiaTango.Models
             }
         }
 
+        /// <summary>
+        /// The images of the site
+        /// </summary>
         [ProtoMember(7)]
         public List<NamedBitmap> Images
         {
@@ -207,9 +215,15 @@ namespace IndiaTango.Models
         /// </summary>
         public string EditingNotes { get { return DataEditingNotes == null ? string.Empty : DataEditingNotes.OrderBy(x => x.Key).Aggregate("", (x, y) => string.Format("\r\n\t{0} - {1}", y.Key, y.Value)); }}
 
+        /// <summary>
+        /// The set of data editing notes made for the site
+        /// </summary>
         [ProtoMember(15)]
         public Dictionary<DateTime, string> DataEditingNotes { get; set; }
 
+        /// <summary>
+        /// The elevation of the site
+        /// </summary>
         [ProtoMember(16)]
         public float Elevation { get; set; }
 
@@ -227,6 +241,11 @@ namespace IndiaTango.Models
             Events.Add(@event);
         }
 
+        /// <summary>
+        /// Adds a note about editing
+        /// </summary>
+        /// <param name="timestamp">The timestamp of the note</param>
+        /// <param name="note">The note</param>
         public void AddEditingNote(DateTime timestamp, string note)
         {
             if(DataEditingNotes == null)
@@ -235,6 +254,10 @@ namespace IndiaTango.Models
             DataEditingNotes[timestamp] = note;
         }
 
+        /// <summary>
+        /// Removes a note from the editing notes
+        /// </summary>
+        /// <param name="timestamp">The note to remove</param>
         public void RemoveEditingNote(DateTime timestamp)
         {
             if(DataEditingNotes == null)
@@ -246,6 +269,9 @@ namespace IndiaTango.Models
 
         #endregion
 
+        /// <summary>
+        /// Gets the next Site ID value
+        /// </summary>
         public static int NextID
         {
             get
@@ -262,6 +288,11 @@ namespace IndiaTango.Models
             }
         }
 
+        /// <summary>
+        /// Checks the equality of two sites
+        /// </summary>
+        /// <param name="obj">The object to check against</param>
+        /// <returns>If they are equal or not</returns>
         public override bool Equals(object obj)
         {
             if (!(obj is Site))
@@ -287,6 +318,10 @@ namespace IndiaTango.Models
                     ctwo && site.Name == Name);
         }
 
+        /// <summary>
+        /// Converts the site to it's string representation
+        /// </summary>
+        /// <returns>The string representation of the site</returns>
         public override string ToString()
         {
             return Name + " (" + GpsLocation.DecimalDegreesLatitude + ", " +

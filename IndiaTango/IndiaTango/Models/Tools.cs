@@ -5,8 +5,16 @@ using System.Text;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Set of useful tools for calculations
+    /// </summary>
 	public static class Tools
 	{
+        /// <summary>
+        /// Calculates the MD5 hash for a file
+        /// </summary>
+        /// <param name="filename">The file to calculate from</param>
+        /// <returns>The MD5 hash calculated from the file</returns>
 		public static string GenerateMD5HashFromFile(string filename)
 		{
 			var file = new FileStream(filename, FileMode.Open);

@@ -8,6 +8,9 @@ using Visiblox.Charts;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Selection behaviour for graph
+    /// </summary>
     class CustomSelectionBehaviour : BehaviourBase
     {
         private readonly ZoomRectangle _selectionRectangle = new ZoomRectangle();

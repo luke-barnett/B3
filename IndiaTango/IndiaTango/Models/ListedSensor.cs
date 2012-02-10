@@ -2,6 +2,9 @@
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// A Sensor wrapper used with lists
+    /// </summary>
     public class ListedSensor
     {
         private Sensor _sensor;

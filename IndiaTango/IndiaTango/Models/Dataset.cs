@@ -13,6 +13,9 @@ using ProtoBuf;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Dataset object
+    /// </summary>
     [Serializable]
     [ProtoContract]
     public class Dataset : INotifyPropertyChanged
@@ -20,7 +23,6 @@ namespace IndiaTango.Models
         private Site _site;
         private DateTime _startTimeStamp;
         private DateTime _endTimeStamp;
-        //[ProtoMember(4)]
         private List<Sensor> _sensors;
         [ProtoMember(6)]
         private int _expectedDataPointCount;
@@ -64,7 +66,6 @@ namespace IndiaTango.Models
         /// Gets and sets the Site that this dataset came from
         /// </summary>
         ///
-        //[ProtoMember(1)]
         public Site Site
         {
             get { return _site; }
@@ -81,6 +82,9 @@ namespace IndiaTango.Models
             private set { _startTimeStamp = value; }
         }
 
+        /// <summary>
+        /// The first year of data
+        /// </summary>
         public DateTime StartYear
         {
             get
@@ -99,6 +103,9 @@ namespace IndiaTango.Models
             private set { _endTimeStamp = value; }
         }
 
+        /// <summary>
+        /// The last year of data
+        /// </summary>
         public DateTime EndYear
         {
             get
@@ -199,6 +206,9 @@ namespace IndiaTango.Models
                 Sensors.Add(a);
         }
 
+        /// <summary>
+        /// Calculates the values relative to the dataset
+        /// </summary>
         public void CalculateDataSetValues()
         {
             if (Sensors.Count > 0 && Sensors[0] != null && Sensors[0].CurrentState != null)
@@ -254,11 +264,17 @@ namespace IndiaTango.Models
                 _expectedDataPointCount = (int)Math.Floor(EndTimeStamp.Subtract(StartTimeStamp).TotalMinutes / DataInterval) + 1;
         }
 
+        /// <summary>
+        /// The identifiable name of the dataset
+        /// </summary>
         public string IdentifiableName
         {
             get { return (Site != null && !string.IsNullOrWhiteSpace(Site.Name)) ? Site.Name : Common.UnknownSite; }
         }
 
+        /// <summary>
+        /// The location to save the dataset
+        /// </summary>
         public string SaveLocation
         {
             get
@@ -267,6 +283,9 @@ namespace IndiaTango.Models
             }
         }
 
+        /// <summary>
+        /// The lowest year loaded from the dataset
+        /// </summary>
         public int LowestYearLoaded
         {
             get { return _lowestYearLoaded; }
@@ -277,6 +296,9 @@ namespace IndiaTango.Models
             }
         }
 
+        /// <summary>
+        /// The highest year loaded from the dataset
+        /// </summary>
         public int HighestYearLoaded
         {
             get { return _highestYearLoaded; }
@@ -287,11 +309,20 @@ namespace IndiaTango.Models
             }
         }
 
+        /// <summary>
+        /// Gets the available dataset filenames
+        /// </summary>
+        /// <returns></returns>
         public static string[] GetAllDataSetFileNames()
         {
             return Directory.Exists(Common.DatasetSaveLocation) ? Directory.GetFiles(Common.DatasetSaveLocation, "*.b3") : new string[0];
         }
 
+        /// <summary>
+        /// Loads in a dataset
+        /// </summary>
+        /// <param name="fileName">The filename of the dataset</param>
+        /// <returns>The loaded dataset</returns>
         public static Dataset LoadDataSet(string fileName)
         {
             EventLogger.LogInfo(null, "Loading", "Started loading from file: " + fileName);
@@ -326,6 +357,11 @@ namespace IndiaTango.Models
             return null;
         }
 
+        /// <summary>
+        /// Loads a dataset from a file
+        /// </summary>
+        /// <param name="filename">The filename for the dataset</param>
+        /// <returns>The loaded dataset</returns>
         private static Dataset LoadDataSetFromFile(string filename)
         {
             /*
@@ -419,6 +455,11 @@ namespace IndiaTango.Models
             }
         }
 
+        /// <summary>
+        /// Saves the dataset to disk
+        /// </summary>
+        /// <param name="exportData">Whether or not to export the data</param>
+        /// <param name="deleteFile">Whether or not to first delete the file</param>
         public void SaveToFile(bool exportData = true, bool deleteFile = false)
         {
             if (deleteFile && File.Exists(SaveLocation))
@@ -491,11 +532,21 @@ namespace IndiaTango.Models
             }
         }
 
+        /// <summary>
+        /// Loads in sensor data for a year
+        /// </summary>
+        /// <param name="year">The year to load</param>
+        /// <param name="retainExistingValues">Whether or not to keep existing values in the dataset</param>
         public void LoadInSensorData(int year, bool retainExistingValues = false)
         {
             LoadInSensorData(new[] { year }, retainExistingValues);
         }
 
+        /// <summary>
+        /// Loads in sensor data for a group of years
+        /// </summary>
+        /// <param name="years">The years to load</param>
+        /// <param name="retainExistingValues">Whether or not to keep existing values in the dataset</param>
         public void LoadInSensorData(int[] years, bool retainExistingValues = false)
         {
             using (var zip = ZipFile.Read(SaveLocation))
@@ -545,11 +596,21 @@ namespace IndiaTango.Models
 
         }
 
+        /// <summary>
+        /// Unloads a year from the dataset
+        /// </summary>
+        /// <param name="year">The year to unload</param>
+        /// <param name="saveValues">Whether or not to first save the values before unloading</param>
         public void UnloadSensorData(int year, bool saveValues = true)
         {
             UnloadSensorData(new[] { year }, saveValues);
         }
 
+        /// <summary>
+        /// Unloads a set of years from the dataset
+        /// </summary>
+        /// <param name="years">The years to unload</param>
+        /// <param name="saveValues">Whether or not to first save the values before unloading</param>
         public void UnloadSensorData(int[] years, bool saveValues = true)
         {
             if (saveValues)
@@ -585,11 +646,19 @@ namespace IndiaTango.Models
             LowestYearLoaded = timestamps.Min().Year - StartYear.Year;
         }
 
+        /// <summary>
+        /// Saves a year of sensor data to disk
+        /// </summary>
+        /// <param name="year">The year to save</param>
         public void SaveSensorData(int year)
         {
             SaveSensorData(new[] { year });
         }
 
+        /// <summary>
+        /// Saves a set of years sensor data to disk
+        /// </summary>
+        /// <param name="years">The years to save</param>
         public void SaveSensorData(int[] years)
         {
             using (var zip = ZipFile.Read(SaveLocation))
@@ -617,6 +686,10 @@ namespace IndiaTango.Models
             }
         }
 
+        /// <summary>
+        /// Deletes a sensor from the dataset
+        /// </summary>
+        /// <param name="sensorToDelete">The sensor to delete</param>
         public void DeleteSensor(Sensor sensorToDelete)
         {
             if (!Sensors.Contains(sensorToDelete)) return;

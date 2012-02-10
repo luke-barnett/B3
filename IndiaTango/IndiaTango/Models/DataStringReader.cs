@@ -4,6 +4,9 @@ using System.Linq;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Reads sensors and sensor values from a string representation for testing purposes
+    /// </summary>
     public class DataStringReader : IDataReader
     {
         private readonly string _sensorInformation;

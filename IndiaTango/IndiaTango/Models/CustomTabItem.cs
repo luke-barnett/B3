@@ -3,6 +3,9 @@ using System.Windows.Controls;
 
 namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Custom tab item to fire events on selection
+    /// </summary>
     public class CustomTabItem : TabItem
     {
         public static readonly RoutedEvent WasSelectedEvent = EventManager.RegisterRoutedEvent("WasSelected",

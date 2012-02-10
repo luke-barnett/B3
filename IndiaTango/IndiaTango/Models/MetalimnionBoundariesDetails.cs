@@ -1,5 +1,8 @@
 ﻿namespace IndiaTango.Models
 {
+    /// <summary>
+    /// Object to describe the metalimnion boundaries
+    /// </summary>
     public class MetalimnionBoundariesDetails
     {
         public float Top;

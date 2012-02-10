@@ -42,16 +42,32 @@ namespace IndiaTango.Models
             get { return Path.Combine(Common.AppDataPath, "Logs", "log.txt"); }
         }
 
+        /// <summary>
+        /// The path to sensor logs
+        /// </summary>
+        /// <param name="sensorName">The sensor</param>
+        /// <returns>The path for the sensor logs</returns>
         public static string GetSensorLogPath(string sensorName)
         {
             return Path.Combine(Common.AppDataPath, "Logs", "SensorLogs", sensorName + ".txt");
         }
 
+        /// <summary>
+        /// The site log path
+        /// </summary>
+        /// <param name="dataSet">The dataset</param>
+        /// <returns>The dataset's site log path</returns>
         public static string GetSiteLogPath(Dataset dataSet)
         {
             return Path.Combine(Common.AppDataPath, "Logs", dataSet.IdentifiableName, "log.txt");
         }
 
+        /// <summary>
+        /// The sensors site log path
+        /// </summary>
+        /// <param name="sensorName">The sensor</param>
+        /// <param name="dataSet">The dataset</param>
+        /// <returns>The path to the site sensor</returns>
         public static string GetSensorLogPathForSensorBelongingToSite(string sensorName, Dataset dataSet)
         {
             return Path.Combine(Common.AppDataPath, "Logs", dataSet.IdentifiableName, "SensorLogs", sensorName + ".txt");
@@ -89,6 +105,14 @@ namespace IndiaTango.Models
             }
         }
 
+        /// <summary>
+        /// Writes the log
+        /// </summary>
+        /// <param name="logType">The type of the log</param>
+        /// <param name="threadName">The name of the thread making the log</param>
+        /// <param name="eventDetails">The log details</param>
+        /// <param name="destFile">The location of the file</param>
+        /// <returns>The result</returns>
         private static string LogBase(string logType, string threadName, string eventDetails, string destFile)
         {
             if (String.IsNullOrWhiteSpace(threadName))
@@ -166,6 +190,10 @@ namespace IndiaTango.Models
             return site == null ? LogBase(Info, sensorName, eventDetails, GetSensorLogPath(sensorName)) : LogBase(Info, sensorName, eventDetails, GetSensorLogPathForSensorBelongingToSite(sensorName, site));
         }
 
+        /// <summary>
+        /// Retrives the lastest 20 logs
+        /// </summary>
+        /// <returns>The latest 20 logs</returns>
         public static string GetLast20()
         {
             var q = new Queue<String>();
@@ -189,6 +217,11 @@ namespace IndiaTango.Models
             return q.Aggregate("", (current, s) => current + s);
         }
 
+        /// <summary>
+        /// Gets the latest 20 logs from a specific log file
+        /// </summary>
+        /// <param name="file">The filename of the log</param>
+        /// <returns>The latest 20 logs</returns>
         public static string[] GetLast20FromFile(string file)
         {
             var list = new List<string>();
@@ -203,6 +236,10 @@ namespace IndiaTango.Models
             return list.SkipWhile((x, index) => index < list.Count - 20).ToArray();
         }
 
+        /// <summary>
+        /// Gets the set of log files available
+        /// </summary>
+        /// <returns>The log filenames</returns>
         public static string[] GetLogFiles()
         {
             var list = new List<string>();
