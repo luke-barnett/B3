@@ -21,20 +21,20 @@ namespace IndiaTango.Models
         }
 
         public static readonly DependencyProperty HelperProperty =
-            DependencyProperty.Register("Helper", typeof (string), typeof (EditableComboBox), new PropertyMetadata(default(string)));
+            DependencyProperty.Register("Helper", typeof(string), typeof(EditableComboBox), new PropertyMetadata(default(string)));
 
         public string Helper
         {
-            get { return (string) GetValue(HelperProperty); }
+            get { return (string)GetValue(HelperProperty); }
             set { SetValue(HelperProperty, value); }
         }
 
         private void AddToHelper()
         {
-            if(Helper == null)
+            if (Helper == null)
                 return;
 
-            if(String.CompareOrdinal(Helper, "Units") == 0)
+            if (String.CompareOrdinal(Helper, "Units") == 0)
             {
                 UnitsHelper.Add(Text);
             }
@@ -45,6 +45,10 @@ namespace IndiaTango.Models
             else if (String.CompareOrdinal(Helper, "Descriptions") == 0)
             {
                 DescriptionHelper.Add(Text);
+            }
+            else if (String.CompareOrdinal(Helper, "SensorVocabulary") == 0)
+            {
+                SensorVocabulary.Add(Text);
             }
         }
     }

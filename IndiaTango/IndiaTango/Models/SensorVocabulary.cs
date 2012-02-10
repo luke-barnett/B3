@@ -43,11 +43,11 @@ namespace IndiaTango.Models
 
         private static void SaveVocabulary()
         {
-            using(var fileStream = File.CreateText(FileLocation))
+            using (var fileStream = File.CreateText(FileLocation))
             {
-                for(var i = 0; i < _vocabulary.Count; i++)
+                for (var i = 0; i < _vocabulary.Count; i++)
                 {
-                    if(i > 0)
+                    if (i > 0)
                         fileStream.Write(',');
                     fileStream.Write(_vocabulary[i]);
                 }
@@ -60,15 +60,22 @@ namespace IndiaTango.Models
 
             #region GLEON VOCABULARY
 
-            var gleonFile = Path.Combine(Assembly.GetExecutingAssembly().Location.Replace("B3.exe",""), "Resources", "GLEON_VOCABULARY.csv");
+            var gleonFile = Path.Combine(Assembly.GetExecutingAssembly().Location.Replace("B3.exe", ""), "Resources", "GLEON_VOCABULARY.csv");
 
-            if(File.Exists(gleonFile))
+            if (File.Exists(gleonFile))
             {
                 vocabulary.AddRange(File.ReadAllText(gleonFile).Split(','));
             }
             #endregion
 
             return vocabulary;
+        }
+
+        public static void Add(string text)
+        {
+            if (!Vocabulary.Contains(text))
+                Vocabulary.Add(text);
+            SaveVocabulary();
         }
     }
 }

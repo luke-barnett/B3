@@ -120,7 +120,7 @@
                                 </DataGridTemplateColumn.CellTemplate>
                                 <DataGridTemplateColumn.CellEditingTemplate>
                                     <DataTemplate>
-                                        <ComboBox ItemsSource="{Binding Sensor.SensorVocabulary}" SelectedItem="{Binding Sensor.SensorType,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                                        <models:EditableComboBox Helper="SensorVocabulary" ItemsSource="{Binding Sensor.SensorVocabulary}" IsEditable="True" SelectedItem="{Binding Sensor.SensorType,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellEditingTemplate>
                             </DataGridTemplateColumn>
