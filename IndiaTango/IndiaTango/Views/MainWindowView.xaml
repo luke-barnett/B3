@@ -427,7 +427,7 @@
                         <Grid Grid.Row="1" x:Name="GraphSection" Margin="5">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*" />
-                                <RowDefinition Height="160" />
+                                <RowDefinition Height="165" />
                             </Grid.RowDefinitions>
                             <charts:Chart x:Name="MainChart" Title="{Binding ChartTitle}" Grid.Row="0" Behaviour="{Binding Behaviour}" multiseries:MultiSeries.Source="{Binding ChartSeries}">
                                 <charts:Chart.YAxis>
@@ -459,14 +459,14 @@
                                         <StackPanel Orientation="Horizontal" Height="25" VerticalAlignment="Top">
                                             <!--<CheckBox Content="Selection Mode" IsChecked="{Binding SelectionModeEnabled,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" />-->
                                             <CheckBox Content="Select all data by date" ToolTip="When checked selections wont be restricted in the Y axis" IsEnabled="{Binding NotInCalibrationMode}" IsChecked="{Binding FixYAxis,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" Margin="0,0,5,0" />
-                                            <CheckBox Content="Show Annotations" ToolTip="When checked shows the date and value at a given point and shows calibration points" IsChecked="{Binding AnnotationsModeEnabled,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" Margin="5,0" />
+                                            <CheckBox Content="Show Annotations/Calibrations" ToolTip="When checked shows the date and value at a given point and shows calibration points" IsChecked="{Binding AnnotationsModeEnabled,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" Margin="5,0" />
                                             <CheckBox Content="Graph Raw Data" IsChecked="{Binding GraphRawData,Mode=OneWayToSource}" VerticalAlignment="Center" />
                                             <Button Content="Revert to Raw" cal:Message.Attach="[Event Click] = [Action RevertGraphedToRaw]" Visibility="{Binding RevertGraphedToRawVisibility}" Margin="2" />
                                         </StackPanel>
                                     </StackPanel>
                                     <Grid Grid.Row="2">
                                         <Grid.RowDefinitions>
-                                            <RowDefinition Height="35" />
+                                            <RowDefinition Height="45" />
                                             <RowDefinition Height="15" />
                                             <RowDefinition Height="*" />
                                         </Grid.RowDefinitions>
@@ -486,12 +486,13 @@
                                             <TextBox IsEnabled="{Binding FeaturesEnabled}" Text="{Binding Maximum, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource floatStringConverter}}" Width="50" />
                                         </StackPanel>
                                         <StackPanel Grid.Row="0" Grid.Column="2" Margin="10,0" HorizontalAlignment="Right">
+                                            <TextBlock Text="x-axis indicators" HorizontalAlignment="Center" FontWeight="Bold" />
                                             <StackPanel Orientation="Horizontal">
-                                                <Rectangle Stroke="OrangeRed" Width="10" Height="10" />
+                                                <Rectangle Stroke="OrangeRed" Fill="OrangeRed" Width="10" Height="10" />
                                                 <TextBlock Text=" Change Marker" />
                                             </StackPanel>
                                             <StackPanel Orientation="Horizontal">
-                                                <Ellipse Stroke="OrangeRed" Width="10" Height="10" />
+                                                <Ellipse Stroke="OrangeRed"  Fill="OrangeRed" Width="10" Height="10" />
                                                 <TextBlock Text=" Calibration Marker" />
                                             </StackPanel>
                                         </StackPanel>
