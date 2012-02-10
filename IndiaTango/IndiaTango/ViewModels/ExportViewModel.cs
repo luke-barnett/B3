@@ -51,7 +51,7 @@ namespace IndiaTango.ViewModels
             get
             {
                 return new List<ExportedPoints>(new[] { ExportedPoints.AllPoints,ExportedPoints.HourlyPoints,
-                    ExportedPoints.DailyPoints,ExportedPoints.WeeklyPoints }); 
+                    ExportedPoints.DailyPoints,ExportedPoints.WeeklyPoints });
             }
         }
 
@@ -76,13 +76,13 @@ namespace IndiaTango.ViewModels
         public bool IncludeMetaData
         {
             get { return _includeMetaData; }
-            set { _includeMetaData = value; NotifyOfPropertyChange(() => IncludeMetaData);}
+            set { _includeMetaData = value; NotifyOfPropertyChange(() => IncludeMetaData); }
         }
 
         public bool IncludeChangeLog
         {
             get { return _includeChangeLog; }
-            set { _includeChangeLog = value; NotifyOfPropertyChange(() => IncludeChangeLog);}
+            set { _includeChangeLog = value; NotifyOfPropertyChange(() => IncludeChangeLog); }
         }
 
         public bool ExportRawData
@@ -108,7 +108,7 @@ namespace IndiaTango.ViewModels
 
             if (dialog.ShowDialog() == DialogResult.OK)
             {
-                DatasetExporter.Export(Dataset,dialog.FileName, ExportFormat.CSV, IncludeEmptyLines, IncludeMetaData, IncludeChangeLog, ExportedPoints, DateColumnFormat, ExportRawData);
+                DatasetExporter.Export(Dataset, dialog.FileName, ExportFormat.CSV, IncludeEmptyLines, IncludeMetaData, IncludeChangeLog, ExportedPoints, DateColumnFormat, ExportRawData, true, true);
                 this.TryClose();
             }
         }
@@ -117,9 +117,9 @@ namespace IndiaTango.ViewModels
         {
             this.TryClose();
         }
-    
+
         #endregion
     }
 
-    
+
 }
