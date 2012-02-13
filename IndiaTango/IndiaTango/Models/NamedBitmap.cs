@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Drawing;
-using ProtoBuf;
+using System.Runtime.Serialization;
 
 namespace IndiaTango.Models
 {
@@ -8,7 +8,7 @@ namespace IndiaTango.Models
     /// A bitmap that has an applied name
     /// </summary>
     [Serializable]
-    [ProtoContract]
+    [DataContract]
     public class NamedBitmap
     {
         private Bitmap _bitmap;
@@ -25,7 +25,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// The bitmap
         /// </summary>
-        [ProtoMember(1)]
+        [DataMember]
         public Bitmap Bitmap
         {
             get { return _bitmap; }
@@ -35,7 +35,7 @@ namespace IndiaTango.Models
         /// <summary>
         /// The name of the bitmap
         /// </summary>
-        [ProtoMember(2)]
+        [DataMember]
         public string Name
         {
             get { return _name; }

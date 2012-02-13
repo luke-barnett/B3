@@ -862,6 +862,9 @@ namespace IndiaTango.ViewModels
 
             set
             {
+                if(value == null)
+                    return;
+
                 var bw = new BackgroundWorker();
 
                 bw.DoWork += (o, e) =>
@@ -923,6 +926,9 @@ namespace IndiaTango.ViewModels
 
             set
             {
+                if (value == null)
+                    return;
+
                 var bw = new BackgroundWorker();
 
                 bw.DoWork += (o, e) =>
@@ -3129,7 +3135,7 @@ namespace IndiaTango.ViewModels
                 if (CurrentDataset != null && CurrentDataset.LowestYearLoaded != 0)
                     message +=
                         string.Format("\r\n\nThere are additional year(s) prior to {0} of data that are available for selection", LowestYearLoaded);
-                if (CurrentDataset != null)
+                if (CurrentDataset != null && LowestYearLoaded != "0001")
                     Common.ShowMessageBox(string.Format("Loaded in {0}", CurrentDataset.Site.Name), message
                                           , false, false);
             };

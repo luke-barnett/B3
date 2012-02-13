@@ -388,8 +388,17 @@ namespace IndiaTango.Models
                 var siteStream = new MemoryStream();
                 zip.Entries.First(x => x.FileName == "site").Extract(siteStream);
                 siteStream.Position = 0;
-
+                
                 dataset.Site = Serializer.Deserialize<Site>(siteStream);
+
+                if (zip.EntryFileNames.Contains("siteimages"))
+                {
+                    var siteImagesStream = new MemoryStream();
+                    zip.Entries.First(x => x.FileName == "siteimages").Extract(siteImagesStream);
+                    siteImagesStream.Position = 0;
+
+                    dataset.Site.Images = new BinaryFormatter().Deserialize(siteImagesStream) as List<NamedBitmap>;
+                }
 
                 var sensors = zip.Entries.Where(x => x.FileName.EndsWith("metadata")).ToArray();
 
@@ -501,6 +510,16 @@ namespace IndiaTango.Models
                 if (zip.EntryFileNames.Contains("site"))
                     zip.RemoveEntry("site");
                 zip.AddEntry("site", siteStream);
+
+                if (Site.Images != null)
+                {
+                    var siteImagesStream = new MemoryStream();
+                    new BinaryFormatter().Serialize(siteImagesStream, Site.Images);
+                    siteImagesStream.Position = 0;
+                    if (zip.EntryFileNames.Contains("siteimages"))
+                        zip.RemoveEntry("siteimages");
+                    zip.AddEntry("siteimages", siteImagesStream);
+                }
 
                 foreach (var sensor in Sensors)
                 {

@@ -153,7 +153,6 @@ namespace IndiaTango.Models
         /// <summary>
         /// The images of the site
         /// </summary>
-        [ProtoMember(7)]
         public List<NamedBitmap> Images
         {
             get { return _images; }
