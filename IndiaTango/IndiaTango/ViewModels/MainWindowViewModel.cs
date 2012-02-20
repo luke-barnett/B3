@@ -1034,6 +1034,9 @@ namespace IndiaTango.ViewModels
         {
             if (_graphEnabled) return;
 
+            if (StartTime == DateTime.MinValue || EndTime == DateTime.MinValue)
+                CalculateGraphedEndPoints(true);
+
             var bw = new BackgroundWorker();
             bw.DoWork += (o, e) =>
                              {
@@ -1977,7 +1980,7 @@ namespace IndiaTango.ViewModels
             Grid.SetColumn(bTextBlock, 0);
             automaticValuesGrid.Children.Add(bTextBlock);
 
-            
+
 
             var calibratedAValue = 0d;
             var calibratedAValid = false;
@@ -4020,17 +4023,15 @@ namespace IndiaTango.ViewModels
         /// <param name="eventArgs">The event arguments</param>
         public void SelectedCellsChanged(SelectedCellsChangedEventArgs eventArgs)
         {
-            foreach (var cell in eventArgs.AddedCells.Where(x => x.Column != null && x.Column.DisplayIndex != 0))
+            Debug.Print("Selected Args Added:");
+            foreach (var dataGridCellInfo in eventArgs.AddedCells)
             {
-                var row = cell.Item as DataRowView;
-                if (row == null || Sensors.Count(x => String.CompareOrdinal(x.Name.Replace(".", ""), (string)cell.Column.Header) == 0) != 1) continue;
-
-                var timeStamp = ((FormattedDateTime)row.Row[0]).Time;
-                var sensor = Sensors.FirstOrDefault(x => String.CompareOrdinal(x.Name.Replace(".", ""), (string)cell.Column.Header) == 0);
-
-                if (sensor == null) continue;
-
-                _erroneousValuesFromDataTable.Add(new ErroneousValue(timeStamp, sensor));
+                Debug.Print("[ADDED] {0} - {1}", (dataGridCellInfo.Item as DataRowView)[0], dataGridCellInfo.Column.Header);
+            }
+            Debug.Print("Selected Args Removed:");
+            foreach (var dataGridCellInfo in eventArgs.RemovedCells)
+            {
+                Debug.Print("[Removed] {0} - {1}", (dataGridCellInfo.Item as DataRowView)[0], dataGridCellInfo.Column.Header);
             }
 
             foreach (var cell in eventArgs.RemovedCells.Where(x => x.Column != null && x.Column.DisplayIndex != 0))
@@ -4043,7 +4044,25 @@ namespace IndiaTango.ViewModels
 
                 if (sensor == null) continue;
 
-                _erroneousValuesFromDataTable.Remove(new ErroneousValue(timeStamp, sensor));
+                var valueToRemove = _erroneousValuesFromDataTable.FirstOrDefault(x => x.TimeStamp == timeStamp && x.Owner == sensor);
+
+                if (valueToRemove != null)
+                    _erroneousValuesFromDataTable.Remove(valueToRemove);
+            }
+
+            foreach (var cell in eventArgs.AddedCells.Where(x => x.Column != null && x.Column.DisplayIndex != 0))
+            {
+                var row = cell.Item as DataRowView;
+                if (row == null || Sensors.Count(x => String.CompareOrdinal(x.Name.Replace(".", ""), (string)cell.Column.Header) == 0) != 1) continue;
+
+                var timeStamp = ((FormattedDateTime)row.Row[0]).Time;
+                var sensor = Sensors.FirstOrDefault(x => String.CompareOrdinal(x.Name.Replace(".", ""), (string)cell.Column.Header) == 0);
+
+                if (sensor == null) continue;
+
+
+                if (!_erroneousValuesFromDataTable.Any(x => x.TimeStamp == timeStamp && x.Owner == sensor))
+                    _erroneousValuesFromDataTable.Add(new ErroneousValue(timeStamp, sensor));
             }
 
             ActionsEnabled = _erroneousValuesFromDataTable.Count > 0;
