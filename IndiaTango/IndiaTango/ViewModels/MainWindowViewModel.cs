@@ -228,6 +228,20 @@ namespace IndiaTango.ViewModels
         private bool _notInCalibrationMode = true;
         private float _mixedTempDifferential;
 
+        private readonly TextBlock _manualPreviewTextBlock = new TextBlock
+                                               {
+                                                   Text = "Preview",
+                                                   VerticalAlignment = VerticalAlignment.Center,
+                                                   Margin = new Thickness(5)
+                                               };
+
+        private readonly TextBlock _automaticPreviewTextBlock = new TextBlock
+                                                          {
+                                                              Text = "Preview",
+                                                              VerticalAlignment = VerticalAlignment.Center,
+                                                              Margin = new Thickness(5)
+                                                          };
+
         #endregion
 
         #region Public Parameters
@@ -862,7 +876,7 @@ namespace IndiaTango.ViewModels
 
             set
             {
-                if(value == null)
+                if (value == null)
                     return;
 
                 var bw = new BackgroundWorker();
@@ -1532,23 +1546,18 @@ namespace IndiaTango.ViewModels
                                                IsEnabled = !Properties.Settings.Default.EvaluateFormulaOnKeyUp
                                            };
 
-            var previewTextBox = new TextBlock
-                                     {
-                                         Text = "Preview",
-                                         VerticalAlignment = VerticalAlignment.Center,
-                                         Margin = new Thickness(5)
-                                     };
+
 
             manualFormulaTextBox.KeyUp += (o, e) =>
                                               {
-                                                  if (previewTextBox.Text == "Reject")
+                                                  if (_manualPreviewTextBlock.Text == "Reject")
                                                   {
                                                       foreach (var graphableSensor in GraphableSensors)
                                                       {
                                                           graphableSensor.RemovePreview();
                                                       }
                                                       UpdateGraph(false);
-                                                      previewTextBox.Text = "Preview";
+                                                      _manualPreviewTextBlock.Text = "Preview";
                                                   }
 
                                                   if (!Properties.Settings.Default.EvaluateFormulaOnKeyUp)
@@ -1581,6 +1590,16 @@ namespace IndiaTango.ViewModels
 
             applyFormulaButton.Click += (sender, eventArgs) =>
                                             {
+                                                if (_manualPreviewTextBlock.Text == "Reject")
+                                                {
+                                                    foreach (var graphableSensor in GraphableSensors)
+                                                    {
+                                                        graphableSensor.RemovePreview();
+                                                    }
+                                                    UpdateGraph(false);
+                                                    _manualPreviewTextBlock.Text = "Preview";
+                                                }
+
                                                 var validFormula = false;
                                                 if (!string.IsNullOrWhiteSpace(manualFormulaTextBox.Text))
                                                 {
@@ -1643,7 +1662,7 @@ namespace IndiaTango.ViewModels
                                                         sensor.CurrentState.LogChange(sensor.Name, string.Format(
                                                                                   "Applied formula: {0} \n\r Between date range {1} - {2}", manualFormulaTextBox.Text, (useSelected) ? Selection.LowerX.Round(TimeSpan.FromMinutes(CurrentDataset.DataInterval)) : StartTime.Round(TimeSpan.FromMinutes(CurrentDataset.DataInterval)), (useSelected) ? Selection.UpperX : EndTime));
                                                     }
-                                                    foreach (var graphableSensor in GraphableSensors.Where(x => sensorsUsed.Contains(x.Sensor)))
+                                                    foreach (var graphableSensor in GraphableSensors)
                                                     {
                                                         graphableSensor.RefreshDataPoints();
                                                         Debug.Print("The sensor {0} points were updated", graphableSensor.Sensor.Name);
@@ -1685,14 +1704,14 @@ namespace IndiaTango.ViewModels
 
             previewFormulaButton.Click += (sender, args) =>
                                               {
-                                                  if (previewTextBox.Text == "Reject")
+                                                  if (_manualPreviewTextBlock.Text == "Reject")
                                                   {
                                                       foreach (var graphableSensor in GraphableSensors)
                                                       {
                                                           graphableSensor.RemovePreview();
                                                       }
                                                       UpdateGraph(false);
-                                                      previewTextBox.Text = "Preview";
+                                                      _manualPreviewTextBlock.Text = "Preview";
                                                       return;
                                                   }
 
@@ -1750,7 +1769,7 @@ namespace IndiaTango.ViewModels
                                                       gSensor.GeneratePreview(result.Value);
 
                                                       ApplicationCursor = Cursors.Arrow;
-                                                      previewTextBox.Text = "Reject";
+                                                      _manualPreviewTextBlock.Text = "Reject";
                                                       UpdateGraph(false);
                                                   }
                                                   else
@@ -1781,7 +1800,7 @@ namespace IndiaTango.ViewModels
                                                                         "pack://application:,,,/Images/preview_32.png",
                                                                         UriKind.Absolute))
                                                             });
-            previewFormulaButtonStackPanel.Children.Add(previewTextBox);
+            previewFormulaButtonStackPanel.Children.Add(_manualPreviewTextBlock);
 
             var clearButton = new Button
                                 {
@@ -1958,12 +1977,7 @@ namespace IndiaTango.ViewModels
             Grid.SetColumn(bTextBlock, 0);
             automaticValuesGrid.Children.Add(bTextBlock);
 
-            var previewTextBlock = new TextBlock
-                                       {
-                                           Text = "Preview",
-                                           VerticalAlignment = VerticalAlignment.Center,
-                                           Margin = new Thickness(5)
-                                       };
+            
 
             var calibratedAValue = 0d;
             var calibratedAValid = false;
@@ -1988,14 +2002,14 @@ namespace IndiaTango.ViewModels
                                                 autoApplyButton.IsEnabled = calibratedAValid && calibratedBValid && currentAValid && currentBValid;
                                                 autoPreviewButton.IsEnabled = autoApplyButton.IsEnabled;
                                                 // ReSharper restore AccessToModifiedClosure
-                                                if (String.CompareOrdinal(previewTextBlock.Text, "Reject") != 0)
+                                                if (String.CompareOrdinal(_automaticPreviewTextBlock.Text, "Reject") != 0)
                                                     return;
 
                                                 foreach (var gSensor in _sensorsToGraph)
                                                 {
                                                     gSensor.RemovePreview();
                                                 }
-                                                previewTextBlock.Text = "Preview";
+                                                _automaticPreviewTextBlock.Text = "Preview";
                                                 SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "AutoCalibration");
                                             };
 
@@ -2017,14 +2031,14 @@ namespace IndiaTango.ViewModels
                                                 autoApplyButton.IsEnabled = calibratedAValid && calibratedBValid && currentAValid && currentBValid;
                                                 autoPreviewButton.IsEnabled = autoApplyButton.IsEnabled;
                                                 // ReSharper restore AccessToModifiedClosure
-                                                if (String.CompareOrdinal(previewTextBlock.Text, "Reject") != 0)
+                                                if (String.CompareOrdinal(_automaticPreviewTextBlock.Text, "Reject") != 0)
                                                     return;
 
                                                 foreach (var gSensor in _sensorsToGraph)
                                                 {
                                                     gSensor.RemovePreview();
                                                 }
-                                                previewTextBlock.Text = "Preview";
+                                                _automaticPreviewTextBlock.Text = "Preview";
                                                 SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "AutoCalibration");
                                             };
             Grid.SetRow(calibratedBTextBox, 1);
@@ -2045,14 +2059,14 @@ namespace IndiaTango.ViewModels
                                              autoApplyButton.IsEnabled = calibratedAValid && calibratedBValid && currentAValid && currentBValid;
                                              autoPreviewButton.IsEnabled = autoApplyButton.IsEnabled;
                                              // ReSharper restore AccessToModifiedClosure
-                                             if (String.CompareOrdinal(previewTextBlock.Text, "Reject") != 0)
+                                             if (String.CompareOrdinal(_automaticPreviewTextBlock.Text, "Reject") != 0)
                                                  return;
 
                                              foreach (var gSensor in _sensorsToGraph)
                                              {
                                                  gSensor.RemovePreview();
                                              }
-                                             previewTextBlock.Text = "Preview";
+                                             _automaticPreviewTextBlock.Text = "Preview";
                                              SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "AutoCalibration");
                                          };
             Grid.SetRow(currentATextBox, 2);
@@ -2073,14 +2087,14 @@ namespace IndiaTango.ViewModels
                                              autoApplyButton.IsEnabled = calibratedAValid && calibratedBValid && currentAValid && currentBValid;
                                              autoPreviewButton.IsEnabled = autoApplyButton.IsEnabled;
                                              // ReSharper restore AccessToModifiedClosure
-                                             if (String.CompareOrdinal(previewTextBlock.Text, "Reject") != 0)
+                                             if (String.CompareOrdinal(_automaticPreviewTextBlock.Text, "Reject") != 0)
                                                  return;
 
                                              foreach (var gSensor in _sensorsToGraph)
                                              {
                                                  gSensor.RemovePreview();
                                              }
-                                             previewTextBlock.Text = "Preview";
+                                             _automaticPreviewTextBlock.Text = "Preview";
                                              SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "AutoCalibration");
                                          };
             Grid.SetRow(currentBTextBox, 1);
@@ -2098,6 +2112,15 @@ namespace IndiaTango.ViewModels
 
             autoApplyButton.Click += (o, e) =>
                                          {
+                                             if (String.CompareOrdinal(_automaticPreviewTextBlock.Text, "Reject") == 0)
+                                             {
+                                                 foreach (var gSensor in _sensorsToGraph)
+                                                 {
+                                                     gSensor.RemovePreview();
+                                                 }
+                                                 _automaticPreviewTextBlock.Text = "Preview";
+                                             }
+
                                              var useSelected = Selection != null;
                                              //if (Selection != null)
                                              //    useSelected = Common.Confirm("Should we use your selection?",
@@ -2172,11 +2195,11 @@ namespace IndiaTango.ViewModels
                                                                          UriKind.Absolute))
                                                          });
 
-            autoPreviewButtonStackPanel.Children.Add(previewTextBlock);
+            autoPreviewButtonStackPanel.Children.Add(_automaticPreviewTextBlock);
 
             autoPreviewButton.Click += (o, e) =>
                                            {
-                                               if (String.CompareOrdinal(previewTextBlock.Text, "Preview") == 0)
+                                               if (String.CompareOrdinal(_automaticPreviewTextBlock.Text, "Preview") == 0)
                                                {
                                                    var useSelected = Selection != null;
                                                    //if (Selection != null)
@@ -2215,7 +2238,7 @@ namespace IndiaTango.ViewModels
                                                                                  true);
                                                        }
                                                    }
-                                                   previewTextBlock.Text = "Reject";
+                                                   _automaticPreviewTextBlock.Text = "Reject";
                                                }
                                                else
                                                {
@@ -2223,7 +2246,7 @@ namespace IndiaTango.ViewModels
                                                    {
                                                        gSensor.RemovePreview();
                                                    }
-                                                   previewTextBlock.Text = "Preview";
+                                                   _automaticPreviewTextBlock.Text = "Preview";
                                                }
                                                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "AutoCalibratePreview");
                                            };
@@ -2242,7 +2265,7 @@ namespace IndiaTango.ViewModels
                                              calibratedBTextBox.Text = "";
                                              currentATextBox.Text = "";
                                              currentBTextBox.Text = "";
-                                             previewTextBlock.Text = "Preview";
+                                             _automaticPreviewTextBlock.Text = "Preview";
                                              autoApplyButton.IsEnabled = false;
                                              autoPreviewButton.IsEnabled = false;
                                              var previewMade = GraphableSensors.FirstOrDefault(x => x.PreviewDataPoints != null) != null;
@@ -3842,7 +3865,10 @@ namespace IndiaTango.ViewModels
         /// <param name="eventArgs">The selection changed event arguments</param>
         public void DetectionMethodChanged(SelectionChangedEventArgs eventArgs)
         {
+            //Remove all previews
             GraphableSensors.ForEach(x => x.RemovePreview());
+            _automaticPreviewTextBlock.Text = "Preview";
+            _manualPreviewTextBlock.Text = "Preview";
 
             if (eventArgs.RemovedItems.Count > 0)
             {
