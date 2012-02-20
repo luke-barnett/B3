@@ -2756,7 +2756,7 @@ namespace IndiaTango.ViewModels
         {
             var i = 0;
 
-            while (CurrentDataset.StartTimeStamp.AddYears(i) < CurrentDataset.EndTimeStamp)
+            while (CurrentDataset.StartYear.AddYears(i) < CurrentDataset.EndTimeStamp)
                 i++;
 
             return i;
