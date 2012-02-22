@@ -3638,10 +3638,10 @@ namespace IndiaTango.ViewModels
         /// <param name="updateGraph">Whether or not to update the graph or not</param>
         public void AddToGraph(GraphableSensor graphableSensor, bool updateGraph = true)
         {
+            if(graphableSensor.BoundsSet)
+                graphableSensor.RemoveBounds();
             if (_sensorsToGraph.FirstOrDefault(x => x.BoundsSet) != null)
                 graphableSensor.SetUpperAndLowerBounds(StartTime, EndTime);
-            else if(_sensorsToGraph.Count == 0 && graphableSensor.BoundsSet)
-                graphableSensor.RemoveBounds();
             AddToEditingSensors(graphableSensor);
             _sensorsToGraph.Add(graphableSensor);
             Debug.Print("{0} was added to the graph list", graphableSensor.Sensor);
