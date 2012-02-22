@@ -1653,6 +1653,9 @@ namespace IndiaTango.ViewModels
                                                     }
 
                                                     result.Key.AddState(result.Value);
+                                                    result.Key.CurrentState.LogChange(result.Key.Name,
+                                                                                      string.Format(
+                                                                                          "Applied formula: {0} [Formula:{1}]", reason, manualFormulaTextBox.Text));
 
                                                     ApplicationCursor = Cursors.Arrow;
 
@@ -3207,33 +3210,29 @@ namespace IndiaTango.ViewModels
         /// </summary>
         public void Undo()
         {
-            var orderedSensors = SensorsForEditing.OrderBy(x =>
-            {
-                var state = x.UndoStates.DefaultIfEmpty(new SensorState(x, DateTime.MaxValue)).FirstOrDefault();
-                return state != null ? state.EditTimestamp : new DateTime();
-            });
+            var orderedSensors = SensorsForEditing.Where(x => x.UndoStates.Count > 0).OrderBy(x => x.CurrentState.EditTimestamp);
 
             if (ViewAllSensors)
             {
-                orderedSensors = Sensors.OrderBy(x =>
+                orderedSensors = Sensors.Where(x => x.UndoStates.Count > 0).OrderBy(x =>
                                                      {
                                                          var state = x.UndoStates.DefaultIfEmpty(new SensorState(x, DateTime.MaxValue)).FirstOrDefault();
                                                          return state != null ? state.EditTimestamp : new DateTime();
                                                      });
             }
 
-            var firstSensor = orderedSensors.FirstOrDefault();
-            if (firstSensor == null) return;
+            var lastSensor = orderedSensors.LastOrDefault();
+            if (lastSensor == null) return;
 
-            firstSensor.Undo();
+            lastSensor.Undo();
 
-            var graphToUpdate = GraphableSensors.FirstOrDefault(x => x.Sensor == firstSensor);
+            var graphToUpdate = GraphableSensors.FirstOrDefault(x => x.Sensor == lastSensor);
             if (graphToUpdate != null)
                 graphToUpdate.RefreshDataPoints();
 
             SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "Undo");
             CalculateYAxis();
-            Common.ShowMessageBox("Undo suceeded", "Sucessfully stepped back the following sensors: \n\r\n\r" + firstSensor.Name + "\r\n\nNote: Only one sensor is undone at a time so additional undo's may be needed", false, false);
+            Common.ShowMessageBox("Undo suceeded", "Sucessfully stepped back the following sensors: \n\r\n\r" + lastSensor.Name + "\r\n\nNote: Only one sensor is undone at a time so additional undo's may be needed", false, false);
             UpdateUndoRedo();
         }
 
@@ -3641,6 +3640,8 @@ namespace IndiaTango.ViewModels
         {
             if (_sensorsToGraph.FirstOrDefault(x => x.BoundsSet) != null)
                 graphableSensor.SetUpperAndLowerBounds(StartTime, EndTime);
+            else if(_sensorsToGraph.Count == 0 && graphableSensor.BoundsSet)
+                graphableSensor.RemoveBounds();
             AddToEditingSensors(graphableSensor);
             _sensorsToGraph.Add(graphableSensor);
             Debug.Print("{0} was added to the graph list", graphableSensor.Sensor);
