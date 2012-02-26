@@ -38,10 +38,17 @@
 
         <Menu Grid.Row="0" x:Name="MainMenu" IsMainMenu="True" IsEnabled="{Binding FeaturesEnabled}">
             <MenuItem Header="_File">
-                <MenuItem Header="_Save" cal:Message.Attach="[Event Click] = [Action Save]" />
-                <MenuItem Header="_Import" cal:Message.Attach="[Event Click] = [Action Import]" />
-                <MenuItem Header="E_xport" cal:Message.Attach="[Event Click] = [Action Export]" />
                 <MenuItem Header="_New Site" cal:Message.Attach="[Event Click] = [Action CreateNewSite]" />
+                <Separator />
+                <MenuItem Header="_Save" cal:Message.Attach="[Event Click] = [Action Save]" />
+                <MenuItem Header="Save _As..." cal:Message.Attach="[Event Click] = [Action SaveAs]" />
+                <Separator />
+                <MenuItem Header="_Import" cal:Message.Attach="[Event Click] = [Action Import]" />
+                <MenuItem Header="I_mport Site..." cal:Message.Attach="[Event Click] = [Action ImportSite]" />
+                <MenuItem Header="E_xport..." cal:Message.Attach="[Event Click] = [Action Export]" />
+                <Separator />
+                <MenuItem Header="_Delete Site" cal:Message.Attach="[Event Click] = [Action DeleteSite]" />
+                <Separator />
                 <MenuItem Header="Se_ttings" cal:Message.Attach="[Event Click] = [Action ShowSettings]" />
                 <MenuItem Header="_Exit" cal:Message.Attach="[Event Click] = [Action Exit]" />
             </MenuItem>
@@ -420,7 +427,7 @@
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                 <TextBlock Text="Current Site:" Margin="10,0" VerticalAlignment="Center" />
-                                <ComboBox IsEnabled="{Binding FeaturesEnabled}" ItemsSource="{Binding SiteNames}" Width="120" SelectedIndex="{Binding ChosenSelectedIndex, Mode=TwoWay}" cal:Message.Attach="[Event SelectionChanged] = [Action UpdateSelectedSite]" />
+                                <ComboBox IsEnabled="{Binding FeaturesEnabled}" ItemsSource="{Binding SiteNames}" Width="120" SelectedIndex="{Binding ChosenSelectedIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" cal:Message.Attach="[Event SelectionChanged] = [Action UpdateSelectedSite]" />
                                 <Button IsEnabled="{Binding FeaturesEnabled}" Margin="10,0" Content="Site Information" cal:Message.Attach="[Event Click] = [Action ShowCurrentSiteInformation]" />
                             </StackPanel>
                         </Grid>

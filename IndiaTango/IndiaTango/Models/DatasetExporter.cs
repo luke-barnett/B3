@@ -211,7 +211,7 @@ namespace IndiaTango.Models
                 const char del = ',';
                 var columnHeadings = dateColumnFormat.Equals(DateColumnFormat.SplitDateColumn)
                                             ? "DD" + del + "MM" + del + "YYYY" + del + "hh" + del + "mm"
-                                            : "DD/MM/YYYY" + del + "hhmm";
+                                            : "DD/MM/YYYY" + del + "hh:mm";
                 var currentSensorIndex = 0;
                 var outputData = new string[data.Sensors.Count, (data.ExpectedDataPointCount / numOfPointsToSummarise) + 1];
                 var rowDate = data.StartTimeStamp;
@@ -484,7 +484,7 @@ namespace IndiaTango.Models
 
         public string Name { get { return _name; } }
 
-        public static DateColumnFormat TwoDateColumn { get { return new DateColumnFormat("Two Column", "Two date and time columns (DD/MM/YYYY | hhmm)"); } }
+        public static DateColumnFormat TwoDateColumn { get { return new DateColumnFormat("Two Column", "Two date and time columns (DD/MM/YYYY | hh:mm)"); } }
 
         public static DateColumnFormat SplitDateColumn { get { return new DateColumnFormat("Split Column", "Split date and time columns (DD | MM | YYYY | hh | mm)"); } }
 

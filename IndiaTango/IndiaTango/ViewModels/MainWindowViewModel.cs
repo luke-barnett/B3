@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows;
@@ -1025,6 +1026,17 @@ namespace IndiaTango.ViewModels
         #endregion
 
         #region Private Methods
+
+        /// <summary>
+        /// Clears all detected values
+        /// </summary>
+        private void ClearDetectedValues()
+        {
+            foreach (var method in _detectionMethods)
+            {
+                method.ListBox.Items.Clear();
+            }
+        }
 
         /// <summary>
         /// Update the GUI for new dataset values
@@ -3013,6 +3025,47 @@ namespace IndiaTango.ViewModels
         }
 
         /// <summary>
+        /// Copies a site to the appdata
+        /// </summary>
+        public void ImportSite()
+        {
+            var openFileDialog = new OpenFileDialog { Filter = "B3 Files | *.b3" };
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                var file = openFileDialog.FileName.Substring(openFileDialog.FileName.LastIndexOf('\\') + 1);
+
+                var copyLocation = Path.Combine(Common.DatasetSaveLocation, file);
+
+                if ((File.Exists(copyLocation)))
+                {
+                    if (Common.Confirm("Overwrite existing dataset?", "We already have a dataset under that name, if we continue it will be overwritten"))
+                    {
+                        File.Delete(copyLocation);
+                        File.Copy(openFileDialog.FileName, copyLocation);
+                    }
+
+                }
+                else
+                    File.Copy(openFileDialog.FileName, copyLocation);
+
+                if (CurrentDataset.SaveLocation == copyLocation)
+                    UpdateSelectedSite(false, true);
+            }
+
+            _dataSetFiles = null;
+            NotifyOfPropertyChange(() => SiteNames);
+
+            _sensorsToGraph.Clear();
+            SensorsToCheckMethodsAgainst.Clear();
+            NotifyOfPropertyChange(() => LowestYearLoadedOptions);
+            NotifyOfPropertyChange(() => HighestYearLoadedOptions);
+            NotifyOfPropertyChange(() => HighestYearLoaded);
+            NotifyOfPropertyChange(() => LowestYearLoaded);
+            ClearDetectedValues();
+        }
+
+        /// <summary>
         /// Starts a new export of data
         /// </summary>
         public void Export()
@@ -3060,6 +3113,66 @@ namespace IndiaTango.ViewModels
         }
 
         /// <summary>
+        /// Saves to file
+        /// </summary>
+        public void DeleteSite()
+        {
+            if (CurrentDataset == null)
+                return;
+
+            if (Common.Confirm("Are you sure?", "Deleting the site is permantent and cannot be undone"))
+            {
+                if (File.Exists(CurrentDataset.SaveLocation))
+                    File.Delete(CurrentDataset.SaveLocation);
+                if (File.Exists(CurrentDataset.SaveLocation + ".backup"))
+                    File.Delete(CurrentDataset.SaveLocation + ".backup");
+                CurrentDataset = null;
+                _dataSetFiles = null;
+                ChosenSelectedIndex = -1;
+                _sensorsToGraph.Clear();
+                SensorsToCheckMethodsAgainst.Clear();
+                NotifyOfPropertyChange(() => SiteNames);
+                NotifyOfPropertyChange(() => LowestYearLoadedOptions);
+                NotifyOfPropertyChange(() => HighestYearLoadedOptions);
+                NotifyOfPropertyChange(() => HighestYearLoaded);
+                NotifyOfPropertyChange(() => LowestYearLoaded);
+            }
+        }
+
+        /// <summary>
+        /// Saves to specified file
+        /// </summary>
+        public void SaveAs()
+        {
+            if (CurrentDataset == null)
+                return;
+
+            var saveFileDialog = new FolderBrowserDialog();
+            if (saveFileDialog.ShowDialog() != DialogResult.OK)
+                return;
+
+            var bw = new BackgroundWorker();
+
+            bw.DoWork += (o, e) =>
+                             {
+                                 var fileName = Path.Combine(saveFileDialog.SelectedPath, string.Format("{0} - {1}.b3", CurrentDataset.Site.Id, CurrentDataset.Site.Name));
+                                 WaitEventString = string.Format("Saving {0} to file {1}", CurrentDataset.Site.Name, fileName);
+                                 if (File.Exists(CurrentDataset.SaveLocation))
+                                     File.Copy(CurrentDataset.SaveLocation, fileName);
+                                 CurrentDataset.SaveToFile(fileName, false, false);
+                             };
+            bw.RunWorkerCompleted += (o, e) =>
+            {
+                ShowProgressArea = false;
+                EnableFeatures();
+            };
+            ProgressIndeterminate = true;
+            ShowProgressArea = true;
+            DisableFeatures();
+            bw.RunWorkerAsync();
+        }
+
+        /// <summary>
         /// Creates a new site
         /// </summary>
         public void CreateNewSite()
@@ -3099,6 +3212,7 @@ namespace IndiaTango.ViewModels
                                              if (ShowSiteInformation(newDataset))
                                              {
                                                  CurrentDataset = newDataset;
+                                                 ClearDetectedValues();
                                              }
                                              else
                                              {
@@ -3125,6 +3239,14 @@ namespace IndiaTango.ViewModels
         /// </summary>
         public void UpdateSelectedSite()
         {
+            UpdateSelectedSite(true, false);
+        }
+
+        /// <summary>
+        /// Update the selected site to the one corresponding to the selected index
+        /// </summary>
+        public void UpdateSelectedSite(bool askToSaveFirst, bool forceUpdate)
+        {
             if (_chosenSelectedIndex == 0)
             {
                 CreateNewSite();
@@ -3134,7 +3256,7 @@ namespace IndiaTango.ViewModels
             if (!DataSetFiles.Any())
                 CurrentDataset = null;
 
-            if (CurrentDataset != null && DataSetFiles[_chosenSelectedIndex - 1] == CurrentDataset.SaveLocation)
+            if (!forceUpdate && CurrentDataset != null && DataSetFiles[_chosenSelectedIndex - 1] == CurrentDataset.SaveLocation)
                 return;
 
             _sensorsToGraph.Clear();
@@ -3149,7 +3271,7 @@ namespace IndiaTango.ViewModels
 
             var saveFirst = false;
 
-            if (CurrentDataset != null)
+            if (CurrentDataset != null && askToSaveFirst)
             {
                 saveFirst = Common.Confirm("Save before closing?",
                                            string.Format("Before we close '{0}' should we save it first?",
@@ -3200,6 +3322,7 @@ namespace IndiaTango.ViewModels
                                           , false, false);
             };
 
+            ClearDetectedValues();
             DisableFeatures();
             bw.RunWorkerAsync();
         }
@@ -3669,7 +3792,7 @@ namespace IndiaTango.ViewModels
         /// <param name="updateGraph">Whether or not to update the graph or not</param>
         public void AddToGraph(GraphableSensor graphableSensor, bool updateGraph = true)
         {
-            if(graphableSensor.BoundsSet)
+            if (graphableSensor.BoundsSet)
                 graphableSensor.RemoveBounds();
             if (_sensorsToGraph.FirstOrDefault(x => x.BoundsSet) != null)
                 graphableSensor.SetUpperAndLowerBounds(StartTime, EndTime);

@@ -388,7 +388,7 @@ namespace IndiaTango.Models
                 var siteStream = new MemoryStream();
                 zip.Entries.First(x => x.FileName == "site").Extract(siteStream);
                 siteStream.Position = 0;
-                
+
                 dataset.Site = Serializer.Deserialize<Site>(siteStream);
 
                 if (zip.EntryFileNames.Contains("siteimages"))
@@ -464,21 +464,27 @@ namespace IndiaTango.Models
             }
         }
 
+        public void SaveToFile(bool exportData = true, bool deleteFile = false)
+        {
+            SaveToFile(SaveLocation, exportData, deleteFile);
+        }
+
         /// <summary>
         /// Saves the dataset to disk
         /// </summary>
+        /// <param name="saveLocation">Location to save file to</param>
         /// <param name="exportData">Whether or not to export the data</param>
         /// <param name="deleteFile">Whether or not to first delete the file</param>
-        public void SaveToFile(bool exportData = true, bool deleteFile = false)
+        public void SaveToFile(string saveLocation, bool exportData, bool deleteFile)
         {
-            if (deleteFile && File.Exists(SaveLocation))
-                File.Delete(SaveLocation);
+            if (deleteFile && File.Exists(saveLocation))
+                File.Delete(saveLocation);
 
             if (!Directory.Exists(Common.DatasetSaveLocation))
                 Directory.CreateDirectory(Common.DatasetSaveLocation);
 
-            if (File.Exists(SaveLocation))
-                File.Copy(SaveLocation, SaveLocation + ".backup", true);
+            if (File.Exists(saveLocation))
+                File.Copy(saveLocation, saveLocation + ".backup", true);
 
             if (exportData)
                 DatasetExporter.Export(this, Common.DatasetExportLocation(this), ExportFormat.CSV, true);
@@ -492,7 +498,7 @@ namespace IndiaTango.Models
                 Serializer.Serialize(file, this);
             */
 
-            using (var zip = File.Exists(SaveLocation) ? ZipFile.Read(SaveLocation) : new ZipFile())
+            using (var zip = File.Exists(saveLocation) ? ZipFile.Read(saveLocation) : new ZipFile())
             {
                 zip.CompressionLevel = CompressionLevel.None;
                 zip.Comment = string.Format("B3 ZIP FORMAT v1.1");
@@ -547,7 +553,7 @@ namespace IndiaTango.Models
                     }
                 }
 
-                zip.Save(SaveLocation);
+                zip.Save(saveLocation);
             }
         }
 
