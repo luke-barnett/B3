@@ -1684,6 +1684,9 @@ namespace IndiaTango.ViewModels
 
                                                     var reason = Common.RequestReason(_container, _windowManager, 12);
 
+                                                    if (reason == null)
+                                                        return;
+
                                                     ApplicationCursor = Cursors.Wait;
 
                                                     var result = useSelected ? _evaluator.EvaluateFormula(formula, Selection.LowerX.Round(TimeSpan.FromMinutes(CurrentDataset.DataInterval)), Selection.UpperX, skipMissingValues, reason) : _evaluator.EvaluateFormula(formula, StartTime.Round(TimeSpan.FromMinutes(CurrentDataset.DataInterval)), EndTime, skipMissingValues, reason);
@@ -2175,6 +2178,8 @@ namespace IndiaTango.ViewModels
                                              //    useSelected = Common.Confirm("Should we use your selection?",
                                              //                                 "Should we use the date range of your selection for to apply the formula on?");
                                              var reason = Common.RequestReason(_container, _windowManager, 4);
+                                             if (reason == null)
+                                                 return;
                                              var successfulSensors = new List<Sensor>();
                                              foreach (var sensor in SensorsToCheckMethodsAgainst.Where(x => (string)applyToCombo.SelectedItem == "All graphed sensors" || (string)applyToCombo.SelectedItem == x.Name))
                                              {
@@ -2537,6 +2542,9 @@ namespace IndiaTango.ViewModels
 
             var reason = Common.RequestReason(_container, _windowManager, (!usingSelection && methodCheckedAgainst != null) ? methodCheckedAgainst.DefaultReasonNumber : 7);
 
+            if (reason == null)
+                return;
+
             bw.DoWork += (o, e) =>
                              {
                                  foreach (var sensor in sensorList)
@@ -2558,6 +2566,12 @@ namespace IndiaTango.ViewModels
                                              Common.ShowMessageBox("Values Updated", "The selected values were interpolated", false, false);
                                              CheckTheseMethods(new Collection<IDetectionMethod> { methodCheckedAgainst });
                                          };
+
+            if (_manualPreviewTextBlock.Text == "Reject")
+                _manualPreviewTextBlock.Text = "Preview";
+
+            if (_automaticPreviewTextBlock.Text == "Reject")
+                _automaticPreviewTextBlock.Text = "Preview";
 
             FeaturesEnabled = false;
             ShowProgressArea = true;
@@ -2620,6 +2634,10 @@ namespace IndiaTango.ViewModels
 
             var bw = new BackgroundWorker();
             var reason = Common.RequestReason(_container, _windowManager, (!usingSelection && methodCheckedAgainst != null) ? methodCheckedAgainst.DefaultReasonNumber : 7);
+
+            if (reason == null)
+                return;
+
             bw.DoWork += (o, e) =>
             {
                 foreach (var sensor in sensorList)
@@ -2641,6 +2659,12 @@ namespace IndiaTango.ViewModels
                 Common.ShowMessageBox("Values Updated", "The selected values were removed", false, false);
                 CheckTheseMethods(new Collection<IDetectionMethod> { methodCheckedAgainst });
             };
+
+            if (_manualPreviewTextBlock.Text == "Reject")
+                _manualPreviewTextBlock.Text = "Preview";
+
+            if (_automaticPreviewTextBlock.Text == "Reject")
+                _automaticPreviewTextBlock.Text = "Preview";
 
             FeaturesEnabled = false;
             ShowProgressArea = true;
@@ -2716,6 +2740,9 @@ namespace IndiaTango.ViewModels
 
             var reason = Common.RequestReason(_container, _windowManager, (!usingSelection && methodCheckedAgainst != null) ? methodCheckedAgainst.DefaultReasonNumber : 7);
 
+            if (reason == null)
+                return;
+
             var bw = new BackgroundWorker();
 
             bw.DoWork += (o, e) =>
@@ -2739,6 +2766,12 @@ namespace IndiaTango.ViewModels
                 Common.ShowMessageBox("Values Updated", "The selected values set to " + value, false, false);
                 CheckTheseMethods(new Collection<IDetectionMethod> { methodCheckedAgainst });
             };
+
+            if (_manualPreviewTextBlock.Text == "Reject")
+                _manualPreviewTextBlock.Text = "Preview";
+
+            if (_automaticPreviewTextBlock.Text == "Reject")
+                _automaticPreviewTextBlock.Text = "Preview";
 
             FeaturesEnabled = false;
             ShowProgressArea = true;

@@ -213,6 +213,7 @@ namespace IndiaTango.Models
             specify.Message = "Please specify a reason for this change:";
             specify.ShowComboBox = true;
             specify.ComboBoxItems = ChangeReason.ChangeReasons.Where(x => !x.Reason.StartsWith("[Importer]")).Select(x => x.Reason).ToList();
+            specify.ShowCancel = true;
 
             var defaultReason = ChangeReason.ChangeReasons.FirstOrDefault(x => x.ID == defaultReasonNumber);
 
@@ -220,6 +221,9 @@ namespace IndiaTango.Models
                 specify.ComboBoxSelectedIndex = specify.ComboBoxItems.IndexOf(defaultReason.Reason);
 
             windowManager.ShowDialog(specify);
+
+            if (specify.WasCanceled)
+                return null;
 
             return ChangeReason.ChangeReasons.FirstOrDefault(x => x.Reason == specify.Text) ?? ChangeReason.AddNewChangeReason(specify.Text);
         }
