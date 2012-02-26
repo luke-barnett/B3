@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:wpf="clr-namespace:Microsoft.Windows.Controls;assembly=WPFToolkit.Extended"
-        Title="{Binding WindowTitle}" Icon="{Binding Icon}" Height="180" Width="502" WindowStartupLocation="CenterOwner">
+        Title="{Binding WindowTitle}" Icon="{Binding Icon}" Height="210" Width="502" WindowStartupLocation="CenterOwner">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="50" />
@@ -25,6 +25,11 @@
             <wpf:IntegerUpDown Margin="5" Width="50" Value="{Binding ErrorThreshold}" IsEnabled="{Binding DontNotifyIfFailing}" VerticalAlignment="Top" />
             <TextBlock Margin="5 5 5 5" Text="missing values, tell me it's failing" IsEnabled="{Binding DontNotifyIfFailing}"/>
         </StackPanel>-->
+        <StackPanel Grid.Row="3" Margin="10 0" Orientation="Horizontal">
+            <CheckBox Margin="0 5" Content="Auto save" VerticalAlignment="Center" IsChecked="{Binding AutoSaveEnabled}" />
+            <wpf:IntegerUpDown Margin="5" Width="50" Value="{Binding AutoSaveInterval}" IsEnabled="{Binding AutoSaveEnabled}" VerticalAlignment="Top" />
+            <TextBlock Margin="5" VerticalAlignment="Center" Text="Auto save interval (mins)" IsEnabled="{Binding AutoSaveEnabled}"/>
+        </StackPanel>
         
         <Grid Grid.Row="6">
             <Grid.ColumnDefinitions>
@@ -33,14 +38,14 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             
-            <Button Name="btnSave" Grid.Column="1" Margin="5">
+            <Button Name="BtnSave" Grid.Column="1" Margin="5">
                 <StackPanel Orientation="Horizontal">
                     <Image Source="/B3;component/Images/save_32.png" Width="32" Height="32" />
                     <TextBlock FontSize="15" Margin="5" Text="Save" />
                 </StackPanel>
             </Button>
 
-            <Button Name="btnDone" Grid.Column="2" Margin="5">
+            <Button Name="BtnDone" Grid.Column="2" Margin="5">
                 <StackPanel Orientation="Horizontal">
                     <Image Source="/B3;component/Images/done_32.png" Width="32" Height="32" />
                     <TextBlock FontSize="15" Margin="5" Text="Done" />

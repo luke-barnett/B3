@@ -1,30 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Caliburn.Micro;
-using IndiaTango.Models;
+﻿using IndiaTango.Models;
 
 namespace IndiaTango.ViewModels
 {
     class SettingsViewModel : BaseViewModel
     {
-        private IWindowManager _windowManager;
-        private SimpleContainer _container;
 
-        private bool _dontNotifyIfFailing = false;
-        private bool _formulaValidationAsTyped = false;
-        private int _errorThreshold = 0;
+        private bool _dontNotifyIfFailing;
+        private bool _formulaValidationAsTyped;
+        private int _errorThreshold;
+        private int _autoSaveInterval;
+        private bool _autoSaveEnabled;
 
-        public SettingsViewModel(SimpleContainer container, IWindowManager windowManager)
+        public SettingsViewModel()
         {
-            _windowManager = windowManager;
-            _container = container;
-
             // Load in settings
-            DontNotifyIfFailing = IndiaTango.Properties.Settings.Default.IgnoreSensorErrorDetection;
-            FormulaValidationAsTyped = IndiaTango.Properties.Settings.Default.EvaluateFormulaOnKeyUp;
-            ErrorThreshold = IndiaTango.Properties.Settings.Default.DefaultErrorThreshold;
+            DontNotifyIfFailing = Properties.Settings.Default.IgnoreSensorErrorDetection;
+            FormulaValidationAsTyped = Properties.Settings.Default.EvaluateFormulaOnKeyUp;
+            ErrorThreshold = Properties.Settings.Default.DefaultErrorThreshold;
+            AutoSaveInterval = Properties.Settings.Default.AutoSaveTimerInterval / 60000;
+            AutoSaveEnabled = Properties.Settings.Default.AutoSaveTimerEnabled;
         }
 
         /// <summary>
@@ -71,28 +65,48 @@ namespace IndiaTango.ViewModels
         }
 
         /// <summary>
+        /// The interval for auto save
+        /// </summary>
+        public int AutoSaveInterval
+        {
+            get { return _autoSaveInterval; }
+            set { _autoSaveInterval = value; NotifyOfPropertyChange(() => AutoSaveInterval); }
+        }
+
+        /// <summary>
+        /// If auto save is enabled or not
+        /// </summary>
+        public bool AutoSaveEnabled
+        {
+            get { return _autoSaveEnabled; }
+            set { _autoSaveEnabled = value; NotifyOfPropertyChange(() => AutoSaveEnabled); }
+        }
+
+        /// <summary>
         /// Saves the settings and closes the window
         /// </summary>
-        public void btnSave()
+        public void BtnSave()
         {
-            IndiaTango.Properties.Settings.Default.DefaultErrorThreshold = ErrorThreshold;
-            IndiaTango.Properties.Settings.Default.EvaluateFormulaOnKeyUp = FormulaValidationAsTyped;
-            IndiaTango.Properties.Settings.Default.IgnoreSensorErrorDetection = DontNotifyIfFailing;
+            Properties.Settings.Default.DefaultErrorThreshold = ErrorThreshold;
+            Properties.Settings.Default.EvaluateFormulaOnKeyUp = FormulaValidationAsTyped;
+            Properties.Settings.Default.IgnoreSensorErrorDetection = DontNotifyIfFailing;
+            Properties.Settings.Default.AutoSaveTimerInterval = AutoSaveInterval * 60000;
+            Properties.Settings.Default.AutoSaveTimerEnabled = AutoSaveEnabled;
 
-            IndiaTango.Properties.Settings.Default.Save();
+            Properties.Settings.Default.Save();
 
             Common.ShowMessageBox("Your settings have been saved",
                                   "The changes you've made to these settings have been saved, and will take effect immediately.",
                                   false, false);
-            this.TryClose();
+            TryClose();
         }
 
         /// <summary>
         /// Closes the window
         /// </summary>
-        public void btnDone()
+        public void BtnDone()
         {
-            this.TryClose();
+            TryClose();
         }
     }
 }

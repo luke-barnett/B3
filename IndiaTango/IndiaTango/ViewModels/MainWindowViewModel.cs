@@ -156,6 +156,37 @@ namespace IndiaTango.ViewModels
                                    };
 
             BuildDetectionMethodTabItems();
+
+            var autoSaveTimer = new System.Timers.Timer();
+            autoSaveTimer.Elapsed += (o, e) =>
+                                         {
+                                             if (CurrentDataset != null)
+                                             {
+                                                 Save();
+                                             }
+                                         };
+            autoSaveTimer.AutoReset = true;
+            autoSaveTimer.Interval = Properties.Settings.Default.AutoSaveTimerInterval;
+            if (Properties.Settings.Default.AutoSaveTimerEnabled)
+                autoSaveTimer.Start();
+
+            Properties.Settings.Default.PropertyChanged += (o, e) =>
+                                                               {
+                                                                   switch (e.PropertyName)
+                                                                   {
+                                                                       case "AutoSaveTimerInterval":
+                                                                           autoSaveTimer.Interval =
+                                                                               Properties.Settings.Default.
+                                                                                   AutoSaveTimerInterval;
+                                                                           break;
+                                                                       case "AutoSaveTimerEnabled":
+                                                                           if (Properties.Settings.Default.AutoSaveTimerEnabled)
+                                                                               autoSaveTimer.Start();
+                                                                           else
+                                                                               autoSaveTimer.Stop();
+                                                                           break;
+                                                                   }
+                                                               };
         }
 
         #region Private Parameters

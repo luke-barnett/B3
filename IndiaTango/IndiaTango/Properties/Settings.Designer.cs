@@ -70,5 +70,29 @@ namespace IndiaTango.Properties {
                 this["UndoStatesToRemember"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("300000")]
+        public int AutoSaveTimerInterval {
+            get {
+                return ((int)(this["AutoSaveTimerInterval"]));
+            }
+            set {
+                this["AutoSaveTimerInterval"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool AutoSaveTimerEnabled {
+            get {
+                return ((bool)(this["AutoSaveTimerEnabled"]));
+            }
+            set {
+                this["AutoSaveTimerEnabled"] = value;
+            }
+        }
     }
 }
