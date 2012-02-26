@@ -53,10 +53,20 @@ namespace IndiaTango.Models
             }
         }
 
+        public static string DatasetExportRootFolder(Dataset dataset)
+        {
+            var directory = Path.Combine(AppDataPath, "Backups", "Exports", dataset.Site.Name);
+
+            if (!Directory.Exists(directory))
+                Directory.CreateDirectory(directory);
+
+            return directory;
+        }
+
         public static string DatasetExportLocation(Dataset dataset)
         {
             var timestamp = DateTime.Now;
-            var directory = Path.Combine(AppDataPath, "Backups", "Exports", dataset.Site.Name, timestamp.ToString("yyyy"), timestamp.ToString("MMMM"), timestamp.ToString("dd"));
+            var directory = Path.Combine(AppDataPath, "Backups", "Exports", dataset.Site.Name, timestamp.ToString("yyyy"), timestamp.ToString("MM"), timestamp.ToString("dd"));
 
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);

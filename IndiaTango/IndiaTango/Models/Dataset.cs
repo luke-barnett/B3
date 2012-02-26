@@ -487,7 +487,20 @@ namespace IndiaTango.Models
                 File.Copy(saveLocation, saveLocation + ".backup", true);
 
             if (exportData)
+            {
+                var exportFolder = Common.DatasetExportRootFolder(this);
+                var exportedFiles = Directory.GetFiles(exportFolder, "*.*", SearchOption.AllDirectories).OrderBy(x => x).ToArray();
+
+                if(exportedFiles.Length >= 5)
+                {
+                    for (var i = 0; i < exportedFiles.Length - 4; i++)
+                    {
+                        File.Delete(exportedFiles[i]);
+                    }
+                }
+
                 DatasetExporter.Export(this, Common.DatasetExportLocation(this), ExportFormat.CSV, true);
+            }
 
             /* .NET BinaryFormatter
             using (var stream = new FileStream(SaveLocation, FileMode.Create))
