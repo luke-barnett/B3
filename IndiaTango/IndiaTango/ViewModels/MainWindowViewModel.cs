@@ -4027,6 +4027,7 @@ namespace IndiaTango.ViewModels
         public void EnableGraph()
         {
             _graphEnabled = true;
+            ViewAllSensors = false;
             SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "EnablingGraph");
         }
 
