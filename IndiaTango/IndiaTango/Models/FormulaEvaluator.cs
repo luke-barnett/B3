@@ -75,7 +75,7 @@ namespace IndiaTango.Models
             //Get variables used in the formula
             var variablesUsed = _sensorVariables.Where(sensorVariable => sensorVariable != null && formula.Contains(string.Format(" {0} ", sensorVariable.VariableName))).ToList();
 
-            var variableAssignedTo = _sensorVariables.FirstOrDefault(sensorVariable => sensorVariable != null && formula.Contains(string.Format("{0} =", sensorVariable.VariableName)));
+            var variableAssignedTo = _sensorVariables.FirstOrDefault(sensorVariable => sensorVariable != null && formula.StartsWith(string.Format("{0} =", sensorVariable.VariableName)));
 
             if (variableAssignedTo == null)
                 return new Formula(_codeProvider.CompileAssemblyFromSource(_compilerParameters, "a"), variablesUsed, variableAssignedTo);
