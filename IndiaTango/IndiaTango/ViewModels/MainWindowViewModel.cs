@@ -256,7 +256,7 @@ namespace IndiaTango.ViewModels
         private bool _viewAllSensors;
         private DataTable _dataTable;
         private DataTable _summaryStatistics;
-        private readonly List<ErroneousValue> _erroneousValuesFromDataTable;
+        private List<ErroneousValue> _erroneousValuesFromDataTable;
         private bool _notInCalibrationMode = true;
         private float _mixedTempDifferential;
 
@@ -4223,6 +4223,16 @@ namespace IndiaTango.ViewModels
                 Debug.Print("[Removed] {0} - {1}", (dataGridCellInfo.Item as DataRowView)[0], dataGridCellInfo.Column.Header);
             }
 
+            var currentlySelectedCellsDict = new Dictionary<DateTime, List<Sensor>>();
+
+            foreach (var erroneousValue in _erroneousValuesFromDataTable)
+            {
+                if(!currentlySelectedCellsDict.ContainsKey(erroneousValue.TimeStamp))
+                    currentlySelectedCellsDict[erroneousValue.TimeStamp] = new List<Sensor>();
+
+                currentlySelectedCellsDict[erroneousValue.TimeStamp].Add(erroneousValue.Owner);
+            }
+
             foreach (var cell in eventArgs.RemovedCells.Where(x => x.Column != null && x.Column.DisplayIndex != 0))
             {
                 var row = cell.Item as DataRowView;
@@ -4233,10 +4243,10 @@ namespace IndiaTango.ViewModels
 
                 if (sensor == null) continue;
 
-                var valueToRemove = _erroneousValuesFromDataTable.FirstOrDefault(x => x.TimeStamp == timeStamp && x.Owner == sensor);
-
-                if (valueToRemove != null)
-                    _erroneousValuesFromDataTable.Remove(valueToRemove);
+                if (currentlySelectedCellsDict.ContainsKey(timeStamp))
+                {
+                    currentlySelectedCellsDict[timeStamp].Remove(sensor);
+                }
             }
 
             foreach (var cell in eventArgs.AddedCells.Where(x => x.Column != null && x.Column.DisplayIndex != 0))
@@ -4249,10 +4259,19 @@ namespace IndiaTango.ViewModels
 
                 if (sensor == null) continue;
 
-
-                if (!_erroneousValuesFromDataTable.Any(x => x.TimeStamp == timeStamp && x.Owner == sensor))
-                    _erroneousValuesFromDataTable.Add(new ErroneousValue(timeStamp, sensor));
+                if (currentlySelectedCellsDict.ContainsKey(timeStamp))
+                {
+                    currentlySelectedCellsDict[timeStamp].Add(sensor);
+                }
+                else
+                {
+                    currentlySelectedCellsDict[timeStamp] = new List<Sensor> { sensor };
+                }
             }
+
+            _erroneousValuesFromDataTable = (from sensorLists in currentlySelectedCellsDict
+                                             from sensor in sensorLists.Value
+                                             select new ErroneousValue(sensorLists.Key, sensor)).ToList();
 
             ActionsEnabled = _erroneousValuesFromDataTable.Count > 0;
         }
