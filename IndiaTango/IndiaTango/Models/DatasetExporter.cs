@@ -119,7 +119,7 @@ namespace IndiaTango.Models
             var numOfPointsToSummarise = 1;
 
             if (exportedPoints.NumberOfMinutes != 0)
-                numOfPointsToSummarise = exportedPoints.NumberOfMinutes / 15;
+                numOfPointsToSummarise = exportedPoints.NumberOfMinutes / data.DataInterval;
 
             if (format.Equals(ExportFormat.CSV))
             {
@@ -227,7 +227,7 @@ namespace IndiaTango.Models
                     while (i <= data.EndTimeStamp)
                     {
                         var sum = float.MinValue;
-                        for (var j = 0; j < numOfPointsToSummarise; j++, i = i.AddMinutes(15))
+                        for (var j = 0; j < numOfPointsToSummarise; j++, i = i.AddMinutes(data.DataInterval))
                         {
                             float value;
                             if (stateToUse.Values.TryGetValue(i, out value))
@@ -242,13 +242,13 @@ namespace IndiaTango.Models
                             if (sensor.SummaryType == SummaryType.Average)
                                 outputData[
                                     currentSensorIndex,
-                                    GetArrayRowFromTime(data, data.StartTimeStamp, i.AddMinutes((-15) * numOfPointsToSummarise),
+                                    GetArrayRowFromTime(data, data.StartTimeStamp, i.AddMinutes((-data.DataInterval) * numOfPointsToSummarise),
                                                         numOfPointsToSummarise)] =
                                     Math.Round((sum / numOfPointsToSummarise), 2).ToString();
                             else
                                 outputData[
                                     currentSensorIndex,
-                                    GetArrayRowFromTime(data, data.StartTimeStamp, i.AddMinutes((-15) * numOfPointsToSummarise),
+                                    GetArrayRowFromTime(data, data.StartTimeStamp, i.AddMinutes((-data.DataInterval) * numOfPointsToSummarise),
                                                         numOfPointsToSummarise)] =
                                     Math.Round((sum), 2).ToString();
                         }
@@ -276,7 +276,7 @@ namespace IndiaTango.Models
                         writer.WriteLine(line);
                     }
 
-                    rowDate = rowDate.AddMinutes(15 * numOfPointsToSummarise);
+                    rowDate = rowDate.AddMinutes(data.DataInterval * numOfPointsToSummarise);
                 }
 
                 writer.Close();
