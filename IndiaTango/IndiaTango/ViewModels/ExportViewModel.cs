@@ -108,7 +108,16 @@ namespace IndiaTango.ViewModels
 
             if (dialog.ShowDialog() == DialogResult.OK)
             {
-                DatasetExporter.Export(Dataset, dialog.FileName, ExportFormat.CSV, IncludeEmptyLines, IncludeMetaData, IncludeChangeLog, ExportedPoints, DateColumnFormat, ExportRawData, true, true);
+                try
+                {
+                    DatasetExporter.Export(Dataset, dialog.FileName, ExportFormat.CSV, IncludeEmptyLines,
+                                           IncludeMetaData, IncludeChangeLog, ExportedPoints, DateColumnFormat,
+                                           ExportRawData, true, true);
+                }catch(Exception e)
+                {
+                    Common.ShowMessageBoxWithException("Failed to Export", "Sorry something went wrong with exporting",
+                                                       false, true, e);
+                }
                 this.TryClose();
             }
         }
