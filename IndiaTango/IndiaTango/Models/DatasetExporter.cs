@@ -112,6 +112,14 @@ namespace IndiaTango.Models
                 throw new ArgumentNullException("Export format cannot be null");
 
             //Strip the existing extension and add the one specified in the method args
+            filePath = Path.Combine(Path.GetDirectoryName(filePath), Path.GetFileNameWithoutExtension(filePath),
+                                    Path.GetFileName(filePath));
+            if (!Directory.Exists(Path.GetDirectoryName(filePath)))
+                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+            else
+            {
+                throw new Exception("Cannot Overwrite Existing Data");
+            }
             filePath = Path.ChangeExtension(filePath, format.Extension);
             string metaDataFilePath = filePath + " Site Meta Data.txt";
             string changeMatrixFilePath = filePath + " Changes Matrix.csv";
