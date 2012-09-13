@@ -166,7 +166,7 @@ namespace IndiaTango.Models
                     Grid.SetRow(smoothingPeriodHoursText, 0);
                     smoothingPeriodGrid.Children.Add(smoothingPeriodHoursText);
 
-                    var smoothingPeriodSlider = new Slider { Value = _requestedSmoothingPeriod / 60d, Maximum = 60, Minimum = 1 };
+                    var smoothingPeriodSlider = new Slider { Value = _requestedSmoothingPeriod / 60d, Maximum = 336, Minimum = 1 };
                     smoothingPeriodSlider.ValueChanged += (o, e) =>
                                                               {
                                                                   _requestedSmoothingPeriod = (int)e.NewValue * 60;
