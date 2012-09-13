@@ -279,7 +279,7 @@ namespace IndiaTango.Models
                 var currentIds = Directory.GetFiles(Common.DatasetSaveLocation).Select(x => x.Substring(x.LastIndexOf('\\') + 1, x.Length - x.LastIndexOf('\\') - 4)).Select(x => x.Substring(0, x.IndexOf(' '))).ToArray();
                 while (true)
                 {
-                    if (currentIds.Contains(i.ToString()))
+                    if (currentIds.Contains(i.ToString("00")))
                         i++;
                     else
                         return i;

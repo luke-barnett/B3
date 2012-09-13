@@ -279,7 +279,7 @@ namespace IndiaTango.Models
         {
             get
             {
-                return Path.Combine(Common.DatasetSaveLocation, string.Format("{0} - {1}.b3", _site.Id, _site.Name));
+                return Path.Combine(Common.DatasetSaveLocation, string.Format("{0} - {1}.b3", _site.Id.ToString("00"), _site.Name));
             }
         }
 
