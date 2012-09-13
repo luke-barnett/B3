@@ -118,6 +118,11 @@ namespace IndiaTango.Models
                    (obj as GPSCoords).DecimalDegreesLongitude == DecimalDegreesLongitude;
         }
 
+        public override string ToString()
+        {
+            return String.Format("Lat [{0}] Long [{1}]", _latitude, _longitude);
+        }
+
         public static GPSCoords Parse(string latitude, string longitude)
         {
             decimal lat;

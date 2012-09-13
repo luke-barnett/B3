@@ -358,6 +358,7 @@ namespace IndiaTango.Models
                 writer.WriteLine("ID: " + data.Site.Id);
                 writer.WriteLine("Name: " + data.Site.Name);
                 writer.WriteLine("Owner: " + data.Site.Owner);
+                writer.WriteLine("GPS: " + data.Site.GpsLocation);
                 writer.WriteLine("Site notes:\r\n\t" + data.Site.SiteNotes);
                 writer.WriteLine("Editing notes:" + data.Site.EditingNotes);
 
