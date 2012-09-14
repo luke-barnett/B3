@@ -58,6 +58,7 @@
             <MenuItem Header="_View">
                 <MenuItem Header="_Log" cal:Message.Attach="[Event Click] = [Action ShowLog]" />
             </MenuItem>
+            <MenuItem Header="_About" cal:Message.Attach="[Event Click] = [Action ShowAbout]" />
         </Menu>
 
         <Grid Grid.Row="1" x:Name="MainSection">

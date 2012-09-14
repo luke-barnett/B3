@@ -3392,6 +3392,12 @@ namespace IndiaTango.ViewModels
             _windowManager.ShowWindow(logWindow);
         }
 
+        public void ShowAbout()
+        {
+            var aboutWindow = (AboutViewModel)_container.GetInstance(typeof(AboutViewModel), "AboutViewModel");
+            _windowManager.ShowWindow(aboutWindow);
+        }
+
         /// <summary>
         /// Undoes the first sensor that it can find with undo states
         /// </summary>

@@ -150,6 +150,7 @@
     <Compile Include="Models\YearlyDataBlock.cs" />
     <Compile Include="MultiSeriesBinding\MultiSeries.cs" />
     <Compile Include="SimpleContainer.cs" />
+    <Compile Include="ViewModels\AboutViewModel.cs" />
     <Compile Include="ViewModels\BaseViewModel.cs" />
     <Compile Include="ViewModels\CalibrationDetailsViewModel.cs" />
     <Compile Include="ViewModels\ContactEditorViewModel.cs" />
@@ -165,6 +166,9 @@
     <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="ViewModels\SpecifyValueViewModel.cs" />
     <Compile Include="ViewModels\UseSelectedRangeViewModel.cs" />
+    <Compile Include="Views\AboutView.xaml.cs">
+      <DependentUpon>AboutView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\CalibrationDetailsView.xaml.cs">
       <DependentUpon>CalibrationDetailsView.xaml</DependentUpon>
     </Compile>
@@ -256,6 +260,10 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Views\AboutView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\CalibrationDetailsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
